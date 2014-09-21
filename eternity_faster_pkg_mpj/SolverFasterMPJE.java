@@ -529,7 +529,6 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void cargarEstado (String n_file)
 	{
-		System.out.print("Rank " + THIS_PROCESS + ": cargando Estado de exploracion (" + n_file + ")... ");
 		BufferedReader reader = null;
 		
 		try{
@@ -629,10 +628,11 @@ public final class SolverFasterMPJE {
 				status_cargado=true;
 				sincronizar = false;
 				System.out.print("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
+				System.out.flush();
 			}
 		}
 		catch(Exception e){
-			System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") no existe o esta corrupto: " + e.getMessage());
+			System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion no existe o esta corrupto: " + e.getMessage());
 			System.out.flush();
 		}
 		finally {
@@ -659,26 +659,27 @@ public final class SolverFasterMPJE {
 				guardarEstado(NAME_FILE_STATUS);
 				guardarResultadoParcial(false);
 				System.out.println("Rank " + THIS_PROCESS + ": Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
-				return; //alcanzada la posicion destino y luego de salvar estado, salgo del programa
+				System.out.flush();
+				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
 			--cursor;
-			//si me paso de la posicion inicial significa que no puedo volver mas estados de exploracion
+			//si me paso de la posición inicial significa que no puedo volver mas estados de exploración
 			if (cursor < 0)
 				break; //obliga a salir del while
 			if (cursor != POSICION_CENTRAL){
 				pzz= tablero[cursor];
-				pzz.pusada.value= false; //la seteo como no usada xq sino la exploracion pensar� que est� usada (porque asi es como se guard�)
+				pzz.pusada.value= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
 				tablero[cursor]= null;
 			}
-			//si retroced� hasta el cursor destino, entonces no retrocedo mas
+			//si retrocedió hasta el cursor destino, entonces no retrocedo mas
 			if ((cursor+1) <= cur_destino){
 				retroceder= false;
 				cur_destino= CURSOR_INVALIDO;
 			}
-			//si est� activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
+			//si está activado el flag para retroceder niveles de exploración entonces debo limpiar algunas cosas
 			if (retroceder)
-				desde_saved[cursor]= 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
+				desde_saved[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 		}
 	}
 	
@@ -726,6 +727,7 @@ public final class SolverFasterMPJE {
 		//seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcContornos();
 		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.flush();
 		
 		pzxc = piezas[INDICE_P_CENTRAL];
 		
@@ -748,8 +750,6 @@ public final class SolverFasterMPJE {
 			return;
 		}
 		
-		System.out.println("Rank " + THIS_PROCESS + ": Buscando soluciones...");
-		System.out.flush();
 		time_inicial = time_status_saved = System.nanoTime();
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
@@ -832,24 +832,27 @@ public final class SolverFasterMPJE {
 		
 		//#############################################################################################
 		/**
-		 * Cabeza de exploraci�n.
-		 * Representa las primeras sentencias del backtracking de exploracion. Pregunta
-		 * algunas cositas antes de empezar una nueva instancia de exploracion.
+		 * Cabeza de exploración.
+		 * Representa las primeras sentencias del backtracking de exploracion. 
+		 * Pregunta algunas cositas antes de empezar una nueva instancia de exploración.
 		 */
 		//#############################################################################################
-		//si cursor se pas� del limite de piezas, significa que estoy en una solucion
+		
+		//si cursor se pasó del limite de piezas, significa que estoy en una solucion
 		if (cursor >= MAX_PIEZAS){
 			guardarSolucion();
 			System.out.println("Rank " + THIS_PROCESS + ": Solucion Encontrada!!");
+			System.out.flush();
 			return; //evito que la instancia de exporacion continue
 		}
 		
-		//si cursor pas� el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
+		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 		if (cursor > mas_lejano_parcial_max){
 			mas_lejano_parcial_max= cursor;
 			if (cursor >= LIMITE_RESULTADO_PARCIAL){
 				time_final= System.nanoTime();
 				System.out.println("Rank " + THIS_PROCESS + ": " + TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS) + " ms, cursor " + cursor);
+				System.out.flush();
 				guardarResultadoParcial(true);
 			}
 		}
@@ -860,7 +863,7 @@ public final class SolverFasterMPJE {
 		//si cursor se encuentra en una posicion mas baja que la posicion mas baja alcanzada guardo ese valor
 		if (cursor < mas_bajo)
 			mas_bajo= cursor;
-		//la siguiente condici�n se cumple una sola vez
+		//la siguiente condición se cumple una sola vez
 		if (cursor > 100 && !mas_bajo_activo){
 			mas_bajo= MAX_PIEZAS;
 			mas_bajo_activo= true;
@@ -874,14 +877,13 @@ public final class SolverFasterMPJE {
 			guardarEstado(NAME_FILE_STATUS);
 			guardarResultadoParcial(false);
 			System.out.println("Rank " + THIS_PROCESS + ": -> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo + ", Pos Max " + mas_alto + ". Tiempo: " + TimeUnit.MILLISECONDS.convert(mili_temp - time_status_saved, TimeUnit.NANOSECONDS) + " ms.");
-			System.out.flush();
 			time_status_saved = mili_temp;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo= MAX_PIEZAS;
 			mas_alto= 0;
 		}
-		//#############################################################################################
 		
+		//#############################################################################################
 		
 		//#############################################################################################
 		/**
@@ -890,6 +892,7 @@ public final class SolverFasterMPJE {
 		 * NOTA: por ahora solo se contempla la posicion 135 (136 real) como fija y no se permte rotarla.
 		 */
 		//#############################################################################################
+		
 		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya est� debidamente colocada
 		if (cursor == POSICION_CENTRAL){
 			//seteo los contornos como usados
@@ -910,8 +913,8 @@ public final class SolverFasterMPJE {
 			}*/
 			return;
 		}
-		//#############################################################################################
 		
+		//#############################################################################################
 		
 		//#############################################################################################
 		/**
@@ -919,49 +922,15 @@ public final class SolverFasterMPJE {
 		 * Antes de comenzar a explorar me fijo algunas otras cositas.
 		 */
 		//#############################################################################################
+		
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
 		if (esContornoUsado())
 			return;
 		
-		//Sincronizaci�n de los procesos (Knock Knock) una �nica vez
-		if (sincronizar && (cursor == POSICION_MULTI_PROCESSES))
-		{
-			sincronizar = false; // no vovler a sincronizar
-			
-			if (THIS_PROCESS == 0)
-			{
-				mpi_send_info[0] = MESSAGE_SINCRO;
-				System.out.println("##########################\nRank 0: ------- Sincronizando. Sending msg: "+mpi_send_info[0]);
-				System.out.flush();
-				//sincronizo con los restantes procesos
-				for (int rank=1; rank < NUM_PROCESSES; ++rank)
-					mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); //el tag identifica al mensaje
-				//espero a que todas las peticiones se completen
-				System.out.println("Rank 0: ------- Espera que todos contesten.");
-				System.out.flush();
-				mpi.Request.Waitall(mpi_requests);
-			}
-			else
-			{
-				System.out.println("Rank " + THIS_PROCESS + ": ------- Esperando sincronizarse");
-				System.out.flush();
-				mpi_send_info[0] = MESSAGE_HALT;
-				// espero rebir mensaje
-				mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO);
-				if (mpi_send_info[0] == MESSAGE_SINCRO)
-					System.out.println("Rank " + THIS_PROCESS + ": ------- Sincronizado! Msg recieved: "+mpi_send_info[0]);
-				else if (mpi_send_info[0] == MESSAGE_HALT)
-					;
-			}
-			System.out.println("Rank " + THIS_PROCESS + ": ------- Continua procesando");
-			System.out.flush();
-			/*try {
-				System.out.println("Waiting call...");
-				Thread.sleep(40000);
-			} catch (InterruptedException e) {
-				;
-			}
-			System.exit(0);*/
+		// sincronización de los procesos (Knock Knock) una única vez
+		if (sincronizar && (cursor == POSICION_MULTI_PROCESSES)) {
+			sincronizar = false; // no volver a sincronizar
+			knocKnock();
 		}
 
 		//voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
@@ -976,13 +945,55 @@ public final class SolverFasterMPJE {
 			if (cargarFilasGuardadas() == false)
 				return;
 		}*/
-		//#############################################################################################
 		
+		//#############################################################################################
 		
 		//#############################################################################################
 		//ahora hago la exploracion
 		exploracionStandard();
 		//#############################################################################################
+	}
+	
+	private final static void knocKnock () {
+		
+		if (THIS_PROCESS == 0)
+		{
+			mpi_send_info[0] = MESSAGE_SINCRO;
+			System.out.println("Rank 0: --- Sincronizando con todos. Sending msg " + mpi_send_info[0] + " ...");
+			System.out.flush();
+			//sincronizo con los restantes procesos
+			for (int rank=1; rank < NUM_PROCESSES; ++rank)
+				mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); //el tag identifica al mensaje
+			//espero a que todas las peticiones se completen
+			mpi.Request.Waitall(mpi_requests);
+			System.out.println("Rank 0: --- Todos sincronizados.");
+			System.out.flush();
+		}
+		else
+		{
+			System.out.println("Rank " + THIS_PROCESS + ": --- Esperando sincronizarse...");
+			System.out.flush();
+			mpi_send_info[0] = MESSAGE_HALT;
+			// espero recibir mensaje
+			mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO); //el tag identifica al mensaje
+			if (mpi_send_info[0] == MESSAGE_SINCRO) {
+				System.out.println("Rank " + THIS_PROCESS + ": --- Sincronizado with msg " + mpi_send_info[0]);
+				System.out.flush();
+			}
+			else if (mpi_send_info[0] == MESSAGE_HALT)
+				;
+		}
+		
+		System.out.println("Rank " + THIS_PROCESS + ": --- Continua procesando.");
+		System.out.flush();
+		
+		/*try {
+			System.out.println("Waiting call...");
+			Thread.sleep(40000);
+		} catch (InterruptedException e) {
+			;
+		}
+		System.exit(0);*/
 	}
 	
 	/**
@@ -1155,12 +1166,12 @@ public final class SolverFasterMPJE {
 	private final static NodoPosibles obtenerPosiblesPiezas ()
 	{
 		switch (cursor) {
-		//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
-		case SOBRE_POSICION_CENTRAL:
-			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, pzxc.top, tablero[cursor-1].right)];
-		//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
-		case ANTE_POSICION_CENTRAL:
-			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,pzxc.left,MAX_COLORES,tablero[cursor-1].right)];
+			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
+			case SOBRE_POSICION_CENTRAL:
+				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, pzxc.top, tablero[cursor-1].right)];
+			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
+			case ANTE_POSICION_CENTRAL:
+				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,pzxc.left,MAX_COLORES,tablero[cursor-1].right)];
 		}
 		
 		final int flag_m = matrix_zonas[cursor];
@@ -1210,7 +1221,7 @@ public final class SolverFasterMPJE {
 	 * @return
 	 */
 	private final static void getIndexDeContornoYaPuesto(){
-		//primero me fijo si estoy en posici�n v�lida
+		//primero me fijo si estoy en posición válida
 		if (zona_proc_contorno[cursor] == false){
 			index_sup = -1;
 			//@CONTORNO_INFERIORindex_inf = -1;
@@ -1421,7 +1432,7 @@ public final class SolverFasterMPJE {
 			}*/
 		}
 		catch(Exception ex) {
-			System.out.println("ERROR: No se pudieron generar los archivos de resultado parcial.");
+			System.out.println("Rank " + THIS_PROCESS + ": ERROR: No se pudieron generar los archivos de resultado parcial.");
 			System.out.println(ex);
 		}
 	}

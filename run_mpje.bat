@@ -9,6 +9,6 @@ rem para 5 colums tengo count maximo ¿? con 3042060164 filas calculadas
 rem use %NUMBER_OF_PROCESSORS% instead
 rem edit mpjrun.bat to select the desired JVM
 
-mpjrun.bat -np 4 -Xms200m -Xmx200m E2MPJE.jar 2147483647 211 -1 2 -1 true 28 100 false false 99
+mpjrun.bat -np 4 -Xms200m -Xmx200m E2MPJE.jar 2147483647 211 -1 2 -1 false 28 100 false false 99
 
 pause

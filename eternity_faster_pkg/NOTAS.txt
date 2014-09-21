@@ -1,7 +1,3 @@
----------------------------------------------------------------------------------------
-Eclipse program args: 2147483647 209 -1 2 -1 100 false 26 66 false false -1
-Eclipse vm args: -Xbootclasspath/p:./extern_libs/jsr166.jar -server -Dmax.cols.por.fila=0 -Xms150m -Xmx150m
----------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 Fork/Join approach
@@ -106,8 +102,6 @@ Si se llega a necesitar será necesario utilizarla de la misma manera que es emp
 ---------------------------------------------------------------------------------------
 Tips && Notes
 -------------
-- 37 millones de nodos por segundo en AMD Phenom II 3.11GHz y DDR3 Dual Channel 1333MHz.
-Tmb ambos núcleos procesan 37 millones c/u con MPJExpress.
 
 - Usar enum para los flags. Es mas rápido para procesar los switch-case.
 Link: http://stackoverflow.com/questions/4922932/java-performance-of-enums-vs-if-then-else 
