@@ -1,0 +1,15 @@
+@echo off
+:: El entero mas grande de 32 bits es 2147483648
+:: A efectos de java el maximo int de 32 bits posible a usar es 2147483647
+:: para 2 colums tengo count maximo 29 con 34926 filas calculadas
+:: para 3 colums tengo count maximo 91 con 1556132 filas calculadas
+:: para 4 colums tengo count maximo 297 con 68981072 filas calculadas
+:: para 5 colums tengo count maximo ¿? con 3042060164 filas calculadas
+
+:: set the amount of total threads 
+set TOTAL_THREADS_IN_CLUSTER=8
+
+:: edit mpjrun.bat to select the desired JVM
+mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms200m -Xmx200m E2MPJE.jar 2147483647 211 -1 2 -1 true 28 100 false false 99
+
+pause

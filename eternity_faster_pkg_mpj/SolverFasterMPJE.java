@@ -171,7 +171,7 @@ public final class SolverFasterMPJE {
 		if (usar_poda_color_explorado)
 			arr_color_rigth_explorado = new int[LADO];
 		
-		if (usar_tableboard && !flag_retroceder_externo)
+		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == 0)
 			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, NUM_PROCESSES);
 	}
 	
