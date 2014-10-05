@@ -56,8 +56,9 @@ You can try a swt example:
 		once in avian-swt-examples folder edit files:
 			makefile: at line 53 add /.. to current cd .. command since avian folder is one more level up.
 			app.mk: locate root variable and change other variables that use root just adding ../ because avian, win32, and win64 folders are 1 additional level up.
-		build exe files with lzma (compressed exe) or without it
+		build example exe file with lzma (compressed exe) or without it
 			make lzma=$(pwd)/../lzma-920 full-platform=${platform} example
 			or
 			make full-platform=${platform} example
-		exe files are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
+		exe file are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
+		You can omit example target to let other targets be built: example, graphics, and paint
