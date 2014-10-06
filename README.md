@@ -54,9 +54,9 @@ You can try a swt example:
 			cp -ar lzma-920/C ../avian/src/ 
 		cd avian-swt-examples
 		once in avian-swt-examples folder edit files:
-			makefile: at line 54 add ../ to current avian/build/... command since avian folder is one more level up. This intended to compress avian-swt-examples folder in a tar file.
+			makefile: at line 53 add /.. to current cd .. command since avian folder is one more level up.
 			app.mk: locate root variable and change other variables that use root just adding ../ because avian, win32, and win64 folders are 1 additional level up.
-		build example exe file with lzma (compressed exe I guess) or without it
+		build example exe file with lzma (compressed exe) or without it
 			make lzma=$(pwd)/../lzma-920 full-platform=${platform} example
 			or
 			make full-platform=${platform} example
