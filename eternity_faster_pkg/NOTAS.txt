@@ -198,7 +198,7 @@ procesadores idle. La siguiente lógica "reparte" trabajo en varios niveles de p
 			Send() a todos los procesos y esperar a que todos los recivan
 		else
 			Receive() sincrónico para que esperen el mensaje de rank(0)
-
+		Esta logica esta implementada en metodo knocKnock()
   - Dentro de exploracionStandard():
 
 	if (cursor == POSICION_MULTI_PROCESSES)

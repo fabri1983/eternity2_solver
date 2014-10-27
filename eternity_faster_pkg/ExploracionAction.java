@@ -287,14 +287,14 @@ public class ExploracionAction extends RecursiveAction {
 		int length_posibles = posibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[action.cursor];
 		int index_sup_aux;
-		final int fila_actual = action.cursor >> SolverFaster.LADO_SHIFT_FOR_DIVISION;
+		final int fila_actual = action.cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		// for modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		final boolean flag_antes_borde_right = ((action.cursor+2) & (SolverFaster.LADO - 1)) == 0; // ((cursor+2) % LADO) == 0
 		
 		// si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso
 		if (action.cursor == SolverFaster.POSICION_START_FORK_JOIN)
 		{
-			// primero preguntar si este proc no puede tomar una parte de la exploración (pues la tomarán los procs mas chicos)
+			// primero preguntar si este proc no puede tomar una parte de la exploración (pues la toman los procs mas chicos)
 			if (action.id >= length_posibles) // comparo usando >= para no restarle 1 a length_posibles
 			{
 				length_posibles = 0; // seteo 0 asi no explora
@@ -304,17 +304,16 @@ public class ExploracionAction extends RecursiveAction {
 			else
 			{
 				int resto = length_posibles % SolverFaster.NUM_PROCESSES;
-				int division = 1; // valor inicial en caso de
+				// valor inicial en caso de que length_posibles < num processes.
+				// En ese caso debo explorar la parte que le corresponda a THIS_PROCESS
+				int division = 1;
 				
-				// si es mas chico igualmente debo explorar la parte que corresponda a THIS_PROCESS
-				if (length_posibles < SolverFaster.NUM_PROCESSES)
-					// comentado pues ya lo asign� en la declaraci�n
-					;//result = 1;
-				else
+				if (length_posibles >= SolverFaster.NUM_PROCESSES)
 					division = length_posibles / SolverFaster.NUM_PROCESSES;
+				
 				desde = action.id * division;
 				
-				//si es el �ltimo proc le agrego el resto (solo tiene efecto si la division no es exacta)
+				// si es el último proc le agrego el resto (solo tiene efecto si la división no es exacta)
 				if (action.id == (SolverFaster.NUM_PROCESSES - 1))
 					division += resto;
 				

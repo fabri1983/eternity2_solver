@@ -47,7 +47,7 @@ public final class SolverFaster {
 	protected static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
 	protected static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	protected final static int LADO= 16;
-	protected final static int LADO_SHIFT_FOR_DIVISION = 4;
+	protected final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
 	public final static int POS_FILA_P_CENTRAL = 8;
@@ -846,7 +846,7 @@ public final class SolverFaster {
 						}
 					}
 				}
-				// como la pieza n no está en tablero entonces uso la informaci�n del arreglo piezas[]
+				// como la pieza n no está en tablero entonces uso la información del arreglo piezas[]
 				if (!encontradax)
 					writerBuffer.append(action.piezas[n].rotacion).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.piezas[n].pusada.value)).append("\n");
 			}

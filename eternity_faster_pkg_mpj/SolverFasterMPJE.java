@@ -55,7 +55,7 @@ public final class SolverFasterMPJE {
 	private static int ESQUINA_TOP_RIGHT,ESQUINA_BOTTOM_RIGHT,ESQUINA_BOTTOM_LEFT;
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	private final static int LADO= 16;
-	private final static int LADO_SHIFT_FOR_DIVISION = 4;
+	private final static int LADO_SHIFT_AS_DIVISION = 4;
 	private final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
 	public final static int POS_FILA_P_CENTRAL = 8;
@@ -100,6 +100,7 @@ public final class SolverFasterMPJE {
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
 	private final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
+	private static int dist_pos_multiprocess, length_posibles_level_up;
 	
 	/*
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
@@ -989,7 +990,7 @@ public final class SolverFasterMPJE {
 		
 		/*try {
 			System.out.println("Waiting call...");
-			Thread.sleep(40000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			;
 		}
@@ -1009,41 +1010,49 @@ public final class SolverFasterMPJE {
 		int length_posibles = posibles.referencias.length;
 		final int flag_zona = matrix_zonas[cursor];
 		int index_sup_aux;
-		final int fila_actual = cursor >> LADO_SHIFT_FOR_DIVISION;
+		int procs_this_branch = 0;
+		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		// for modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		final boolean flag_antes_borde_right = ((cursor+2) & (LADO-1)) == 0; // old was: ((cursor+2) % LADO) == 0
 		
-		// si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso
-		if (cursor == POSICION_MULTI_PROCESSES)
+		// Si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas de posibles a explorar para este proceso.
+		// En este paso solo inicializo algunas variables para futuros cálculos
+		if (cursor == POSICION_MULTI_PROCESSES) {
+			dist_pos_multiprocess = 0;
+			length_posibles_level_up = 0;
+			procs_this_branch = NUM_PROCESSES;
+		}
+		// seteo número de procesadores a los que les tocó venir por esta instancia
+		else if (cursor == (POSICION_MULTI_PROCESSES + dist_pos_multiprocess))
+			procs_this_branch = (NUM_PROCESSES + 1) / length_posibles_level_up;
+			
+		// puedo alocar todas las posibles piezas en todos los procs de este branch
+		if (length_posibles >= procs_this_branch)
 		{
-			// primero preguntar si este proc no puede tomar una parte de la exploración (pues la tomarán los procs anteriores)
-			if (THIS_PROCESS >= length_posibles) // comparo usando >= para no restarle 1 a length_posibles
-			{
-				length_posibles = 0; // seteo 0 asi no explora
-				//System.out.println("Rank " + THIS_PROCESS + ":::: no procesa pues excede a length_posibles");
-				//System.out.flush();
-			}
-			else
-			{
-				int resto = length_posibles % NUM_PROCESSES;
-				int division = 1; // valor inicial en caso de
-				
-				// si es mas chico igualmente debo explorar la parte que corresponda a THIS_PROCESS
-				if (length_posibles < NUM_PROCESSES)
-					// comentado pues ya lo asign� en la declaraci�n
-					;//result = 1;
-				else
-					division = length_posibles / NUM_PROCESSES;
-				desde = THIS_PROCESS * division;
-				
-				//si es el �ltimo proc le agrego el resto (solo tiene efecto si la division no es exacta)
-				if (THIS_PROCESS == (NUM_PROCESSES - 1))
-					division += resto;
-				
-				length_posibles = desde + division;
-				//System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
-				//System.out.flush();
-			}
+			int resto = length_posibles % procs_this_branch;
+			int division = (length_posibles + 1) / procs_this_branch;
+			// we need to consider that THIS_PROCESS can be any number and we need to normalize it to the current number of posible pieces
+			int this_proc = THIS_PROCESS / length_posibles_level_up;
+			desde = this_proc * division;
+			length_posibles = desde + division;
+			
+			// si es el último proc y la división no es exacta entonces le resto uno
+			if (this_proc == (procs_this_branch - 1) && resto != 0)
+				--length_posibles;
+			
+			//System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
+			//System.out.flush();
+		}
+		// tengo mas procs que posibles piezas por lo tanto las piezas van a ser tomadas por uno o mas procs y luego
+		// se redistribuirán mas finamente en la siguiente instancia de exploración
+		else {
+			++dist_pos_multiprocess;
+			length_posibles_level_up += length_posibles;
+			desde = THIS_PROCESS % length_posibles;
+			length_posibles = desde + 1; // cada proc solo toma una pieza
+			
+			//System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
+			//System.out.flush();
 		}
 		
 		for (; desde < length_posibles; ++desde)
@@ -1145,6 +1154,9 @@ public final class SolverFasterMPJE {
 			if (retroceder)
 				break;*/
 		}//fin bucle posibles piezas
+		
+		if (length_posibles < procs_this_branch)
+			--dist_pos_multiprocess;
 		
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre
