@@ -1,23 +1,50 @@
 eternity2_solver
 ================
 
-It's a Java implementation of a backtracker for the Eternity II board game released in August 2007.
+Java implementation of a backtracker for the Eternity II board game released in August 2007.
 Game finished in 2010 without no one claiming the solution. Prize for any valid solution was 2 million usd.
 
-This backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations
+This backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
-Currently placing 70 million pieces per second in a 8 thread execution instances using a fork/join pool.
-Currently placing 80 million pieces per second using MPJ Express framework with 4 instances of the solver.
+Currently placing 70 million pieces per second in a 8 thread execution instances using a fork/join pool. And placing 80 million pieces per second using MPJ Express framework with 4 instances of the solver.
+
+The project is under continuous development on spare time. Every time I come back and apply some change or code re-factor is for performance purpose.
+Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
+
+
+Papers where I took some ideas from
+-----------------------------------
+
+- How many edges can be shared by N square tiles on a board? 
+Thierry Benoist
+e-lab Research Report - April 2008
+
+- Fast Global Filtering for Eternity II
+Thierry Benoist, e-lab - Bouygues SA, Paris
+Eric Bourreau, LIRMM, Montpellier
+
+- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity
+Erik D. Demaine, Martin L. Demaine
+MIT Computer Science and Artificial Intelligence Laboratory
+
+
+Third party APIs
+----------------
+MPJ Express. http://mpj-express.org/
+Once downloaded and uncompressed, you need to edit the bat files and the Eclipse project for correctly classpath.
+
 
 Running with Avian jvm
 ----------------------
+I'm trying to improve the execution of code using another free JVM implementations.
+Currently I'm taking a look to Avian JVM.
 
 Visit page http://oss.readytalk.com/avian/ to know what is Avian.
+
 Install cygwin following the steps mentioned in https://github.com/ReadyTalk/avian/ (README.md file).
 	you will need to add some packages that aren't set as default (the instructions are there)
 	also need to add curl
 	also need ncurses (for clear command, or use ctrl+l)
-Do not clone the repo yet.
 Set JAVA_HOME environment variable in your .bashrc file
 	export JAVA_HOME=/cygdrive/c/java/jdk1.7
 Once cygwin is installed you need to clone avian, win32, and win64 repos.
