@@ -38,18 +38,18 @@ import java.util.concurrent.TimeUnit;
 
 public final class SolverFasterMPJE {
 	
-	private static EternityIIForMPJE tableboardE2 = null; //instancia del tablero gráfico que se muestra en pantalla
+	private static EternityIIForMPJE tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
-	private static int POSICION_MULTI_PROCESSES = -1; //(99) posición del tablero en la que se usará comunicación multiprocesses
-	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); //número de procesos
-	public final static int THIS_PROCESS = mpi.MPI.COMM_WORLD.Rank(); //número de proceso actual (0 base)
-	private static int TAG_SINCRO = 333; //tags para identificar mensajes interprocesos
-	private static int MESSAGE_HALT = -1, MESSAGE_SINCRO = 222; //mensajes para comunicar una acci�n o estado
-	private static int mpi_send_info[] = new int[1]; //arreglo de envío de mensajes entre procesos
-	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; //arreglo para almacenar los requests que devuelven los Isend
-	private static boolean sincronizar; //indica si se deden sincronizar los procesos antes de comenzar
+	private static int POSICION_MULTI_PROCESSES = -1; // (99) posición del tablero en la que se usará comunicación multiprocesses
+	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); // número de procesos
+	public final static int THIS_PROCESS = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
+	private static int TAG_SINCRO = 333; // tags para identificar mensajes interprocesos
+	private static int MESSAGE_HALT = -1, MESSAGE_SINCRO = 222; // mensajes para comunicar una acción o estado
+	private static int mpi_send_info[] = new int[1]; // arreglo de envío de mensajes entre procesos
+	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
+	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
 	
-	private static int MAX_CICLOS; // Número máximo de ciclos para guardar estado
+	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	private static int ESQUINA_TOP_RIGHT,ESQUINA_BOTTOM_RIGHT,ESQUINA_BOTTOM_LEFT;
@@ -88,8 +88,8 @@ public final class SolverFasterMPJE {
 	private final static String NAME_FILE_LIBRES_MAX= "./status/libresMAX_P"+THIS_PROCESS+FILE_EXT;
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
-	private static int sig_parcial;
-	public static int count_cicles, cur_destino;
+	private static int sig_parcial, cur_destino;
+	public static long count_cicles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	public final static Pieza piezas[] = new Pieza[MAX_PIEZAS];
 	public final static Pieza tablero[] = new Pieza[MAX_PIEZAS];
@@ -100,7 +100,6 @@ public final class SolverFasterMPJE {
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
 	private final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
-	private static int dist_pos_multiprocess, length_posibles_level_up;
 	
 	/*
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
@@ -134,13 +133,16 @@ public final class SolverFasterMPJE {
 	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
 	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
+	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
-	 * @param p_pos_fork_join: Posición en tablero donde inicia exploración multi threading.
+	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
 	 */
-	public SolverFasterMPJE (int m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, boolean usar_tableboard, int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_multi_process) {
+	public SolverFasterMPJE (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
+			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
+			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_multi_process) {
 
 		MAX_CICLOS= m_ciclos;
 		
@@ -172,8 +174,13 @@ public final class SolverFasterMPJE {
 		if (usar_poda_color_explorado)
 			arr_color_rigth_explorado = new int[LADO];
 		
-		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == 0)
-			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, NUM_PROCESSES);
+		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
+		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
+		if (usar_multiples_boards)
+			procMultipleBoards = THIS_PROCESS;
+		
+		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards)
+			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS);
 	}
 	
 	
@@ -222,7 +229,7 @@ public final class SolverFasterMPJE {
 	}
 	
 	/**
-	 * El arreglo zona_read_contorno[] me dice en qu� posiciones puedo leer un contorno para chequear si es usado o no.
+	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
 	 */
 	private final static void inicializarZonaReadContornos()
 	{	
@@ -234,10 +241,10 @@ public final class SolverFasterMPJE {
 			zona_read_contorno[k] = false;
 			fila_actual = k / LADO;
 			
-			//si estoy en borde top o bottom continuo con la siguiente posici�n
+			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posici�n
+			//si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
 				continue;
 			
@@ -250,8 +257,8 @@ public final class SolverFasterMPJE {
 	}
 	
 	/**
-	 * El arreglo zonas_proc_contorno[] me dice en qu� posiciones puedo procesar un contorno superior 
-	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, ning�n otro.
+	 * El arreglo zonas_proc_contorno[] me dice en qué posiciones puedo procesar un contorno superior 
+	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, ningún otro.
 	 * NOTA: para contorno inferior se debe chequear a parte que cursor sea [33,238].
 	 */
 	private final static void inicializarZonaProcContornos()
@@ -264,16 +271,16 @@ public final class SolverFasterMPJE {
 			zona_proc_contorno[k] = false;
 			fila_actual = k / LADO;
 			
-			//si estoy en borde top o bottom continuo con la siguiente posici�n
+			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posici�n
+			//si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
 				continue;
 			
 			//Hasta aqui estoy en el interior del tablero
 			
-			//me aseguro que no est� cerca del borde left
+			//me aseguro que no esté cerca del borde left
 			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
@@ -314,7 +321,7 @@ public final class SolverFasterMPJE {
 						case 3: key = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,i,j); break;
 						default:break;
 					}
-					// al no filtrar los valores de i y j puedo tener keys inv�lidas
+					// al no filtrar los valores de i y j puedo tener keys inválidas
 					if (key >= super_matriz.length)
 						continue;
 					if (super_matriz[key] != null){
@@ -335,8 +342,8 @@ public final class SolverFasterMPJE {
 	
 	/**
 	 * Para cada posible combinacion entre los colores de la secciones top, 
-	 * right, bottom y left creo un vector que contendr� las piezas que tengan
-	 * esa combinacion de colores en dichas secciones y ademas guardo en qu�
+	 * right, bottom y left creo un vector que contendrá las piezas que tengan
+	 * esa combinacion de colores en dichas secciones y ademas guardo en que
 	 * estado de rotacion la cumplen.
 	 */
 	private final static void llenarSuperEstructura ()
@@ -350,9 +357,9 @@ public final class SolverFasterMPJE {
 				continue;
 			pz = piezas[k];
 			
-			//guardo la rotaci�n de la pieza
+			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
-			//seteo su rotaci�n en 0. Esto es para generar la matriz siempre en el mismo orden
+			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
 			for (int rt=0; rt < MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
@@ -431,7 +438,7 @@ public final class SolverFasterMPJE {
 				NodoPosibles.addReferencia(super_matriz[key444], newp);
 			}
 			
-			//restauro la rotaci�n
+			//restauro la rotación
 			Pieza.llevarARotacion(pz, temp_rot);
 		}
 	}
@@ -524,7 +531,7 @@ public final class SolverFasterMPJE {
 	}	
 
 	/**
-	 * Carga el ultimo estado de exploraci�n guardado. Si no existe tal estado
+	 * Carga el ultimo estado de exploración guardado. Si no existe tal estado
 	 * inicializa estructuras y variables para que la exploracion comienze 
 	 * desde cero.
 	 */
@@ -554,7 +561,7 @@ public final class SolverFasterMPJE {
 				linea= reader.readLine();
 				mas_lejano_parcial_max= Integer.parseInt(linea);
 				
-				// contiene la posici�n del cursor en el momento de guardar estado
+				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
 				cursor= Integer.parseInt(linea);
 				
@@ -582,7 +589,7 @@ public final class SolverFasterMPJE {
 					desde_saved[k] = valor;
 				}
 				
-				//la siguiente l�nea indica si se estaba usando poda de color explorado
+				//la siguiente línea indica si se estaba usando poda de color explorado
 				linea= reader.readLine();
 				// recorro los valores de matrix_color_explorado[]
 				if (usar_poda_color_explorado){
@@ -603,7 +610,7 @@ public final class SolverFasterMPJE {
 				
 				cargarPiezas(); //creo las piezas desde el archivo de piezas
 				
-				//las restantes MAX_PIEZAS lineas contienen el estado de rotaci�n y de usada de cada pieza
+				//las restantes MAX_PIEZAS lineas contienen el estado de rotación y de usada de cada pieza
 				int pos=0; //cuento cuantas lineas voy procesando
 				String splitted[];
 				linea= reader.readLine(); //info de la primer pieza
@@ -687,7 +694,7 @@ public final class SolverFasterMPJE {
 	private final static void cargarEnLimpio () { 
 		cargarPiezas();
 		cursor=0;
-		mas_bajo= 0; //este valor se lo sete� yo empiricamente
+		mas_bajo= 0; //este valor se setea empiricamente
 		mas_alto= 0;
 		mas_lejano_parcial_max= 0;
 		status_cargado=false;
@@ -704,20 +711,20 @@ public final class SolverFasterMPJE {
 		// Pruebo cargar el primer status_saved
 		cargarEstado(NAME_FILE_STATUS);
 
-		//la carga de la copia tmb fall� entonces cargo desde cero
+		//la carga de la copia tmb falló entonces cargo desde cero
 		if (!status_cargado) 
 			cargarEnLimpio();
 		
 		//hago una verificacion de las piezas cargadas
 		verificarTiposDePieza();
 		
-		//cargo en el arreglo matrix_zonas valores que me indiquen en qu� posici�n estoy (borde, esquina o interior) 
+		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
 		//cargo las posiciones fijas
 		cargarPiezasFijas(); //OJO! antes debo cargar matrix_zonas[]
 		
-		//cargar la super estructura 4-dimensional que agiliza la b�squeda de piezas
+		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
 		cargarSuperEstructura();
 
 		//seteo como usados los contornos ya existentes en tablero
@@ -756,12 +763,12 @@ public final class SolverFasterMPJE {
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
 			explorar();
-		//se carga estado de exploraci�n, debo proveer la posibilidad de volver estados anteriores de exploracion
+		//se carga estado de exploración, debo proveer la posibilidad de volver estados anteriores de exploracion
 		else{
 			//ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
 			while (cursor >= 0){
 				if (!retroceder){
-					//pregunto si llegu� al limite de esta instancia de exploracion
+					//pregunto si llegué al limite de esta instancia de exploracion
 					/*if (cursor <= LIMITE_DE_EXPLORACION){
 						operarSituacionLimiteAlcanzado();
 						return;
@@ -784,26 +791,26 @@ public final class SolverFasterMPJE {
 				//debo setear la pieza en cursor como no usada
 				if (cursor != POSICION_CENTRAL){
 					pieza_extern_loop= tablero[cursor];
-					pieza_extern_loop.pusada.value= false; //la seteo como no usada xq sino la exploracion pensar� que est� usada (porque asi es como se guard�)
+					pieza_extern_loop.pusada.value= false; //la seteo como no usada xq sino la exploracion pensará que está usada (porque asi es como se guardó)
 					//pieza_extern_loop.pos= -1;
 					tablero[cursor]= null;
 				}
 				
-				//si retroced� hasta el cursor destino, entonces no retrocedo mas
+				//si retrocedí hasta el cursor destino, entonces no retrocedo mas
 				/*if (cursor <= cur_destino){
 					retroceder= false;
 					cur_destino= CURSOR_INVALIDO;
 				}
-				//si est� activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
+				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 				if (retroceder)
 					desde_saved[cursor]= 0;*/ //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 			}
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion."); //ittai! (que�?!!)
+		System.out.println("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion."); //ittai! (qué?!!)
 
-		/*if (send_mail){ //Envio un mail diciendo que no se encontr� soluci�n
+		/*if (send_mail){ //Envio un mail diciendo que no se encontró solución
 			SendMail em= new SendMail();
 			em.setDatos("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion para el caso " + CASO, "Sin solucion, caso " + CASO);
 			Thread t= new Thread(em);
@@ -819,7 +826,7 @@ public final class SolverFasterMPJE {
 	/**
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
-	 * para acortar el n�mero de intentos.
+	 * para acortar el número de intentos.
 	 */
 	private final static void explorar ()
 	{
@@ -872,7 +879,7 @@ public final class SolverFasterMPJE {
 		
 		//si llegué a MAX_CICLOS de ejecución guardo el estado de exploración
 		if (count_cicles >= MAX_CICLOS){
-			count_cicles= 0;
+			count_cicles = 0;
 			//calculo el tiempo entre status saved
 			long mili_temp = System.nanoTime();
 			guardarEstado(NAME_FILE_STATUS);
@@ -889,12 +896,12 @@ public final class SolverFasterMPJE {
 		//#############################################################################################
 		/**
 		 * Explorar pieza fija.
-		 * Ya me encuentro en una posicion fija, entonces salteo esta posici�n y continuo.
+		 * Ya me encuentro en una posicion fija, entonces salteo esta posición y continuo.
 		 * NOTA: por ahora solo se contempla la posicion 135 (136 real) como fija y no se permte rotarla.
 		 */
 		//#############################################################################################
 		
-		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya est� debidamente colocada
+		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya está debidamente colocada
 		if (cursor == POSICION_CENTRAL){
 			//seteo los contornos como usados
 			getIndexDeContornoYaPuesto();
@@ -1018,45 +1025,35 @@ public final class SolverFasterMPJE {
 		// Si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas de posibles a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos
 		if (cursor == POSICION_MULTI_PROCESSES) {
-			dist_pos_multiprocess = 0;
-			length_posibles_level_up = 0;
-			procs_this_branch = NUM_PROCESSES;
-		}
-		// seteo número de procesadores a los que les tocó venir por esta instancia
-		else if (cursor == (POSICION_MULTI_PROCESSES + dist_pos_multiprocess))
-			procs_this_branch = (NUM_PROCESSES + 1) / length_posibles_level_up;
-			
-		// puedo alocar todas las posibles piezas en todos los procs de este branch
-		if (length_posibles >= procs_this_branch)
-		{
-			int resto = length_posibles % procs_this_branch;
-			int division = (length_posibles + 1) / procs_this_branch;
-			// we need to consider that THIS_PROCESS can be any number and we need to normalize it to the current number of posible pieces
-			int this_proc = THIS_PROCESS / length_posibles_level_up;
-			desde = this_proc * division;
-			length_posibles = desde + division;
-			
-			// si es el último proc y la división no es exacta entonces le resto uno
-			if (this_proc == (procs_this_branch - 1) && resto != 0)
-				--length_posibles;
-			
-			//System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
-			//System.out.flush();
-		}
-		// tengo mas procs que posibles piezas por lo tanto las piezas van a ser tomadas por uno o mas procs y luego
-		// se redistribuirán mas finamente en la siguiente instancia de exploración
-		else {
-			++dist_pos_multiprocess;
-			length_posibles_level_up += length_posibles;
-			desde = THIS_PROCESS % length_posibles;
-			length_posibles = desde + 1; // cada proc solo toma una pieza
-			
-			//System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
-			//System.out.flush();
+            // primero preguntar si este proc no puede tomar una parte de la exploración (pues la tomarán los procs anteriores)
+            if (THIS_PROCESS >= length_posibles) { // comparo usando >= para no restarle 1 a length_posibles
+                length_posibles = 0; // seteo 0 asi no explora
+                //System.out.println("Rank " + THIS_PROCESS + ":::: no procesa pues excede a length_posibles");
+                //System.out.flush();
+            }
+            else {
+                int resto = length_posibles % NUM_PROCESSES;
+                int division = 1; // valor inicial en caso de
+                
+                // si es mas chico igualmente debo explorar la parte que corresponda a THIS_PROCESS
+                if (length_posibles < NUM_PROCESSES)
+                    // comentado pues ya lo asigné en la declaración
+                    ;//result = 1;
+                else
+                    division = length_posibles / NUM_PROCESSES;
+                desde = THIS_PROCESS * division;
+                
+                //si es el último proc le agrego el resto (solo tiene efecto si la division no es exacta)
+                if (THIS_PROCESS == (NUM_PROCESSES - 1))
+                    division += resto;
+                
+                length_posibles = desde + division;
+                //System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
+                //System.out.flush();
+            }
 		}
 		
-		for (; desde < length_posibles; ++desde)
-		{
+		for (; desde < length_posibles; ++desde) {
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			Pieza p = posibles.referencias[desde]; //el nodo contiene el indice de la pieza a probar y sus rotacs permitidas
 			
@@ -1153,10 +1150,7 @@ public final class SolverFasterMPJE {
 			//caso contrario significa que todavia tengo que seguir retrocediendo
 			if (retroceder)
 				break;*/
-		}//fin bucle posibles piezas
-		
-		if (length_posibles < procs_this_branch)
-			--dist_pos_multiprocess;
+		}
 		
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre

@@ -53,55 +53,41 @@ public final class MainFasterMPJE
 		}
 		
 		// lo siguiente es solamente para el tablero gráfico
-		if (rank == 0) {
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	        } catch (Exception e) {
-	        	System.out.println("Rank " + rank + ": Problema con llamada a setLookAndFeel() en metodo main()");
-	            e.printStackTrace();
-	        }
-		}
-				
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        	System.out.println("Rank " + rank + ": Problema con llamada a setLookAndFeel() en metodo main()");
+            e.printStackTrace();
+        }
+		
 		try{
 			// NOTA:
 			//   para mpje multicore los primeros 3 parametros son para MPI
 			//   para mpje cluster los primeros 8 parametros son para MPI
-			
-			if (args.length != 14 && args.length != 19) 
+			// Mejor detectar mediante alguna propiedad de MPI si es cluster o multicore
+			if (args.length != 15 && args.length != 20) 
 				throw new Exception("Ingresaste mal los parametros. Hacelo asi: " +
-						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica " +
+						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple " +
 						"CellPixelesLado RefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiProcess");
 			
-			boolean isMulticoreMpje = args.length == 14;
+			boolean isMulticoreMpje = args.length == 15;
+			int i = 0; // indice de lectura de parámetros para el solver
+			if (isMulticoreMpje) i = 3;
+			else i = 8;
 			
-			if (isMulticoreMpje) {
-				sol = new SolverFasterMPJE(
-						Integer.parseInt(args[3]), 
-						Integer.parseInt(args[4]), 
-						Integer.parseInt(args[5]), 
-						Integer.parseInt(args[6]), 
-						Integer.parseInt(args[7]), 
-						Boolean.parseBoolean(args[8]), 
-						Integer.parseInt(args[9]), 
-						Integer.parseInt(args[10]), 
-						Boolean.parseBoolean(args[11]), 
-						Boolean.parseBoolean(args[12]), 
-						Integer.parseInt(args[13]));
-			}
-			else {
-				sol = new SolverFasterMPJE(
-						Integer.parseInt(args[8]), 
-						Integer.parseInt(args[9]), 
-						Integer.parseInt(args[10]), 
-						Integer.parseInt(args[11]), 
-						Integer.parseInt(args[12]), 
-						Boolean.parseBoolean(args[13]), 
-						Integer.parseInt(args[14]), 
-						Integer.parseInt(args[15]), 
-						Boolean.parseBoolean(args[16]), 
-						Boolean.parseBoolean(args[17]), 
-						Integer.parseInt(args[18]));
-			}
+			sol = new SolverFasterMPJE(
+					Long.parseLong(args[i++]),			// maxCiclos
+					Integer.parseInt(args[i++]),		// limiteParcialMax
+					Integer.parseInt(args[i++]),		// minLimiteExploracion
+					Integer.parseInt(args[i++]),		// maxParciales
+					Integer.parseInt(args[i++]),		// destinoARetroceder
+					Boolean.parseBoolean(args[i++]),	// InterfaceGrafica
+					Boolean.parseBoolean(args[i++]),	// TableBoardMultiple
+					Integer.parseInt(args[i++]),		// CellPixelesLado
+					Integer.parseInt(args[i++]),		// RefreshMillis
+					Boolean.parseBoolean(args[i++]),	// PodaFairExperiment
+					Boolean.parseBoolean(args[i++]),	// PodaColorBordeLeftExplorado
+					Integer.parseInt(args[i++]));		// PosicionInicioMultiProcess
 			
 			sol.atacar();
 			

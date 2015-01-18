@@ -52,23 +52,25 @@ public final class MainFaster
         }
         
 		try{
-			if (args.length != 11)
+			if (args.length != 12)
 				throw new Exception("Ingresaste mal los parametros. Hacelo asi: " +
-						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica " +
+						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple " +
 						"CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading");
 			
+			int i = 0; // indice de lectura de parámetros para el solver
 			SolverFaster.build(
-					Integer.parseInt(args[0]), 
-					Integer.parseInt(args[1]), 
-					Integer.parseInt(args[2]), 
-					Integer.parseInt(args[3]), 
-					Integer.parseInt(args[4]), 
-					Boolean.parseBoolean(args[5]), 
-					Integer.parseInt(args[6]), 
-					Integer.parseInt(args[7]), 
-					Boolean.parseBoolean(args[8]), 
-					Boolean.parseBoolean(args[9]), 
-					Integer.parseInt(args[10]));
+					Long.parseLong(args[i++]),			// maxCiclos
+					Integer.parseInt(args[i++]),		// limiteParcialMax
+					Integer.parseInt(args[i++]),		// minLimiteExploracion
+					Integer.parseInt(args[i++]),		// maxParciales
+					Integer.parseInt(args[i++]),		// destinoARetroceder
+					Boolean.parseBoolean(args[i++]),	// InterfaceGrafica
+					Boolean.parseBoolean(args[i++]),	// TableBoardMultiple
+					Integer.parseInt(args[i++]),		// CellPixelesLado
+					Integer.parseInt(args[i++]),		// RefreshMillis
+					Boolean.parseBoolean(args[i++]),	// PodaFairExperiment
+					Boolean.parseBoolean(args[i++]),	// PodaColorBordeLeftExplorado
+					Integer.parseInt(args[i++]));		// PosicionInicioMultiProcess
 			SolverFaster.setupInicial();
 			SolverFaster.atacar();
 		}

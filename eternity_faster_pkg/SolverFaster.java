@@ -41,7 +41,7 @@ public final class SolverFaster {
 	protected static int NUM_PROCESSES = 1;
 	protected static ExploracionAction actions[];
 	
-	protected static int MAX_CICLOS; // Número máximo de ciclos para guardar estado
+	protected static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	protected static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	protected static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
@@ -80,7 +80,7 @@ public final class SolverFaster {
 	protected final static String NAME_FILE_LIBRES_MAX= "./status/_libresMAX";
 	protected static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	
-	public static int count_cycles[]; // count cycles per task
+	public static long count_cycles[]; // count cycles per task
 	
 	protected static long count_filas;
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
@@ -107,13 +107,16 @@ public final class SolverFaster {
 	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
 	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
+	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
-	 * @param p_pos_fork_join: Posición en tablero donde inicia exploración multi threading.
+	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
 	 */
-	public static void build (int m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, boolean usar_tableboard, int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_fork_join) {
+	public static void build (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
+			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
+			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_fork_join) {
 		
 		MAX_CICLOS= m_ciclos;
 		
@@ -124,7 +127,7 @@ public final class SolverFaster {
 			NUM_PROCESSES = 1;
 
 		// cycles counter per task
-		count_cycles = new int[NUM_PROCESSES];
+		count_cycles = new long[NUM_PROCESSES];
 		
 		fjpool = new ForkJoinPool(NUM_PROCESSES);
 		

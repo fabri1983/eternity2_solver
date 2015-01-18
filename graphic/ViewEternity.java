@@ -49,7 +49,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 	private boolean pauseAll = false;
 	private boolean pauseGraphic = false;
 	private long refresh_milis;
-	private int prevCount = 0;
+	private long prevCount = 0;
 	private int innerCount = 1; // este controla el refresco de las piezas por segundo
 	private static final int COUNT_SPEED = 5; // factor de velocidad de refresco del contador de piezas
 	private StringBuilder titleRefreshed = new StringBuilder(128);
@@ -144,7 +144,7 @@ public class ViewEternity extends JFrame implements KeyListener {
     	
     	// calculo piezas (o nodos) por segundo. Se actualiza cada 1/COUNT_SPEED segs
     	if (innerCount >= frequency) {
-    		int currentCount = 0;
+    		long currentCount = 0;
 			for (int i = SolverFaster.count_cycles.length - 1; i >= 0; --i)
 				currentCount += SolverFaster.count_cycles[i];
 			currentCount -= prevCount;

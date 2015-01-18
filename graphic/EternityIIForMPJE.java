@@ -33,7 +33,7 @@ public class EternityIIForMPJE {
 	public ViewEternityForMPJE frame; //es la ventanita
 	
 	
-    public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc, int numProcesors) {
+    public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc) {
     	
         frame = new ViewEternityForMPJE(refreshMillis, lado, cell_size_pixels, num_colours);
         frame.setVisible(false);
@@ -41,7 +41,8 @@ public class EternityIIForMPJE {
         frame.setResizable(false);
         frame.setTitle(proc + " E2Solver (c) 2014");
         
-        setLocation(numProcesors);
+        // set the location of the window according the number of processors in current machine 
+        setLocation(Runtime.getRuntime().availableProcessors());
     }
     
     private void setLocation(int numProcesors) {

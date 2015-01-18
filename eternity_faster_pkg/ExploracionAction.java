@@ -205,7 +205,7 @@ public class ExploracionAction extends RecursiveAction {
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploracion
 		if (SolverFaster.count_cycles[action.id] >= SolverFaster.MAX_CICLOS){
-			SolverFaster.count_cycles[action.id]= 0;
+			SolverFaster.count_cycles[action.id] = 0;
 			//calculo el tiempo entre status saved
 			long mili_temp = System.nanoTime();
 			SolverFaster.guardarEstado(action.statusFileName, action);
