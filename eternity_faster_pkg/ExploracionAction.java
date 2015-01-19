@@ -75,6 +75,7 @@ public class ExploracionAction extends RecursiveAction {
 		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + SolverFaster.FILE_EXT;
 	}
 	
+	@Override
 	public void compute() {
 		
 		// Pruebo cargar el primer status_saved

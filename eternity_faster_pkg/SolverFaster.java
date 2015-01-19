@@ -31,6 +31,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
 public final class SolverFaster {
@@ -129,7 +130,7 @@ public final class SolverFaster {
 		// cycles counter per task
 		count_cycles = new long[NUM_PROCESSES];
 		
-		fjpool = new ForkJoinPool(NUM_PROCESSES);
+		fjpool = new ForkJoinPool(NUM_PROCESSES,ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (MAX_PIEZAS-2)))
@@ -290,7 +291,7 @@ public final class SolverFaster {
 		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
 		 * estado de rotacion la cumplen.
 		 */
-		fjpool.invoke(new LlenadoSuperMatrixInvoker(action));
+		llenarSuperEstructura(action);
 		
 		/**
 		 * Para cada entrada de la super estructura les acota el espacio de memoria empleado al espacio actual 
@@ -307,6 +308,74 @@ public final class SolverFaster {
 		
 		System.gc();
 		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
+	}
+	
+	private static final void llenarSuperEstructura (ExploracionAction action) {
+		Pieza pz;
+		int key1,key2,key3,key4,key5,key6,key7,key8,key9,key10,key11,key12,key13,key14,key15;
+		
+		// itero sobre el arreglo de piezas
+		for (int k = 0; k < SolverFaster.MAX_PIEZAS; ++k) {
+			
+			if (k == SolverFaster.INDICE_P_CENTRAL)
+				continue;
+			
+			pz = action.piezas[k];
+			
+			//guardo la rotaci�n de la pieza
+			byte temp_rot = pz.rotacion;
+			//seteo su rotaci�n en 0. Esto es para generar la matriz siempre en el mismo orden
+			Pieza.llevarARotacion(pz, (byte)0);
+			
+			for (int rt=0; rt < SolverFaster.MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
+			{
+				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
+				if (SolverFaster.FairExperimentGif && (pz.top == pz.bottom))
+					continue;
+				Pieza newp = Pieza.copia(pz);
+				
+				//este caso es cuando tengo los 4 colores
+				key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key1], newp);
+				
+				//tengo tres colores y uno faltante
+				key2 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,pz.bottom,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key2], newp);
+				key3 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,pz.bottom,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key3], newp);
+				key4 = MapaKeys.getKey(pz.top,pz.right,SolverFaster.MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key4], newp);
+				key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key5], newp);
+				
+				//tengo dos colores y dos faltantes
+				key6 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.bottom,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key6], newp);
+				key7 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,SolverFaster.MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key7], newp);
+				key8 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,pz.bottom,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key8], newp);
+				key9 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.left);	
+				NodoPosibles.addReferencia(action.super_matriz[key9], newp);
+				key10 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,pz.bottom,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key10], newp);
+				key11 = MapaKeys.getKey(pz.top,pz.right,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key11], newp);
+
+				//tengo un color y tres faltantes
+				key12 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key12], newp);
+				key13 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key13], newp);
+				key14 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.bottom,SolverFaster.MAX_COLORES);
+				NodoPosibles.addReferencia(action.super_matriz[key14], newp);
+				key15 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(action.super_matriz[key15], newp);
+			}
+			
+			//restauro la rotaci�n
+			Pieza.llevarARotacion(pz, temp_rot);
+		}
 	}
 	
 	/**
@@ -921,10 +990,21 @@ public final class SolverFaster {
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
 	public static final void atacar() {
-		
-		for (ExploracionAction action : actions) {
-			// invoke() waits for termination
-			fjpool.invoke(action);
-		}
+
+		fjpool.invoke(new RecursiveAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void compute () {
+				// Since there is no task division inside any ExploracionAction then we don't need to use join() to await for results.
+				// So let's fork all actions so they are allocated inside the pool
+				for (int i=0, c=actions.length; i < c; ++i) {
+					if (i == (c-1))
+						actions[i].compute();
+					else
+						actions[i].fork();
+				}
+			}
+		});
 	}
 }

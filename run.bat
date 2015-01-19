@@ -13,6 +13,6 @@
 set java_hotspot=java -XX:+AggressiveOpts
 set java_rockit=C:/Java/jrockit-jdk1.6.0_45-R28.2.7-4.1.0/bin/java -Xbootclasspath/p:./extern_libs/jsr166.jar
 :: NOTE: it seems to be that using server has a good impact in performance. However with MPJe it doesn't
-%java_hotspot% -server -Xms1024m -Xmx1024m -jar E2Faster.jar 12147483647 211 -1 2 -1 false false 28 100 false false 99
+%java_rockit% -server -Xms1024m -Xmx1024m -jar E2Faster.jar 12147483647 211 -1 2 -1 false false 28 100 false false 99
 
 pause

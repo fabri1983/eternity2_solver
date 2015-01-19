@@ -1017,7 +1017,6 @@ public final class SolverFasterMPJE {
 		int length_posibles = posibles.referencias.length;
 		final int flag_zona = matrix_zonas[cursor];
 		int index_sup_aux;
-		int procs_this_branch = 0;
 		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		// for modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		final boolean flag_antes_borde_right = ((cursor+2) & (LADO-1)) == 0; // old was: ((cursor+2) % LADO) == 0
