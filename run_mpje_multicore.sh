@@ -10,6 +10,7 @@
 #:: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 #:: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
-#:: use nproc environment variable
+export MPJ_HOME="./extern_libs/mpj-v0_44"
+
 #:: edit mpjrun.sh to select the desired JVM
-/usr/local/mpje/mpjrun.sh -np $(nproc) -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99
+$MPJ_HOME/bin/mpjrun.sh -np $(nproc) -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99

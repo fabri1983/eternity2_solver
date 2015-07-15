@@ -1,6 +1,5 @@
 package eternity_faster_pkg_arrays;
 
-
 public abstract class AbstractCollection 
 {
 	public abstract void clear();

@@ -10,9 +10,9 @@
 :: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 :: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
-:: use %NUMBER_OF_PROCESSORS% environment variable
-:: edit mpjrun.bat to select the desired JVM
+set MPJ_HOME=./extern_libs/mpj-v0_44
 
-mpjrun.bat -np %NUMBER_OF_PROCESSORS% -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99
+:: edit mpjrun.bat to select the desired JVM
+%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99
 
 pause

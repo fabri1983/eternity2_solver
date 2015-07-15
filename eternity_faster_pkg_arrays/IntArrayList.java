@@ -1,6 +1,5 @@
 package eternity_faster_pkg_arrays;
 
-
 public class IntArrayList extends AbstractIntList
 {
 

@@ -2,7 +2,6 @@ package eternity_faster_pkg_arrays;
 
 public class Arrays
 {
-
 	public static int[] ensureCapacity(int[] paramArrayOfInt, int paramInt)
 	{
 		int i = paramArrayOfInt.length;

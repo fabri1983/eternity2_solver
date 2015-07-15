@@ -10,10 +10,12 @@
 :: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 :: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
+set MPJ_HOME=./extern_libs/mpj-v0_44
+
 :: set the amount of total threads in the cluster. It has to be an homogeneous cluster
 set TOTAL_THREADS_IN_CLUSTER=8
 
 :: edit mpjrun.bat to select the desired JVM
-mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
+%MPJ_HOME%/bin/mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms200m -Xmx200m E2MPJE.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
 
 pause

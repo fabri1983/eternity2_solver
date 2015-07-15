@@ -2,15 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path=""/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/mpj-v0_43/lib/mpi.jar" sourcepath="C:/mpj-v0_43/src">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/mpj-v0_43/doc/javadocs/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="extern_libs/jsr166.jar"/>
 	<classpathentry kind="lib" path="extern_libs/javamail-1.4.5/mail.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="C:/mpj-v0_43/lib/mpiExp.jar"/>
-	<classpathentry kind="lib" path="C:/mpj-v0_43/lib/mpj.jar"/>
+	<classpathentry kind="lib" path="extern_libs/mpj-v0_44/lib/mpi.jar"/>
+	<classpathentry kind="lib" path="extern_libs/mpj-v0_44/lib/mpiExp.jar"/>
+	<classpathentry kind="lib" path="extern_libs/mpj-v0_44/lib/mpj.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
