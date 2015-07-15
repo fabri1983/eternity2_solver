@@ -1,12 +1,16 @@
 eternity2_solver
 ================
 
-Java implementation of a backtracker for the Eternity II board game released in August 2007.
-Game finished in 2010 without no one claiming the solution. Prize for any valid solution was 2 million usd.
+Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
+Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
 
 This backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
-Currently placing 70 million pieces per second in a 8 thread execution instances using a fork/join pool. And placing 80 million pieces per second using MPJ Express framework with 4 instances of the solver.
+Windows (Seven) environment results:
+Currently placing 70 million pieces per second in a 8 thread execution instances using a fork/join pool. And placing 80 million pieces per second using MPJ Express framework with 4 instances of the solver. 
+
+Linux (Ubuntu 14) environment results:
+Currently placing 90 million pieces per second in a 4 thread execution instances using a fork/join pool. 
 
 The project is under continuous development on spare time. Every time I come back and apply some change or code re-factor is for performance purpose.
 Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
