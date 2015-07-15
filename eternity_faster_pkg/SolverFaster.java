@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 
 package eternity_faster_pkg;
 
-import graphic.EternityII;
+import eternity_ui.EternityII;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -74,11 +74,11 @@ public final class SolverFaster {
 	protected final static String NAME_FILE_PIEZAS= "./e2pieces/e2pieces" + FILE_EXT;
 	protected final static String NAME_FILE_SOLUCION= "./solucion/soluciones";
 	protected final static String NAME_FILE_DISPOSICION= "./solucion/disposiciones";
-	protected final static String NAME_FILE_STATUS= "./status/_status_saved";
-	protected final static String NAME_FILE_PARCIAL_MAX= "./status/_parcialMAX";
-	protected final static String NAME_FILE_DISPOSICIONES_MAX= "./status/_disposicionMAX";
-	protected final static String NAME_FILE_PARCIAL= "./status/_parcial";
-	protected final static String NAME_FILE_LIBRES_MAX= "./status/_libresMAX";
+	protected final static String NAME_FILE_STATUS = "./status/status_saved";
+	protected final static String NAME_FILE_PARCIAL_MAX = "./status/parcialMAX";
+	protected final static String NAME_FILE_DISPOSICIONES_MAX = "./status/disposicionMAX";
+	protected final static String NAME_FILE_PARCIAL = "./status/parcial";
+	protected final static String NAME_FILE_LIBRES_MAX = "./status/libresMAX";
 	protected static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	
 	public static long count_cycles[]; // count cycles per task

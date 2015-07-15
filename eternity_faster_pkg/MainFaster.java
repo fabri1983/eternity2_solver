@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,13 +34,12 @@ public final class MainFaster
 	{
 		System.out.println();
 		System.out.println("################################################################################");
-		System.out.println("##-                                                                          -##");
 		System.out.println("##- Uso de fork-join jsr166 library.                                         -##");
 		System.out.println("##- Version con Estructura 4-dimensional, Smart-Podas y Contornos de colores -##");
-		System.out.println("##-                                                                          -##");
+		System.out.println("##- Micro optimizaciones.                                                    -##");
 		System.out.println("################################################################################");
 		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("         Copyright(c) 2014 Fabricio Lettieri (fabri1983@gmail.com)");
+		System.out.println("         Copyright(c) 2015 Fabricio Lettieri (fabri1983@gmail.com)");
 		System.out.println("--------------------------------------------------------------------------------");
 		System.out.println();
 

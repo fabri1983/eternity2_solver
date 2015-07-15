@@ -2,7 +2,6 @@ package eternity_faster_pkg_arrays;
 
 import java.lang.reflect.Array;
 
-
 public class ObjectArrayList extends AbstractCollection
 {
 	protected Object[] elements;

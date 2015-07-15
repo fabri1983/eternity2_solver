@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,9 @@ package eternity_faster_pkg;
 
 
 /**
- * Esta clase me encapsula un mapa de claves el cual servir· como acceso
- * a las filas guardadas de las distintas combinaciones de colores.
- * Utilizado para obtener claves del tipo top-right-bottom-left, o cualq
- * tipo de clave que se defina externamente.
+ * Esta clase me encapsula un mapa de claves el cual servir√° como acceso a las filas guardadas de las distintas
+ * combinaciones de colores. Utilizado para obtener claves del tipo top-right-bottom-left, o cualq tipo de clave que se
+ * defina externamente.
  * 
  * @author Fabricio Lettieri
  */
@@ -38,7 +37,7 @@ public final class MapaKeys
 	private final static byte MAX_COLS;
 	
 	// Nota: las siguientes variables "part" de clase son para no tener que crearlas cada vez que se llama a getKey, pero en 
-	// el caso de usar multi-threading no se pueden usar m·s como est·ticas.
+	// el caso de usar multi-threading no se pueden usar mas como est√°ticas.
 	private static int part1, part2, part3, part4, part5;
 	
 	static {
@@ -61,7 +60,7 @@ public final class MapaKeys
 	}
 	
 	/**
-	 * Devuelve la clave asociada a esa combinaciÛn de 3 colores.
+	 * Devuelve la clave asociada a esa combinaci√≥n de 3 colores.
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2)
 	{
@@ -71,7 +70,7 @@ public final class MapaKeys
 	}
 	
 	/**
-	 * Devuelve la clave asociada a esa combinaciÛn de 4 colores.
+	 * Devuelve la clave asociada a esa combinaci√≥n de 4 colores.
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3)
 	{
@@ -82,7 +81,7 @@ public final class MapaKeys
 	}
 	
 	/**
-	 * Devuelve la clave asociada a esa combinaciÛn de 5 colores.
+	 * Devuelve la clave asociada a esa combinaci√≥n de 5 colores.
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4)
 	{
@@ -94,7 +93,7 @@ public final class MapaKeys
 	}
 	
 	/**
-	 * Devuelve la clave asociada a esa combinaciÛn de 6 colores.
+	 * Devuelve la clave asociada a esa combinaci√≥n de 6 colores.
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4, final byte top5)
 	{
@@ -107,8 +106,8 @@ public final class MapaKeys
 	}
 	
 	/**
-	 * Devuelve la clave para la combinacion de colores pasada como parametro.
-	 * Si retorna 0 siginifica que no existe clave para esa combinacion de colores.
+	 * Devuelve la clave para la combinaci√≥n de colores pasada como par√°metro. Si retorna 0 siginifica que no existe
+	 * clave para esa combinaci√≥n de colores.
 	 */
 	private static final int getKey ()
 	{

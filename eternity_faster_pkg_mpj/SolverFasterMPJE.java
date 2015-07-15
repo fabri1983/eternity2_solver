@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ import eternity_faster_pkg.Contorno;
 import eternity_faster_pkg.MapaKeys;
 import eternity_faster_pkg.NodoPosibles;
 import eternity_faster_pkg.Pieza;
-import graphic.EternityIIForMPJE;
+import eternity_ui.EternityIIForMPJE;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

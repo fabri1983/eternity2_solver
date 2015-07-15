@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 package eternity_faster_pkg_mpj;
 
 import javax.swing.UIManager;
+
 import mpi.*;
 
 
@@ -40,13 +41,12 @@ public final class MainFasterMPJE
 		if (rank == 0){
 			System.out.println();
 			System.out.println("################################################################################");
-			System.out.println("##-                                                                          -##");
 			System.out.println("##- Using MPJ Express v0.43                                                  -##");		
 			System.out.println("##- Version con Estructura 4-dimensional, Smart-Podas y Contornos de colores -##");
-			System.out.println("##-                                                                          -##");
+			System.out.println("##- Micro optimizaciones.                                                    -##");
 			System.out.println("################################################################################");
 			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("         Copyright(c) 2014 Fabricio Lettieri (fabri1983@gmail.com)");
+			System.out.println("         Copyright(c) 2015 Fabricio Lettieri (fabri1983@gmail.com)");
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println();
 			System.out.println("Total procs: " + MPI.COMM_WORLD.Size() + "\n\n");

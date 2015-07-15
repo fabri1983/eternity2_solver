@@ -1,13 +1,11 @@
 package eternity_faster_pkg_arrays;
 
-
 /**
  * Lock free for multi-threading safe use.
  * 
  * WARNING: is uncompleted.
  * 
  * @author Fabricio Lettieri
- *
  */
 public class ObjectArrayListSynchronized extends ObjectArrayList
 {

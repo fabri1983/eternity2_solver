@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,18 +27,18 @@ public class Pieza {
 	
 	private final static byte GRIS=0;
 	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
-	private final static byte MAX_ESTADOS_ROTACION= 4; // el numero maximo de estados de rotacion por pieza
+	private final static byte MAX_ESTADOS_ROTACION = 4; // el n煤mero m谩ximo de estados de rotaci贸n por pieza
 	
-	/*
-	 * NOTA: ubicaci髇 de datos en data
-	 * Los bits 0..4 color top.
-	 * Los bits 5..9 color right.
-	 * Los bits 10..14 color bottom.
-	 * Los bits 15..19 color left.
-	 * Los bits 20..21 son la rotacion de la pieza.
-	 * Los bits 22..29 son el n鷐ero de la pieza
-	 * El bit 30 es usada (0 false, 1 true)
-	 */
+	
+	// NOTA: ubicaci贸n de datos en data
+	// Los bits 0..4 color top.
+	// Los bits 5..9 color right.
+	// Los bits 10..14 color bottom.
+	// Los bits 15..19 color left.
+	// Los bits 20..21 son la rotaci贸n de la pieza.
+	// Los bits 22..29 son el n煤mero de la pieza
+	// El bit 30 es usada (0 false, 1 true)
+
 	/*public static final int MASCARA_COLOR = 31; //mascara para quedarme con los primeros 5 bits
 	public static final int MASCARA_ROTACION = 3; //mascara para quedarme con los primeros 2 bits
 	public static final int MASCARA_NUMERO = 255; //mascara para quedarme con los primeros 8 bits
@@ -52,20 +52,21 @@ public class Pieza {
 	public static final int OFFSET_USADA = 30;*/
 	
 	public byte top,right,bottom,left;
-	public int numero; // numero que representa la pieza en el juego real
+	public int numero; // n煤mero que representa la pieza en el juego real
 	public byte rotacion;
 	public PUsada pusada;
-	//public int pos; //indica la posicion en tablero en la que se encuentra la pieza
+	// public int pos; //indica la posici贸n en tablero en la que se encuentra la pieza
 	public byte count_grises;
 	public boolean es_match_central; //me dice si tiene al menos uno de los colores de la pieza central (6, 11 o 18)
 	public boolean es_esquina, es_borde, es_interior;
-	/*public int idUnico; // es un n鷐ero para identificar unequivocamente la instancia de la pieza, pues se hacen copias
-	private static int countIdUnico = 0;*/
+
 	
+	// public int idUnico; // es un n煤mero para identificar unequivocamente la instancia de la pieza, pues se hacen
+	// copias private static int countIdUnico = 0;
 	
 	public Pieza (String s, int num)
 	{
-		// separo los 4 numeros que hay en s y se los asigno a c/u de los 4 triangulitos
+		// separo los 4 n煤meros que hay en s y se los asigno a c/u de los 4 triangulitos
 		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,0);
 		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,primer_sep+1);
 		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,seg_sep+1);
@@ -141,7 +142,7 @@ public class Pieza {
 		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,cuarto_sep+1);
 		numero= Integer.parseInt(s.substring(cuarto_sep+1,quinto_sep));
 		
-		//Tercero: separo el valor de rotacion de la pieza
+		// Tercero: separo el valor de rotaci贸n de la pieza
 		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,quinto_sep+1);
 		rotacion= Byte.parseByte(s.substring(quinto_sep+1,sexto_sep));
 		
@@ -149,7 +150,7 @@ public class Pieza {
 		int sept_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,sexto_sep+1);
 		pusada= new PUsada(Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep)));
 
-		//Quinto: separo la posicion en la que se encuentra la pieza
+		// Quinto: separo la posici贸n en la que se encuentra la pieza
 		//pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
 		
 		setMatchCentral(this);
@@ -320,7 +321,8 @@ public class Pieza {
 	}
 	
 	/**
-	 * Pieza p es igual a esta instancia solo si el n鷐ero es el mismo.
+	 * Pieza p es igual a esta instancia solo si el n煤mero es el mismo.
+	 * 
 	 * @param p
 	 * @return
 	 */

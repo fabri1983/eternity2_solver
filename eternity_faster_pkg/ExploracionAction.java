@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ public class ExploracionAction extends RecursiveAction {
 	private Pieza pieza_extern_loop; //empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
 	private int index_sup; //empleados en varios m�todos para pasar info
 
-	private long time_inicial, time_final; //sirven para calcular el tiempo al hito de posici�n lejana
+	private long time_inicial, time_final; // sirven para calcular el tiempo al hito de posición lejana
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
@@ -104,7 +104,7 @@ public class ExploracionAction extends RecursiveAction {
 			//ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
 			while (cursor >= 0) {
 				if (!retroceder) {
-					//pregunto si llegu� al limite de esta instancia de exploracion
+					// pregunto si llegué al limite de esta instancia de exploracion
 					/*if (cursor <= LIMITE_DE_EXPLORACION){
 						operarSituacionLimiteAlcanzado();
 						return;
@@ -127,33 +127,32 @@ public class ExploracionAction extends RecursiveAction {
 				//debo setear la pieza en cursor como no usada
 				if (cursor != SolverFaster.POSICION_CENTRAL){
 					pieza_extern_loop= tablero[cursor];
-					pieza_extern_loop.pusada.value= false; //la seteo como no usada xq sino la exploracion pensar� que est� usada (porque asi es como se guard�)
+					pieza_extern_loop.pusada.value = false; // la seteo como no usada xq sino la exploración pensará que
+															// está usada (porque asi es como se guardó)
 					//pzz.pos= -1;
 					tablero[cursor]= null;
 				}
 				
-				//si retroced� hasta el cursor destino, entonces no retrocedo mas
-				/*@RETROCEDER
-				if (cursor <= cur_destino){
-					retroceder= false;
-					cur_destino= CURSOR_INVALIDO;
-				}
-				
-				//si est� activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
-				if (retroceder)
-					desde_saved[cursor]= 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza*/
+				// si retrocedó hasta el cursor destino, entonces no retrocedo mas
+				/*
+				 * @RETROCEDER if (cursor <= cur_destino){ retroceder= false; cur_destino= CURSOR_INVALIDO; }
+				 * 
+				 * //si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
+				 * if (retroceder) desde_saved[cursor]= 0; //la exploracion de posibles piezas para la posicion cursor
+				 * debe empezar desde la primer pieza
+				 */
 			}
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println(id + " >>> NO se ha encontrado solucion."); //ittai! (pero qué?!!)
 
-		/*if (send_mail){ //Envio un mail diciendo que no se encontr� soluci�n
-			SendMail em= new SendMail();
-			em.setDatos("NO se ha encontrado solucion para el caso " + CASO, "Sin solucion, caso " + CASO);
-			Thread t= new Thread(em);
-			t.start();
-		}*/
+		// if (send_mail){ //Envio un mail diciendo que no se encontró solución
+		// SendMail em= new SendMail();
+		// em.setDatos("NO se ha encontrado solucion para el caso " + CASO, "Sin solucion, caso " + CASO);
+		// Thread t= new Thread(em);
+		// t.start();
+		// }
 	}
 	
 	
@@ -214,8 +213,8 @@ public class ExploracionAction extends RecursiveAction {
 			System.out.println(action.id + " >>> Estado guardado en cursor " + action.cursor + ". Pos Min " + action.mas_bajo + ", Pos Max " + action.mas_alto + ". Tiempo: " + TimeUnit.MILLISECONDS.convert(mili_temp - action.time_status_saved, TimeUnit.NANOSECONDS) + " ms.");				
 			action.time_status_saved = mili_temp;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-			action.mas_bajo= SolverFaster.MAX_PIEZAS;
-			action.mas_alto= 0;
+			action.mas_bajo = SolverFaster.MAX_PIEZAS;
+			action.mas_alto = 0;
 		}
 		//#############################################################################################
 		

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,9 @@ import eternity_faster_pkg_arrays.ObjectArrayList;
 
 
 /**
- * Esta clase contiene un arreglo que representa una fila de piezas.
- * El arreglo filadata[] contiene MAX_COLS celdas y cada una de ellas 
- * contiene información sobre de una pieza en particular, y el arreglo
- * referencias[] contiene la referencia a la pieza.
+ * Esta clase contiene un arreglo que representa una fila de piezas. El arreglo filadata[] contiene MAX_COLS celdas y
+ * cada una de ellas contiene informaciÃ³n sobre de una pieza en particular, y el arreglo referencias[] contiene la
+ * referencia a la pieza.
  * 
  * @author Fabricio Lettieri
  */
@@ -38,10 +37,11 @@ public final class FilaPiezas
 	public final static String PARAM_MAX_COLS = "max.cols.por.fila";
 	
 	private static byte MAX_COLS;
-	private int iput; //usado como indice para poner info de pieza en la posición que corresponde de filadata[] y referencias[]
+	private int iput; // usado como Ã­ndice para poner info de pieza en la posiciÃ³n que corresponde de filadata[] y
+						// referencias[]
 	public int filadata[]; //arreglo de datos de las piezas (desde_saved)
-	public Pieza referencias[]; //arreglo de referencia de piezas
-	public int pos_carga; //a partir de qué posición en filadata[] cargo las piezas de esta fila.
+	public Pieza referencias[]; // arreglo de referencias de piezas
+	public int pos_carga; // a partir de quÃ© posiciÃ³n en filadata[] cargo las piezas de esta fila.
 	
 	
 	public FilaPiezas (final byte max_c)
@@ -86,9 +86,10 @@ public final class FilaPiezas
 	}
 	
 	/**
-	 * Devuelve el indice de la primer fila con piezas libres para poner.
+	 * Devuelve el Ã­ndice de la primer fila con piezas libres para poner.
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
-	 * @return El tamaño del arreglo array_fila
+	 * @return El tamaÃ±o del arreglo array_fila
 	 */
 	public static final int primerFilaTotalmenteLibre (final ObjectArrayList array_fila)
 	{
@@ -110,8 +111,9 @@ public final class FilaPiezas
 	}
 	
 	/**
-	 * Reordena la ubicacion de las filas de menor a mayor de acuerdo a las piezas de cada fila.
-	 * Usa Bublesort.
+	 * Reordena la ubicaciÃ³n de las filas de menor a mayor de acuerdo a las piezas de cada fila. Usa Bublesort ya que se
+	 * ejeucta en la carga del juego.
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
 	public static final void ordenarFilasBublesort (final ObjectArrayList array_fila)
@@ -131,8 +133,8 @@ public final class FilaPiezas
 	}
 	
 	/**
-	 * Reordena la ubicacion de las filas de menor a mayor de acuerdo a las piezas de cada fila.
-	 * Usa Quicksort.
+	 * Reordena la ubicacion de las filas de menor a mayor de acuerdo a las piezas de cada fila. Usa Quicksort.
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
 	public static final void ordenarFilasQuicksort (final ObjectArrayList array_fila)
@@ -142,6 +144,7 @@ public final class FilaPiezas
 	
 	/**
 	 * Algoritmo Quicksort para arraeglo de FilaPiezas
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 * @param izq
 	 * @param der
@@ -188,14 +191,15 @@ public final class FilaPiezas
 	}
 	
 	/**
-	 * Calcula la posición de carga de piezas en "fila_data[]" para cada fila de "array_fila".
+	 * Calcula la posicion de carga de piezas en "fila_data[]" para cada fila de "array_fila".
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
 	public static final void calcularPosCargaInicial (final ObjectArrayList array_fila)
 	{
 		FilaPiezas fila_actual, fila_ant;
 
-		//Asigno el valor adecuado a la variable pos_carga que me dice a partir de qué posicion en filap[] cargo piezas
+		// Asigno el valor adecuado a la variable pos_carga que me dice a partir de quÃ© posiciÃ©n en filap[] cargo piezas
 		for (int j=0; j < array_fila.size(); ++j){
 			//al ser la primer fila en array_fila inicio la carga de piezas desde 0
 			if (j == 0)
@@ -204,7 +208,7 @@ public final class FilaPiezas
 				fila_ant = (FilaPiezas)array_fila.get(j - 1); //tomo la fila anterior para poder comparar
 				fila_actual = (FilaPiezas)array_fila.get(j); //tomo la fila actual
 				for (int c=0; c < MAX_COLS; ++c){
-					//si los números y las rotaciones son los mismos => seteo pos_carga en c+1
+					// si los numeros y las rotaciones son los mismos => seteo pos_carga en c+1
 					if ( (fila_ant.referencias[c].numero == fila_actual.referencias[c].numero) && 
 							(fila_ant.referencias[c].rotacion == fila_actual.referencias[c].rotacion) ) 
 						fila_actual.pos_carga = c+1;
@@ -217,6 +221,7 @@ public final class FilaPiezas
 	
 	/**
 	 * Compara cada fila en array_fila con fp para comprobar si ya existe en array_fila.
+	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 * @param fp FilaPiezas
 	 */
@@ -234,12 +239,13 @@ public final class FilaPiezas
 	
 	/**
 	 * Devuelve true si la fila "fpthis" es igual a la fila "fp".
+	 * 
 	 * @return
 	 */
 	public static final boolean equalsFila (final FilaPiezas fpthis, final FilaPiezas fp)
 	{
 		for (int b=0; b < MAX_COLS; ++b)
-			//si al menos para alguna posición las filas se diferenciasn entonces devuelvo false
+			// si al menos para alguna posiciÃ³n las filas se diferenciasn entonces devuelvo false
 			if (!FilaPiezas.equalsData(fpthis.filadata[b], fpthis.referencias[b], fp.filadata[b], fp.referencias[b]))
 				return false;
 		
@@ -280,18 +286,16 @@ public final class FilaPiezas
 	}
 	
 	/**
-	 * Devuelve true si número, rotación, y desde son iguales.
+	 * Devuelve true si numero, rotacion, y desde son iguales.
+	 * 
 	 * @return
 	 */
 	public static final boolean equalsData (final int desde1, final Pieza p1, final int desde2, final Pieza p2)
 	{
-		//numero de pieza
 		if (p1.numero != p2.numero)
 			return false;
-		//rotacion
 		if (p1.rotacion != p2.rotacion)
 			return false;
-		//desde
 		if (desde1 != desde2)
 			return false;
 		return true;
@@ -303,13 +307,11 @@ public final class FilaPiezas
 	 */
 	public static final boolean menorData (final Pieza p1, final Pieza p2)
 	{
-		//numero de pieza
 		if (p1.numero < p2.numero)
 			return true;
 		else if (p1.numero > p2.numero)
 			return false;
-		//hasta aqui los números son los mismos
-		//comparo rotaciones
+		// hasta aquÃ­ los numeros son los mismos
 		if (p1.rotacion < p2.rotacion)
 			return true;
 		return false;
@@ -320,13 +322,11 @@ public final class FilaPiezas
 	 * @return
 	 */
 	public static final boolean mayorData (final Pieza p1, final Pieza p2){
-		//numero de pieza
 		if (p1.numero > p2.numero)
 			return true;
 		else if (p1.numero < p2.numero)
 			return false;
-		//hasta aqui los números son los mismos
-		//comparo rotaciones
+		// hasta aquÃ­ los numeros son los mismos
 		if (p1.rotacion > p2.rotacion)
 			return true;
 		return false;
