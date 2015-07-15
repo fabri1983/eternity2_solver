@@ -4,7 +4,7 @@
 #:: para 2 colums tengo count maximo 29 con 34926 filas calculadas
 #:: para 3 colums tengo count maximo 91 con 1556132 filas calculadas
 #:: para 4 colums tengo count maximo 297 con 68981072 filas calculadas
-#:: para 5 colums tengo count maximo ¿? con 3042060164 filas calculadas
+#:: para 5 colums tengo count maximo ï¿½? con 3042060164 filas calculadas
 
 #:: Solver paramaters:
 #:: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
