@@ -53,7 +53,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 	private int periodStepping = 1; // ayuda a  COUNT_PERIOD
 	private StringBuilder titleRefreshed = new StringBuilder(128);
 	private String title = "";
-	private static final String titleAdd = " - (Total)Pieces/sec: ";
+	private static final String titleAdd = " - (Total)Pcs/sec: ";
 	
 	private EternityTable jTable1;
     private JScrollPane jScrollPane1 = new JScrollPane();
