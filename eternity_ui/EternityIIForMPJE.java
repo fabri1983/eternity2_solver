@@ -27,11 +27,9 @@ import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
-
 public class EternityIIForMPJE {
 
 	public ViewEternityForMPJE frame; //es la ventanita
-	
 	
     public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc) {
     	
@@ -39,9 +37,8 @@ public class EternityIIForMPJE {
         frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
-        frame.setTitle(proc + " E2Solver (c) 2014");
+        frame.setTitle("("+ proc + ") E2Solver MPJe");
         
-        // set the location of the window according the number of processors in current machine 
         setLocation(Runtime.getRuntime().availableProcessors());
     }
     
@@ -71,18 +68,12 @@ public class EternityIIForMPJE {
     	}
     		
 	}
-
-	private void setVisible() {
-    	
-    	frame.setVisible(true);
-    }
     
     /**
      * Se encarga de inicializar el canvas y de mostrar el estado actual del tablero.
      */
     public void startPainting() {
-    	
-    	this.setVisible();
+    	frame.setVisible(true);
     	frame.run();
     }
 

@@ -6,11 +6,11 @@ Game finished in 2010 without anyone claiming the solution. Prize for any valid 
 
 This backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
-Windows (Seven) environment results:
-Currently placing 70 million pieces per second in a 8 thread execution instances using a fork/join pool. And placing 80 million pieces per second using MPJ Express framework with 4 instances of the solver. 
+Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel environment results:
+Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
 
-Linux (Ubuntu 14) environment results:
-Currently placing 90 million pieces per second in a 4 thread execution instances using a fork/join pool. 
+Ubuntu 14 Intel core i5 DDR3 Dual Channel environment results:
+Currently placing ?? million pieces per second in a fork/join pool with 4 threads. 
 
 The project is under continuous development on spare time. Every time I come back and apply some change or code re-factor is for performance purpose.
 Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.

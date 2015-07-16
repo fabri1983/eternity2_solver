@@ -24,14 +24,11 @@ package eternity_ui;
 
 import eternity_faster_pkg.Pieza;
 
-
 public class EternityCanvas {
 
-    int count = 0;
+	public Pieza[][] viewPieces; // esta se usa para dibujar las piezas
     private int columns;
     private int rows;
-    public Pieza[][] viewPieces; //esta se usa para dibujar las piezas
-    
 
     public EternityCanvas(int column, int rows) {
         this.columns = column;

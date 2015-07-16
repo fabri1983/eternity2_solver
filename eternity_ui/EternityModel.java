@@ -27,7 +27,6 @@ import javax.swing.table.TableModel;
 
 import eternity_faster_pkg.Pieza;
 
-
 public class EternityModel implements TableModel {
 
     private EternityCanvas canvas;
@@ -48,7 +47,7 @@ public class EternityModel implements TableModel {
         return null;
     }
 
-    public Class<?> getColumnClass(int columnIndex) {
+    public Class<Pieza> getColumnClass(int columnIndex) {
         return Pieza.class;
     }
 
