@@ -1,0 +1,10 @@
+/.settings
+.settings
+/target
+/bin
+*.log
+*.class
+E2Faster.jar
+E2MPJE.jar
+/status
+*.orig
