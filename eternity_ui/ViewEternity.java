@@ -36,7 +36,6 @@ import eternity_faster_pkg.ExploracionAction;
 import eternity_faster_pkg.Pieza;
 import eternity_faster_pkg.SolverFaster;
 
-
 public class ViewEternity extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
@@ -48,14 +47,13 @@ public class ViewEternity extends JFrame implements KeyListener {
 	private boolean running = false;
 	private boolean pauseAll = false;
 	private boolean pauseGraphic = false;
-	private long refresh_milis;
-	private long prevCount = 0;
-	private int innerCount = 1; // este controla el refresco de las piezas por segundo
-	private static final int COUNT_SPEED = 5; // factor de velocidad de refresco del contador de piezas
+	private long refresh_milis; // este controla el refresco de las piezas del tablero
+	private long prevAccum = 0;
+	private static final int COUNT_PERIOD = 5; // periodo de refresco del contador de piezas aplicado a refresh_milis
+	private int periodStepping = 1; // ayuda a  COUNT_PERIOD
 	private StringBuilder titleRefreshed = new StringBuilder(128);
 	private String title = "";
-	private static final String titleAdd = " - (Total)Pieces/sec: ";
-	private long frequency = 0;
+	private static final String titleAdd = " - (Total)Pcs/sec: ";
 	
 	private EternityTable jTable1;
     private JScrollPane jScrollPane1 = new JScrollPane();
@@ -64,7 +62,6 @@ public class ViewEternity extends JFrame implements KeyListener {
 
     private ExploracionAction action;
     private RefreshThread rt = null;
-    
 
     public ViewEternity(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours, ExploracionAction _action) {
     	
@@ -86,7 +83,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 
     private void jbInit() throws Exception {
     	
-    	this.setSize(new Dimension((LADO * cell_size) + 12, (LADO * cell_size) + 41));
+    	this.setSize(new Dimension((LADO * cell_size) + 13, (LADO * cell_size) + 50));
 
         this.getContentPane().setLayout(borderLayout1);
         jTable1 = new EternityTable(cell_size, num_colours);
@@ -114,10 +111,7 @@ public class ViewEternity extends JFrame implements KeyListener {
         jTable1.setCanvas(c);
         running = true;
         pauseAll = false;
-        
         title = this.getTitle();
-        frequency = 1000 / refresh_milis;
-        
         rt = new RefreshThread(this, refresh_milis);
         rt.start();
     }
@@ -142,23 +136,29 @@ public class ViewEternity extends JFrame implements KeyListener {
      */
     private void updateTablero () {
     	
-    	// calculo piezas (o nodos) por segundo. Se actualiza cada 1/COUNT_SPEED segs
-    	if (innerCount >= frequency) {
-    		long currentCount = 0;
+    	// Calculo piezas por segundo. 
+    	// Dado que este metodo se invoca refresh_milis/1000 veces por seg, entonces estaría procesando: 
+    	//    currentCount * 1 / (refresh_milis/1000) piezas por seg.
+    	// Pero actualmente calculo la cantidad de piezas procesadas cada COUNT_PERIOD*refresh_milis/1000 segs
+    	// entonces estaría procesando:
+    	//    currentCount * 1 / (COUNT_PERIOD*refresh_milis/1000) piezas por seg.
+    	
+    	if (periodStepping == COUNT_PERIOD) {
+    		periodStepping = 0; // lo reseteo 
+    		long accum = 0;
 			for (int i = SolverFaster.count_cycles.length - 1; i >= 0; --i)
-				currentCount += SolverFaster.count_cycles[i];
-			currentCount -= prevCount;
-			prevCount = currentCount + prevCount;
-    		
-	    	innerCount = 1;
-	    	
+				accum += SolverFaster.count_cycles[i]; // SolverFaster.count_cycles son acumuladores de piezas procesadas
+			accum -= prevAccum;
+			long piezasPerSeg =  (long) (accum * 1.0 / (COUNT_PERIOD * refresh_milis / 1000.0));
 	    	titleRefreshed.delete(0, titleRefreshed.length());
-	    	titleRefreshed.append(title).append(titleAdd).append(currentCount * COUNT_SPEED);
+	    	titleRefreshed.append(title).append(titleAdd).append(piezasPerSeg);
 	    	this.setTitle(titleRefreshed.toString());
+	    	prevAccum += accum;
 	    }
     	else
-    		innerCount += COUNT_SPEED;
-    	
+    		++periodStepping;
+
+    	// Actualizo el tablero si no se ha pausado
     	if (pauseGraphic)
     		return;
     	
@@ -204,7 +204,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 		
 		switch (arg0.getKeyCode()) {
 		
-			case KeyEvent.VK_SPACE: {
+			case KeyEvent.VK_P: {
 				this.pauseAll = !this.pauseAll;
 				if (pauseAll)
 					; // the park functionality is in the while-loop at the refresh thread
@@ -212,7 +212,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 					LockSupport.unpark(rt);
 				break;
 			}
-			case KeyEvent.VK_P: {
+			case KeyEvent.VK_SPACE: {
 				pauseGraphic = !pauseGraphic;
 				break;
 			}
@@ -221,7 +221,6 @@ public class ViewEternity extends JFrame implements KeyListener {
 				if (refresh_milis > 1000)
 					refresh_milis = 1000;
 				rt.refresh_nanos = refresh_milis * 1000 * 1000;
-				frequency = 1000 / refresh_milis;
 				break;
 			}
 			case KeyEvent.VK_DOWN: {
@@ -229,7 +228,6 @@ public class ViewEternity extends JFrame implements KeyListener {
 				if (refresh_milis <= 10)
 					refresh_milis = 10;
 				rt.refresh_nanos = refresh_milis * 1000 * 1000;
-				frequency = 1000 / refresh_milis;
 				break;
 			}
 			case KeyEvent.VK_ESCAPE: {
@@ -243,12 +241,10 @@ public class ViewEternity extends JFrame implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		
 	}
 	
 	/**
@@ -262,15 +258,13 @@ public class ViewEternity extends JFrame implements KeyListener {
         public long refresh_nanos;
         
         RefreshThread(ViewEternity viewEternity, long p_refresh_milis) {
-        	
             this.viewEternity = viewEternity;
-            this.refresh_nanos = p_refresh_milis * 1000 * 1000;
+            this.refresh_nanos = p_refresh_milis * 1000000;
         }
     
         public void run() {
         	// this loop won't have a lock loop effect since we're using parking pattern
             while(viewEternity.running) {
-            	
             	while (!viewEternity.pauseAll) {
 	                viewEternity.refresh();
 	                // suspend this thread for a given time
@@ -279,7 +273,6 @@ public class ViewEternity extends JFrame implements KeyListener {
             	LockSupport.park();
             }
         }
-        
     }
 
 }

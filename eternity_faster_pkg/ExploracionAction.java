@@ -62,7 +62,7 @@ public class ExploracionAction extends RecursiveAction {
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
-	protected int id; 
+	protected final int id; 
 	
 	public ExploracionAction(int _id) {
 		id = _id;
@@ -203,7 +203,7 @@ public class ExploracionAction extends RecursiveAction {
 			action.mas_bajo_activo= true;
 		}
 		
-		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploracion
+		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
 		if (SolverFaster.count_cycles[action.id] >= SolverFaster.MAX_CICLOS){
 			SolverFaster.count_cycles[action.id] = 0;
 			//calculo el tiempo entre status saved
@@ -325,7 +325,6 @@ public class ExploracionAction extends RecursiveAction {
 		
 		for (; desde < length_posibles; ++desde)
 		{
-			++SolverFaster.count_cycles[action.id]; //incremento el contador de combinaciones de piezas
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			Pieza p = posibles.referencias[desde]; //el nodo contiene el indice de la pieza a probar y sus rotacs permitidas
 			
@@ -333,6 +332,8 @@ public class ExploracionAction extends RecursiveAction {
 			if (p.pusada.value)
 				continue; //es usada, pruebo con la siguiente pieza
 	
+			++SolverFaster.count_cycles[action.id]; //incremento el contador de combinaciones de piezas
+			
 			//pregunto si la pieza a poner es del tipo adecuado segun cursor. Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
 			// empiezo con la mas comun que es interior
 			if (flag_zona == SolverFaster.F_INTERIOR ) {

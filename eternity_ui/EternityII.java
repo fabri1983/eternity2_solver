@@ -28,11 +28,9 @@ import javax.swing.JFrame;
 
 import eternity_faster_pkg.ExploracionAction;
 
-
 public class EternityII {
 
 	public ViewEternity frame; //es la ventanita
-	
 	
     public EternityII(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int numProcesors, ExploracionAction action) {
     	
@@ -40,7 +38,7 @@ public class EternityII {
         frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
-        frame.setTitle("E2Solver (c) 2014");
+        frame.setTitle("E2Solver");
         
         setLocation(numProcesors);
     }
@@ -71,18 +69,12 @@ public class EternityII {
     	}
     		
 	}
-
-	private void setVisible() {
-    	
-    	frame.setVisible(true);
-    }
     
     /**
      * Se encarga de inicializar el canvas y de mostrar el estado actual del tablero.
      */
     public void startPainting() {
-    	
-    	this.setVisible();
+    	frame.setVisible(true);
     	frame.run();
     }
 

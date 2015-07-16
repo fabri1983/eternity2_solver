@@ -22,11 +22,9 @@
 
 package eternity_ui;
 
-
 import javax.swing.JTable;
 
 import javax.swing.table.DefaultTableColumnModel;
-
 
 public class EternityTable extends JTable {
 
