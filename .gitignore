@@ -1,10 +1,17 @@
-/.settings
-.settings
+# Maven
 /target
+*.ser
+*.ec
+
+# Eclipse
+.project
+.classpath
+.settings
+/.settings
+/.metadata
+
+# Other
 /bin
 *.log
 *.class
-E2Faster.jar
-E2MPJE.jar
-/status
 *.orig
