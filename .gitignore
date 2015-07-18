@@ -1,9 +1,16 @@
+# Maven
+/target
+*.ser
+*.ec
+
+# Eclipse
 .project
 .classpath
 .settings
 /.settings
 /.metadata
-/target
+
+# Other
 /bin
 *.log
 *.class
