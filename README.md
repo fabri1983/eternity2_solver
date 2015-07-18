@@ -4,7 +4,9 @@ eternity2_solver
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
 Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
 
-This backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
+This project is managed with Maven 3.x.
+
+The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
 Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel environment results:
 Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
@@ -12,12 +14,12 @@ Currently placing around 54 million pieces per second in a fork/join pool with 8
 Ubuntu 14 Intel core i5 DDR3 Dual Channel environment results:
 Currently placing ?? million pieces per second in a fork/join pool with 4 threads. 
 
-The project is under continuous development on spare time. Every time I come back and apply some change or code re-factor is for performance purpose.
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
 Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
 
 
-Papers where I took some ideas from
------------------------------------
+Papers where I took some ideas
+------------------------------
 
 - How many edges can be shared by N square tiles on a board? 
 Thierry Benoist
@@ -35,7 +37,25 @@ MIT Computer Science and Artificial Intelligence Laboratory
 Third party APIs
 ----------------
 MPJ Express. http://mpj-express.org/
-Once downloaded and uncompressed, you need to edit the bat files and the Eclipse project for correctly classpath.
+It is included in the project as a system dependency
+
+jsr166. Is the java concurretn framework for Java 1.6 target builds
+I use this to run the program under the Oracle JRockit VM.
+
+
+Packaging
+---------
+mvn clean package
+It generates the jar file and copy the external dependencies under target folder.
+Profiles (use -Pname):
+	java7, java8: for executing with either JVM.
+	jrockit: intended for running under JRockit JVM from Oracle.
+	mpje: intended for running in cluster/multicore environment.
+	
+
+Execution
+---------
+Go under tools folder and use one of the runXXX commands.
 
 
 Running with Avian jvm
