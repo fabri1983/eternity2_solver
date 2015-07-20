@@ -36,7 +36,7 @@ MIT Computer Science and Artificial Intelligence Laboratory
 
 Third party APIs
 ----------------
-MPJ Express. http://mpj-express.org/
+MPJ Express. http://mpj-express.org/.
 It is included in the project as a system dependency
 
 jsr166.
