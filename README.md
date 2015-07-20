@@ -39,8 +39,9 @@ Third party APIs
 MPJ Express. http://mpj-express.org/
 It is included in the project as a system dependency
 
-jsr166. Is the java concurretn framework for Java 1.6 target builds
-I use this to run the program under the Oracle JRockit VM.
+jsr166.
+Is the java concurrent api for Java 1.6 target builds.
+I use this to run the program on the Oracle JRockit VM.
 
 
 Packaging
@@ -49,19 +50,20 @@ mvn clean package
 It generates the jar file and copy the external dependencies under target folder.
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
-	jrockit: intended for running under JRockit JVM from Oracle.
-	mpje: intended for running in cluster/multicore environment.
+	jrockit: intended for running on Oracle's JRockit JVM.
+	mpje: intended for running in cluster/multicore environment using MPJExpress.
 	
 
 Execution
 ---------
 Go under tools folder and use one of the runXXX commands.
+NOTE: currently only the run command is working. In few days I'm gonna upload the fix to other commands.
 
 
 Running with Avian jvm
 ----------------------
 I'm trying to improve the execution of code using another free JVM implementations.
-Currently I'm taking a look to Avian JVM.
+Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what is Avian.
 
