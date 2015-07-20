@@ -133,9 +133,10 @@
 										<include name="**/*" />
 									</fileset>
 								</copy>
-								<chmod perm="go+rwx" type="file">
+								<chmod perm="u+rwx" type="file">
 									<fileset dir="${project.build.directory}/lib/mpj-v0_44/bin">
 										<include name="*" />
+										<exclude name="*.bat" />
 									</fileset>
 								</chmod>
 							</target>
