@@ -116,6 +116,35 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<inherited>false</inherited>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target name="copy external-libs into target">
+								<copy todir="${project.build.directory}/lib">
+									<fileset dir="${external.libs.dir}">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+								<chmod perm="go+rwx" type="file">
+									<fileset dir="${project.build.directory}/lib/mpj-v0_44/bin">
+										<include name="*" />
+									</fileset>
+								</chmod>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.12.4</version>
 				<configuration>
