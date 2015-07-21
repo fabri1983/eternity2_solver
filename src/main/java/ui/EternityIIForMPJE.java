@@ -39,13 +39,14 @@ public class EternityIIForMPJE {
         frame.setResizable(false);
         frame.setTitle("("+ proc + ") E2Solver MPJe");
         
-        setLocation(Runtime.getRuntime().availableProcessors());
+        int numProcessors = Runtime.getRuntime().availableProcessors();
+		setLocation(numProcessors, proc % numProcessors);
     }
     
-    private void setLocation(int numProcesors) {
+	private void setLocation(int numProcesors, int procId) {
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = frame.getSize();
+		Dimension frameSize = frame.getSize(); // returns a copy
         
         if (frameSize.height > screenSize.height) {
             frameSize.height = screenSize.height;
@@ -54,17 +55,21 @@ public class EternityIIForMPJE {
             frameSize.width = screenSize.width;
         }
         
-        // if the number of process is 1 then locate the frame in the middle of the canvas
+		// if only one processor then locate the frame in the middle of the canvas
     	if (numProcesors == 1)
     		frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-    	// locate this frame in a particular position
+		// locate this frame in a tiled fashion according its id
     	else {
-    		int middleWidth = (screenSize.width - frameSize.width) / 2;
-    		int middleHeight = (screenSize.height - frameSize.height) / 2;
-    		frame.setLocation( 
-    				middleWidth + (int)((Math.random() * middleWidth) * ( ((Math.random() * 2) > 1) ? 1 : -1)), 
-    				middleHeight + (int)((Math.random() * middleHeight) * ( ((Math.random() * 2) > 1) ? 1 : -1))
-    				);
+			int maxCols = 4;
+			int maxRows = 2;
+			int xPos = (procId % maxCols) * frameSize.width;
+			int yPos = ((procId / maxCols) % maxRows) * frameSize.height;
+
+			if (xPos + frameSize.width > screenSize.width)
+				xPos -= (xPos + frameSize.width) - screenSize.width;
+			if (yPos + frameSize.height > screenSize.height)
+				yPos -= (xPos + frameSize.height) - screenSize.height;
+			frame.setLocation(xPos, yPos);
     	}
     		
 	}

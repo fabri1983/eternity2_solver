@@ -57,7 +57,6 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
 	private EternityTable jTable1;
     private JScrollPane jScrollPane1 = new JScrollPane();
     private JPanel jPanel1 = new JPanel();
-    private BorderLayout borderLayout1 = new BorderLayout();
 
     private RefreshThread rt = null;
 
@@ -67,7 +66,7 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
     	cell_size = cell_size_pixels;
     	num_colours = p_num_colours;
     	LADO = pLado;
-    	LADO_SHIFT_FOR_DIV = (int)(Math.log10(LADO) / Math.log10(2));
+		LADO_SHIFT_FOR_DIV = (int) (Math.log10(LADO) / Math.log10(2)); // siempre y cuando LADO sea potencia de 2
     	byte cero = 0;
     	pieza_gris = new Pieza(cero,cero,cero,cero,cero);
         try {
@@ -81,7 +80,6 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
     	
     	this.setSize(new Dimension((LADO * cell_size) + 13, (LADO * cell_size) + 50));
 
-        this.getContentPane().setLayout(borderLayout1);
         jTable1 = new EternityTable(cell_size, num_colours);
         jTable1.addKeyListener(this);
         
@@ -90,11 +88,11 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
         jPanel1.setPreferredSize(new Dimension(0, 100));
         jPanel1.setLayout(null);
 
-        jScrollPane1.setSize(new Dimension(LADO * cell_size, LADO * cell_size));
-        jScrollPane1.getViewport().add(jTable1, null);
+		jScrollPane1.setSize(new Dimension(LADO * cell_size, LADO * cell_size));
+		jScrollPane1.getViewport().add(jTable1, null);
 
-        this.getContentPane().add(jPanel1, BorderLayout.WEST);
-        this.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
+		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+		this.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
     }
     
     /**
