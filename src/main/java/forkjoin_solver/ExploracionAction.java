@@ -67,7 +67,7 @@ public class ExploracionAction extends RecursiveAction {
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
-	protected final int id; 
+	public final int id;
 	
 	public ExploracionAction(int _id) {
 		id = _id;

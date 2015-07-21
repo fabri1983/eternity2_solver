@@ -8,11 +8,11 @@ This project is managed with Maven 3.x.
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
-Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel environment results:
+Environment: Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
 Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
 
-Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7 environment results:
-Currently placing 38 million pieces per second in a fork/join pool with 4 threads. 
+Environment: Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
+Currently placing 38 million pieces per second in a fork/join pool with 4 threads. And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
 Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
