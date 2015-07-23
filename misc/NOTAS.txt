@@ -1,6 +1,8 @@
 TODO
-Usar maven ant plugin para mover de external-libs a target
-Usar envio de email de java y no el jar externo (y sacarlo de external-libs)
+- Pasar la división de tareas de SolverFasterMPJE a SolverFaster.
+- Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
+- Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
+- Usar envio de email de java y no el jar externo (y sacarlo de external-libs)
 
 ---------------------------------------------------------------------------------------
 Fork/Join approach
@@ -20,9 +22,8 @@ Por eso utilizar CAS para cuando se desea modificar el estado de esos objetos.
 
 ---------------------------------------------------------------------------------------
 For including the jsr166 implementation jar, add next line to the VM arguments. 
-This avoids exception message "java.lang.SecurityException: Prohibited package"
 
-	-Xbootclasspath/p:./extern_libs/jsr166.jar
+	-Xbootclasspath/p:external-libs/jsr166.jar
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
