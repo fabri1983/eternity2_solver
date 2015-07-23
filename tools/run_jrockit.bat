@@ -10,11 +10,14 @@
 :: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 :: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
+set ORIG_DIR=%cd%
 cd ../target
-
 set java=C:/Java/jrockit-jdk1.6.0_45-R28.2.7-4.1.0/bin/java
 set jsr166=lib/jsr166.jar
+:: 900m max usage for 8 threads
+set mem_alloc=900m
 
-%java% -Xbootclasspath/p:%jsr166% -server -Xms1024m -Xmx1024m -jar e2solver_jrockit.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
+%java% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m -jar e2solver_jrockit.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
 
+chdir /d %ORIG_DIR%
 pause

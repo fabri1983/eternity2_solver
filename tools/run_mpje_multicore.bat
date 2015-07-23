@@ -10,12 +10,14 @@
 :: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 :: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
+set ORIG_DIR=%cd%
 cd ../target
 set MPJ_HOME=lib/mpj-v0_44
-cd lib/mpj-v0_44/bin
-set jardir=../../../
+:: 40m max usage per VM instance
+set mem_alloc=40m
 
 :: edit mpjrun.bat to select the desired JVM
-mpjrun.bat -np %NUMBER_OF_PROCESSORS% -Xms200m -Xmx200m %jardir%e2solver_mpje.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99
+%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% -Xms%mem_alloc% -Xmx%mem_alloc% e2solver_mpje.jar 12147483647 211 -1 2 -1 true true 28 100 false false 99
 
+chdir /d %ORIG_DIR%
 pause
