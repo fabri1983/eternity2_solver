@@ -17,13 +17,13 @@
 	<dependencies>
 		<!-- The jsr166 dependency is only used when compiling for java 1.6 and 
 			executed under Oracle's Jrockit JVM -->
-		<dependency>
+		<!-- dependency>
 			<groupId>jsr</groupId>
 			<artifactId>jsr166</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>javamail</artifactId>

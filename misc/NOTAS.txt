@@ -2,7 +2,6 @@ TODO
 - Pasar la división de tareas de SolverFasterMPJE a SolverFaster.
 - Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
 - Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
-- Usar envio de email de java y no el jar externo (y sacarlo de external-libs)
 
 ---------------------------------------------------------------------------------------
 Fork/Join approach
