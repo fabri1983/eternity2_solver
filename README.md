@@ -57,6 +57,7 @@ Profiles (use -Pname):
 Execution
 ---------
 Go under tools folder and use one of the runXXX commands.
+NOTE: currently only the run command is working. In few days I'm gonna upload the fix to other commands.
 
 
 Running with Avian jvm
