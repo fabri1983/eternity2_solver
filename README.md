@@ -9,13 +9,17 @@ This project is managed with Maven 3.x.
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
 Environment: Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
-Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
+Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. 
+And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
 
 Environment: Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
-Currently placing 38 million pieces per second in a fork/join pool with 4 threads. And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
+Currently placing 38 million pieces per second in a fork/join pool with 4 threads. 
+And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
-Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, 
+or code re-factor is for performance purpose.
+In the past experiments said that execution is faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
+However new JVMs since 1.7 brought a gain in performance.
 
 
 Papers where I took some ideas
@@ -39,24 +43,37 @@ Third party APIs
 MPJ Express. http://mpj-express.org/.
 It is included in the project as a system dependency
 
-jsr166.
+jsr166. https://www.jcp.org/en/jsr/detail?id=166
 Is the java concurrent api for Java 1.6 target builds.
 I use this to run the program on the Oracle JRockit VM.
+
+ProGuard. http://proguard.sourceforge.net/
+Tool for shrinking, obfuscating, and optimizing code.
+With this tool I could decrease jar file size by 20%.
+Also code execution is barely faster, although I'm still playing with the options.
+Helpful links:
+	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
+	http://proguard.sourceforge.net/manual/usage.html
+	http://proguard.sourceforge.net/manual/examples.html
 
 
 Packaging
 ---------
 mvn clean package
-It generates the jar file and copy the external dependencies under target folder.
+It generates the jar file with default profile and copy the external dependencies under target folder.
+Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
 	jrockit: intended for running on Oracle's JRockit JVM.
 	mpje: intended for running in cluster/multicore environment using MPJExpress.
-	
+
 
 Execution
 ---------
 Go under tools folder and use one of the runXXX commands.
+Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
+Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
+Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
 
 
 Running with Avian jvm
