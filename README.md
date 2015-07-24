@@ -8,11 +8,11 @@ This project is managed with Maven 3.x.
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 
-Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel environment results:
+Environment: Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
 Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
 
-Ubuntu 14 Intel core i5 DDR3 Dual Channel environment results:
-Currently placing ?? million pieces per second in a fork/join pool with 4 threads. 
+Environment: Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
+Currently placing 38 million pieces per second in a fork/join pool with 4 threads. And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
 Experiments say that execution is faster using the JRockit JVM from Oracle. I see a 25% of speed up.
@@ -36,11 +36,12 @@ MIT Computer Science and Artificial Intelligence Laboratory
 
 Third party APIs
 ----------------
-MPJ Express. http://mpj-express.org/
+MPJ Express. http://mpj-express.org/.
 It is included in the project as a system dependency
 
-jsr166. Is the java concurretn framework for Java 1.6 target builds
-I use this to run the program under the Oracle JRockit VM.
+jsr166.
+Is the java concurrent api for Java 1.6 target builds.
+I use this to run the program on the Oracle JRockit VM.
 
 
 Packaging
@@ -49,8 +50,8 @@ mvn clean package
 It generates the jar file and copy the external dependencies under target folder.
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
-	jrockit: intended for running under JRockit JVM from Oracle.
-	mpje: intended for running in cluster/multicore environment.
+	jrockit: intended for running on Oracle's JRockit JVM.
+	mpje: intended for running in cluster/multicore environment using MPJExpress.
 	
 
 Execution
@@ -61,7 +62,7 @@ Go under tools folder and use one of the runXXX commands.
 Running with Avian jvm
 ----------------------
 I'm trying to improve the execution of code using another free JVM implementations.
-Currently I'm taking a look to Avian JVM.
+Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what is Avian.
 

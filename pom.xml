@@ -12,6 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
 		<skipTests>true</skipTests>
+		<skip.proguard>false</skip.proguard>
 	</properties>
 
 	<dependencies>
@@ -52,6 +53,12 @@
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.proguard</groupId>
+			<artifactId>proguard-base</artifactId>
+			<version>5.2</version>
+			<scope>runtime</scope>
+        </dependency>
 	</dependencies>
 
 	<profiles>
@@ -63,7 +70,7 @@
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<compiler.version>1.7</compiler.version>
-				<manifest.main.class>forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
 		</profile>
 		<profile>
@@ -71,7 +78,7 @@
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<compiler.version>1.8</compiler.version>
-				<manifest.main.class>forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
 		</profile>
 		<profile>
@@ -79,7 +86,7 @@
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
 				<compiler.version>1.6</compiler.version>
-				<manifest.main.class>forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
 		</profile>
 		<profile>
@@ -87,7 +94,7 @@
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<compiler.version>1.7</compiler.version>
-				<manifest.main.class>mpje_solver.MainFasterMPJE</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 			</properties>
 		</profile>
 	</profiles>
@@ -97,6 +104,9 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>proguard.conf</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<plugins>
@@ -116,6 +126,36 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<inherited>false</inherited>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target name="copy-external-libs">
+								<copy todir="${project.build.directory}/lib">
+									<fileset dir="${external.libs.dir}">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+								<chmod perm="u+rwx" type="file">
+									<fileset dir="${project.build.directory}/lib/mpj-v0_44/bin">
+										<include name="*" />
+										<exclude name="*.bat" />
+									</fileset>
+								</chmod>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.12.4</version>
 				<configuration>
@@ -126,7 +166,14 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase>package</phase>
+					</execution>
+				</executions>
 				<configuration>
+					<finalName>${final.jar.name}</finalName>
 					<addMavenDescriptor>false</addMavenDescriptor>
 					<archive>
 						<manifest>
@@ -136,6 +183,40 @@
 						</manifest>
 					</archive>
 					<classesDirectory>${project.build.outputDirectory}</classesDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.wvengen</groupId>
+				<artifactId>proguard-maven-plugin</artifactId>
+				<version>2.0.10</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>proguard</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${skip.proguard}</skip>
+					<proguardInclude>src/main/resources/proguard.conf</proguardInclude>
+					<injar>${project.build.finalName}.jar</injar>
+                    <outjar>${project.build.finalName}.jar</outjar>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+					<obfuscate>true</obfuscate>
+					<addMavenDescriptor>false</addMavenDescriptor>
+					<!-- List external jars your application depends on (that not listed in 
+						maven dependencies). You probably depend on jave runtime (rt.jar). JCE stands 
+						for Java Cryptography Extension. You probably don't need it, but my application 
+						does. -->
+					<libs>
+						<lib>${java.home}/lib/rt.jar</lib>
+						<lib>${project.build.directory}/lib/jsr166.jar</lib>
+						<lib>${project.build.directory}/lib/javamail-1.4.5/mail.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpi.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpiExp.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpj.jar</lib>
+					</libs>
 				</configuration>
 			</plugin>
 		</plugins>

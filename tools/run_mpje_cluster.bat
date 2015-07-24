@@ -10,13 +10,16 @@
 :: maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple
 :: CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading
 
+set ORIG_DIR=%cd%
 cd ../target
 set MPJ_HOME=lib/mpj-v0_44
-
+:: 40m max usage per VM instance
+set mem_alloc=40m
 :: set the amount of total threads in the cluster. It has to be an homogeneous cluster
 set TOTAL_THREADS_IN_CLUSTER=8
 
 :: edit mpjrun.bat to select the desired JVM
-%MPJ_HOME%/bin/mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms200m -Xmx200m e2solver_mpje.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
+%MPJ_HOME%/bin/mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m e2solver_mpje.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
 
+chdir /d %ORIG_DIR%
 pause

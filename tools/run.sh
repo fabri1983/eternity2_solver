@@ -12,4 +12,7 @@
 
 cd ../target
 
-java -XX:+AggressiveOpts -server -Xms1024m -Xmx1024m -jar e2solver.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
+# 900m max usage for 8 threads
+set mem_alloc="900m"
+
+java -XX:+AggressiveOpts -server -Xms$mem_alloc -Xmx$mem_alloc -XX:MaxPermSize=512m -jar e2solver.jar 12147483647 211 -1 2 -1 true false 28 100 false false 99
