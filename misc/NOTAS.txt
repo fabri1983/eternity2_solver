@@ -1,5 +1,5 @@
-TODO
-- Pasar la divisi�n de tareas de SolverFasterMPJE a SolverFaster.
+﻿TODO
+- Pasar la división de tareas de SolverFasterMPJE a SolverFaster.
 - En ExploracionAction hacer todo no static.
 - Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
 - Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
@@ -19,6 +19,19 @@ Ya que las diferentes actions utilizan a SolverFaster como shared resource, se p
   PUsada
   etc
 Por eso utilizar CAS para cuando se desea modificar el estado de esos objetos.
+
+
+Fork/Join:
+Me parece q viene de la mano de async forks.
+	consider using a pool constructed in asyncMode.
+	ForkJoinTask: typically RecursiveAction for most computations that do not return results, RecursiveTask for those 
+		that do, and CountedCompleter for those in which completed actions trigger other actions.
+	CountedCompleters may be better choices when applying a possibly time-consuming operation (that cannot be further 
+		subdivided) to each element of an array or collection. Especially when the operation takes a significantly different 
+		amount of time to complete for some elements than others. So there is no need other threads to block waiting for it.
+
+Para cuando se debe aplicar una operación a un arreglo independientemente de cada elemento se puede utilizar CountedCompleters.
+Ver en http://gee.cs.oswego.edu/dl/jsr166/dist/docs/java/util/concurrent/CountedCompleter.html
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -31,7 +44,7 @@ For including the jsr166 implementation jar, add next line to the VM arguments.
 Optimizaciones:
 ---------------
 - Modulo operation X % Y.
-The clever optimisation is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
+The clever optimization is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
 It requires that your modulo divisor is a power of 2 but if your code can support this then here is the method:
 
 	public final static int fastModulo(int dividend, int divisor)
@@ -169,29 +182,12 @@ Conclusión:
 MPI
 ---
 - Tomando como POSICION_MULTI_PROCESSES = 99 y rank 8 en laptop asus:
-
-	Rank 1:    6391 ms, cursor 211
-	Rank 1:  388315 ms, cursor 212
-	old compu (phenom II x2): 
-		- Rank 0: 2329734 ms, cursor 215
+	Rank 5:    2.8s, cursor 211
 
 - Cuando inicio por primera vez se hace la sincronización solo a fines de poder largar todos los procesos 
 a la vez. Si se carga estado no se debe sincronizar pues cada proceso ya sabe qué parte del arbol tomar.
 Esto me brinda poder salvar N archivos de estado para luego dispersarlos y continuar la exploracion 
 sin tener que esperar que los procesos dispersos se sincronicen.
-
-- Lógica de ataque de procesadores idle:
-(Esta lógica viene inherente en el algoritmo de exploración)
-Si el número de procesadores o nodos distribuidos es mayor a las ramas a explorar en POSICION_MULTI_PROCESSES => habrá 
-procesadores idle. La siguiente lógica "reparte" trabajo en varios niveles de profundidad:
-
-  - decidir qué rama tomar se refiere a definir los valores [desde,length_posibles] usados en exploracionStandard().
-  - cada action se ocupa de únicas ramas de exploracion de acuerdo a su id y el número de procesadores.
-  - si se agregan/quitan nodos en tiempo de ejecución es probable algunas ramas se exploren de nuevo, ya que el 
-  calculo de qué rama tomar se estire o contraiga con le nuevo número de procesadores (de todas formas no pasa porque 
-  la variable NUM_PROCESSES se define una única vez)
-  - en el momento de decidir qué rama explorar se tiene q tener en cuenta una vez salida de esa rama cuál sería la 
-  siguiente rama a explorar, y así sucesivamente.
 
 - Funcionamiento de la sincronización:
 
@@ -231,6 +227,13 @@ Filas precalculadas:
 las piezas en las posiciones de tablero que voy a usar, antes de colocar pieza alguna. Esto genera
 un overhead. Sin dicha operación podría setear como no usada una pieza que ya suponía usada (colocada
 en posiciones anteriores).
+
+- Para lo de copiado de filas usando sun.misc.Unsafe
+Cuando se calculen todas las posibles combinaciones de filas ir guardándolas en memoria contigua usando allocateMemory o algo asi. 
+Tal vez no sea necesario si ya se guardan contiguamente.
+Luego cuando necesitemos copiar una fila al tablero hacerlo con copyMemory o algo asi. De esta forma es mucho más rápido.
+
+Usar todos los accesos a arreglos de tipo nativo con getAdress o parecido. Supuestamente acceder directamente a la memoria debería ser más rápido.
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -251,7 +254,7 @@ tripletas a ese contorno. Si el puntero es usado entonces puedo evitar que se fo
 	backtracker común tarda 99 segs (mismo resultado en ambos casos!!).
 	Pero para la posición 209 tardaba 89 segs contra 43 segs del backtracker simple y no son los mismos resultados,
 	por lo tanto usando contorno superior existe realmente una disminución del árbol de exploración.
-	Esto se deduce por el ordenamiento de las piezas y su acceso tambi�n ordenado.
+	Esto se deduce por el ordenamiento de las piezas y su acceso tambi锟絥 ordenado.
 	
 	* Usar mas de 2 columnas solamente me hace perder tiempo ya que alcanzo pos 211 con mismo resultado pero en 
 	mayor tiempo. Me parece que esto es un hecho notable. Si con diferentes algoritmos llego a una misma posición 
