@@ -22,6 +22,8 @@
 
 package org.fabri1983.eternity2.mpje_solver;
 
+import java.util.ResourceBundle;
+
 import javax.swing.UIManager;
 
 import mpi.*;
@@ -63,30 +65,22 @@ public final class MainFasterMPJE
 			//   para mpje multicore los primeros 3 parametros son para MPI
 			//   para mpje cluster los primeros 8 parametros son para MPI
 			// Mejor detectar mediante alguna propiedad de MPI si es cluster o multicore
-			if (args.length != 15 && args.length != 20) 
-				throw new Exception("Ingresaste mal los parametros. Hacelo asi: " +
-						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple " +
-						"CellPixelesLado RefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiProcess");
-			
-			boolean isMulticoreMpje = args.length == 15;
-			int i = 0; // indice de lectura de parámetros para el solver
-			if (isMulticoreMpje) i = 3;
-			else i = 8;
+			ResourceBundle properties = args.length == 4 ? ResourceBundle.getBundle(args[3].toLowerCase())
+					: ResourceBundle.getBundle(args[8].toLowerCase());
 			
 			sol = new SolverFasterMPJE(
-					Long.parseLong(args[i++]),			// maxCiclos
-					Integer.parseInt(args[i++]),		// limiteParcialMax
-					Integer.parseInt(args[i++]),		// minLimiteExploracion
-					Integer.parseInt(args[i++]),		// maxParciales
-					Integer.parseInt(args[i++]),		// destinoARetroceder
-					Boolean.parseBoolean(args[i++]),	// InterfaceGrafica
-					Boolean.parseBoolean(args[i++]),	// TableBoardMultiple
-					Integer.parseInt(args[i++]),		// CellPixelesLado
-					Integer.parseInt(args[i++]),		// RefreshMillis
-					Boolean.parseBoolean(args[i++]),	// PodaFairExperiment
-					Boolean.parseBoolean(args[i++]),	// PodaColorBordeLeftExplorado
-					Integer.parseInt(args[i++]));		// PosicionInicioMultiProcess
-			
+					Long.parseLong(properties.getString("max.ciclos.save_status")),
+					Integer.parseInt(properties.getString("min.pos.save.partial")),
+					Integer.parseInt(properties.getString("exploration.limit")),
+					Integer.parseInt(properties.getString("max.partial.files")),
+					Integer.parseInt(properties.getString("target.rollback.pos")),
+					Boolean.parseBoolean(properties.getString("ui.show")),
+					Boolean.parseBoolean(properties.getString("ui.per.proc")),
+					Integer.parseInt(properties.getString("ui.cell.size")),
+					Integer.parseInt(properties.getString("ui.refresh.millis")),
+					Boolean.parseBoolean(properties.getString("experimental.fair")),
+					Boolean.parseBoolean(properties.getString("experimental.borde.left.explorado")),
+					Integer.parseInt(properties.getString("task.distribution.pos")));
 			sol.atacar();
 			
 		}catch(Exception e){

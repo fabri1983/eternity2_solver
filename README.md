@@ -72,7 +72,7 @@ Profiles (use -Pname):
 
 Execution
 ---------
-Go under tools folder and use one of the runXXX commands.
+Go under tools folder and use one of the runXXX commands. You can edit the props files for argument modification. 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
 Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.

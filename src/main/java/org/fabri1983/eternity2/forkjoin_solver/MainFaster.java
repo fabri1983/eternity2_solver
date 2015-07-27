@@ -22,6 +22,8 @@
 
 package org.fabri1983.eternity2.forkjoin_solver;
 
+import java.util.ResourceBundle;
+
 import javax.swing.UIManager;
 
 public final class MainFaster
@@ -49,25 +51,20 @@ public final class MainFaster
         }
         
 		try{
-			if (args.length != 12)
-				throw new Exception("Ingresaste mal los parametros. Hacelo asi: " +
-						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple " +
-						"CellPixelesLado CanvasRefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiThreading");
-			
-			int i = 0; // indice de lectura de parámetros para el solver
+			ResourceBundle properties = ResourceBundle.getBundle(args[0].toLowerCase());
 			SolverFaster.build(
-					Long.parseLong(args[i++]),			// maxCiclos
-					Integer.parseInt(args[i++]),		// limiteParcialMax
-					Integer.parseInt(args[i++]),		// minLimiteExploracion
-					Integer.parseInt(args[i++]),		// maxParciales
-					Integer.parseInt(args[i++]),		// destinoARetroceder
-					Boolean.parseBoolean(args[i++]),	// InterfaceGrafica
-					Boolean.parseBoolean(args[i++]),	// TableBoardMultiple
-					Integer.parseInt(args[i++]),		// CellPixelesLado
-					Integer.parseInt(args[i++]),		// RefreshMillis
-					Boolean.parseBoolean(args[i++]),	// PodaFairExperiment
-					Boolean.parseBoolean(args[i++]),	// PodaColorBordeLeftExplorado
-					Integer.parseInt(args[i++]));		// PosicionInicioMultiProcess
+					Long.parseLong(properties.getString("max.ciclos.save_status")),
+					Integer.parseInt(properties.getString("min.pos.save.partial")),
+					Integer.parseInt(properties.getString("exploration.limit")),
+					Integer.parseInt(properties.getString("max.partial.files")),
+					Integer.parseInt(properties.getString("target.rollback.pos")),
+					Boolean.parseBoolean(properties.getString("ui.show")),
+					Boolean.parseBoolean(properties.getString("ui.per.proc")),
+					Integer.parseInt(properties.getString("ui.cell.size")),
+					Integer.parseInt(properties.getString("ui.refresh.millis")),
+					Boolean.parseBoolean(properties.getString("experimental.fair")),
+					Boolean.parseBoolean(properties.getString("experimental.borde.left.explorado")),
+					Integer.parseInt(properties.getString("task.distribution.pos")));
 			SolverFaster.setupInicial();
 			SolverFaster.atacar();
 		}
