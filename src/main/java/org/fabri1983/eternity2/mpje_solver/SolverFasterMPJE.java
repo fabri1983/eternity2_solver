@@ -1031,11 +1031,12 @@ public final class SolverFasterMPJE {
 
 		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
-		final int flag_zona = matrix_zonas[cursor];
+		final byte flag_zona = matrix_zonas[cursor];
 		int index_sup_aux;
 		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
-		final boolean flag_antes_borde_right = ((cursor+2) & (LADO-1)) == 0; // old was: ((cursor+2) % LADO) == 0
+		// old was: ((cursor+2) % LADO) == 0
+		final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
 		
 		num_processes_orig[cursor] = NUM_PROCESSES;
 
@@ -1050,6 +1051,15 @@ public final class SolverFasterMPJE {
 			if (NUM_PROCESSES == length_posibles) {
 				desde = this_proc_absolute;
 				length_posibles = this_proc_absolute + 1;
+			}
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
+			else if (NUM_PROCESSES < length_posibles) {
+				int span = (length_posibles + 1) / NUM_PROCESSES;
+				desde = this_proc_absolute * span;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				else if (desde + span < length_posibles)
+					length_posibles = desde + span;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
 			else if (NUM_PROCESSES < length_posibles) {
@@ -1089,7 +1099,7 @@ public final class SolverFasterMPJE {
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
-			// la mas comun que es interior
+			// la más común que es interior
 			if (flag_zona == F_INTERIOR ) {
 				if (!p.es_interior) continue;
 			}

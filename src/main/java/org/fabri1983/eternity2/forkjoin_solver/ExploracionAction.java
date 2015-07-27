@@ -59,7 +59,6 @@ public class ExploracionAction extends RecursiveAction {
 	
 	//VARIABLES GLOBALES para evitar ser declaradas cada vez que se llame a determinado método
 	protected Pieza pzxc; // se usa solamente en explorarPiezaCentral()
-	private NodoPosibles xposibles; //empleado en explorar()
 	private Pieza pieza_extern_loop; //empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
 	private int index_sup; //empleados en varios m�todos para pasar info
 
@@ -264,11 +263,6 @@ public class ExploracionAction extends RecursiveAction {
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
 		if (esContornoUsado(action))
 			return;
-		
-		//voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		action.xposibles= obtenerPosiblesPiezas(action);
-		if (action.xposibles == null)
-			return; //significa que no existen posibles piezas para la actual posicion de cursor
 
 		//#############################################################################################
 		
@@ -286,15 +280,19 @@ public class ExploracionAction extends RecursiveAction {
 	 */
 	private final static void exploracionStandard(ExploracionAction action)
 	{
-		//declaro las variables que usará esta instancia de la exploracion
-		final NodoPosibles posibles = action.xposibles; //copio la referencia porque en el siguiente llamado xposibles cambia
+		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(action);
+		if (nodoPosibles == null)
+			return; // significa que no existen posibles piezas para la actual posicion de cursor
+
 		int desde = action.desde_saved[action.cursor];
-		int length_posibles = posibles.referencias.length;
+		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[action.cursor];
 		int index_sup_aux;
 		final int fila_actual = action.cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-		// for modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
-		final boolean flag_antes_borde_right = ((action.cursor+2) & (SolverFaster.LADO - 1)) == 0; // ((cursor+2) % LADO) == 0
+		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+		// old was: ((cursor+2) % LADO) == 0
+		final boolean flag_antes_borde_right = ((action.cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 		
 		// si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso
 		if (action.cursor == SolverFaster.POSICION_START_FORK_JOIN)
@@ -330,17 +328,18 @@ public class ExploracionAction extends RecursiveAction {
 		
 		for (; desde < length_posibles; ++desde)
 		{
-			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			Pieza p = posibles.referencias[desde]; //el nodo contiene el indice de la pieza a probar y sus rotacs permitidas
+			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
+			Pieza p = nodoPosibles.referencias[desde];
 			
-			//pregunto si la pieza candidata est� siendo usada
+			// pregunto si la pieza candidata está siendo usada
 			if (p.pusada.value)
 				continue; //es usada, pruebo con la siguiente pieza
 	
 			++SolverFaster.count_cycles[action.id]; //incremento el contador de combinaciones de piezas
 			
-			//pregunto si la pieza a poner es del tipo adecuado segun cursor. Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
-			// empiezo con la mas comun que es interior
+			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
+			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
+			// la más común que es interior
 			if (flag_zona == SolverFaster.F_INTERIOR ) {
 				if (!p.es_interior) continue;
 			}

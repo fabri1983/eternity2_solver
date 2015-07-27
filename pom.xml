@@ -223,6 +223,44 @@
 					</libs>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.github.wvengen</groupId>
+				<artifactId>proguard-maven-plugin</artifactId>
+				<version>2.0.10</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>proguard</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${skip.proguard}</skip>
+					<proguardInclude>proguard.conf</proguardInclude>
+					<injar>${project.build.finalName}.jar</injar>
+                    <outjar>${project.build.finalName}.jar</outjar>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+					<obfuscate>true</obfuscate>
+					<addMavenDescriptor>false</addMavenDescriptor>
+					<options>
+						<option>-target ${compiler.version}</option>
+					</options>
+					<libs>
+						<!-- List external jars your application depends on (that not listed in 
+							maven dependencies). You probably depend on jave runtime (rt.jar). JCE stands 
+							for Java Cryptography Extension. You probably don't need it, but my application 
+							does. -->
+						<lib>${java.home}/lib/rt.jar</lib>
+						<lib>${java.home}/lib/jsse.jar</lib>
+						<lib>${project.build.directory}/lib/jsr166.jar</lib>
+						<lib>${project.build.directory}/lib/javamail-1.4.5/mail.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpi.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpiExp.jar</lib>
+						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpj.jar</lib>
+					</libs>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

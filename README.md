@@ -50,7 +50,9 @@ I use this to run the program on the Oracle JRockit VM.
 ProGuard. http://proguard.sourceforge.net/
 Tool for shrinking, obfuscating, and optimizing code.
 With this tool I could decrease jar file size by 20%.
-Also code execution is barely faster, although I'm still playing with the options.
+Also code execution is 50% faster on Windows box using MPJe execution. 
+On Linux box with an OpenJDK it seems to be slower.
+I'm still playing with the program parameters.
 Helpful links:
 	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
 	http://proguard.sourceforge.net/manual/usage.html
