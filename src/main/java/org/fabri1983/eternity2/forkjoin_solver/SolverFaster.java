@@ -885,7 +885,8 @@ public final class SolverFaster {
 				if (action.cursor == SolverFaster.POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(ExploracionAction.obtenerPosiblesPiezas(action), action.tablero[action.cursor].numero) + 1);
+				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
+						action.tablero[action.cursor].numero) + 1);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;action.cursor < SolverFaster.MAX_PIEZAS; ++action.cursor)

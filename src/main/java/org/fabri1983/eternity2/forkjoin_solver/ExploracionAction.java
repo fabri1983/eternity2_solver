@@ -102,7 +102,7 @@ public class ExploracionAction extends RecursiveAction {
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
-			explorar(this);
+			explorar();
 		//se carga estado de exploración, debo proveer la posibilidad de volver estados anteriores de exploracion
 		else {
 			//ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
@@ -114,7 +114,7 @@ public class ExploracionAction extends RecursiveAction {
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
-					explorar(this);
+					explorar();
 				}
 				--cursor;
 				
@@ -123,8 +123,8 @@ public class ExploracionAction extends RecursiveAction {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres
-				getIndexDeContornoYaPuesto(this);
-				setContornoLibre(this);
+				getIndexDeContornoYaPuesto();
+				setContornoLibre();
 				index_sup = -1;
 				//index_inf = -1;
 
@@ -169,7 +169,7 @@ public class ExploracionAction extends RecursiveAction {
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
 	 */
-	private final static void explorar(ExploracionAction action)
+	private final void explorar()
 	{	
 		//#############################################################################################
 		/**
@@ -179,46 +179,50 @@ public class ExploracionAction extends RecursiveAction {
 		 */
 		//#############################################################################################
 		//si cursor se pasa del limite de piezas, significa que estoy en una solucion
-		if (action.cursor >= SolverFaster.MAX_PIEZAS){
-			SolverFaster.guardarSolucion(action);
-			System.out.println(action.id + " >>> Solucion Encontrada!!");
+		if (cursor >= SolverFaster.MAX_PIEZAS) {
+			SolverFaster.guardarSolucion(this);
+			System.out.println(id + " >>> Solucion Encontrada!!");
 			return; //evito que la instancia de exporacion continue
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
-		if (action.cursor > action.mas_lejano_parcial_max){
-			action.mas_lejano_parcial_max= action.cursor;
-			if (action.cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL){
-				action.time_final= System.nanoTime();
-				System.out.println(action.id + " >>> " + TimeUnit.MILLISECONDS.convert(action.time_final - action.time_inicial, TimeUnit.NANOSECONDS) + " ms, cursor " + action.cursor);
-				SolverFaster.guardarResultadoParcial(true, action);
+		if (cursor > mas_lejano_parcial_max) {
+			mas_lejano_parcial_max = cursor;
+			if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
+				time_final = System.nanoTime();
+				System.out.println(id + " >>> "
+						+ TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS)
+						+ " ms, cursor " + cursor);
+				SolverFaster.guardarResultadoParcial(true, this);
 			}
 		}
 		
 		//voy manteniendo el cursor mas alto para esta vuelta de ciclos
-		if (action.cursor > action.mas_alto)
-			action.mas_alto = action.cursor;
+		if (cursor > mas_alto)
+			mas_alto = cursor;
 		//si cursor se encuentra en una posicion mas baja que la posicion mas baja alcanzada guardo ese valor
-		if (action.cursor < action.mas_bajo)
-			action.mas_bajo= action.cursor;
+		if (cursor < mas_bajo)
+			mas_bajo = cursor;
 		//la siguiente condición se cumple una sola vez
-		if (action.cursor > 100 && !action.mas_bajo_activo){
-			action.mas_bajo= SolverFaster.MAX_PIEZAS;
-			action.mas_bajo_activo= true;
+		if (cursor > 100 && !mas_bajo_activo) {
+			mas_bajo = SolverFaster.MAX_PIEZAS;
+			mas_bajo_activo = true;
 		}
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
-		if (SolverFaster.count_cycles[action.id] >= SolverFaster.MAX_CICLOS){
-			SolverFaster.count_cycles[action.id] = 0;
+		if (SolverFaster.count_cycles[id] >= SolverFaster.MAX_CICLOS) {
+			SolverFaster.count_cycles[id] = 0;
 			//calculo el tiempo entre status saved
 			long mili_temp = System.nanoTime();
-			SolverFaster.guardarEstado(action.statusFileName, action);
-			SolverFaster.guardarResultadoParcial(false, action);
-			System.out.println(action.id + " >>> Estado guardado en cursor " + action.cursor + ". Pos Min " + action.mas_bajo + ", Pos Max " + action.mas_alto + ". Tiempo: " + TimeUnit.MILLISECONDS.convert(mili_temp - action.time_status_saved, TimeUnit.NANOSECONDS) + " ms.");				
-			action.time_status_saved = mili_temp;
+			SolverFaster.guardarEstado(statusFileName, this);
+			SolverFaster.guardarResultadoParcial(false, this);
+			System.out.println(id + " >>> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo + ", Pos Max "
+					+ mas_alto + ". Tiempo: "
+					+ TimeUnit.MILLISECONDS.convert(mili_temp - time_status_saved, TimeUnit.NANOSECONDS) + " ms.");
+			time_status_saved = mili_temp;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-			action.mas_bajo = SolverFaster.MAX_PIEZAS;
-			action.mas_alto = 0;
+			mas_bajo = SolverFaster.MAX_PIEZAS;
+			mas_alto = 0;
 		}
 		//#############################################################################################
 		
@@ -231,19 +235,19 @@ public class ExploracionAction extends RecursiveAction {
 		 */
 		//#############################################################################################
 		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya est� debidamente colocada
-		if (action.cursor == SolverFaster.POSICION_CENTRAL){
+		if (cursor == SolverFaster.POSICION_CENTRAL) {
 			//seteo los contornos como usados
-			getIndexDeContornoYaPuesto(action);
-			setContornoUsado(action);
-			int index_sup_aux = action.index_sup;
+			getIndexDeContornoYaPuesto();
+			setContornoUsado();
+			int index_sup_aux = index_sup;
 			//@CONTORNO_INFERIORint index_inf_aux = index_inf;
-			++action.cursor;
-			explorar(action);
-			--action.cursor;
+			++cursor;
+			explorar();
+			--cursor;
 			//seteo los contornoscomo libres
-			action.index_sup = index_sup_aux;
+			index_sup = index_sup_aux;
 			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre(action);
+			setContornoLibre();
 			/*@RETROCEDER
 			if (cursor <= cur_destino){
 				retroceder= false;
@@ -261,7 +265,7 @@ public class ExploracionAction extends RecursiveAction {
 		 */
 		//#############################################################################################
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (esContornoUsado(action))
+		if (esContornoUsado())
 			return;
 
 		//#############################################################################################
@@ -269,7 +273,7 @@ public class ExploracionAction extends RecursiveAction {
 		
 		//#############################################################################################
 		//ahora hago la exploracion
-		exploracionStandard(action);
+		exploracionStandard();
 		//#############################################################################################
 	}
 	
@@ -278,27 +282,28 @@ public class ExploracionAction extends RecursiveAction {
 	 * posicon actual de cursor, y cicla sobre las posibles rotaciones de cada pieza.
 	 * Aplica varias podas que solamente son validas en este nivel de exploracion.
 	 */
-	private final static void exploracionStandard(ExploracionAction action)
+	private final void exploracionStandard()
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(action);
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas();
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		int desde = action.desde_saved[action.cursor];
+		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
-		final byte flag_zona = SolverFaster.matrix_zonas[action.cursor];
+		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
 		int index_sup_aux;
-		final int fila_actual = action.cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can
+																				// use >>
 		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((action.cursor + 2) & (SolverFaster.LADO - 1)) == 0;
+		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 		
 		// si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso
-		if (action.cursor == SolverFaster.POSICION_START_FORK_JOIN)
+		if (cursor == SolverFaster.POSICION_START_FORK_JOIN)
 		{
 			// primero preguntar si este proc no puede tomar una parte de la exploración (pues la toman los procs mas chicos)
-			if (action.id >= length_posibles) // comparo usando >= para no restarle 1 a length_posibles
+			if (id >= length_posibles) // comparo usando >= para no restarle 1 a length_posibles
 			{
 				length_posibles = 0; // seteo 0 asi no explora
 				//System.out.println(action.id + " :::: no procesa pues excede a length_posibles");
@@ -314,10 +319,10 @@ public class ExploracionAction extends RecursiveAction {
 				if (length_posibles >= SolverFaster.NUM_PROCESSES)
 					division = length_posibles / SolverFaster.NUM_PROCESSES;
 				
-				desde = action.id * division;
+				desde = id * division;
 				
 				// si es el último proc le agrego el resto (solo tiene efecto si la división no es exacta)
-				if (action.id == (SolverFaster.NUM_PROCESSES - 1))
+				if (id == (SolverFaster.NUM_PROCESSES - 1))
 					division += resto;
 				
 				length_posibles = desde + division;
@@ -335,7 +340,7 @@ public class ExploracionAction extends RecursiveAction {
 			if (p.pusada.value)
 				continue; //es usada, pruebo con la siguiente pieza
 	
-			++SolverFaster.count_cycles[action.id]; //incremento el contador de combinaciones de piezas
+			++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
@@ -377,7 +382,7 @@ public class ExploracionAction extends RecursiveAction {
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
-			action.tablero[action.cursor] = p; //en la posicion "cursor" del tablero pongo la pieza de indice "indice"
+			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza de indice "indice"
 			p.pusada.value = true; //en este punto la pieza va a ser usada
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
@@ -394,7 +399,7 @@ public class ExploracionAction extends RecursiveAction {
 			if (SolverFaster.FairExperimentGif)
 			{
 				if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP)
-					if (p.bottom == action.tablero[action.cursor-1].bottom)
+					if (p.bottom == tablero[cursor-1].bottom)
 					{
 						p.pusada.value = false; //la pieza ahora no es usada
 						//p.pos= -1;
@@ -403,22 +408,22 @@ public class ExploracionAction extends RecursiveAction {
 			}
 	
 			//seteo los contornos como usados
-			getIndexDeContornoYaPuesto(action);
-			setContornoUsado(action);
-			index_sup_aux = action.index_sup;
+			getIndexDeContornoYaPuesto();
+			setContornoUsado();
+			index_sup_aux = index_sup;
 			//@CONTORNO_INFERIORindex_inf_aux = index_inf;
 				
 			//##########################
 			//Llamo una nueva instancia
-			++action.cursor;
-			explorar(action);
-			--action.cursor;
+			++cursor;
+			explorar();
+			--cursor;
 			//##########################
 				
 			//seteo los contornos como libres
-			action.index_sup = index_sup_aux;
+			index_sup = index_sup_aux;
 			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre(action);
+			setContornoLibre();
 			
 			p.pusada.value = false; //la pieza ahora no es usada
 			//p.pos= -1;
@@ -434,8 +439,8 @@ public class ExploracionAction extends RecursiveAction {
 				break;*/
 		}//fin bucle posibles piezas
 		
-		action.desde_saved[action.cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
-		action.tablero[action.cursor] = null; //dejo esta posicion de tablero libre
+		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
+		tablero[cursor] = null; //dejo esta posicion de tablero libre
 	}
 
 	//##########################################################################//
@@ -451,37 +456,44 @@ public class ExploracionAction extends RecursiveAction {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	protected final static NodoPosibles obtenerPosiblesPiezas(ExploracionAction action)
+	protected final NodoPosibles obtenerPosiblesPiezas()
 	{
-		switch (action.cursor) {
+		switch (cursor) {
 			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, action.pzxc.top, action.tablero[action.cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom,
+						SolverFaster.MAX_COLORES, pzxc.top, tablero[cursor - 1].right)];
 			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, action.pzxc.left,SolverFaster.MAX_COLORES, action.tablero[action.cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, pzxc.left,
+						SolverFaster.MAX_COLORES, tablero[cursor - 1].right)];
 		}
 		
-		final int flag_m = SolverFaster.matrix_zonas[action.cursor];
+		final int flag_m = SolverFaster.matrix_zonas[cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, action.tablero[action.cursor-1].right)];
+			return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES,
+					SolverFaster.MAX_COLORES, tablero[cursor - 1].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.GRIS, SolverFaster.MAX_COLORES, action.tablero[action.cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, SolverFaster.GRIS,
+							SolverFaster.MAX_COLORES, tablero[cursor - 1].right)];
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
-					return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, SolverFaster.GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom,
+							SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, SolverFaster.GRIS)];
 				// borde top
 				case SolverFaster.F_BORDE_TOP:
-					return action.super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, action.tablero[action.cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
+							SolverFaster.MAX_COLORES, tablero[cursor - 1].right)];
 				//borde bottom
 				default:
-					return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.GRIS, action.tablero[action.cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom,
+							SolverFaster.MAX_COLORES, SolverFaster.GRIS, tablero[cursor - 1].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -489,16 +501,20 @@ public class ExploracionAction extends RecursiveAction {
 			switch (flag_m) {
 				//esquina top-left
 				case SolverFaster.F_ESQ_TOP_LEFT:
-					return action.super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, SolverFaster.GRIS)];
+					return super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
+							SolverFaster.MAX_COLORES, SolverFaster.GRIS)];
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return action.super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.GRIS, SolverFaster.MAX_COLORES, action.tablero[action.cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.GRIS, SolverFaster.MAX_COLORES,
+							tablero[cursor - 1].right)];
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-					return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.GRIS, SolverFaster.GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom,
+							SolverFaster.MAX_COLORES, SolverFaster.GRIS, SolverFaster.GRIS)];
 					//esquina bottom-right
 				default:
-					return action.super_matriz[MapaKeys.getKey(action.tablero[action.cursor-SolverFaster.LADO].bottom, SolverFaster.GRIS, SolverFaster.GRIS, action.tablero[action.cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, SolverFaster.GRIS,
+							SolverFaster.GRIS, tablero[cursor - 1].right)];
 			}
 		}
 	}
@@ -508,10 +524,10 @@ public class ExploracionAction extends RecursiveAction {
 	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
 	 * @return
 	 */
-	private final static void getIndexDeContornoYaPuesto(ExploracionAction action){
-		//primero me fijo si estoy en posici�n v�lida
-		if (SolverFaster.zona_proc_contorno[action.cursor] == false){
-			action.index_sup = -1;
+	private final void getIndexDeContornoYaPuesto() {
+		// primero me fijo si estoy en posición válida
+		if (SolverFaster.zona_proc_contorno[cursor] == false) {
+			index_sup = -1;
 			//@CONTORNO_INFERIORindex_inf = -1;
 			return;
 		}
@@ -519,17 +535,19 @@ public class ExploracionAction extends RecursiveAction {
 		//obtengo las claves de acceso
 		switch (Contorno.MAX_COLS){
 			case 2:
-				action.index_sup = Contorno.getIndex(action.tablero[action.cursor-1].left, action.tablero[action.cursor-1].top, action.tablero[action.cursor].top);
+				index_sup = Contorno.getIndex(tablero[cursor - 1].left, tablero[cursor - 1].top, tablero[cursor].top);
 				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
 					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top);*/
 				break;
 			case 3:
-				action.index_sup = Contorno.getIndex(action.tablero[action.cursor-2].left, action.tablero[action.cursor-2].top, action.tablero[action.cursor-1].top, action.tablero[action.cursor].top);
+				index_sup = Contorno.getIndex(tablero[cursor - 2].left, tablero[cursor - 2].top,
+						tablero[cursor - 1].top, tablero[cursor].top);
 				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
 					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top);*/
 				break;
 			case 4:
-				action.index_sup = Contorno.getIndex(action.tablero[action.cursor-3].left, action.tablero[action.cursor-3].top, action.tablero[action.cursor-2].top, action.tablero[action.cursor-1].top, action.tablero[action.cursor].top);
+				index_sup = Contorno.getIndex(tablero[cursor - 3].left, tablero[cursor - 3].top,
+						tablero[cursor - 2].top, tablero[cursor - 1].top, tablero[cursor].top);
 				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
 					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top, tablero[cursor-3].top);*/
 				break;
@@ -538,8 +556,8 @@ public class ExploracionAction extends RecursiveAction {
 	}
 
 	/*@CONTORNO_INFERIOR
-	public final static boolean esContornoInferiorUsado(){
-		//primero me fijo si estoy en la posici�n correcta para preguntar por contorno inferior usado
+	public final boolean esContornoInferiorUsado(){
+		//primero me fijo si estoy en la posición correcta para preguntar por contorno inferior usado
 		if (zona_proc_contorno[cursor] == false)
 			return false;
 		//debo estar entre filas [2,13]
@@ -560,53 +578,56 @@ public class ExploracionAction extends RecursiveAction {
 			default: return false;
 		}
 	
-		//si el contorno est� siendo usado entonces devuelvo true
+		//si el contorno está siendo usado entonces devuelvo true
 		if (Contorno.contornos_used[auxi])
 			return true;
 	
 		return false;
 	}*/
 	
-	private final static void setContornoUsado(ExploracionAction action)
+	private final void setContornoUsado()
 	{
-		if (action.index_sup != -1)
-			action.contorno.contornos_used[action.index_sup] = true;
+		if (index_sup != -1)
+			contorno.contornos_used[index_sup] = true;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
-			action.contorno.contornos_used[index_inf] = true;*/
+			contorno.contornos_used[index_inf] = true;*/
 	}
 
-	private final static void setContornoLibre(ExploracionAction action)
+	private final void setContornoLibre()
 	{
-		if (action.index_sup != -1)
-			action.contorno.contornos_used[action.index_sup] = false;
+		if (index_sup != -1)
+			contorno.contornos_used[index_sup] = false;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
-			action.contorno.contornos_used[index_inf] = false;*/
+			contorno.contornos_used[index_inf] = false;*/
 	}
 
-	private final static boolean esContornoUsado(ExploracionAction action)
+	private final boolean esContornoUsado()
 	{
 		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (SolverFaster.zona_read_contorno[action.cursor] == false)
+		if (SolverFaster.zona_read_contorno[cursor] == false)
 			return false;
 		
 		// obtengo la clave del contorno superior
-		int i_count = action.cursor - SolverFaster.LADO;
+		int i_count = cursor - SolverFaster.LADO;
 		int auxi;
 		switch (Contorno.MAX_COLS){
 			case 2:
-				auxi = Contorno.getIndex(action.tablero[action.cursor-1].right, action.tablero[i_count].bottom, action.tablero[i_count + 1].bottom);
+				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
+						tablero[i_count + 1].bottom);
 				break;
 			case 3:
-				auxi = Contorno.getIndex(action.tablero[action.cursor-1].right, action.tablero[i_count].bottom, action.tablero[i_count + 1].bottom, action.tablero[i_count + 2].bottom);
+				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
+						tablero[i_count + 1].bottom, tablero[i_count + 2].bottom);
 				break;
 			case 4:
-				auxi = Contorno.getIndex(action.tablero[action.cursor-1].right, action.tablero[i_count].bottom, action.tablero[i_count + 1].bottom, action.tablero[i_count + 2].bottom, action.tablero[i_count + 3].bottom);
+				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
+						tablero[i_count + 1].bottom, tablero[i_count + 2].bottom, tablero[i_count + 3].bottom);
 				break;
 			default: return false;
 		}
 		
 		// si el contorno está siendo usado entonces devuelvo true
-		if (action.contorno.contornos_used[auxi])
+		if (contorno.contornos_used[auxi])
 			return true;
 		
 		return false;
