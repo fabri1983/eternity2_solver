@@ -55,21 +55,26 @@ public class ExploracionAction extends RecursiveAction {
 	protected boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
 	protected boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
-	protected int sig_parcial = 1; //esta variable indica el numero de archivo parcial siguiente a guardar
+	protected int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
 	
-	//VARIABLES GLOBALES para evitar ser declaradas cada vez que se llame a determinado método
+	// VARIABLES GLOBALES para evitar ser declaradas cada vez que se llame a determinado método
 	protected Pieza pzxc; // se usa solamente en explorarPiezaCentral()
-	private Pieza pieza_extern_loop; //empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
-	private int index_sup; //empleados en varios m�todos para pasar info
+	private Pieza pieza_extern_loop; // empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
+	private int index_sup; // empleados en varios métodos para pasar info
 
 	private long time_inicial, time_final; // sirven para calcular el tiempo al hito de posición lejana
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
 	public final int id;
+	private int NUM_PROCESSES;
+	private int num_processes_orig[];
+	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
-	public ExploracionAction(int _id) {
+	
+	public ExploracionAction(int _id, int _num_processes) {
 		id = _id;
+		NUM_PROCESSES = _num_processes;
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
 		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + id + SolverFaster.FILE_EXT;
 		parcialMaxFileName = SolverFaster.NAME_FILE_PARCIAL_MAX + "_" + id + SolverFaster.FILE_EXT;
@@ -77,6 +82,8 @@ public class ExploracionAction extends RecursiveAction {
 		libresMaxFileName = SolverFaster.NAME_FILE_LIBRES_MAX + "_" + id + SolverFaster.FILE_EXT;
 		solucFileName = SolverFaster.NAME_FILE_SOLUCION + "_" + id + SolverFaster.FILE_EXT;
 		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + SolverFaster.FILE_EXT;
+
+		num_processes_orig = new int[SolverFaster.MAX_PIEZAS];
 	}
 	
 	@Override
@@ -293,42 +300,49 @@ public class ExploracionAction extends RecursiveAction {
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
 		int index_sup_aux;
-		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can
-																				// use >>
+		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		// old was: ((cursor+2) % LADO) == 0
 		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 		
-		// si estoy ejecutando modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso
-		if (cursor == SolverFaster.POSICION_START_FORK_JOIN)
-		{
-			// primero preguntar si este proc no puede tomar una parte de la exploración (pues la toman los procs mas chicos)
-			if (id >= length_posibles) // comparo usando >= para no restarle 1 a length_posibles
-			{
-				length_posibles = 0; // seteo 0 asi no explora
-				//System.out.println(action.id + " :::: no procesa pues excede a length_posibles");
-				//System.out.flush();
+		num_processes_orig[cursor] = NUM_PROCESSES;
+
+		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
+		// En este paso solo inicializo algunas variables para futuros cálculos.
+		if (cursor == SolverFaster.POSICION_START_FORK_JOIN + pos_multi_process_offset) {
+			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc
+			// para los calculos siguientes
+			int this_proc_absolute = id % NUM_PROCESSES;
+
+			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
+			if (NUM_PROCESSES == length_posibles) {
+				desde = this_proc_absolute;
+				length_posibles = this_proc_absolute + 1;
 			}
-			else
-			{
-				int resto = length_posibles % SolverFaster.NUM_PROCESSES;
-				// valor inicial en caso de que length_posibles < num processes.
-				// En ese caso debo explorar la parte que le corresponda a THIS_PROCESS
-				int division = 1;
-				
-				if (length_posibles >= SolverFaster.NUM_PROCESSES)
-					division = length_posibles / SolverFaster.NUM_PROCESSES;
-				
-				desde = id * division;
-				
-				// si es el último proc le agrego el resto (solo tiene efecto si la división no es exacta)
-				if (id == (SolverFaster.NUM_PROCESSES - 1))
-					division += resto;
-				
-				length_posibles = desde + division;
-				//System.out.println(action.id + " :::: Total " + posibles.referencias.length + ". Limites " + desde + "," + length_posibles);
-				//System.out.flush();
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
+			else if (NUM_PROCESSES < length_posibles) {
+				int span = (length_posibles + 1) / NUM_PROCESSES;
+				desde = this_proc_absolute * span;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				else if (desde + span < length_posibles)
+					length_posibles = desde + span;
 			}
+			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
+			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
+			// Ahora la cantidad de procs se setea igual a length_posibles
+			else {
+				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
+				NUM_PROCESSES = length_posibles;
+				desde = this_proc_absolute / divisor;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				length_posibles = desde + 1;
+				++pos_multi_process_offset;
+			}
+			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
+			// desde + "," + length_posibles);
+			// System.out.flush();
 		}
 		
 		for (; desde < length_posibles; ++desde)
@@ -357,22 +371,22 @@ public class ExploracionAction extends RecursiveAction {
 				if (!p.es_esquina) continue;
 			}
 				
-			//pregunto si est� activada la poda del color right explorado en borde left 
+			// pregunto si está activada la poda del color right explorado en borde left
 			if (SolverFaster.usar_poda_color_explorado)
 			{
-				//si estoy antes del borde right limpio el arreglo de colores right usados
+				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
 					SolverFaster.arr_color_rigth_explorado[fila_actual + 1] = 0;
 				
 				if (flag_zona == SolverFaster.F_BORDE_LEFT)
 				{
-					//pregunto si el color right de la pieza de borde left actual ya est� explorado
+					// pregunto si el color right de la pieza de borde left actual ya est� explorado
 					if ((SolverFaster.arr_color_rigth_explorado[fila_actual] & (1 << p.right)) != 0){
 						p.pusada.value = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue; //sigo con otra pieza de borde
 					}
-					//si no es as� entonces lo seteo como explorado
+					// si no es así entonces lo seteo como explorado
 					else {
 						final int value = SolverFaster.arr_color_rigth_explorado[fila_actual] | 1 << p.right; 
 						SolverFaster.arr_color_rigth_explorado[fila_actual] = value;
@@ -388,7 +402,7 @@ public class ExploracionAction extends RecursiveAction {
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 	
-			//una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera est� siendo usado
+			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
 			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
 				p.pusada.value = false; //la pieza ahora no es usada
 				//p.pos= -1;
@@ -441,6 +455,11 @@ public class ExploracionAction extends RecursiveAction {
 		
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre
+
+		NUM_PROCESSES = num_processes_orig[cursor];
+		--pos_multi_process_offset;
+		if (pos_multi_process_offset < 0)
+			pos_multi_process_offset = 0;
 	}
 
 	//##########################################################################//
