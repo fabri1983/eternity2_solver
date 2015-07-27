@@ -52,7 +52,7 @@ public final class SolverFasterMPJE {
 	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
 	private static int num_processes_orig[];
-	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo
+	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 														// los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
@@ -1061,18 +1061,21 @@ public final class SolverFasterMPJE {
 				else if (desde + span < length_posibles)
 					length_posibles = desde + span;
 			}
-			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (NUM_PROCESSES < length_posibles) {
-				int span = (length_posibles + 1) / NUM_PROCESSES;
-				desde = this_proc_absolute * span;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				else if (desde + span < length_posibles)
-					length_posibles = desde + span;
-			}
 			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
 			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
 			// Ahora la cantidad de procs se setea igual a length_posibles
+            else {
+				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
+				NUM_PROCESSES = length_posibles;
+				desde = this_proc_absolute / divisor;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				length_posibles = desde + 1;
+				++pos_multi_process_offset;
+			}
+			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
+			// desde + "," + length_posibles);
+			// System.out.flush();
             else {
 				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
 				NUM_PROCESSES = length_posibles;
@@ -1413,15 +1416,15 @@ public final class SolverFasterMPJE {
 		try {
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
-			PrintWriter wDisposiciones= null;
+			PrintWriter wDispMax= null;
 			Pieza piezax;
-			StringBuffer wParcialBuffer= new StringBuffer();
-			StringBuffer wDispBuff= new StringBuffer();
+			StringBuffer parcialBuffer= new StringBuffer();
+			StringBuffer dispMaxBuff= new StringBuffer();
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL_MAX)));
-				wDisposiciones= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICIONES_MAX)));
-				wDispBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
+				wDispMax= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICIONES_MAX)));
+				dispMaxBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
 			}
 			else{
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL+"_"+sig_parcial+".txt")));
@@ -1435,30 +1438,30 @@ public final class SolverFasterMPJE {
 				pos= b+1;
 				piezax= tablero[b];
 				if (tablero[b] == null){
-					wParcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
+					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
-						wDispBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else{
-					wParcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
+					parcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
 					if (max)
-						wDispBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
-			String sContentParcial = wParcialBuffer.toString();
-			String sContentDisp = wDispBuff.toString();
+			String sParcial = parcialBuffer.toString();
+			String sDispMax = dispMaxBuff.toString();
 			
 			// parcial siempre se va a guardar
-			wParcial.append(sContentParcial);
+			wParcial.append(sParcial);
 			wParcial.flush();
 			wParcial.close();
 			
 			// solo guardamos max si es una instancia de max
 			if (max){
-				wParcial.append(sContentDisp);
-				wDisposiciones.flush();
-				wDisposiciones.close();
+				wDispMax.append(sDispMax);
+				wDispMax.flush();
+				wDispMax.close();
 			}
 			
 			// guardar los libres solo si es max instance
@@ -1469,8 +1472,8 @@ public final class SolverFasterMPJE {
 			if (send_mail && max) {
 				SendMail em1= new SendMail();
 				SendMail em2= new SendMail();
-				em1.setDatos(sContentParcial, NAME_FILE_PARCIAL_MAX);
-				em2.setDatos(sContentDisp, NAME_FILE_DISPOSICIONES_MAX);
+				em1.setDatos(sParcial, NAME_FILE_PARCIAL_MAX);
+				em2.setDatos(sDispMax, NAME_FILE_DISPOSICIONES_MAX);
 				Thread t1= new Thread(em1);
 				Thread t2= new Thread(em2);
 				t1.start();

@@ -129,7 +129,7 @@ public final class SolverFaster {
 		
 		POSICION_START_FORK_JOIN = p_pos_fork_join;
 		NUM_PROCESSES = Runtime.getRuntime().availableProcessors();
-		// no tiene sentido usar varios threads si no se seteo correctamente la posición multi threading
+		// no tiene sentido usar varios threads si no se seteó correctamente la posición multi threading
 		if (POSICION_START_FORK_JOIN < 0)
 			NUM_PROCESSES = 1;
 
@@ -675,15 +675,15 @@ public final class SolverFaster {
 		try{
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
-			PrintWriter wDisposiciones= null;
+			PrintWriter wDispMax = null;
 			Pieza piezax;
-			StringBuffer wParcialBuffer= new StringBuffer();
-			StringBuffer wDispBuff= new StringBuffer();
+			StringBuffer parcialBuffer= new StringBuffer();
+			StringBuffer dispMaxBuff= new StringBuffer();
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(action.parcialMaxFileName)));
-				wDisposiciones= new PrintWriter(new BufferedWriter(new FileWriter(action.disposicionMaxFileName)));
-				wDispBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
+				wDispMax= new PrintWriter(new BufferedWriter(new FileWriter(action.disposicionMaxFileName)));
+				dispMaxBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
 			}
 			else{
 				String parcialFName = action.parcialFileName.substring(0, action.parcialFileName.indexOf(SolverFaster.FILE_EXT)) + "_" + action.sig_parcial + SolverFaster.FILE_EXT;
@@ -698,30 +698,30 @@ public final class SolverFaster {
 				pos= b+1;
 				piezax= action.tablero[b];
 				if (action.tablero[b] == null){
-					wParcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
+					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
-						wDispBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else{
-					wParcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
+					parcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
 					if (max)
-						wDispBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
-			String sContentParcial = wParcialBuffer.toString();
-			String sContentDisp = wDispBuff.toString();
+			String sParcial = parcialBuffer.toString();
+			String sDispMax = dispMaxBuff.toString();
 			
 			// parcial siempre se va a guardar
-			wParcial.append(sContentParcial);
+			wParcial.append(sParcial);
 			wParcial.flush();
 			wParcial.close();
 			
 			// solo guardamos max si es una instancia de max
 			if (max){
-				wParcial.append(sContentDisp);
-				wDisposiciones.flush();
-				wDisposiciones.close();
+				wDispMax.append(sDispMax);
+				wDispMax.flush();
+				wDispMax.close();
 			}
 			
 			// guardar los libres solo si es max instance
@@ -885,7 +885,8 @@ public final class SolverFaster {
 				if (action.cursor == SolverFaster.POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(ExploracionAction.obtenerPosiblesPiezas(action), action.tablero[action.cursor].numero) + 1);
+				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
+						action.tablero[action.cursor].numero) + 1);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;action.cursor < SolverFaster.MAX_PIEZAS; ++action.cursor)
@@ -976,7 +977,7 @@ public final class SolverFaster {
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			actions[proc] = new ExploracionAction(proc);
+			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES);
 			
 			// cargo las piezas desde archivo de piezas
 			cargarPiezas(actions[proc]);

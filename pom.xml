@@ -199,7 +199,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard}</skip>
-					<proguardInclude>src/main/resources/proguard.conf</proguardInclude>
+					<proguardInclude>proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
                     <outjar>${project.build.finalName}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
