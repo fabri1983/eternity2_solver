@@ -1,0 +1,12 @@
+max.ciclos.save_status=2147483647
+min.pos.save.partial=211
+exploration.limit=-1
+max.partial.files=2
+target.rollback.pos=-1
+ui.show=true
+ui.per.proc=false
+ui.cell.size=28
+ui.refresh.millis=100
+experimental.fair=false
+experimental.borde.left.explorado=false
+task.distribution.pos=99

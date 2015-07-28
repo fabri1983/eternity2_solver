@@ -156,11 +156,11 @@ public class ExploracionAction extends RecursiveAction {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println(id + " >>> NO se ha encontrado solucion."); //ittai! (pero qué?!!)
+		System.out.println(id + " >>> exploracion agotada."); // ittai! (pero qué?!!)
 
 		// if (send_mail){ //Envio un mail diciendo que no se encontró solución
 		// SendMail em= new SendMail();
-		// em.setDatos("NO se ha encontrado solucion para el caso " + CASO, "Sin solucion, caso " + CASO);
+		// em.setDatos("Exploracion agotada para el caso " + CASO, "Sin solucion, caso " + CASO);
 		// Thread t= new Thread(em);
 		// t.start();
 		// }
@@ -296,8 +296,6 @@ public class ExploracionAction extends RecursiveAction {
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		final boolean flag_antes_borde_right = ((action.cursor + 2) & (SolverFaster.LADO - 1)) == 0;
-
 		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
@@ -320,6 +318,27 @@ public class ExploracionAction extends RecursiveAction {
 			if (NUM_PROCESSES == length_posibles) {
 				desde = this_proc_absolute;
 				length_posibles = this_proc_absolute + 1;
+			}
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
+			else if (NUM_PROCESSES < length_posibles) {
+				int span = (length_posibles + 1) / NUM_PROCESSES;
+				desde = this_proc_absolute * span;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				else if (desde + span < length_posibles)
+					length_posibles = desde + span;
+			}
+			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
+			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
+			// Ahora la cantidad de procs se setea igual a length_posibles
+			else {
+				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
+				NUM_PROCESSES = length_posibles;
+				desde = this_proc_absolute / divisor;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				length_posibles = desde + 1;
+				++pos_multi_process_offset;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
 			else if (NUM_PROCESSES < length_posibles) {

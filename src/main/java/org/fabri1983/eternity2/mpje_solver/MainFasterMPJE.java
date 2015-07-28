@@ -22,9 +22,14 @@
 
 package org.fabri1983.eternity2.mpje_solver;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+
 import javax.swing.UIManager;
 
-import mpi.*;
+import mpi.MPI;
 
 public final class MainFasterMPJE
 {
@@ -63,30 +68,25 @@ public final class MainFasterMPJE
 			//   para mpje multicore los primeros 3 parametros son para MPI
 			//   para mpje cluster los primeros 8 parametros son para MPI
 			// Mejor detectar mediante alguna propiedad de MPI si es cluster o multicore
-			if (args.length != 15 && args.length != 20) 
-				throw new Exception("Ingresaste mal los parametros. Hacelo asi: " +
-						"maxCiclos limiteParcialMax minLimiteExploracion maxParciales destinoARetroceder InterfaceGrafica TableBoardMultiple " +
-						"CellPixelesLado RefreshMillis PodaFairExperiment PodaColorBordeLeftExplorado PosicionInicioMultiProcess");
-			
-			boolean isMulticoreMpje = args.length == 15;
-			int i = 0; // indice de lectura de parámetros para el solver
-			if (isMulticoreMpje) i = 3;
-			else i = 8;
+			ResourceBundle properties = args.length == 4 ? readProperties(args[3]) : readProperties(args[8]);
 			
 			sol = new SolverFasterMPJE(
-					Long.parseLong(args[i++]),			// maxCiclos
-					Integer.parseInt(args[i++]),		// limiteParcialMax
-					Integer.parseInt(args[i++]),		// minLimiteExploracion
-					Integer.parseInt(args[i++]),		// maxParciales
-					Integer.parseInt(args[i++]),		// destinoARetroceder
-					Boolean.parseBoolean(args[i++]),	// InterfaceGrafica
-					Boolean.parseBoolean(args[i++]),	// TableBoardMultiple
-					Integer.parseInt(args[i++]),		// CellPixelesLado
-					Integer.parseInt(args[i++]),		// RefreshMillis
-					Boolean.parseBoolean(args[i++]),	// PodaFairExperiment
-					Boolean.parseBoolean(args[i++]),	// PodaColorBordeLeftExplorado
-					Integer.parseInt(args[i++]));		// PosicionInicioMultiProcess
-			
+					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
+					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
+					Integer.parseInt(getProperty(properties, "exploration.limit")),
+					Integer.parseInt(getProperty(properties, "max.partial.files")),
+					Integer.parseInt(getProperty(properties, "target.rollback.pos")),
+					Boolean.parseBoolean(getProperty(properties, "ui.show")),
+					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
+					Integer.parseInt(getProperty(properties, "ui.cell.size")),
+					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
+					Boolean.parseBoolean(getProperty(properties, "experimental.fair")),
+					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
+					Integer.parseInt(getProperty(properties, "task.distribution.pos")));
+
+			properties = null;
+			ResourceBundle.clearCache();
+
 			sol.atacar();
 			
 		}catch(Exception e){
@@ -97,5 +97,19 @@ public final class MainFasterMPJE
 		System.out.println("\nRank " + rank + ": Programa terminado.");
 		
 		MPI.Finalize();
+	}
+
+	private static ResourceBundle readProperties(String file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		ResourceBundle r = new PropertyResourceBundle(fis);
+		fis.close();
+		return r;
+	}
+
+	private static String getProperty(ResourceBundle properties, String key) {
+		String sysProp = System.getProperty(key);
+		if (sysProp != null && !"".equals(sysProp))
+			return sysProp;
+		return properties.getString(key);
 	}
 }

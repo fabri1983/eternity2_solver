@@ -2,8 +2,6 @@
 - Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
 - Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
 - Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el cada perfil su path
-- Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
-- Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el cada perfil su path
 
 ---------------------------------------------------------------------------------------
 Fork/Join approach
@@ -146,6 +144,16 @@ Lo siguiente es extracto del yahoo grupo:
 	
 	_counts[depth]++;
 	counts the nodes at each individual search depth.
+
+- Limites de números: 
+El entero mas grande de 31 bits es 2147483648. Usar 2147483647 en Complemento a 2.
+El entero mas grande de 63 bits es 9223372036854775808. Usar 9223372036854775807 en Complemento a 2.
+
+- Filas precalculadas:
+para 2 colums tengo count maximo 29 con 34926 filas calculadas
+para 3 colums tengo count maximo 91 con 1556132 filas calculadas
+para 4 colums tengo count maximo 297 con 68981072 filas calculadas
+para 5 colums tengo count maximo ?? con 3042060164 filas calculadas
 
 - Max lenghts de objetos super_matriz[].referencias[] y sus ocurrencias de lenghts:
 Max length: 64

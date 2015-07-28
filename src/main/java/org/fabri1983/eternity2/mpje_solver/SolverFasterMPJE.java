@@ -826,11 +826,11 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion."); //ittai! (qué?!!)
+		System.out.println("Rank " + THIS_PROCESS + ": explorqación agotada.");
 
 		if (send_mail) { // Envio un mail diciendo que no se encontró solución
 			SendMail em= new SendMail();
-			em.setDatos("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion", "Rank " + THIS_PROCESS
+			em.setDatos("Rank " + THIS_PROCESS + ": exploración agotada.", "Rank " + THIS_PROCESS + " exploracion agotada");
 					+ " sin solucion");
 			Thread t= new Thread(em);
 			t.start();
@@ -1075,7 +1075,27 @@ public final class SolverFasterMPJE {
 			}
 			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
 			// desde + "," + length_posibles);
-			// System.out.flush();
+            else {
+				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
+				NUM_PROCESSES = length_posibles;
+				desde = this_proc_absolute / divisor;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				length_posibles = desde + 1;
+				++pos_multi_process_offset;
+			}
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
+			else if (NUM_PROCESSES < length_posibles) {
+				int span = (length_posibles + 1) / NUM_PROCESSES;
+				desde = this_proc_absolute * span;
+				if (desde >= length_posibles)
+					desde = length_posibles - 1;
+				else if (desde + span < length_posibles)
+					length_posibles = desde + span;
+			}
+			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
+			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
+			// Ahora la cantidad de procs se setea igual a length_posibles
             else {
 				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
 				NUM_PROCESSES = length_posibles;

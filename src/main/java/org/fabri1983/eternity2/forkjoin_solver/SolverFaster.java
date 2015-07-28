@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
@@ -1007,7 +1006,18 @@ public final class SolverFaster {
 	 */
 	public static final void atacar() {
 
-		fjpool.invoke(new RecursiveAction() {
+		for (int i = 0, c = actions.length; i < c; ++i) {
+			fjpool.submit(actions[i]);
+		}
+
+		fjpool.shutdown();
+		try {
+			fjpool.awaitTermination(365 * 3, TimeUnit.DAYS);
+		} catch (InterruptedException e) {
+			// no need for any logging
+		}
+		
+		/*fjpool.invoke(new RecursiveAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -1016,11 +1026,11 @@ public final class SolverFaster {
 				// So let's fork all actions so they are allocated inside the pool
 				for (int i=0, c=actions.length; i < c; ++i) {
 					if (i == (c-1))
-						actions[i].compute();
+						actions[i].compute(); // direct invoke so this thread is also used for computation
 					else
 						actions[i].fork();
 				}
 			}
-		});
+		});*/
 	}
 }
