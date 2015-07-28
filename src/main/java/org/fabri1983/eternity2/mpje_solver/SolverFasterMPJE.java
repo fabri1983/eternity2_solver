@@ -825,12 +825,11 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion."); //ittai! (qué?!!)
+		System.out.println("Rank " + THIS_PROCESS + ": explorqación agotada.");
 
 		if (send_mail) { // Envio un mail diciendo que no se encontró solución
 			SendMail em= new SendMail();
-			em.setDatos("Rank " + THIS_PROCESS + ": NO se ha encontrado solucion", "Rank " + THIS_PROCESS
-					+ " sin solucion");
+			em.setDatos("Rank " + THIS_PROCESS + ": exploración agotada.", "Rank " + THIS_PROCESS + " exploracion agotada");
 			Thread t= new Thread(em);
 			t.start();
 		}

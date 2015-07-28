@@ -156,11 +156,11 @@ public class ExploracionAction extends RecursiveAction {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println(id + " >>> NO se ha encontrado solucion."); //ittai! (pero qué?!!)
+		System.out.println(id + " >>> exploracion agotada."); // ittai! (pero qué?!!)
 
 		// if (send_mail){ //Envio un mail diciendo que no se encontró solución
 		// SendMail em= new SendMail();
-		// em.setDatos("NO se ha encontrado solucion para el caso " + CASO, "Sin solucion, caso " + CASO);
+		// em.setDatos("Exploracion agotada para el caso " + CASO, "Sin solucion, caso " + CASO);
 		// Thread t= new Thread(em);
 		// t.start();
 		// }

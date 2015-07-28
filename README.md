@@ -7,17 +7,20 @@ Game finished in 2010 without anyone claiming the solution. Prize for any valid 
 This project is managed with Maven 3.x.
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
+There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).
 
-Environment: Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
-Currently placing around 54 million pieces per second in a fork/join pool with 8 threads. 
-And placing around 80 million pieces per second using MPJ Express framework with 8 instances of the solver. 
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
 
-Environment: Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
-Currently placing 38 million pieces per second in a fork/join pool with 4 threads. 
+Some stats:
+
+- Environment Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
+Currently placing around 54 million pieces per second in a fork-join pool with 8 threads. 
+And placing around 80 million pieces per second using MPJ Express framework as multi-core execution with 8 instances of the solver. 
+
+- Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
+Currently placing 38 million pieces per second in a fork-join pool with 4 threads. 
 And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, 
-or code re-factor is for performance purpose.
 In the past experiments said that execution is faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
 However new JVMs since 1.7 brought a gain in performance.
 
@@ -50,8 +53,7 @@ I use this to run the program on the Oracle JRockit VM.
 ProGuard. http://proguard.sourceforge.net/
 Tool for shrinking, obfuscating, and optimizing code.
 With this tool I could decrease jar file size by 20%.
-Also code execution is 50% faster on Windows box using MPJe execution. 
-On Linux box with an OpenJDK it seems to be slower.
+Code execution is 50% faster on Windows box using MPJe execution. Although, on Linux box with an OpenJDK it seems to be slower.
 I'm still playing with the program parameters.
 Helpful links:
 	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
@@ -67,12 +69,20 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
 	jrockit: intended for running on Oracle's JRockit JVM.
-	mpje: intended for running in cluster/multicore environment using MPJExpress.
+	mpje: intended for running in cluster/multi-core environment using MPJExpress.
 
 
 Execution
 ---------
-Go under tools folder and use one of the runXXX commands. You can edit the props files for argument modification. 
+Create the package first (previous section).
+Go under tools folder and use one of the runXXX commands. 
+E.g.:
+	./run.sh
+
+You can edit the .props files for parameters modification. Or you can pass as arguments those arguments oyu only want to change.
+E.g.:
+	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
+	 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
 Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
@@ -80,10 +90,10 @@ Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar packag
 
 Running with Avian jvm
 ----------------------
-I'm trying to improve the execution of code using another free JVM implementations.
+I'm trying to improve the execution of code using another free JVM implementation.
 Currently I'm taking a look to Avian JVM, under a Windows environment.
 
-Visit page http://oss.readytalk.com/avian/ to know what is Avian.
+Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 
 - Install cygwin following the steps mentioned in https://github.com/ReadyTalk/avian/ (README.md file).
 	- you will need to add some packages that aren't set as default (the instructions are there)
@@ -93,16 +103,16 @@ Visit page http://oss.readytalk.com/avian/ to know what is Avian.
 	- export JAVA_HOME=/cygdrive/c/java/jdk1.7
 - Once cygwin is installed you need to clone avian, win32, and win64 repos.
 	- open cygwin terminal
-	- create a folder avian_jvm whenever you want (eg: in /home/Admi/avian_jvm)
+	- create a folder named avian_jvm wherever you want (eg: in /home/<user>/avian_jvm)
 	- open the cygwin terminal and locate into created dir
 	- git clone git://github.com/ReadyTalk/avian
 	- git clone git://github.com/ReadyTalk/win64
 	- git clone git://github.com/ReadyTalk/win32
 - Locate in avian dir and build it using make command
-- Run hello world test program (which is a already compiled class file):
+- Run hello world test program (which is an already compiled class file):
 	- build/windows-x86_64/avian -cp build/windows-x86_64/test Hello
 - You can try a swt example:
-	- downloaded the exe from http://oss.readytalk.com/avian/examples.html
+	- download the exe from http://oss.readytalk.com/avian/examples.html
 	- or build it and execute it locally. Example for win64:
 		- export platform=windows-x86_64
 		- export swt_zip=swt-4.3-win32-win32-x86_64.zip
@@ -120,7 +130,7 @@ Visit page http://oss.readytalk.com/avian/ to know what is Avian.
 		- unzip -d swt/${platform} ${swt_zip}
 		- curl -Of http://oss.readytalk.com/avian-web/avian-swt-examples-1.0.tar.bz2
 		- tar xjf avian-swt-examples-1.0.tar.bz2
-		- we need to copy lzma-920/C folder to avian_jvm/avian/src/ folder because it won't compile without that folder
+		- we need to copy lzma-920/C folder to avian_jvm/avian/src/ folder because it won't compile otherwise
 			- cp -ar lzma-920/C ../avian/src/ 
 		- cd avian-swt-examples
 		- once in avian-swt-examples folder edit files:
