@@ -376,20 +376,23 @@ public class ExploracionAction extends RecursiveAction {
 			{
 				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
-					SolverFaster.arr_color_rigth_explorado[fila_actual + 1] = 0;
+					SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual + 1, 0);
 				
 				if (flag_zona == SolverFaster.F_BORDE_LEFT)
 				{
-					// pregunto si el color right de la pieza de borde left actual ya est� explorado
-					if ((SolverFaster.arr_color_rigth_explorado[fila_actual] & (1 << p.right)) != 0){
+					final int mask = 1 << p.right;
+					// pregunto si el color right de la pieza de borde left actual ya está explorado
+					if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
 						p.pusada.value = false; //la pieza ahora no es usada
 						//p.pos= -1;
-						continue; //sigo con otra pieza de borde
+						continue; // sigo con otra pieza de borde
 					}
 					// si no es así entonces lo seteo como explorado
 					else {
-						final int value = SolverFaster.arr_color_rigth_explorado[fila_actual] | 1 << p.right; 
-						SolverFaster.arr_color_rigth_explorado[fila_actual] = value;
+						// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
+						SolverFaster.arr_color_rigth_explorado.addAndGet(fila_actual, mask);
+						// final int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
+						// SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual, value);
 					}
 				}
 			}

@@ -1107,22 +1107,23 @@ public final class SolverFasterMPJE {
 				if (flag_antes_borde_right)
 					arr_color_rigth_explorado[fila_actual + 1] = 0;
 				if (flag_zona == F_BORDE_LEFT){
+					final int mask = 1 << p.right;
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
-					if ((arr_color_rigth_explorado[fila_actual] & (1 << p.right)) != 0){
+					if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
 						p.pusada.value = false; //la pieza ahora no es usada
 						//p.pos= -1;
-						continue; //sigo con otra pieza de borde
+						continue; // sigo con otra pieza de borde
 					}
 					// si no es así entonces lo seteo como explorado
 					else
-						arr_color_rigth_explorado[fila_actual] |= 1 << p.right;
+						arr_color_rigth_explorado[fila_actual] |= mask;
 				}
 			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
-			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza de indice "indice"
-			p.pusada.value = true; //en este punto la pieza va a ser usada
+			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza de indice "indice"
+			p.pusada.value = true; // en este punto la pieza va a ser usada
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####

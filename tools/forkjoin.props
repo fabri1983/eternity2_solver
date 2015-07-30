@@ -7,6 +7,6 @@ ui.show=true
 ui.per.proc=false
 ui.cell.size=28
 ui.refresh.millis=100
-experimental.fair=false
+experimental.gif.fair=false
 experimental.borde.left.explorado=false
 task.distribution.pos=99
