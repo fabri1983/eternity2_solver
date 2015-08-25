@@ -176,14 +176,21 @@ Max length: 64
 
 - Usando super_matriz[] calculé que existen como máximo 7 piezas interiores (incluyendo las rotadas) para combinación de 
 2, 3, y 4 colores consecutivos. Y 4 piezas restantes incluyendo rotadas para borde/esquina.
-Conclusión:
-	en cada posición de cursor donde necesite satisfacer combinación left-top voy a tener 4 posibles ramas para 
-	borde/esquina y 7 posibles ramas para interior. Para el caso de la pieza central (sin tener en cuenta sus 
-	rotaciones) se tienen 2 piezas para left-top-bottom y 2 piezas para left-top-right.
-	Por lo tanto el tope de combinaciones será: 4! * 4^56 * 7^194 * 2 * 2 = 3.1027626162141529951217613235866E+200
-	Pero... no siempre voy a probar las 4 piezas en cada posición de borde ni tampoco las 7 piezas en cada 
-	posición interior. Además el uso de contorno_sup en el interior del tablero hace que una combinación dada 
-	left-top-top se pueda usar una sola vez.
+Entonces en cada posición de cursor donde necesite satisfacer combinación left-top voy a tener:
+	- en borde/esquina y matcheando con borde/esquina: 4 posibles ramas.
+	- en borde/esquina y matcheando con interior: 7 posibles ramas.
+	- alrededor de pieza central (sin tener en cuenta sus	rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
+Y sabiendo que existen las siguientes celdas:
+	- 4 celdas esquinas
+	- 56 celdas de borde
+	- 195 celdas internas
+	- 1 celda interna fija
+Por lo tanto el tope de combinaciones será: 4! * 4^56 * 7^194 * 2 * 2 = 4.432518e+199
+No siempre se vá a probar las 4 piezas en cada posición de borde ni tampoco las 7 piezas en cada posición interior debido 
+a las podas. Y el uso de contorno_sup en el interior del tablero hace que una combinación dada left-top-top se pueda usar una 
+sola vez lo que hace descartar ramas.
+Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
+	(4! * 4^56 * 7^194 * 2 * 2) / 4 = 1.10813e+199 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

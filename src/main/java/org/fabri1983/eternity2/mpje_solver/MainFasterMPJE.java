@@ -80,7 +80,7 @@ public final class MainFasterMPJE
 					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
 					Integer.parseInt(getProperty(properties, "ui.cell.size")),
 					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
-					Boolean.parseBoolean(getProperty(properties, "experimental.fair")),
+					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties, "task.distribution.pos")));
 

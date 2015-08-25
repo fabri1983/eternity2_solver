@@ -829,9 +829,8 @@ public final class SolverFasterMPJE {
 		System.out.println("Rank " + THIS_PROCESS + ": explorqación agotada.");
 
 		if (send_mail) { // Envio un mail diciendo que no se encontró solución
-			SendMail em= new SendMail();
+			SendMail em = new SendMail();
 			em.setDatos("Rank " + THIS_PROCESS + ": exploración agotada.", "Rank " + THIS_PROCESS + " exploracion agotada");
-					+ " sin solucion");
 			Thread t= new Thread(em);
 			t.start();
 		}
@@ -1075,38 +1074,6 @@ public final class SolverFasterMPJE {
 			}
 			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
 			// desde + "," + length_posibles);
-            else {
-				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
-				NUM_PROCESSES = length_posibles;
-				desde = this_proc_absolute / divisor;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				length_posibles = desde + 1;
-				++pos_multi_process_offset;
-			}
-			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (NUM_PROCESSES < length_posibles) {
-				int span = (length_posibles + 1) / NUM_PROCESSES;
-				desde = this_proc_absolute * span;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				else if (desde + span < length_posibles)
-					length_posibles = desde + span;
-			}
-			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
-			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
-			// Ahora la cantidad de procs se setea igual a length_posibles
-            else {
-				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
-				NUM_PROCESSES = length_posibles;
-				desde = this_proc_absolute / divisor;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				length_posibles = desde + 1;
-				++pos_multi_process_offset;
-            }
-			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
-			// desde + "," + length_posibles);
 			// System.out.flush();
 		}
 		
@@ -1141,22 +1108,23 @@ public final class SolverFasterMPJE {
 				if (flag_antes_borde_right)
 					arr_color_rigth_explorado[fila_actual + 1] = 0;
 				if (flag_zona == F_BORDE_LEFT){
+					final int mask = 1 << p.right;
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
-					if ((arr_color_rigth_explorado[fila_actual] & (1 << p.right)) != 0){
+					if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
 						p.pusada.value = false; //la pieza ahora no es usada
 						//p.pos= -1;
-						continue; //sigo con otra pieza de borde
+						continue; // sigo con otra pieza de borde
 					}
 					// si no es así entonces lo seteo como explorado
 					else
-						arr_color_rigth_explorado[fila_actual] |= 1 << p.right;
+						arr_color_rigth_explorado[fila_actual] |= mask;
 				}
 			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
-			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza de indice "indice"
-			p.pusada.value = true; //en este punto la pieza va a ser usada
+			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza de indice "indice"
+			p.pusada.value = true; // en este punto la pieza va a ser usada
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####

@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaKeys;
@@ -91,11 +92,11 @@ public final class SolverFaster {
 	protected static long count_filas;
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
-	protected static int arr_color_rigth_explorado[]; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
+	protected static AtomicIntegerArray arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
 	protected static boolean retroceder, FairExperimentGif, usarTableroGrafico;
 	protected static int cellPixelsLado, tableboardRefreshMillis;
 	protected static boolean flag_retroceder_externo, usar_poda_color_explorado;
-	protected final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para reguntar por contorno used
+	protected final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
 	protected final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
 	
 	private static ForkJoinPool fjpool;
@@ -157,8 +158,8 @@ public final class SolverFaster {
 		ESQUINA_BOTTOM_LEFT= MAX_PIEZAS - LADO;
 		
 		if (usar_poda_color_explorado)
-			arr_color_rigth_explorado = new int[LADO];
-		
+			arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
+
 		usarTableroGrafico = usar_tableboard;
 		cellPixelsLado = cell_pixels_lado;
 		tableboardRefreshMillis = p_refresh_millis;
@@ -217,7 +218,7 @@ public final class SolverFaster {
 	}
 	
 	/**
-	 * El arreglo zona_read_contorno[] me dice en qu� posiciones puedo leer un contorno para chequear si es usado o no.
+	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
 	 */
 	private final static void inicializarZonaReadContornos()
 	{	
@@ -542,7 +543,7 @@ public final class SolverFaster {
 							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 							valor= Byte.parseByte(linea.substring(sep_ant,sep));
 							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-							arr_color_rigth_explorado[k] = valor;
+							arr_color_rigth_explorado.set(k, valor);
 						}
 					}
 				}
@@ -909,9 +910,9 @@ public final class SolverFaster {
 			{
 				for (int n=0; n < SolverFaster.LADO; ++n) {
 					if (n==(SolverFaster.LADO-1))
-						writerBuffer.append(SolverFaster.arr_color_rigth_explorado[n]).append("\n");
+						writerBuffer.append(SolverFaster.arr_color_rigth_explorado.get(n)).append("\n");
 					else
-						writerBuffer.append(SolverFaster.arr_color_rigth_explorado[n]).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append(SolverFaster.arr_color_rigth_explorado.get(n)).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
