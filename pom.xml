@@ -26,12 +26,19 @@
 			<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javamail</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
 			<version>1.4.5</version>
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
 		</dependency>
+		<!-- dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1.1</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
+		</dependency -->
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpi</artifactId>
