@@ -21,8 +21,8 @@ And placing around 80 million pieces per second using MPJ Express framework as m
 Currently placing 38 million pieces per second in a fork-join pool with 4 threads. 
 And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
-In the past experiments said that execution is faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
-However new JVMs since 1.7 brought a gain in performance.
+In the past, experiments showed that execution is faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
+However new JVMs since 1.7 brought a gain in performance, where the gain in performance is bigger.
 
 
 Papers where I took some ideas
@@ -64,11 +64,13 @@ Helpful links:
 Packaging
 ---------
 mvn clean package
+
 It generates the jar file with default profile and copy the external dependencies under target folder.
 Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
+
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
-	jrockit: intended for running on Oracle's JRockit JVM.
+	jrockit: intended for running on Oracle's JRockit JVM (only jre 1.6).
 	mpje: intended for running in cluster/multi-core environment using MPJExpress.
 
 
@@ -89,7 +91,7 @@ Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar packag
 
 Note JRE 8: I'm having an exception when using the jpanel:
 java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData
-It seems to ne a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
+It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
 Running with Avian jvm

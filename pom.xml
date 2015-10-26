@@ -104,7 +104,7 @@
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<source.version>1.7</source.version>
-				<compiler.version>1.7</compiler.version>
+				<compiler.version>1.8</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 			</properties>
 		</profile>
