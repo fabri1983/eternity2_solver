@@ -26,12 +26,19 @@
 			<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javamail</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
 			<version>1.4.5</version>
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
 		</dependency>
+		<!-- dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1.1</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
+		</dependency -->
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpi</artifactId>
@@ -69,6 +76,7 @@
 			</activation>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
@@ -77,6 +85,7 @@
 			<id>java8</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
@@ -85,6 +94,7 @@
 			<id>jrockit</id>
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
+				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 			</properties>
@@ -93,6 +103,7 @@
 			<id>mpje</id>
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
+				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 			</properties>
@@ -113,15 +124,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.3</version>
 				<configuration>
+					<source>${source.version}</source>
+					<target>${compiler.version}</target>
+					<encoding>UTF-8</encoding>
 					<compilerArgs>
 						<arg>-O</arg>
 						<arg>-g:none</arg>
 					</compilerArgs>
-					<source>${compiler.version}</source>
-					<target>${compiler.version}</target>
-					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -1072,9 +1072,6 @@ public final class SolverFasterMPJE {
 				length_posibles = desde + 1;
 				++pos_multi_process_offset;
 			}
-			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
-			// desde + "," + length_posibles);
-			// System.out.flush();
 		}
 		
 		for (; desde < length_posibles; ++desde) {

@@ -80,13 +80,17 @@ Go under tools folder and use one of the runXXX commands.
 E.g.:
 	./run.sh
 
-You can edit the .props files for parameters modification. Or you can pass as arguments those arguments oyu only want to change.
+You can edit the .props files for parameters modification. Or pass only those you want to change.
 E.g.:
 	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
 	 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
 Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
+
+Note JRE 8: I'm having an exception when using the jpanel:
+java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData
+It seems to ne a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
 Running with Avian jvm
