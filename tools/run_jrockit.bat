@@ -10,7 +10,7 @@ set jsr166=lib/jsr166.jar
 :: 900m max usage for 8 threads
 set mem_alloc=900m
 
-%java% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m %ALL_ARGS% -jar e2solver_jrockit.jar %ORIG_DIR%/forkjoin.props
+%java% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m %ALL_ARGS% -jar e2solver_jrockit.jar
 
 chdir /d %ORIG_DIR%
 pause

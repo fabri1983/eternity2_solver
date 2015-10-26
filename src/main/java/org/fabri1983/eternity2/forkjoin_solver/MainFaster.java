@@ -22,8 +22,8 @@
 
 package org.fabri1983.eternity2.forkjoin_solver;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
@@ -54,7 +54,7 @@ public final class MainFaster
         }
         
 		try{
-			ResourceBundle properties = readProperties(args[0]);
+			ResourceBundle properties = readProperties();
 			SolverFaster.build(
 					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
 					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
@@ -82,8 +82,9 @@ public final class MainFaster
 		System.out.println("\nPrograma terminado.");
 	}
 
-	private static ResourceBundle readProperties(String file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
+	private static ResourceBundle readProperties() throws IOException {
+		String file = "application.properties";
+		InputStream fis = MainFaster.class.getClassLoader().getResourceAsStream(file);
 		ResourceBundle r = new PropertyResourceBundle(fis);
 		fis.close();
 		return r;

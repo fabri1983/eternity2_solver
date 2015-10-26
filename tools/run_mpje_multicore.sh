@@ -10,4 +10,4 @@ export MPJ_HOME="lib/mpj-v0_44"
 mem_alloc="40m"
 
 # edit mpjrun.sh to select the desired JVM
-$MPJ_HOME/bin/mpjrun.sh -np $(nproc) -Xms$mem_alloc -Xmx$mem_alloc -XX:MaxPermSize=512m $all_args e2solver_mpje.jar $orig_dir/mpje.props
+$MPJ_HOME/bin/mpjrun.sh -np $(nproc) -Xms$mem_alloc -Xmx$mem_alloc -XX:MaxPermSize=512m $all_args e2solver_mpje.jar

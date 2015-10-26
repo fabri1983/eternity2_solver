@@ -12,4 +12,4 @@ mem_alloc="40m"
 TOTAL_THREADS_IN_CLUSTER=8
 
 # edit mpjrun.sh to select the desired JVM
-$MPJ_HOME/bin/mpjrun.sh -np $TOTAL_THREADS_IN_CLUSTER -dev hybdev -Xms$mem_alloc -Xmx$mem_alloc -XX:MaxPermSize=512m $all_args e2solver_mpje.jar $orig_dir/mpje.props
+$MPJ_HOME/bin/mpjrun.sh -np $TOTAL_THREADS_IN_CLUSTER -dev hybdev -Xms$mem_alloc -Xmx$mem_alloc -XX:MaxPermSize=512m $all_args e2solver_mpje.jar

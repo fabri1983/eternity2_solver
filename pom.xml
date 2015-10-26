@@ -79,6 +79,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -88,6 +89,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -97,6 +99,7 @@
 				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -106,6 +109,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
+				<env.props.file>mpje.properties</env.props.file>
 			</properties>
 		</profile>
 	</profiles>
@@ -115,11 +119,12 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<excludes>
-					<exclude>proguard.conf</exclude>
-				</excludes>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<filters>
+			<filter>src/main/resources/${env.props.file}</filter>
+		</filters>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

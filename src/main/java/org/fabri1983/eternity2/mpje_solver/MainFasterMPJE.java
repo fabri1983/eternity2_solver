@@ -22,8 +22,8 @@
 
 package org.fabri1983.eternity2.mpje_solver;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
@@ -63,12 +63,12 @@ public final class MainFasterMPJE
             e.printStackTrace();
         }
 		
-		try{
+		try {
+			ResourceBundle properties = readProperties();
+
 			// NOTA:
 			//   para mpje multicore los primeros 3 parametros son para MPI
 			//   para mpje cluster los primeros 8 parametros son para MPI
-			// Mejor detectar mediante alguna propiedad de MPI si es cluster o multicore
-			ResourceBundle properties = args.length == 4 ? readProperties(args[3]) : readProperties(args[8]);
 			
 			sol = new SolverFasterMPJE(
 					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
@@ -99,8 +99,9 @@ public final class MainFasterMPJE
 		MPI.Finalize();
 	}
 
-	private static ResourceBundle readProperties(String file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
+	private static ResourceBundle readProperties() throws IOException {
+		String file = "application.properties";
+		InputStream fis = MainFasterMPJE.class.getClassLoader().getResourceAsStream(file);
 		ResourceBundle r = new PropertyResourceBundle(fis);
 		fis.close();
 		return r;
