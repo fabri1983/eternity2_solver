@@ -12,7 +12,7 @@ set mem_alloc=40m
 set TOTAL_THREADS_IN_CLUSTER=8
 
 :: edit mpjrun.bat to select the desired JVM
-%MPJ_HOME%/bin/mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m %ALL_ARGS% e2solver_mpje.jar %ORIG_DIR%/mpje.props
+%MPJ_HOME%/bin/mpjrun.bat -np %TOTAL_THREADS_IN_CLUSTER% -dev hybdev -Xms%mem_alloc% -Xmx%mem_alloc% -XX:MaxPermSize=512m %ALL_ARGS% e2solver_mpje.jar
 
 chdir /d %ORIG_DIR%
 pause

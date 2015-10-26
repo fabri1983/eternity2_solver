@@ -81,7 +81,21 @@ Go under tools folder and use one of the runXXX commands.
 E.g.:
 	./run.sh
 
-You can edit the .props files for parameters modification. Or pass only those you want to change.
+The app loads by default the next properties (may change between forkjoin and mpje). You can pass only those you want to change:
+
+	max.ciclos.save_status=2147483647
+	min.pos.save.partial=211
+	exploration.limit=-1
+	max.partial.files=2
+	target.rollback.pos=-1
+	ui.show=true
+	ui.per.proc=false
+	ui.cell.size=28
+	ui.refresh.millis=100
+	experimental.gif.fair=false
+	experimental.borde.left.explorado=false
+	task.distribution.pos=99
+
 E.g.:
 	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
 	 
@@ -89,7 +103,8 @@ Use run.bat or run.sh for running the e2solver.jar package generated with profil
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
 Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
 
-Note JRE 8: I'm having an exception when using the jpanel:
+*Note JRE 8:*
+I'm having an exception when using the jpanel:
 java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
