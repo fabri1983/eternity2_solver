@@ -1,0 +1,20 @@
+language: java
+
+sudo: false
+
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+  
+# overrides travis 'install' step
+install: mvn clean package -DskipTests=true
+
+# whitelist branches
+branches:
+  only:
+    - master
+    - dev
+
+# overrides travis 'script' step
+script: mvn clean test
