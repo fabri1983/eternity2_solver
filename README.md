@@ -1,5 +1,6 @@
 eternity2_solver
 ================
+![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=dev)
 
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
 Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
