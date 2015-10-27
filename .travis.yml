@@ -4,7 +4,6 @@ sudo: false
 
 jdk:
   - oraclejdk8
-  - openjdk8
   
 # overrides travis 'install' step
 # this installs dependencies. Using default profile
