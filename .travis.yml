@@ -4,11 +4,10 @@ sudo: false
 
 jdk:
   - oraclejdk8
-  - oraclejdk7
-  - openjdk7
   
 # overrides travis 'install' step
-install: mvn clean package -DskipTests=true
+# this installs dependencies. Using default profile
+install: mvn clean install -DskipTests=true
 
 # whitelist branches
 branches:
@@ -17,4 +16,9 @@ branches:
     - dev
 
 # overrides travis 'script' step
-script: mvn clean test
+script: mvn clean package -Pjava7 && mvn clean package -Pjava8 && mvn clean package -Pjrockit && mvn clean package -Pmpje
+
+# I will need to set something up to catch these.
+notifications:
+  email:
+    - fabri1983@gmail.com
