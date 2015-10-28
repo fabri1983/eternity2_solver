@@ -1,7 +1,5 @@
 language: java
 
-sudo: false
-
 jdk:
   - oraclejdk8
 
@@ -13,11 +11,12 @@ branches:
       
 # overrides travis 'install' step
 # this installs dependencies. Using default profile
-install: mvn clean install -DskipTests=true
+install:
+  - mvn --batch-mode clean install -DskipTests=true
 
 # overrides travis 'script' step
-script: mvn clean package -Pjava7 && mvn clean package -Pjava8 && mvn clean package -Pjrockit && mvn clean package -Pmpje
-
-notifications:
-  email:
-    - fabri1983@gmail.com
+script:
+  - mvn --batch-mode clean package -Pjava7
+  - mvn --batch-mode clean package -Pjava8
+  - mvn --batch-mode clean package -Pjrockit
+  - mvn --batch-mode clean package -Pmpje
