@@ -12,6 +12,8 @@ branches:
 # overrides travis 'install' step
 # this installs dependencies. Using default profile
 install:
+  - java -version
+  - mvn --version
   - mvn --batch-mode clean install -DskipTests=true
 
 # overrides travis 'script' step
