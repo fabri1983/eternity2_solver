@@ -20,3 +20,6 @@ script:
   - mvn --batch-mode clean package -Pjava8
   - mvn --batch-mode clean package -Pjrockit
   - mvn --batch-mode clean package -Pmpje
+
+notifications:
+  email: false
