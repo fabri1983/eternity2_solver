@@ -1,7 +1,7 @@
 ﻿TODO
 - Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
 - Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
-- Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el cada perfil su path
+- Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el perfil su path
 
 ---------------------------------------------------------------------------------------
 Fork/Join approach
