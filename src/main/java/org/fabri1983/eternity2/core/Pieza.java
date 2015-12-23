@@ -320,19 +320,31 @@ public class Pieza {
 		}*/
 	}
 	
-	/**
-	 * Pieza p es igual a esta instancia solo si el número es el mismo.
-	 * 
-	 * @param p
-	 * @return
-	 */
-	public final boolean equals (final Pieza p)
-	{
-		return p.numero == this.numero;
-	}
-	
 	public final static Pieza copia (final Pieza p)
 	{
 		return new Pieza(p);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + numero;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Pieza other = (Pieza) obj;
+		if (numero != other.numero)
+			return false;
+		return true;
+	}
+
 }
