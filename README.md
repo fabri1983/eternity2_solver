@@ -33,15 +33,18 @@ However new JVMs since 1.7 brought a gain in performance which made me leave the
 Papers where I took some ideas from
 -----------------------------------
 
-- How many edges can be shared by N square tiles on a board? 
+- How many edges can be shared by N square tiles on a board?
+http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf
 Thierry Benoist
 e-lab Research Report - April 2008
 
 - Fast Global Filtering for Eternity II
+http://cs.brown.edu/people/pvh/CPL/Papers/v3/eternity.pdf
 Thierry Benoist, e-lab - Bouygues SA, Paris
 Eric Bourreau, LIRMM, Montpellier
 
 - Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity
+http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf
 Erik D. Demaine, Martin L. Demaine
 MIT Computer Science and Artificial Intelligence Laboratory
 
