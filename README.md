@@ -33,17 +33,20 @@ However new JVMs since 1.7 brought a gain in performance which made me leave the
 Papers where I took some ideas from
 -----------------------------------
 
-- How many edges can be shared by N square tiles on a board? 
-Thierry Benoist
-e-lab Research Report - April 2008
+- How many edges can be shared by N square tiles on a board?<br/>
+http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf<br/>
+Thierry Benoist<br/>
+e-lab Research Report - April 2008<br/>
 
-- Fast Global Filtering for Eternity II
-Thierry Benoist, e-lab - Bouygues SA, Paris
-Eric Bourreau, LIRMM, Montpellier
+- Fast Global Filtering for Eternity II<br/>
+http://cs.brown.edu/people/pvh/CPL/Papers/v3/eternity.pdf<br/>
+Thierry Benoist, e-lab - Bouygues SA, Paris<br/>
+Eric Bourreau, LIRMM, Montpellier<br/>
 
-- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity
-Erik D. Demaine, Martin L. Demaine
-MIT Computer Science and Artificial Intelligence Laboratory
+- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity<br/>
+http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf<br/>
+Erik D. Demaine, Martin L. Demaine<br/>
+MIT Computer Science and Artificial Intelligence Laboratory<br/>
 
 
 Third party APIs
