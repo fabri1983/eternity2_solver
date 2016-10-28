@@ -4,6 +4,8 @@ eternity2_solver
 | ----- | ------- |
 | ![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=dev) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/dev?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/dev) |
 
+![eternity solver mpje 8 threads image](/misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")
+
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
 Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
 
@@ -16,20 +18,20 @@ The project is under continuous development, mostly on spare time. Every time I 
 
 Some stats:
 
-- Environment Windows 7 Intel core i7 2.6GHz DDR3 Dual Channel. Results:
-Currently placing around 54 million pieces per second in a fork-join pool with 8 threads. 
-And placing around 80 million pieces per second using MPJ Express framework as multi-core execution with 8 instances of the solver. 
+- Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:
+Currently placing approx 54 million pieces per second in a fork-join pool with 8 threads. 
+And placing approx 80 million pieces per second using MPJ Express framework as multi-core execution with 8 solver instances. 
 
 - Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
 Currently placing 38 million pieces per second in a fork-join pool with 4 threads. 
 And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
 
-In the past, experiments showed that execution is faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
-However new JVMs since 1.7 brought a gain in performance, where the gain in performance is bigger.
+In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
+However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.
 
 
-Papers where I took some ideas
-------------------------------
+Papers where I took some ideas from
+-----------------------------------
 
 - How many edges can be shared by N square tiles on a board? 
 Thierry Benoist
@@ -73,8 +75,8 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 
 Profiles (use -Pname):
 	java7, java8: for executing with either JVM.
-	jrockit: intended for running on Oracle's JRockit JVM (only jre 1.6).
-	mpje: intended for running in cluster/multi-core environment using MPJExpress.
+	jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
+	mpje: intended for running in cluster/multi-core environment using MPJExpress api.
 
 
 Execution
@@ -106,7 +108,10 @@ Use run.bat or run.sh for running the e2solver.jar package generated with profil
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
 Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
 
-*Note JRE 8:*
+
+Known issues
+------------
+*Note for JRE 8:*
 I'm having an exception when using the jpanel:
 java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
@@ -114,7 +119,7 @@ It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=2487
 
 Running with Avian jvm
 ----------------------
-I'm trying to improve the execution of code using another free JVM implementation.
+I'm trying to improve the execution of code using a free JVM implementation.
 Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
