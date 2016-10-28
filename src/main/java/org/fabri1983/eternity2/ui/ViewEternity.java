@@ -232,6 +232,7 @@ public class ViewEternity extends JFrame implements KeyListener {
 				this.pauseAll = false;
 				this.running = false;
 				System.exit(0);
+				break;
 			}
 			default: break;
 		}
