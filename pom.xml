@@ -60,12 +60,6 @@
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.proguard</groupId>
-			<artifactId>proguard-base</artifactId>
-			<version>5.2</version>
-			<scope>runtime</scope>
-        </dependency>
 	</dependencies>
 
 	<profiles>
@@ -238,6 +232,14 @@
 						<lib>${project.build.directory}/lib/mpj-v0_44/lib/mpj.jar</lib>
 					</libs>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.proguard</groupId>
+						<artifactId>proguard-base</artifactId>
+						<version>5.3.2</version>
+						<scope>runtime</scope>
+			        </dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>com.github.wvengen</groupId>
