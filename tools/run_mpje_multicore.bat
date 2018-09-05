@@ -5,7 +5,7 @@ set ALL_ARGS=%*
 
 set ORIG_DIR=%cd%
 cd ../target
-set MPJ_HOME=lib/mpj-v0_44
+set MPJ_HOME=external-libs/mpj-v0_44
 :: 40m max usage per VM instance
 set mem_alloc=50m
 

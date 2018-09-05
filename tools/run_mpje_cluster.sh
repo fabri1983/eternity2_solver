@@ -5,7 +5,7 @@ all_args=$@
 
 orig_dir=$(pwd)
 cd ../target
-export MPJ_HOME="lib/mpj-v0_44"
+export MPJ_HOME="external-libs/mpj-v0_44"
 # 40m max usage per VM instance
 mem_alloc="40m"
 # set the amount of total threads in the cluster. It has to be an homogeneous cluster
