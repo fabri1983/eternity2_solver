@@ -120,6 +120,42 @@ java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to 
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
+Compile with GraalVM on Windows
+-------------------------------
+We are going to build a graal compiler for Windows platform.
+- Download Oracle JDK 11 from http://jdk.java.net/11/. This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+Environment variables will be set later with specific scripts.
+- Setup mx (build assistant tool)
+	- create a mx directory and locate into it:
+	```sh
+	mkdir mx
+	cd mx
+	```
+	- clone mx project:
+	```sh
+	git clone https://github.com/graalvm/mx.git
+	```
+- Building Graal:
+	- create a graal directory (outside the mx directory previously created) and locate into it:
+	```sh
+	mkdir graal
+	cd graal
+	```
+	- clone graal project:
+	```sh
+	git clone https://github.com/oracle/graal.git
+	```
+	- open a command console and type next commands:
+	```sh
+	SET PATH=%PATH%;%cd%/../mx
+	cd compiler
+	mx --java-home /java/jdk-11 build
+	mx --java-home /java/jdk-11 unittest
+	SET JAVA_HOME=@mx --java-home /java/jdk-11 jdkhome
+	echo %JAVA_HOME%
+	```
+	
+
 Running with Avian jvm
 ----------------------
 I'm trying to improve the execution of code using a free JVM implementation.
