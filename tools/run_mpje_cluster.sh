@@ -3,11 +3,12 @@
 # they can only be -Dxxx arguments to the JVM
 all_args=$@
 
+export MPJ_HOME=$(pwd)"/../external-libs/mpj-v0_44"
+export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target
-export MPJ_HOME="external-libs/mpj-v0_44"
-# 40m max usage per VM instance
-mem_alloc="40m"
+# 50m max usage per VM instance. For GraalVM it needs 60m.
+mem_alloc="60m"
 # set the amount of total threads in the cluster. It has to be an homogeneous cluster
 TOTAL_THREADS_IN_CLUSTER=8
 
