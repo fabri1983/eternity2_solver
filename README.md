@@ -123,9 +123,9 @@ It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=2487
 Compile with GraalVM on Windows
 -------------------------------
 We are going to build a graal compiler for Windows platform.
-- Download Oracle JDK 11 from http://jdk.java.net/11/. This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+- Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 Environment variables will be set later with specific scripts.
-- Setup mx (build assistant tool)
+- Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
 	mkdir mx
@@ -133,7 +133,11 @@ Environment variables will be set later with specific scripts.
 	```
 	- clone mx project:
 	```sh
-	git clone https://github.com/graalvm/mx.git
+	git clone https://github.com/graalvm/mx.git .
+	```
+	- add binary to PATH:
+	```sh
+	SET PATH=%PATH%;%cd%
 	```
 - Building Graal:
 	- create a graal directory (outside the mx directory previously created) and locate into it:
@@ -143,22 +147,34 @@ Environment variables will be set later with specific scripts.
 	```
 	- clone graal project:
 	```sh
-	git clone https://github.com/oracle/graal.git
+	git clone https://github.com/oracle/graal.git .
 	```
-	- open a command console and type next commands:
+	- open a command console and type next commands (you will need python2.7 to be in your PATH):
 	```sh
-	SET PATH=%PATH%;%cd%/../mx
-	cd compiler
-	mx --java-home /java/jdk-11 build
-	mx --java-home /java/jdk-11 unittest
-	SET JAVA_HOME=@mx --java-home /java/jdk-11 jdkhome
+	SET JAVA_HOME=c:\java\jdk-11.0.1
 	echo %JAVA_HOME%
+	cd compiler
+	mx build
+	mx vm -version
 	```
-	
+- Using the Graal compiler with your JVMCI enabled JVM:
+Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
 
-Running with Avian jvm
+	--module-path=... and --upgrade-module-path=... add Graal to the module path. 
+	Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like the classpath for our purposes here.
+
+	We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.
+
+	We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use it and to install a new JIT compiler.
+	By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation). 
+	To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
+	
+	We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
+
+
+Running with Avian JVM
 ----------------------
-I'm trying to improve the execution of code using a free JVM implementation.
+I'm trying to improve the performance of code execution using a free JVM implementation.
 Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
