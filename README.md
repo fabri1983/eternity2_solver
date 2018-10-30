@@ -59,9 +59,9 @@ Is the java concurrent api for Java 1.6 target builds.
 I use this to run the program on the Oracle JRockit VM.
 
 ProGuard. http://proguard.sourceforge.net/
-Tool for shrinking, obfuscating, and optimizing code.
+Tool for shrink, obfuscate, and optimize code.
 With this tool I could decrease jar file size by 20%.
-Code execution is 50% faster on Windows box using MPJe execution. Although, on Linux box with an OpenJDK it seems to be slower.
+Code execution is 50% faster on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.
 I'm still playing with the program parameters.
 Helpful links:
 	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
@@ -76,15 +76,15 @@ mvn clean package
 It generates the jar file with default profile and copy the external dependencies under target folder.
 Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
 
-Profiles (use -Pname):
-	java7, java8: for executing with either JVM.
+Profiles (use -P<name>):
+	java7, java8: for execution with either JVM.
 	jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
 	mpje: intended for running in cluster/multi-core environment using MPJExpress api.
 
 
 Execution
 ---------
-Create the package first (previous section).
+First create the package (previous section).
 Go under tools folder and use one of the runXXX commands. 
 E.g.:
 	./run.sh
@@ -106,6 +106,7 @@ The app loads by default the next properties (may change between forkjoin and mp
 
 E.g.:
 	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
+	./run_mpje_multicore.sh -Dmin.pos.save.partial=215 -Dui.show=true
 	 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
@@ -120,8 +121,8 @@ java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to 
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
-Compile with GraalVM on Windows
--------------------------------
+Usage of Graal Compiler on Windows
+----------------------------------
 We are going to build a graal compiler for Windows platform.
 - Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 Environment variables will be set later with specific scripts.
