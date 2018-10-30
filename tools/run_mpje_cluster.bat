@@ -3,12 +3,13 @@
 :: they can only be -Dxxx arguments to the JVM
 set ALL_ARGS=%*
 
+set MPJ_HOME=%cd%/../external-libs/mpj-v0_44
+set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target
-set MPJ_HOME=lib/mpj-v0_44
-:: 40m max usage per VM instance
-set mem_alloc=40m
-:: set the amount of total threads in the cluster. It has to be an homogeneous cluster
+:: 50m max usage per VM instance. For GraalVM it needs 60m.
+set mem_alloc=60m
+:: set the amount of total threads in the cluster. It has to be an homogeneous cluster type
 set TOTAL_THREADS_IN_CLUSTER=8
 
 :: edit mpjrun.bat to select the desired JVM

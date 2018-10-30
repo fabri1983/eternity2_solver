@@ -59,9 +59,9 @@ Is the java concurrent api for Java 1.6 target builds.
 I use this to run the program on the Oracle JRockit VM.
 
 ProGuard. http://proguard.sourceforge.net/
-Tool for shrinking, obfuscating, and optimizing code.
+Tool for shrink, obfuscate, and optimize code.
 With this tool I could decrease jar file size by 20%.
-Code execution is 50% faster on Windows box using MPJe execution. Although, on Linux box with an OpenJDK it seems to be slower.
+Code execution is 50% faster on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.
 I'm still playing with the program parameters.
 Helpful links:
 	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
@@ -77,15 +77,15 @@ mvn clean package
 It generates the jar file with default profile and copy the external dependencies under target folder.
 Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
 
-Profiles (use -Pname):
-	java7, java8: for executing with either JVM.
+Profiles (use -P<name>):
+	java7, java8: for execution with either JVM.
 	jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
 	mpje: intended for running in cluster/multi-core environment using MPJExpress api.
 
 
 Execution
 ---------
-Create the package first (previous section).
+First create the package (previous section).
 Go under tools folder and use one of the runXXX commands. 
 E.g.:
 	./run.sh
@@ -107,6 +107,7 @@ The app loads by default the next properties (may change between forkjoin and mp
 
 E.g.:
 	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
+	./run_mpje_multicore.sh -Dmin.pos.save.partial=215 -Dui.show=true
 	 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
 Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
@@ -121,9 +122,61 @@ java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to 
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
-Running with Avian jvm
+Usage of Graal Compiler on Windows
+----------------------------------
+We are going to build a graal compiler for Windows platform.
+- Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+Environment variables will be set later with specific scripts.
+- Setup mx (build assistant tool written in python)
+	- create a mx directory and locate into it:
+	```sh
+	mkdir mx
+	cd mx
+	```
+	- clone mx project:
+	```sh
+	git clone https://github.com/graalvm/mx.git .
+	```
+	- add binary to PATH:
+	```sh
+	SET PATH=%PATH%;%cd%
+	```
+- Building Graal:
+	- create a graal directory (outside the mx directory previously created) and locate into it:
+	```sh
+	mkdir graal
+	cd graal
+	```
+	- clone graal project:
+	```sh
+	git clone https://github.com/oracle/graal.git .
+	```
+	- open a command console and type next commands (you will need python2.7 to be in your PATH):
+	```sh
+	SET JAVA_HOME=c:\java\jdk-11.0.1
+	echo %JAVA_HOME%
+	cd compiler
+	mx build
+	mx vm -version
+	```
+- Using the Graal compiler with your JVMCI enabled JVM:
+Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
+
+	--module-path=... and --upgrade-module-path=... add Graal to the module path. 
+	Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like the classpath for our purposes here.
+
+	We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.
+
+	We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use it and to install a new JIT compiler.
+	By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation). 
+	To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
+	
+	We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
+
+
+Running with Avian JVM
 ----------------------
-I'm trying to improve the execution of code using a free JVM implementation.
+I'm trying to improve the performance of code execution using a free JVM implementation.
 Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
