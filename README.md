@@ -150,7 +150,7 @@ Environment variables will be set later with specific scripts.
 	```sh
 	git clone https://github.com/oracle/graal.git .
 	```
-	- open a command console and type next commands (you will need python2.7 to be in your PATH):
+	- you will need python2.7 to be in your PATH:
 	```sh
 	SET JAVA_HOME=c:\java\jdk-11.0.1
 	echo %JAVA_HOME%
@@ -171,6 +171,36 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 	To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
 	
 	We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
+
+
+Build a native image using Graal's SubstrateVM on Windows
+---------------------------------------------------------
+Perform same steps than section *sage of Graal Compiler on Windows*:
+- install JDK 11 with support for JVMCI.
+- download mx tool, and add it to your PATH environment variable.
+- download grall project and build the Substrate VM
+	```sh
+	SET JAVA_HOME=c:\java\jdk-11.0.1
+	echo %JAVA_HOME%
+	cd substratevm
+	mx build
+	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
+	%JAVA_HOME%/bin/javac HelloWorld.java
+	mx native-image HelloWorld
+	HelloWorld
+	```
+	complete this.
+- Troubleshooting: 
+If you receive error message *Exception in thread "main" java.nio.file.InvalidPathException: Illegal char <*> at index 0* then you need to:
+	- modify class *src/com.oracle.svm.driver/src/com/oracle/svm/driver/NativeImage.java*:
+	Search for .endsWith(...) method usage and in those cases where the argument of the method is a String then change it to: .toString().endsWith(...).
+	- then rebuild the substratevm:
+	```sh
+	mx clean
+	manually delete folders mxbuild and svmbuild
+	mx build
+	```
+C Libraries required: complete this.
 
 
 Running with Avian JVM
