@@ -140,6 +140,7 @@ Environment variables will be set later with specific scripts.
 	```sh
 	SET PATH=%PATH%;%cd%
 	```
+	Also you can create MX_HOME env variable and add append it to PATH.
 - Building Graal:
 	- create a graal directory (outside the mx directory previously created) and locate into it:
 	```sh
@@ -152,7 +153,7 @@ Environment variables will be set later with specific scripts.
 	```
 	- you will need python2.7 to be in your PATH:
 	```sh
-	SET JAVA_HOME=c:\java\jdk-11.0.1
+	SET JAVA_HOME=c:\java\jdk-11.0.1\
 	echo %JAVA_HOME%
 	cd compiler
 	mx build
@@ -175,32 +176,79 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
-Perform same steps than section *sage of Graal Compiler on Windows*:
-- install JDK 11 with support for JVMCI.
-- download mx tool, and add it to your PATH environment variable.
-- download grall project and build the Substrate VM
+- Install a Labs JDK 1.8 with support for JVMCI.
+- Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
+- C Libraries required:
+	- For compilation native-image depends on the local toolchain, so please make sure: glibc-devel, zlib-devel (header files for the C library and zlib) and gcc are available on your system.
+	On windows you have to install the Microsoft Visual Studio build tools from https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools to use the CL (compiler command line) tool.
+	Currently there is folder named *clibraries* with all requierd headers and libraries.
+	- Configure your environment variables:
+	INCLUDE=<current project path>\clibraries\windows-amd64\include\;%INCLUDE%
+	C_INCLUDE_PATH=<current project path>\clibraries\windows-amd64\include\;%C_INCLUDE_PATH%
+	LIB=<current project path>\clibraries\windows-amd64\lib\;%LIB%
+	- Configure GCC toolchain:
+		- install the Visual C workload from the visual studio build tools installer
+		- run vcvarsall.bat in a command prompt:
+			```sh
+			cd C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build
+			vcvarsall.bat x64
+			```
+- Download graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
-	SET JAVA_HOME=c:\java\jdk-11.0.1
+	SET JAVA_HOME=c:\java\labsjdk1.8.0_192-jvmci-0.49
 	echo %JAVA_HOME%
+	SET PATH=%JAVA_HOME%\bin;%PATH%
 	cd substratevm
 	mx build
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
 	%JAVA_HOME%/bin/javac HelloWorld.java
-	mx native-image HelloWorld
+	mx native-image --verbose HelloWorld
 	HelloWorld
 	```
-	complete this.
 - Troubleshooting: 
-If you receive error message *Exception in thread "main" java.nio.file.InvalidPathException: Illegal char <*> at index 0* then you need to:
-	- modify class *src/com.oracle.svm.driver/src/com/oracle/svm/driver/NativeImage.java*:
-	Search for .endsWith(...) method usage and in those cases where the argument of the method is a String then change it to: .toString().endsWith(...).
-	- then rebuild the substratevm:
-	```sh
-	mx clean
-	manually delete folders mxbuild and svmbuild
-	mx build
-	```
-C Libraries required: complete this.
+	- If you receive error message *Exception in thread "main" java.nio.file.InvalidPathException: Illegal char <*> at index 0* then you need to:
+		- modify class *src/com.oracle.svm.driver/src/com/oracle/svm/driver/NativeImage.java*:
+		Search for .endsWith(...) method usage and in those cases where the argument of the method is a String then change it to: .toString().endsWith(...).
+		- then rebuild the substratevm and force native-image tool to be build:
+		```sh
+		mx clean
+		manually delete folders *mxbuild* and *svmbuild*
+		mx build
+		mx native-image --help
+		```
+	- If you receive error message *Error: Invalid Path entry C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\clibraries\windows-amd64* then you need to:
+		- That's a pah expected to be found by the implementation of NativeImage's inner Builder. Is dpicted as follow:
+			"clibraries/" + OS.getCurrent().asPackageName() + "-" + SubstrateUtil.getArchitectureName()
+			which in my current development box is trasslated to *clibraries\windows-amd64*.
+		- So you only have to copy eternity project's clibraries folder into *C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\* folder.
+		- Then rebuild the substratevm and force native-image tool to be build:
+		```sh
+		mx clean
+		manually delete folders *mxbuild* and *svmbuild*
+		mx build
+		mx native-image --help
+		```
+	- If you receive error *Error: Environment variable JAVA_HOME does not refer to a directory with a bin\java executable* then you need to:
+		- Edit file *com.oracle.svm.driver.NativeImage* method getJavaExecutable(): 
+			- replace `Path binJava = Paths.get("bin", "java");` by `Path binJava = Paths.get("bin", "java.exe");`
+		- Then rebuild the substratevm and force native-image tool to be build:
+		```sh
+		mx clean
+		manually delete folders *mxbuild* and *svmbuild*
+		mx build
+		mx native-image --help
+		```
+	- If you receive error message *Error: Could not find or load main class com.oracle.svm.hosted.NativeImageGeneratorRunner* then you need to:
+		- Run again your native-image command with --verbose option
+		- Copy the execution command and replace *:* separator by *;*
+		- Getting this command:
+			C:\java\labsjdk1.8.0_192-jvmci-0.49\bin\java.exe -Xbootclasspath/a:C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar -cp C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\jvmci-api.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\jvmci-hotspot.jar -server -d64 -noverify -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:-UseJVMCICompiler -XX:-UseJVMCIClassLoader -Dgraal.EagerSnippets=true -Xss10m -Xms1g -Xmx13658770632 -Duser.country=US -Duser.language=en -Dgraalvm.version=1.0.0-rc10-SNAPSHOT -Dorg.graalvm.version=1.0.0-rc10-SNAPSHOT -Dcom.oracle.graalvm.isaot=true -Djvmci.class.path.append=C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar com/oracle/svm/hosted/NativeImageGeneratorRunner -imagecp C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\jvmci-api.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\jvmci-hotspot.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\library-support.jar;C:\java\graal\substratevm -H:Path=C:\java\graal\substratevm -H:CLibraryPath=C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\clibraries\windows-amd64 -H:Class=HelloWorld -H:Name=helloworld
+- Building a native image for eternity 2 solver:
+	complete this. 
+	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
+	Is good for prototyping because it allows you to build native executables without worrying about many issues at first. But we discourage using it in production.
+	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
+So: mx native-image --static --report-unsupported-elements-at-runtime -jar target/e2solver_mpje.jar
 
 
 Running with Avian JVM
