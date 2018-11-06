@@ -193,6 +193,8 @@ Build a native image using Graal's SubstrateVM on Windows
 			cd C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build
 			vcvarsall.bat x64
 			```
+		- Note: it didn't work for me, so I set the env variable manually. Just add to your PATH:
+			C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.15.26726\bin\Hostx64\x64
 - Download graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
 	SET JAVA_HOME=c:\java\labsjdk1.8.0_192-jvmci-0.49
