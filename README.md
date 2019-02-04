@@ -181,25 +181,22 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
+- See https://github.com/oracle/graal/issues/946#issuecomment-459330069
 - Install a Labs JDK 1.8 (currently jvmci-0.54) with support for JVMCI: https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+- You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
+This will help you to decide which iso you need to download:
+	- GRMSDK_EN_DVD.iso is a version for x86 environment.
+	- GRMSDKIAI_EN_DVD.iso is a version for Itanium environment.
+	- GRMSDKX_EN_DVD.iso is a version for x64 environment. (This one is for an AMD64 architecture)
+- Install Windows SDK for Windows 7 from the download ISO.
+See this link for troubleshooting installation issues: https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
 - Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
-- C Libraries required:
-	- For compilation native-image depends on the local toolchain, so please make sure: glibc-devel, zlib-devel (header files for the C library and zlib) and gcc are available on your system.
-	On windows you have to install the Microsoft Visual Studio build tools from https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools to use the CL (compiler command line) tool.
-	- Install the Visual C workload from the visual studio build tools installer. Be sure you select correct SDKs.
-	- Configure C compiler toolchain:
-		- run vcvarsall.bat in a command prompt:
-			NOTE: you have to do this every time you open a console
-			```sh
-			"C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
-			```
-		- I also add to Windows PATH env variable:
-			```sh
-			C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.15.26726\bin\Hostx64\x64
-			```
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
-	"C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+	Either choose a Console:
+		Open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
+		or
+		Open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
 	SET JAVA_HOME=c:\java\labsjdk1.8.0_192-jvmci-0.54
 	cd substratevm
 	mx build
@@ -229,21 +226,14 @@ Build a native image using Graal's SubstrateVM on Windows
 		- Optional: add option for temp directory: -H:TempDirectory=C:\java\graal\substratevm\temp
 		- Getting this command:
 			C:\java\labsjdk1.8.0_192-jvmci-0.54\bin\java.exe -Xbootclasspath/a:C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar -cp C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar -server -d64 -noverify -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:-UseJVMCICompiler -XX:-UseJVMCIClassLoader -Dgraal.EagerSnippets=true -Xss10m -Xms1g -Xmx13658770632 -Duser.country=US -Duser.language=en -Dgraalvm.version=1.0.0-rc10-SNAPSHOT -Dorg.graalvm.version=1.0.0-rc10-SNAPSHOT -Dcom.oracle.graalvm.isaot=true -Djvmci.class.path.append=C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar com.oracle.svm.hosted.NativeImageGeneratorRunner -imagecp C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\library-support.jar;C:\java\graal\substratevm -H:Path=C:\java\graal\substratevm -H:CLibraryPath=C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\clibraries\windows-amd64 -H:Class=HelloWorld -H:Name=helloworld
-	- Missing required Windows libraries: *legacy_stdio_definitions.lib*
-		This library is required to create a native image on Windows when using the VC Build Tools 2017.
-		Solution:
-			```sh
-			open file C:\java\graal\substratevm\src\com.oracle.svm.hosted\src\com\oracle\svm\hosted\image\NativeBootImageViaCC.java
-			Search method public List<String> getCommand()
-			add the missing libraries:
-				cmd.add("legacy_stdio_definitions.lib");
-			```
 - Building a native image for eternity 2 solver:
 	complete this. 
 	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
 	Is good for prototyping because it allows you to build native executables without worrying about many issues at first. But we discourage using it in production.
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
-So: mx native-image --static --report-unsupported-elements-at-runtime -jar target/e2solver_mpje.jar
+	```sh
+	mx native-image --static --report-unsupported-elements-at-runtime -jar target/e2solver.jar
+	```
 
 
 Running with Avian JVM
