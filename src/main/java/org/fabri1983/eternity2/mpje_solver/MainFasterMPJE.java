@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-import javax.swing.UIManager;
-
 import mpi.MPI;
 
 public final class MainFasterMPJE
@@ -49,19 +47,11 @@ public final class MainFasterMPJE
 			System.out.println("##- Micro optimizaciones.                                                    -##");
 			System.out.println("################################################################################");
 			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("         Copyright(c) 2015 Fabricio Lettieri (fabri1983@gmail.com)");
+			System.out.println("         Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)");
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println();
 			System.out.println("Total procs: " + MPI.COMM_WORLD.Size() + "\n\n");
 		}
-		
-		// lo siguiente es solamente para el tablero gráfico
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-        	System.out.println("Rank " + rank + ": Problema con llamada a setLookAndFeel() en metodo main()");
-            e.printStackTrace();
-        }
 		
 		try {
 			ResourceBundle properties = readProperties();
@@ -87,6 +77,7 @@ public final class MainFasterMPJE
 			properties = null;
 			ResourceBundle.clearCache();
 
+			sol.setupInicial(); // ejecuto una inicializacion global
 			sol.atacar();
 			
 		}catch(Exception e){

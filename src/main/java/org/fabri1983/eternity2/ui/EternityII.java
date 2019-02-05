@@ -26,6 +26,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
 
@@ -35,6 +36,13 @@ public class EternityII {
 	
     public EternityII(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int numProcesors, ExploracionAction action) {
     	
+    	// lo siguiente es solamente para el tablero gráfico
+		try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		
         frame = new ViewEternity(refreshMillis, lado, cell_size_pixels, num_colours, action);
         frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
