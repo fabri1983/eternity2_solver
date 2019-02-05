@@ -19,12 +19,12 @@ The project is under continuous development, mostly on spare time. Every time I 
 Some stats:
 
 - Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:
-Currently placing approx 54 million pieces per second in a fork-join pool with 8 threads. 
-And placing approx 80 million pieces per second using MPJ Express framework as multi-core execution with 8 solver instances. 
+Currently placing approx **54 million pieces per second** in a fork-join pool with 8 threads. 
+And placing approx **80 million pieces per second** using MPJ Express framework as multi-core execution with 8 solver instances. 
 
 - Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
-Currently placing 38 million pieces per second in a fork-join pool with 4 threads. 
-And placing around 90 million pieces per second using MPJ Express framework with 4 instances of the solver. 
+Currently placing **38 million pieces per second** in a fork-join pool with 4 threads. 
+And placing around **90 million pieces per second** using MPJ Express framework with 4 instances of the solver. 
 
 In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.
@@ -33,35 +33,35 @@ However new JVMs since 1.7 brought a gain in performance which made me leave the
 Papers where I took some ideas from
 -----------------------------------
 
-- How many edges can be shared by N square tiles on a board?<br/>
-http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf<br/>
-Thierry Benoist<br/>
-e-lab Research Report - April 2008<br/>
+- How many edges can be shared by N square tiles on a board?
+http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf
+Thierry Benoist
+e-lab Research Report - April 2008
 
-- Fast Global Filtering for Eternity II<br/>
-http://cs.brown.edu/people/pvh/CPL/Papers/v3/eternity.pdf<br/>
-Thierry Benoist, e-lab - Bouygues SA, Paris<br/>
+- Fast Global Filtering for Eternity II
+http://cs.brown.edu/people/pvh/CPL/Papers/v3/eternity.pdf
+Thierry Benoist, e-lab - Bouygues SA, Paris
 Eric Bourreau, LIRMM, Montpellier<br/>
 
-- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity<br/>
-http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf<br/>
-Erik D. Demaine, Martin L. Demaine<br/>
-MIT Computer Science and Artificial Intelligence Laboratory<br/>
+- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity
+http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf
+Erik D. Demaine, Martin L. Demaine
+MIT Computer Science and Artificial Intelligence Laboratory
 
 
 Third party APIs
 ----------------
-MPJ Express. http://mpj-express.org/.
+**MPJ Express**. http://mpj-express.org/.
 It is included in the project as a system dependency
 
-jsr166. https://www.jcp.org/en/jsr/detail?id=166
+**jsr166**. https://www.jcp.org/en/jsr/detail?id=166
 Is the java concurrent api for Java 1.6 target builds.
 I use this to run the program on the Oracle JRockit VM.
 
-ProGuard. http://proguard.sourceforge.net/
+**ProGuard**. http://proguard.sourceforge.net/
 Tool for shrink, obfuscate, and optimize code.
-With this tool I could decrease jar file size by 20%.
-Code execution is 50% faster on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.
+With this tool I could **decrease jar file size by 20%**.
+**Code execution is 50% faster** on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.
 I'm still playing with the program parameters.
 Helpful links:
 	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
@@ -72,15 +72,17 @@ Helpful links:
 
 Packaging
 ---------
+```sh
 mvn clean package
-
+```
 It generates the jar file with default profile and copy the external dependencies under target folder.
 Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
 
-Profiles (use -P<name>):
-	java7, java8: for execution with either JVM.
-	jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
-	mpje: intended for running in cluster/multi-core environment using MPJExpress api.
+**Profiles (use -P)**
+- java7, java8: for execution with either JVM.
+- jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
+- mpje: intended for running in cluster/multi-core environment using MPJExpress api.
+- java8native: only intended for Graal SubstrateVM native image generation.
 
 
 Execution
@@ -166,17 +168,17 @@ Environment variables will be set later with specific scripts.
 	```
 - Using the Graal compiler with your JVMCI enabled JVM:
 Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
-
-	--module-path=... and --upgrade-module-path=... add Graal to the module path. 
-	Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like the classpath for our purposes here.
-
-	We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.
-
-	We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use it and to install a new JIT compiler.
-	By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation). 
-	To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
-	
-	We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
+    
+    --module-path=... and --upgrade-module-path=... add Graal to the module path. 
+    Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like the classpath for our purposes here.
+    
+    We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.
+    
+    We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use it and to install a new JIT compiler.
+    By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation). 
+    To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
+    	
+    We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
 
 
 Build a native image using Graal's SubstrateVM on Windows
@@ -193,10 +195,10 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 - Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
-	Either choose a Console:
-		Open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
+	Open a console:
+		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
-		Open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
+		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
 	SET JAVA_HOME=c:\java\labsjdk1.8.0_192-jvmci-0.54
 	cd substratevm
 	mx build
@@ -224,7 +226,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 		- Run again your native-image command with --verbose option
 		- Copy the execution command and replace *:* separator by *;*
 		- Optional: add option for temp directory: -H:TempDirectory=C:\java\graal\substratevm\temp
-		- Getting this command:
+		- Getting this similar command:
 			C:\java\labsjdk1.8.0_192-jvmci-0.54\bin\java.exe -Xbootclasspath/a:C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar -cp C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar -server -d64 -noverify -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:-UseJVMCICompiler -XX:-UseJVMCIClassLoader -Dgraal.EagerSnippets=true -Xss10m -Xms1g -Xmx13658770632 -Duser.country=US -Duser.language=en -Dgraalvm.version=1.0.0-rc10-SNAPSHOT -Dorg.graalvm.version=1.0.0-rc10-SNAPSHOT -Dcom.oracle.graalvm.isaot=true -Djvmci.class.path.append=C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar com.oracle.svm.hosted.NativeImageGeneratorRunner -imagecp C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\library-support.jar;C:\java\graal\substratevm -H:Path=C:\java\graal\substratevm -H:CLibraryPath=C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\clibraries\windows-amd64 -H:Class=HelloWorld -H:Name=helloworld
 - Building a native image for eternity 2 solver:
 	complete this. 
