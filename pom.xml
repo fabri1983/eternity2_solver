@@ -163,6 +163,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
 				<inherited>false</inherited>
 				<executions>
 					<execution>
@@ -172,9 +173,20 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<target>
-								<echo></echo>
-							</target>
+							<target name="copy-external-libs">
+                                <copy todir="${project.build.directory}/lib">
+                                    <fileset dir="${external.libs.dir}">
+                                        <include name="**/*" />
+                                    </fileset>
+                                </copy>
+                                <chmod perm="u+rwx" type="file">
+                                    <fileset dir="${project.build.directory}/lib/mpj-v0_44/bin">
+                                        <include name="*" />
+                                        <exclude name="*.bat" />
+                                    </fileset>
+                                </chmod>
+                            </target>
+
 						</configuration>
 					</execution>
 				</executions>
@@ -240,6 +252,13 @@
 						<lib>${java.home}/lib/jsse.jar</lib>
 						<!--lib>${java.home}/lib/jce.jar</lib-->
 						<!--lib>${java.home}/lib/ext/sunjce_provider.jar</lib-->
+
+						<lib>${project.build.directory}/lib/jsr166.jar</lib>
+                        <lib>${project.build.directory}/lib/javamail-1.4.5/mail.jar</lib>
+                        <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpi.jar</lib>
+                        <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpiExp.jar</lib>
+                        <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpj.jar</lib>
+                        
 					</libs>
 				</configuration>
 				<dependencies>
