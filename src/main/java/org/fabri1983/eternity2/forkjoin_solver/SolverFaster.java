@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
@@ -38,12 +37,10 @@ import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.ui.EternityII;
+import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
 
 public final class SolverFaster {
 	
-	protected static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
-
 	protected static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
 	protected static int NUM_PROCESSES = 1;
 	protected static ExploracionAction actions[];
@@ -100,10 +97,12 @@ public final class SolverFaster {
 	protected final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
 	
 	private static ForkJoinPool fjpool;
-
+	private static ReaderForTilesFile readerForTilesFile;
+	
 	private static long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 
-	private SolverFaster(){}
+	private SolverFaster() {
+	}
 	
 	/**
 	 * Algoritmo backtracker.
@@ -120,10 +119,14 @@ public final class SolverFaster {
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
 	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
+	 * @param readerForTilesFile: implementation of the tiles file reader.
 	 */
-	public static void build (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
+	public static SolverFaster build (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
-			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_fork_join) {
+			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_fork_join,
+			ReaderForTilesFile reader) {
+		
+		readerForTilesFile = reader;
 		
 		MAX_CICLOS= m_ciclos;
 		
@@ -165,6 +168,8 @@ public final class SolverFaster {
 		tableboardRefreshMillis = p_refresh_millis;
 
 		createDirs();
+		
+		return new SolverFaster();
 	}
 	
 	
@@ -328,9 +333,9 @@ public final class SolverFaster {
 		int key1,key2,key3,key4,key5,key6,key7,key8,key9,key10,key11,key12,key13,key14,key15;
 		
 		// itero sobre el arreglo de piezas
-		for (int k = 0; k < SolverFaster.MAX_PIEZAS; ++k) {
+		for (int k = 0; k < MAX_PIEZAS; ++k) {
 			
-			if (k == SolverFaster.INDICE_P_CENTRAL)
+			if (k == INDICE_P_CENTRAL)
 				continue;
 			
 			pz = action.piezas[k];
@@ -340,10 +345,10 @@ public final class SolverFaster {
 			//seteo su rotaci�n en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
-			for (int rt=0; rt < SolverFaster.MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
+			for (int rt=0; rt < MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
 			{
 				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
-				if (SolverFaster.FairExperimentGif && (pz.top == pz.bottom))
+				if (FairExperimentGif && (pz.top == pz.bottom))
 					continue;
 				Pieza newp = Pieza.copia(pz);
 				
@@ -352,37 +357,37 @@ public final class SolverFaster {
 				NodoPosibles.addReferencia(action.super_matriz[key1], newp);
 				
 				//tengo tres colores y uno faltante
-				key2 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,pz.bottom,pz.left);
+				key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key2], newp);
-				key3 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,pz.bottom,pz.left);
+				key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key3], newp);
-				key4 = MapaKeys.getKey(pz.top,pz.right,SolverFaster.MAX_COLORES,pz.left);
+				key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key4], newp);
-				key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,SolverFaster.MAX_COLORES);
+				key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key5], newp);
 				
 				//tengo dos colores y dos faltantes
-				key6 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.bottom,pz.left);
+				key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key6], newp);
-				key7 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,SolverFaster.MAX_COLORES,pz.left);
+				key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key7], newp);
-				key8 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,pz.bottom,SolverFaster.MAX_COLORES);
+				key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key8], newp);
-				key9 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.left);	
+				key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);	
 				NodoPosibles.addReferencia(action.super_matriz[key9], newp);
-				key10 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,pz.bottom,SolverFaster.MAX_COLORES);
+				key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key10], newp);
-				key11 = MapaKeys.getKey(pz.top,pz.right,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key11], newp);
 
 				//tengo un color y tres faltantes
-				key12 = MapaKeys.getKey(pz.top,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key12], newp);
-				key13 = MapaKeys.getKey(SolverFaster.MAX_COLORES,pz.right,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES);
+				key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key13], newp);
-				key14 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.bottom,SolverFaster.MAX_COLORES);
+				key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key14], newp);
-				key15 = MapaKeys.getKey(SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,SolverFaster.MAX_COLORES,pz.left);
+				key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key15], newp);
 			}
 			
@@ -428,9 +433,7 @@ public final class SolverFaster {
 			if (cargadas)
 				return;
 			
-			// reader = new BufferedReader(new FileReader(NAME_FILE_PIEZAS));
-			reader = new BufferedReader(new InputStreamReader(SolverFaster.class.getClassLoader().getResourceAsStream(
-					NAME_FILE_PIEZAS)));
+			reader = readerForTilesFile.getReader(NAME_FILE_PIEZAS);
 			String linea= reader.readLine();
 			int num=0;
 			while (linea != null){
@@ -619,7 +622,7 @@ public final class SolverFaster {
 	protected final static void retrocederEstado(ExploracionAction action) {
 		
 		action.retroceder= true;
-		int cursor_destino = SolverFaster.DESTINO_RET;
+		int cursor_destino = DESTINO_RET;
 		Pieza pzz;
 		
 		while (action.cursor>=0)
@@ -636,7 +639,7 @@ public final class SolverFaster {
 			//si me paso de la posición inicial significa que no puedo volver mas estados de exploración
 			if (action.cursor < 0)
 				break; //obliga a salir del while
-			if (action.cursor != SolverFaster.POSICION_CENTRAL){
+			if (action.cursor != POSICION_CENTRAL){
 				pzz= action.tablero[action.cursor];
 				pzz.pusada.value= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
@@ -645,7 +648,7 @@ public final class SolverFaster {
 			//si retrocedá hasta el cursor destino, entonces no retrocedo mas
 			if ((action.cursor+1) <= cursor_destino){
 				action.retroceder= false;
-				cursor_destino= SolverFaster.CURSOR_INVALIDO;
+				cursor_destino= CURSOR_INVALIDO;
 			}
 			//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 			if (action.retroceder)
@@ -669,7 +672,7 @@ public final class SolverFaster {
 	 */
 	protected final static void guardarResultadoParcial (final boolean max, ExploracionAction action)
 	{
-		if (SolverFaster.MAX_NUM_PARCIAL == 0 && !max)
+		if (MAX_NUM_PARCIAL == 0 && !max)
 			return;
 		
 		try{
@@ -686,15 +689,15 @@ public final class SolverFaster {
 				dispMaxBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
 			}
 			else{
-				String parcialFName = action.parcialFileName.substring(0, action.parcialFileName.indexOf(SolverFaster.FILE_EXT)) + "_" + action.sig_parcial + SolverFaster.FILE_EXT;
+				String parcialFName = action.parcialFileName.substring(0, action.parcialFileName.indexOf(FILE_EXT)) + "_" + action.sig_parcial + FILE_EXT;
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialFName)));
 				++action.sig_parcial;
-				if (action.sig_parcial > SolverFaster.MAX_NUM_PARCIAL)
+				if (action.sig_parcial > MAX_NUM_PARCIAL)
 					action.sig_parcial= 1;
 			}
 			
 			int pos;
-			for (int b=0; b<SolverFaster.MAX_PIEZAS; ++b) {
+			for (int b=0; b<MAX_PIEZAS; ++b) {
 				pos= b+1;
 				piezax= action.tablero[b];
 				if (action.tablero[b] == null){
@@ -756,13 +759,13 @@ public final class SolverFaster {
 			StringBuffer wLibresBuffer= new StringBuffer();
 			Pieza pzx;
 			
-			for (int b=0; b < SolverFaster.MAX_PIEZAS; ++b) {
+			for (int b=0; b < MAX_PIEZAS; ++b) {
 				pzx= action.piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.numero).append("\n");
 			}
 			
-			for (int b=0; b < SolverFaster.MAX_PIEZAS; ++b) {
+			for (int b=0; b < MAX_PIEZAS; ++b) {
 				pzx= action.piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.toStringColores()).append("\n");
@@ -798,19 +801,19 @@ public final class SolverFaster {
 			Pieza piezax;
 			StringBuffer contenidoDisp= new StringBuffer();
 			
-			wSol.println("Solucion para " + SolverFaster.MAX_PIEZAS + " piezas");
-			wDisp.println("Disposicion para " + SolverFaster.MAX_PIEZAS + " piezas.");
-			contenidoDisp.append("Disposicion para " + SolverFaster.MAX_PIEZAS + " piezas.\n");
+			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
+			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
+			contenidoDisp.append("Disposicion para " + MAX_PIEZAS + " piezas.\n");
 			wDisp.println("(num pieza) (estado rotacion) (posicion en tablero real)");
 			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
 			int pos;
-			for (int b=0; b < SolverFaster.MAX_PIEZAS; ++b)
+			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
 				piezax= action.tablero[b];
 				pos= b+1;
-				wSol.println(piezax.top + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + piezax.right + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + piezax.left);
-				wDisp.println(piezax.numero + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(piezax.numero + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SolverFaster.SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
+				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
+				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
@@ -859,8 +862,8 @@ public final class SolverFaster {
 			writerBuffer.append(action.cursor).append("\n");
 			
 			//guardo los indices de tablero[]
-			for (int n=0; n < SolverFaster.MAX_PIEZAS; ++n) {
-				if (n==(SolverFaster.MAX_PIEZAS - 1)){
+			for (int n=0; n < MAX_PIEZAS; ++n) {
+				if (n==(MAX_PIEZAS - 1)){
 					if (action.tablero[n] == null)
 						writerBuffer.append("-1").append("\n");
 					else
@@ -868,9 +871,9 @@ public final class SolverFaster {
 				}
 				else{
 					if (action.tablero[n] == null)
-						writerBuffer.append("-1").append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append("-1").append(SECCIONES_SEPARATOR_EN_FILE);
 					else
-						writerBuffer.append((action.tablero[n].numero-1)).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append((action.tablero[n].numero-1)).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -882,42 +885,42 @@ public final class SolverFaster {
 			int cur_copy= action.cursor; //guardo una copia de cursor xq voy a usarlo
 			for (action.cursor=0; action.cursor < cur_copy; ++action.cursor) {
 				
-				if (action.cursor == SolverFaster.POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+				if (action.cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
 				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
 						action.tablero[action.cursor].numero) + 1);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;action.cursor < SolverFaster.MAX_PIEZAS; ++action.cursor)
+			for (;action.cursor < MAX_PIEZAS; ++action.cursor)
 				action.desde_saved[action.cursor] = 0;
 			action.cursor= cur_copy; //restauro el valor de cursor
 			//########################################################################
 			
 			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking
-			for (int n=0; n < SolverFaster.MAX_PIEZAS; ++n) {
-				if (n==(SolverFaster.MAX_PIEZAS-1))
+			for (int n=0; n < MAX_PIEZAS; ++n) {
+				if (n==(MAX_PIEZAS-1))
 					writerBuffer.append(action.desde_saved[n]).append("\n");
 				else
-					writerBuffer.append(action.desde_saved[n]).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
+					writerBuffer.append(action.desde_saved[n]).append(SECCIONES_SEPARATOR_EN_FILE);
 			}
 			
 			//indico si se utiliza poda de color explorado o no
-			writerBuffer.append(SolverFaster.usar_poda_color_explorado).append("\n");
+			writerBuffer.append(usar_poda_color_explorado).append("\n");
 			
 			//guardo el contenido de matrix_color_explorado
-			if (SolverFaster.usar_poda_color_explorado)
+			if (usar_poda_color_explorado)
 			{
-				for (int n=0; n < SolverFaster.LADO; ++n) {
-					if (n==(SolverFaster.LADO-1))
-						writerBuffer.append(SolverFaster.arr_color_rigth_explorado.get(n)).append("\n");
+				for (int n=0; n < LADO; ++n) {
+					if (n==(LADO-1))
+						writerBuffer.append(arr_color_rigth_explorado.get(n)).append("\n");
 					else
-						writerBuffer.append(SolverFaster.arr_color_rigth_explorado.get(n)).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append(arr_color_rigth_explorado.get(n)).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
 			//guardo el estado de rotación y el valor de usada de cada pieza
-			for (int n=0; n < SolverFaster.MAX_PIEZAS; ++n)
+			for (int n=0; n < MAX_PIEZAS; ++n)
 			{
 				// debido a que ahora en tablero[] existen copias de piezas, debo obtener la rotación 
 				// de la pieza n tal cual se encuentra en tablero.
@@ -925,10 +928,10 @@ public final class SolverFaster {
 				// adem�s si la pieza está usada => está en tablero
 				if (action.piezas[n].pusada.value)
 				{
-					for (int i=0; i < SolverFaster.MAX_PIEZAS; ++i) {
+					for (int i=0; i < MAX_PIEZAS; ++i) {
 						if ((action.tablero[i] != null) && (action.tablero[i].numero-1) == n)
 						{
-							writerBuffer.append(action.tablero[i].rotacion).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.tablero[i].pusada.value)).append("\n");
+							writerBuffer.append(action.tablero[i].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.tablero[i].pusada.value)).append("\n");
 							encontradax = true;
 							break;
 						}
@@ -936,7 +939,7 @@ public final class SolverFaster {
 				}
 				// como la pieza n no está en tablero entonces uso la información del arreglo piezas[]
 				if (!encontradax)
-					writerBuffer.append(action.piezas[n].rotacion).append(SolverFaster.SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.piezas[n].pusada.value)).append("\n");
+					writerBuffer.append(action.piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.piezas[n].pusada.value)).append("\n");
 			}
 			
 			String sContent = writerBuffer.toString();
@@ -961,7 +964,7 @@ public final class SolverFaster {
 	/**
 	 * Inicializa varias estructuras y flags
 	 */
-	public final static void setupInicial() {
+	public final void setupInicial() {
 		
 		// cargo en el arreglo matrix_zonas valores que me indiquen en que posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
@@ -991,13 +994,6 @@ public final class SolverFaster {
 			// cargar la super estructura 4-dimensional
 			cargarSuperEstructura(actions[proc]);
 		}
-		
-		// pinto en pantalla el tablero gráfico? 
-		if (usarTableroGrafico && !flag_retroceder_externo) {
-			// solo primer thread
-			tableboardE2 = new EternityII(LADO, cellPixelsLado, MAX_COLORES, (long)tableboardRefreshMillis, 1, actions[0]); 
-			tableboardE2.startPainting();
-		}
 	}
 	
 	/**
@@ -1005,7 +1001,7 @@ public final class SolverFaster {
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
-	public static final void atacar() {
+	public final void atacar() {
 
 		for (int i = 0, c = actions.length; i < c; ++i) {
 			fjpool.submit(actions[i]);

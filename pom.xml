@@ -70,10 +70,10 @@
 			</activation>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.7</source.version>
+				<source.version>1.6</source.version>
 				<compiler.version>1.7</compiler.version>
 				<pg.compiler.version>1.7</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -81,10 +81,21 @@
 			<id>java8</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.7</source.version>
+				<source.version>1.6</source.version>
 				<compiler.version>1.8</compiler.version>
 				<pg.compiler.version>1.8</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
+			<id>java8native</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>1.8</compiler.version>
+				<pg.compiler.version>1.8</pg.compiler.version>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -92,9 +103,11 @@
 			<id>java10</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>10</compiler.version>
 				<release>10</release>
 				<pg.compiler.version>10</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -105,7 +118,7 @@
 				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
 				<pg.compiler.version>1.6</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -159,6 +172,9 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<target>
+								<echo></echo>
+							</target>
 						</configuration>
 					</execution>
 				</executions>
@@ -250,13 +266,13 @@
 									<pluginExecutionFilter>
 										<groupId>org.apache.maven.plugins</groupId>
 										<artifactId>maven-antrun-plugin</artifactId>
-										<versionRange>[1.8,)</versionRange>
+										<versionRange>[1.0.0,)</versionRange>
 										<goals>
 											<goal>run</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<execute/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

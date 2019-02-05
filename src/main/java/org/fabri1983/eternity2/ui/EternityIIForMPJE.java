@@ -26,6 +26,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 public class EternityIIForMPJE {
 
@@ -33,6 +34,13 @@ public class EternityIIForMPJE {
 	
     public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc) {
     	
+    	// lo siguiente es solamente para el tablero gráfico
+		try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		
         frame = new ViewEternityForMPJE(refreshMillis, lado, cell_size_pixels, num_colours);
         frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

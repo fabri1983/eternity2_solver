@@ -721,7 +721,7 @@ public final class SolverFasterMPJE {
 	/**
 	 * Inicializa varias estructuras y flags
 	 */
-	private final static void setupInicial () {
+	public final static void setupInicial () {
 		
 		count_cicles=0;
 		
@@ -767,9 +767,6 @@ public final class SolverFasterMPJE {
 	 */
 	public final void atacar ()
 	{
-		//ejecuto una inicializacion global
-		setupInicial();
-
 		if (flag_retroceder_externo){
 			retrocederEstado();
 			return;
