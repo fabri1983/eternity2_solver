@@ -233,7 +233,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	Is good for prototyping because it allows you to build native executables without worrying about many issues at first. But we discourage using it in production.
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
 	```sh
-	mx native-image --static --report-unsupported-elements-at-runtime -H:IncludeResources="(.*/application.properties$)|(.*/e2pieces.txt$)" -J-Xms900m -J-Xmx900m -jar e2solver.jar
+	mx native-image --static --report-unsupported-elements-at-runtime -H:IncludeResources="(.*/application.properties$)|(.*/e2pieces.txt$)" --delay-class-initialization-to-runtime=SolverFaster,Contorno,Pieza,FilaPiezas,MapaKeys -J-Xms900m -J-Xmx900m -jar e2solver.jar
 	```
 
 
