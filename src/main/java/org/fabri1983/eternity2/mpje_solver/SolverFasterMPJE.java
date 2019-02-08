@@ -722,7 +722,7 @@ public final class SolverFasterMPJE {
 	/**
 	 * Inicializa varias estructuras y flags
 	 */
-	public final static void setupInicial () {
+	public final void setupInicial () {
 		
 		count_cicles=0;
 		

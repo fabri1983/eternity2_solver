@@ -31,8 +31,6 @@ import mpi.MPI;
 
 public final class MainFasterMPJE
 {
-	private static SolverFasterMPJE sol;
-	
 	public static void main (String[] args) throws Exception
 	{	
 		MPI.Init(args);
@@ -60,7 +58,7 @@ public final class MainFasterMPJE
 			//   para mpje multicore los primeros 3 parametros son para MPI
 			//   para mpje cluster los primeros 8 parametros son para MPI
 			
-			sol = new SolverFasterMPJE(
+			SolverFasterMPJE sol = new SolverFasterMPJE(
 					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
 					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
 					Integer.parseInt(getProperty(properties, "exploration.limit")),
