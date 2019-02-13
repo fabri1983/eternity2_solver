@@ -146,10 +146,12 @@ public final class SolverFasterMPJE {
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
 	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
+	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
-			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_multi_process) {
+			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_multi_process,
+			int totalProcesses) {
 
 		MAX_CICLOS= m_ciclos;
 		
@@ -188,7 +190,8 @@ public final class SolverFasterMPJE {
 			procMultipleBoards = THIS_PROCESS;
 		
 		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards)
-			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS);
+			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, 
+					THIS_PROCESS, totalProcesses);
 
 		createDirs();
 	}

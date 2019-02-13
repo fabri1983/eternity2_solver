@@ -121,17 +121,17 @@ public final class SolverFaster {
 	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
 	 * @param readerForTilesFile: implementation of the tiles file reader.
 	 */
-	public static SolverFaster build (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
+	public static SolverFaster build(long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
 			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_fork_join,
-			ReaderForTilesFile reader) {
+			ReaderForTilesFile reader, int numProcesses) {
 		
 		readerForTilesFile = reader;
 		
 		MAX_CICLOS= m_ciclos;
 		
 		POSICION_START_FORK_JOIN = p_pos_fork_join;
-		NUM_PROCESSES = Runtime.getRuntime().availableProcessors();
+		NUM_PROCESSES = numProcesses;
 		// no tiene sentido usar varios threads si no se seteó correctamente la posición multi threading
 		if (POSICION_START_FORK_JOIN < 0)
 			NUM_PROCESSES = 1;
@@ -1004,6 +1004,7 @@ public final class SolverFaster {
 	public final void atacar() {
 
 		for (int i = 0, c = actions.length; i < c; ++i) {
+			System.out.println("ExplorationAction " + i + " submitted");
 			fjpool.submit(actions[i]);
 		}
 

@@ -98,16 +98,17 @@ The app loads by default the next properties (may change between forkjoin and mp
 	exploration.limit=-1
 	max.partial.files=2
 	target.rollback.pos=-1
-	ui.show=true
-	ui.per.proc=false
-	ui.cell.size=28
-	ui.refresh.millis=100
+	ui.show=true            <-- this has no effect on native build
+	ui.per.proc=false       <-- this has no effect on native build
+	ui.cell.size=28         <-- this has no effect on native build
+	ui.refresh.millis=100   <-- this has no effect on native build
 	experimental.gif.fair=false
 	experimental.borde.left.explorado=false
 	task.distribution.pos=99
+	forkjoin.num.processes=4   <-- this has no effect on MPJE build
 
 E.g.:
-	./run.sh -Dmin.pos.save.partial=215 -Dui.show=false
+	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=8
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215 -Dui.show=true
 	 
 Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
@@ -230,10 +231,12 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 - Building a native image for eternity 2 solver:
 	complete this. 
 	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
-	Is good for prototyping because it allows you to build native executables without worrying about many issues at first. But we discourage using it in production.
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
+	See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	```sh
-	mx native-image --static --report-unsupported-elements-at-runtime -H:IncludeResources="(.*/application.properties$)|(.*/e2pieces.txt$)" --delay-class-initialization-to-runtime=SolverFaster,Contorno,Pieza,FilaPiezas,MapaKeys -J-Xms900m -J-Xmx900m -jar e2solver.jar
+	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
+	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	e2solver.exe -Dforkjoin.num.processes=8
 	```
 
 

@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.fabri1983.eternity2.core.tilesreader.FileReaderForTilesFile;
+import org.fabri1983.eternity2.core.tilesreader.ClassLoaderReaderForTilesFile;
 
 public final class MainFasterNative
 {
@@ -61,7 +61,8 @@ public final class MainFasterNative
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
-					new FileReaderForTilesFile());
+					new ClassLoaderReaderForTilesFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
+					Integer.parseInt(getProperty(properties, "forkjoin.num.processes")));
 
 			properties = null;
 

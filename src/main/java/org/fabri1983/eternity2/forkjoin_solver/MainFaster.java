@@ -60,7 +60,8 @@ public final class MainFaster
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile());
+					new ClassLoaderReaderForTilesFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
+					Integer.parseInt(getProperty(properties, "forkjoin.num.processes")));
 
 			properties = null;
 			ResourceBundle.clearCache();
