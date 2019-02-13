@@ -37,7 +37,7 @@ public final class MainFasterMPJE
 		
 		int rank = MPI.COMM_WORLD.Rank();
 
-		//imprimo una sola vez la portada
+		// imprimo una sola vez la portada
 		if (rank == 0){
 			System.out.println("################################################################################");
 			System.out.println("##- Uso de MPJ Express para ejecucion como Sistema Distribuído               -##");
@@ -70,7 +70,8 @@ public final class MainFasterMPJE
 					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties, "task.distribution.pos")));
+					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
+					MPI.COMM_WORLD.Size());
 
 			properties = null;
 			ResourceBundle.clearCache();

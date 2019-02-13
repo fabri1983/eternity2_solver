@@ -32,7 +32,7 @@ public class EternityIIForMPJE {
 
 	public ViewEternityForMPJE frame; //es la ventanita
 	
-    public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc) {
+    public EternityIIForMPJE(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int proc, int totalProcs) {
     	
     	// lo siguiente es solamente para el tablero gráfico
 		try {
@@ -47,8 +47,7 @@ public class EternityIIForMPJE {
         frame.setResizable(false);
         frame.setTitle("("+ proc + ") E2Solver MPJe");
         
-        int numProcessors = Runtime.getRuntime().availableProcessors();
-		setLocation(numProcessors, proc % numProcessors);
+		setLocation(totalProcs, proc % totalProcs);
     }
     
 	private void setLocation(int numProcesors, int procId) {

@@ -9,7 +9,8 @@ public class ClassLoaderReaderForTilesFile implements ReaderForTilesFile {
 
 	@Override
 	public BufferedReader getReader(String file) {
-		return new BufferedReader(new InputStreamReader(SolverFaster.class.getClassLoader().getResourceAsStream(file)));
+		return new BufferedReader(
+				new InputStreamReader(SolverFaster.class.getClassLoader().getResourceAsStream(file)));
 	}
 	
 }
