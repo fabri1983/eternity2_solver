@@ -29,6 +29,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -44,7 +45,9 @@ public final class SolverFaster {
 	protected static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
 	protected static int NUM_PROCESSES = 1;
 	protected static ExploracionAction actions[];
-	
+	protected static CountDownLatch startSignal;
+    protected static CountDownLatch doneSignal;
+    
 	protected static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	protected static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
@@ -977,10 +980,14 @@ public final class SolverFaster {
 		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];
+		// a start signal that prevents any ExplorationAction from proceeding until the orchestrator (this thread) is ready for them to proceed
+		startSignal = new CountDownLatch(1);
+		// a completion signal that allows the driver orchestrator (this thread) to wait until all ExplorationAction have completed
+		doneSignal = new CountDownLatch(NUM_PROCESSES);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES);
+			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, startSignal, doneSignal);
 			
 			// cargo las piezas desde archivo de piezas
 			cargarPiezas(actions[proc]);
@@ -1009,12 +1016,16 @@ public final class SolverFaster {
 		}
 
 		fjpool.shutdown();
-		try {
-			fjpool.awaitTermination(365 * 3, TimeUnit.DAYS);
-		} catch (InterruptedException e) {
-			// no need for any logging
-		}
 		
+		// let all threads proceed
+		startSignal.countDown();
+		// wait for all to finish
+		try {
+			doneSignal.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		/*fjpool.invoke(new RecursiveAction() {
 			private static final long serialVersionUID = 1L;
 

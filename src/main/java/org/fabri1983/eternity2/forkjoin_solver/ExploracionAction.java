@@ -22,6 +22,7 @@
 
 package org.fabri1983.eternity2.forkjoin_solver;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
@@ -68,11 +69,13 @@ public class ExploracionAction extends RecursiveAction {
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
 	public final int id;
 	private int NUM_PROCESSES;
-	private int num_processes_orig[];
+	private int num_processes_orig[] = new int[SolverFaster.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
+	private CountDownLatch startSignal;
+	private CountDownLatch doneSignal;
 	
-	public ExploracionAction(int _id, int _num_processes) {
+	public ExploracionAction(int _id, int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
 		id = _id;
 		NUM_PROCESSES = _num_processes;
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
@@ -83,12 +86,26 @@ public class ExploracionAction extends RecursiveAction {
 		solucFileName = SolverFaster.NAME_FILE_SOLUCION + "_" + id + SolverFaster.FILE_EXT;
 		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + SolverFaster.FILE_EXT;
 
-		num_processes_orig = new int[SolverFaster.MAX_PIEZAS];
+		this.startSignal = startSignal;
+		this.doneSignal = doneSignal;
 	}
 	
 	@Override
 	public void compute() {
 		
+		try {
+			// await for starting signal
+			startSignal.await();
+			// start working
+			doWork();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			doneSignal.countDown();
+		}
+	}
+
+	private void doWork() {
 		// Pruebo cargar el primer status_saved
 		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
 		
@@ -156,7 +173,7 @@ public class ExploracionAction extends RecursiveAction {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println(id + " >>> exploracion agotada."); // ittai! (pero qué?!!)
+		System.out.println(id + " >>> exploracion agotada.");
 
 		// if (send_mail){ //Envio un mail diciendo que no se encontró solución
 		// SendMail em= new SendMail();
