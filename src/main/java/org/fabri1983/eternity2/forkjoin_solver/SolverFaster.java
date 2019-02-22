@@ -40,6 +40,8 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
 
+import sun.misc.Signal;
+
 public final class SolverFaster {
 	
 	protected static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
@@ -1009,13 +1011,34 @@ public final class SolverFaster {
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
 	public final void atacar() {
-
+		// Register a signal handler for Ctrl-C that runs the shutdown hooks
+		sun.misc.Signal.handle(new sun.misc.Signal("INT"), new sun.misc.SignalHandler() {
+			@Override
+			public void handle(Signal sig) {
+				System.exit(0);
+			}
+		});
+        
+		// Add a shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				shutdown();
+			}
+        });
+        
+		atacarNative();
+	}
+	
+	/**
+	 * This method has no sun.misc.Signal* api usage, which are not present in java.lib (at least on Windows).
+	 */
+	public final void atacarNative() {
+		// submit all fork join tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
 			System.out.println("ExplorationAction " + i + " submitted");
 			fjpool.submit(actions[i]);
 		}
-
-		fjpool.shutdown();
 		
 		// let all threads proceed
 		startSignal.countDown();
@@ -1042,4 +1065,12 @@ public final class SolverFaster {
 			}
 		});*/
 	}
+	
+	private synchronized void shutdown() {
+        for (int i = 0, c = NUM_PROCESSES; i < c; ++i) {
+        	doneSignal.countDown();
+        }
+        System.out.println("Shutdown called");
+    }
+	
 }
