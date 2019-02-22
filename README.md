@@ -208,27 +208,6 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	mx native-image --verbose HelloWorld
 	HelloWorld
 	```
-- Troubleshooting: 
-	- ninja: build stopped: subcommand failed.
-		```sh
-		fatal error C1041: cannot open program database 'C:\java\graal\substratevm\mxbuild\windows-amd64\src\com.oracle.svm.native.libchelper\vc140.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS
-		```
-		This error happens because the C compiler CC.exe seems to be executed as release-multithreaded fashion and then when accessing that pdb file a restriction is thrown as error.
-		Solution:
-			- run the *mx build* command again.
-	- In case you need to rebuild the substratevm:
-		```sh
-		mx clean
-		manually delete folders *mxbuild* and *svmbuild*
-		mx build
-		mx native-image --help
-		```
-	- If you receive error message *Error: Could not find or load main class com.oracle.svm.hosted.NativeImageGeneratorRunner* then you need to:
-		- Run again your native-image command with --verbose option
-		- Copy the execution command and replace *:* separator by *;*
-		- Optional: add option for temp directory: -H:TempDirectory=C:\java\graal\substratevm\temp
-		- Getting this similar command:
-			C:\java\labsjdk1.8.0_192-jvmci-0.54\bin\java.exe -Xbootclasspath/a:C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar -cp C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar -server -d64 -noverify -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:-UseJVMCICompiler -XX:-UseJVMCIClassLoader -Dgraal.EagerSnippets=true -Xss10m -Xms1g -Xmx13658770632 -Duser.country=US -Duser.language=en -Dgraalvm.version=1.0.0-rc10-SNAPSHOT -Dorg.graalvm.version=1.0.0-rc10-SNAPSHOT -Dcom.oracle.graalvm.isaot=true -Djvmci.class.path.append=C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar com.oracle.svm.hosted.NativeImageGeneratorRunner -imagecp C:\java\graal\substratevm\svmbuild\native-image-root\lib\boot\graal-sdk.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\objectfile.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\pointsto.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\builder\svm.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\jvmci\graal.jar;C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\library-support.jar;C:\java\graal\substratevm -H:Path=C:\java\graal\substratevm -H:CLibraryPath=C:\java\graal\substratevm\svmbuild\native-image-root\lib\svm\clibraries\windows-amd64 -H:Class=HelloWorld -H:Name=helloworld
 - Building a native image for eternity 2 solver:
 	
 	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
