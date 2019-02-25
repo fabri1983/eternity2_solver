@@ -129,7 +129,9 @@ Usage of Graal Compiler on Windows
 We are going to build a graal compiler for Windows platform.
 - Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 Environment variables will be set later with specific scripts.
-- Install a Labs JDK 1.8 (currently jvmci-0.54) with support for JVMCI: https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8  (currently jvmci-0.55) with support for JVMCI: 
+	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
+	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
 Environment variables will be set later with specific scripts.
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
@@ -160,7 +162,7 @@ Environment variables will be set later with specific scripts.
 	```sh
 	SET JAVA_HOME=c:\java\jdk-11.0.1
 	echo %JAVA_HOME%
-	SET EXTRA_JAVA_HOMES=c:\java\labsjdk1.8.0_192-jvmci-0.54
+	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.55
 	echo %EXTRA_JAVA_HOMES%
 	cd compiler
 	mx build
@@ -184,7 +186,9 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
 - See https://github.com/oracle/graal/issues/946#issuecomment-459330069
-- Install a Labs JDK 1.8 (currently jvmci-0.54) with support for JVMCI: https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 (currently jvmci-0.55) with support for JVMCI: 
+	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
+	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
 - You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
 This will help you to decide which iso you need to download:
 	- GRMSDK_EN_DVD.iso is a version for x86 environment.
@@ -199,7 +203,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
 		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=c:\java\labsjdk1.8.0_192-jvmci-0.54
+	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.55
 	cd substratevm
 	mx build
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
