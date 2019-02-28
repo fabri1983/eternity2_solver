@@ -67,7 +67,7 @@ public final class MainFasterNative
 			properties = null;
 
 			solver.setupInicial();
-			solver.atacarNative();
+			solver.atacar();
 		}
 		catch(Exception e){
 			e.printStackTrace();
