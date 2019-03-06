@@ -258,7 +258,6 @@
                         <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpi.jar</lib>
                         <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpiExp.jar</lib>
                         <lib>${project.build.directory}/lib/mpj-v0_44/lib/mpj.jar</lib>
-                        
 					</libs>
 				</configuration>
 				<dependencies>
