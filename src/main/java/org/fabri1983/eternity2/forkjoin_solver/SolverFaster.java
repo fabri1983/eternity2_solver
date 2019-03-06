@@ -40,8 +40,6 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
 
-import sun.misc.Signal;
-
 public final class SolverFaster {
 	
 	protected static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
@@ -309,7 +307,7 @@ public final class SolverFaster {
 						action.super_matriz[MapaKeys.getKey(i,j,k,l)]= new NodoPosibles();
 		
 		/**
-		 * Para cada posible combinacion entre los colores de la secciones top, 
+		 * Para cada posible combinacion entre los colores de las secciones top, 
 		 * right, bottom y left creo un vector que contendrá las piezas que tengan
 		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
 		 * estado de rotacion la cumplen.
@@ -488,12 +486,19 @@ public final class SolverFaster {
 		boolean status_cargado = false;
 		
 		try{
-			reader = new BufferedReader(new FileReader(n_file));
+			File f = new File(n_file);
+			if (!f.isFile()) {
+				System.out.println(action.id + " >>> No existe.");
+				return status_cargado;
+			}
+			
+			reader = new BufferedReader(new FileReader(f));
 			String linea= reader.readLine();
 			int tablero_aux[] = new int[MAX_PIEZAS];
 			
-			if (linea==null)
+			if (linea==null) {
 				throw new Exception(action.id + " >>> First line is null.");
+			}
 			else{
 				int sep,sep_ant;
 				byte valor;
@@ -1006,37 +1011,45 @@ public final class SolverFaster {
 	}
 	
 	/**
+	 * This method has sun.misc.Signal* api usage, which are not present in java.lib (at least on Windows) 
+	 * so can not be used to native compilation.
+	 */
+//	public final void atacarWithSunMiscSignal() {
+//		// Register a signal handler for Ctrl-C that runs the shutdown hooks
+//		sun.misc.Signal.handle(new sun.misc.Signal("INT"), new sun.misc.SignalHandler() {
+//			@Override
+//			public void handle(Signal sig) {
+//				System.exit(0);
+//			}
+//		});
+//        
+//		// Add a shutdown hook
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//			@Override
+//			public void run() {
+//				shutdown();
+//			}
+//        });
+//        
+//		atacar();
+//	}
+	
+//	private synchronized void shutdown() {
+//        for (int i = 0, c = NUM_PROCESSES; i < c; ++i) {
+//        	doneSignal.countDown();
+//        }
+//        System.out.println("Shutdown called");
+//    }
+	
+	/**
 	 * Invoca al pool de fork-join con varias instancias de RecursiveAction: ExploracionAction.
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
 	public final void atacar() {
-		// Register a signal handler for Ctrl-C that runs the shutdown hooks
-		sun.misc.Signal.handle(new sun.misc.Signal("INT"), new sun.misc.SignalHandler() {
-			@Override
-			public void handle(Signal sig) {
-				System.exit(0);
-			}
-		});
-        
-		// Add a shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				shutdown();
-			}
-        });
-        
-		atacarNative();
-	}
-	
-	/**
-	 * This method has no sun.misc.Signal* api usage, which are not present in java.lib (at least on Windows).
-	 */
-	public final void atacarNative() {
 		// submit all fork join tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
-			System.out.println("ExplorationAction " + i + " submitted");
+			System.out.println("ExploracionAction " + i + " submitted");
 			fjpool.submit(actions[i]);
 		}
 		
@@ -1065,12 +1078,5 @@ public final class SolverFaster {
 			}
 		});*/
 	}
-	
-	private synchronized void shutdown() {
-        for (int i = 0, c = NUM_PROCESSES; i < c; ++i) {
-        	doneSignal.countDown();
-        }
-        System.out.println("Shutdown called");
-    }
 	
 }
