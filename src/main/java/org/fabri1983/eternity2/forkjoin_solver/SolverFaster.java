@@ -47,6 +47,7 @@ public final class SolverFaster {
 	protected static ExploracionAction actions[];
 	protected static CountDownLatch startSignal;
     protected static CountDownLatch doneSignal;
+    protected static CountDownLatch initialSetupSignal;
     
 	protected static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
@@ -991,10 +992,12 @@ public final class SolverFaster {
 		startSignal = new CountDownLatch(1);
 		// a completion signal that allows the driver orchestrator (this thread) to wait until all ExplorationAction have completed
 		doneSignal = new CountDownLatch(NUM_PROCESSES);
+		// another signal to let the start signal await until inital setup of ExploracionAction is finished
+		initialSetupSignal = new CountDownLatch(NUM_PROCESSES);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, startSignal, doneSignal);
+			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, startSignal, doneSignal, initialSetupSignal);
 			
 			// cargo las piezas desde archivo de piezas
 			cargarPiezas(actions[proc]);
@@ -1037,6 +1040,7 @@ public final class SolverFaster {
 //	private synchronized void shutdown() {
 //        for (int i = 0, c = NUM_PROCESSES; i < c; ++i) {
 //        	doneSignal.countDown();
+//			initialSetupSignal.countDown();
 //        }
 //        System.out.println("Shutdown called");
 //    }
@@ -1053,8 +1057,16 @@ public final class SolverFaster {
 			fjpool.submit(actions[i]);
 		}
 		
-		// let all threads proceed
+		// lets await until initial setup has finished in all tasks
+		try {
+			initialSetupSignal.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		// let all tasks proceed
 		startSignal.countDown();
+		
 		// wait for all to finish
 		try {
 			doneSignal.await();

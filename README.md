@@ -219,7 +219,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	```sh
 	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
-	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=4
 	```
 

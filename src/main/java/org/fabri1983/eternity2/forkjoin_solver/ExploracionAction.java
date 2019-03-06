@@ -74,8 +74,10 @@ public class ExploracionAction extends RecursiveAction {
 	
 	private CountDownLatch startSignal;
 	private CountDownLatch doneSignal;
+	private CountDownLatch initialSetupSignal;
 	
-	public ExploracionAction(int _id, int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
+	public ExploracionAction(int _id, int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal, 
+			CountDownLatch initialSetupSignal) {
 		id = _id;
 		NUM_PROCESSES = _num_processes;
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
@@ -88,12 +90,15 @@ public class ExploracionAction extends RecursiveAction {
 
 		this.startSignal = startSignal;
 		this.doneSignal = doneSignal;
+		this.initialSetupSignal = initialSetupSignal;
 	}
 	
 	@Override
 	public void compute() {
 		
 		try {
+			// setup inicial
+			setupInicial();
 			// await for starting signal
 			startSignal.await();
 			// start working
@@ -105,15 +110,24 @@ public class ExploracionAction extends RecursiveAction {
 		}
 	}
 
+	private void setupInicial() {
+		try {
+			// Pruebo cargar el primer status_saved
+			status_cargado = SolverFaster.cargarEstado(statusFileName, this);
+			
+			// cargo las posiciones fijas
+			SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
+			
+			// seteo como usados los contornos ya existentes en tablero
+			contorno.inicializarContornos(this);
+		
+			System.out.flush();
+		} finally {
+			initialSetupSignal.countDown();
+		}
+	}
+
 	private void doWork() {
-		// Pruebo cargar el primer status_saved
-		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
-		
-		// cargo las posiciones fijas
-		SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
-		
-		// seteo como usados los contornos ya existentes en tablero
-		contorno.inicializarContornos(this);
 				
 		if (SolverFaster.flag_retroceder_externo) {
 			SolverFaster.retrocederEstado(this);
@@ -182,6 +196,8 @@ public class ExploracionAction extends RecursiveAction {
 //			t.start();
 //		}
 	}
+
+	
 	
 	
 	//##########################################################################//
