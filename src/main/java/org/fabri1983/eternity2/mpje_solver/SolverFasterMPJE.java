@@ -560,7 +560,14 @@ public final class SolverFasterMPJE {
 		BufferedReader reader = null;
 		
 		try{
-			reader= new BufferedReader(new FileReader(n_file));
+			// first ask if file exists
+			File f = new File(n_file);
+			if (!f.isFile()) {
+				System.out.println("Rank " + THIS_PROCESS + " >>> estado de exploracion no existe.");
+				System.out.flush();
+			}
+			
+			reader= new BufferedReader(new FileReader(f));
 			String linea= reader.readLine();
 			int tablero_aux[] = new int[MAX_PIEZAS];
 			

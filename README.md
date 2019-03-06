@@ -219,13 +219,13 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	```sh
 	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
 	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
-	e2solver.exe -Dforkjoin.num.processes=8
+	e2solver.exe -Dforkjoin.num.processes=4
 	```
 
 
 Running with Avian JVM
 ----------------------
-I'm trying to improve the performance of code execution using a free JVM implementation.
+I'm trying to improve the performance of code execution using other JVM implementations.
 Currently I'm taking a look to Avian JVM, under a Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.

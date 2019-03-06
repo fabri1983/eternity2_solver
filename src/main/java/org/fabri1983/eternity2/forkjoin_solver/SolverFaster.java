@@ -307,7 +307,7 @@ public final class SolverFaster {
 						action.super_matriz[MapaKeys.getKey(i,j,k,l)]= new NodoPosibles();
 		
 		/**
-		 * Para cada posible combinacion entre los colores de la secciones top, 
+		 * Para cada posible combinacion entre los colores de las secciones top, 
 		 * right, bottom y left creo un vector que contendrá las piezas que tengan
 		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
 		 * estado de rotacion la cumplen.
@@ -486,12 +486,19 @@ public final class SolverFaster {
 		boolean status_cargado = false;
 		
 		try{
-			reader = new BufferedReader(new FileReader(n_file));
+			File f = new File(n_file);
+			if (!f.isFile()) {
+				System.out.println(action.id + " >>> No existe.");
+				return status_cargado;
+			}
+			
+			reader = new BufferedReader(new FileReader(f));
 			String linea= reader.readLine();
 			int tablero_aux[] = new int[MAX_PIEZAS];
 			
-			if (linea==null)
+			if (linea==null) {
 				throw new Exception(action.id + " >>> First line is null.");
+			}
 			else{
 				int sep,sep_ant;
 				byte valor;
@@ -1042,7 +1049,7 @@ public final class SolverFaster {
 	public final void atacar() {
 		// submit all fork join tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
-			System.out.println("ExplorationAction " + i + " submitted");
+			System.out.println("ExploracionAction " + i + " submitted");
 			fjpool.submit(actions[i]);
 		}
 		
