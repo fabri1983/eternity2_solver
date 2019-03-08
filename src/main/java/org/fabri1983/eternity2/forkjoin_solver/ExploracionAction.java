@@ -222,7 +222,7 @@ public class ExploracionAction extends RecursiveAction {
 		if (cursor >= SolverFaster.MAX_PIEZAS) {
 			SolverFaster.guardarSolucion(this);
 			System.out.println(id + " >>> Solucion Encontrada!!");
-			return; //evito que la instancia de exporacion continue
+			return; //evito que la instancia de exploracion continue
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
@@ -251,15 +251,19 @@ public class ExploracionAction extends RecursiveAction {
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
 		if (SolverFaster.count_cycles[id] >= SolverFaster.MAX_CICLOS) {
+			long currentCycles = SolverFaster.count_cycles[id];
 			SolverFaster.count_cycles[id] = 0;
-			//calculo el tiempo entre status saved
-			long mili_temp = System.nanoTime();
+			//calculo el tiempo transcurrido desd el último time_status_saved 
+			long nanoTimeNow = System.nanoTime();
+			long durationNanos = nanoTimeNow - time_status_saved;
+			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
 			SolverFaster.guardarEstado(statusFileName, this);
 			SolverFaster.guardarResultadoParcial(false, this);
-			System.out.println(id + " >>> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo + ", Pos Max "
-					+ mas_alto + ". Tiempo: "
-					+ TimeUnit.MILLISECONDS.convert(mili_temp - time_status_saved, TimeUnit.NANOSECONDS) + " ms.");
-			time_status_saved = mili_temp;
+			long piecesPerSec = currentCycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			System.out.println(id + " >>> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo 
+					+ ", Pos Max " + mas_alto + ". Tiempo: " + durationMillis + " ms" 
+					+ ", " + piecesPerSec + " pieces/sec");
+			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo = SolverFaster.MAX_PIEZAS;
 			mas_alto = 0;
