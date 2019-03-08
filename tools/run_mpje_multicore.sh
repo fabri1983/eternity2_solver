@@ -3,7 +3,7 @@
 # they can only be -Dxxx arguments to the JVM
 all_args=$@
 
-export MPJ_HOME=$(pwd)"/../external-libs/mpj-v0_44"
+export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
 export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target

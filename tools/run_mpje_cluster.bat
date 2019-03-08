@@ -3,7 +3,7 @@
 :: they can only be -Dxxx arguments to the JVM
 set ALL_ARGS=%*
 
-set MPJ_HOME=%cd%/../external-libs/mpj-v0_44
+set MPJ_HOME=%cd%/../target/libs/mpj-v0_44
 set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target

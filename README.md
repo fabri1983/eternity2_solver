@@ -220,7 +220,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	```sh
 	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
 	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
-	e2solver.exe -Dforkjoin.num.processes=4
+	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
 	```
 
 
