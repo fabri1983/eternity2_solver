@@ -112,6 +112,18 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>java11</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>11</compiler.version>
+				<release>11</release>
+				<pg.compiler.version>11</pg.compiler.version>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<id>jrockit</id>
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
@@ -155,10 +167,10 @@
 					<source>${source.version}</source>
 					<target>${compiler.version}</target>
 					<encoding>UTF-8</encoding>
-					<!--compilerArgs>
+					<compilerArgs>
 						<arg>-O</arg>
-						<arg>-g:none</arg>
-					</compilerArgs-->
+						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>

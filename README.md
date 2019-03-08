@@ -9,7 +9,7 @@ eternity2_solver
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
 Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
 
-This project is managed with Maven 3.x.
+This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).
@@ -79,8 +79,9 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 
 **Profiles (use -P)**
 - java7, java8: for execution with either JVM.
+- java10, java11: previous to build with either profile you need to edit `pom.xml` -> `plugin proguard-maven-plugin` -> `configuration`  -> `libs`: remove rt.jar and jsse.jar
 - jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
-- mpje: intended for running in cluster/multi-core environment using MPJExpress api.
+- mpje: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
 - java8native: only intended for Graal SubstrateVM native image generation.
 
 
