@@ -125,15 +125,15 @@ java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to 
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
-Usage of Graal Compiler on Windows
-----------------------------------
+Build a Graal VM on Windows and run your jar
+--------------------------------------------
 We are going to build a graal compiler for Windows platform.
-- Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
-Environment variables will be set later with specific scripts.
+- Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+- Or you can download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win
+- Environment variables will be set later with specific scripts.
 - Install a Open JDK 1.8 or Oracle Labs JDK 1.8  (currently jvmci-0.55) with support for JVMCI: 
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
-Environment variables will be set later with specific scripts.
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -149,7 +149,7 @@ Environment variables will be set later with specific scripts.
 	SET PATH=%PATH%;%cd%
 	```
 	Also you can create MX_HOME env variable and add append it to PATH.
-- Building Graal:
+- Building Graal VM:
 	- create a graal directory (outside the mx directory previously created) and locate into it:
 	```sh
 	mkdir graal
@@ -159,7 +159,8 @@ Environment variables will be set later with specific scripts.
 	```sh
 	git clone https://github.com/oracle/graal.git .
 	```
-	- you will need python2.7 to be in your PATH:
+	- you will need python2.7 to be in your PATH.
+	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\jdk-11.0.1
 	echo %JAVA_HOME%
@@ -169,7 +170,11 @@ Environment variables will be set later with specific scripts.
 	mx build
 	mx vm -version
 	```
-- Using the Graal compiler with your JVMCI enabled JVM:
+- Run your jar with Graal VM
+	```sh
+	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI
+	```
+- **Optional**: Using the Graal compiler with your JVMCI enabled JVM:
 Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
     
     --module-path=... and --upgrade-module-path=... add Graal to the module path. 
