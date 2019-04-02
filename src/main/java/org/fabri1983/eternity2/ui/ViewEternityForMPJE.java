@@ -50,9 +50,7 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
 	private long prevAccum = 0;
 	private static final int COUNT_PERIOD = 5; // periodo de refresco del contador de piezas aplicado a refresh_milis
 	private int periodStepping = 1; // ayuda a  COUNT_PERIOD
-	private StringBuilder titleRefreshed = new StringBuilder(128);
 	private String title = "";
-	private static final String titleAdd = " - Pcs/sec: ";
 	
 	private EternityTable jTable1;
     private JScrollPane jScrollPane1 = new JScrollPane();
@@ -136,13 +134,14 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
     	// Pero actualmente calculo la cantidad de piezas procesadas cada COUNT_PERIOD*refresh_milis/1000 segs
     	// entonces estaría procesando:
     	//    currentCount * 1 / (COUNT_PERIOD*refresh_milis/1000) piezas por seg.
+    	//    currentCount * 1000 / (COUNT_PERIOD*refresh_milis) piezas por seg.
     	
     	if (periodStepping == COUNT_PERIOD) {
     		periodStepping = 0; // lo reseteo 
     		long accum = SolverFasterMPJE.count_cicles - prevAccum;
-			long piezasPerSeg =  (long) (accum * 1.0 / (COUNT_PERIOD * refresh_milis / 1000.0));
-	    	titleRefreshed.delete(0, titleRefreshed.length());
-	    	titleRefreshed.append(title).append(titleAdd).append(piezasPerSeg);
+			long piezasPerSeg = (accum * 1000) / (COUNT_PERIOD * refresh_milis);
+			StringBuilder titleRefreshed = new StringBuilder(64);
+	    	titleRefreshed.append(title).append(" - Pcs/sec: ").append(piezasPerSeg);
 	    	this.setTitle(titleRefreshed.toString());
 	    	prevAccum += accum; // SolverFasterMPJE.count_cicles;
 	    }

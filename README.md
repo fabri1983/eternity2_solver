@@ -9,7 +9,7 @@ eternity2_solver
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
 Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
 
-This project is managed with Maven 3.x.
+This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
 There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).
@@ -80,8 +80,9 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 
 **Profiles (use -P)**
 - java7, java8: for execution with either JVM.
+- java10, java11: previous to build with either profile you need to edit `pom.xml` -> `plugin proguard-maven-plugin` -> `configuration`  -> `libs`: remove rt.jar and jsse.jar
 - jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
-- mpje: intended for running in cluster/multi-core environment using MPJExpress api.
+- mpje: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
 - java8native: only intended for Graal SubstrateVM native image generation.
 
 
@@ -125,15 +126,15 @@ java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to 
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
-Usage of Graal Compiler on Windows
-----------------------------------
+Build a Graal VM on Windows and run your jar
+--------------------------------------------
 We are going to build a graal compiler for Windows platform.
-- Download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
-Environment variables will be set later with specific scripts.
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8  (currently jvmci-0.55) with support for JVMCI: 
+- Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
+- Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+- Environment variables will be set later with specific scripts.
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.58): 
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
-Environment variables will be set later with specific scripts.
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -149,7 +150,7 @@ Environment variables will be set later with specific scripts.
 	SET PATH=%PATH%;%cd%
 	```
 	Also you can create MX_HOME env variable and add append it to PATH.
-- Building Graal:
+- Building Graal VM:
 	- create a graal directory (outside the mx directory previously created) and locate into it:
 	```sh
 	mkdir graal
@@ -159,17 +160,20 @@ Environment variables will be set later with specific scripts.
 	```sh
 	git clone https://github.com/oracle/graal.git .
 	```
-	- you will need python2.7 to be in your PATH:
+	- you will need python2.7 to be in your PATH.
+	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\jdk-11.0.1
-	echo %JAVA_HOME%
-	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.55
-	echo %EXTRA_JAVA_HOMES%
+	SET JAVA_HOME=c:\java\openjdk-11.0.2+9_openj9-0.12.1
+	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.58
 	cd compiler
 	mx build
 	mx vm -version
 	```
-- Using the Graal compiler with your JVMCI enabled JVM:
+- Run your jar with Graal VM
+	```sh
+	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI
+	```
+- **Optional**: Using the Graal compiler with your JVMCI enabled JVM:
 Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
     
     --module-path=... and --upgrade-module-path=... add Graal to the module path. 
@@ -187,7 +191,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
 - See https://github.com/oracle/graal/issues/946#issuecomment-459330069
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 (currently jvmci-0.55) with support for JVMCI: 
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.58):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
 - You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
@@ -204,9 +208,9 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
 		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.55
+	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.58
 	cd substratevm
-	mx build
+	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
 	%JAVA_HOME%/bin/javac HelloWorld.java
 	mx native-image --verbose HelloWorld
@@ -221,6 +225,9 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
 	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
+	Times for position 215 and 4 processes:
+		1 >>> 3232154 ms, cursor 215  (53.8 mins)
+		0 >>> 3272859 ms, cursor 215  (54.5 mins)
 	```
 
 

@@ -112,6 +112,30 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>java11</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>11</compiler.version>
+				<release>11</release>
+				<pg.compiler.version>11</pg.compiler.version>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
+			<id>java11native</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>11</compiler.version>
+				<release>11</release>
+				<pg.compiler.version>11</pg.compiler.version>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<id>jrockit</id>
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
@@ -155,10 +179,10 @@
 					<source>${source.version}</source>
 					<target>${compiler.version}</target>
 					<encoding>UTF-8</encoding>
-					<!--compilerArgs>
+					<compilerArgs>
 						<arg>-O</arg>
-						<arg>-g:none</arg>
-					</compilerArgs-->
+						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -249,11 +273,15 @@
 						<!-- List external jars your application depends on (that not listed in 
 							maven dependencies). You probably depend on jave runtime (rt.jar). JCE stands 
 							for Java Cryptography Extension. You probably don't need it. -->
+						<!-- Java 8 and lower versions -->
 						<lib>${java.home}/lib/rt.jar</lib>
 						<lib>${java.home}/lib/jsse.jar</lib>
 						<!--lib>${java.home}/lib/jce.jar</lib-->
 						<!--lib>${java.home}/lib/ext/sunjce_provider.jar</lib-->
-
+						
+						<!-- Java9 and higher versions -->
+						<!--lib>${java.home}/jmods</lib-->
+						
 						<lib>${project.build.directory}/libs/jsr166.jar</lib>
                         <lib>${project.build.directory}/libs/javamail-1.4.5/mail.jar</lib>
                         <lib>${project.build.directory}/libs/mpj-v0_44/lib/mpi.jar</lib>
@@ -265,7 +293,7 @@
 					<dependency>
 						<groupId>net.sf.proguard</groupId>
 						<artifactId>proguard-base</artifactId>
-						<version>6.0.3</version>
+						<version>6.1.0beta2</version>
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>
