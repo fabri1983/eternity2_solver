@@ -131,7 +131,7 @@ We are going to build a graal compiler for Windows platform.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8  (currently jvmci-0.56) with support for JVMCI: 
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.58): 
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
 - Setup mx (build assistant tool written in python)
@@ -162,10 +162,8 @@ We are going to build a graal compiler for Windows platform.
 	- you will need python2.7 to be in your PATH.
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\jdk-11.0.2+9_openj9-0.12.1
-	echo %JAVA_HOME%
-	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.56
-	echo %EXTRA_JAVA_HOMES%
+	SET JAVA_HOME=c:\java\openjdk-11.0.2+9_openj9-0.12.1
+	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.58
 	cd compiler
 	mx build
 	mx vm -version
@@ -192,7 +190,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
 - See https://github.com/oracle/graal/issues/946#issuecomment-459330069
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 (currently jvmci-0.56) with support for JVMCI: 
+- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.58):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
 - You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
@@ -209,9 +207,9 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
 		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.56
+	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.58
 	cd substratevm
-	mx build
+	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
 	%JAVA_HOME%/bin/javac HelloWorld.java
 	mx native-image --verbose HelloWorld
@@ -226,6 +224,9 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
 	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
+	Times for position 215 and 4 processes:
+		1 >>> 3232154 ms, cursor 215  (53.8 mins)
+		0 >>> 3272859 ms, cursor 215  (54.5 mins)
 	```
 
 
