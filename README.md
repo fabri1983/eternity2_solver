@@ -186,6 +186,8 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
     	
     We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
 
+- See also https://github.com/neomatrix369/awesome-graal/tree/master/build/x86_64/linux_macos
+
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
@@ -227,6 +229,14 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
 		0 >>> 3272859 ms, cursor 215  (54.5 mins)
+	```
+	There is also a possible optimization feature named Profile Guided Optimization:
+	```sh
+	mx native-image --pgo-instrument <same params than above>
+	execute the executable for some seconds:
+		e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
+	mx native-image --pgo=default.iprof <same params than above>
+	execute again and see if there is an improvement in execution speed
 	```
 
 
