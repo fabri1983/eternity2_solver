@@ -1,11 +1,21 @@
 version: '{build}'
 
-os: Windows Server 2012 R2
+branches:
+  # whitelist
+  only:
+    - master
+    - dev
+
+skip_tags: true
 
 environment:
+  MAVEN_VERSION: 3.6.0
   matrix:
     #- JAVA_HOME: C:\Program Files\Java\jdk1.7.0
     - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+    #- JAVA_HOME: C:\Program Files\Java\jdk9
+    #- JAVA_HOME: C:\Program Files\Java\jdk10
+    #- JAVA_HOME: C:\Program Files\Java\jdk11
 
 platform:
   - x86
@@ -15,14 +25,16 @@ install:
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
       if (!(Test-Path -Path "C:\maven" )) {
+        Write-Host "Downloading Maven $env:MAVEN_VERSION"
         (new-object System.Net.WebClient).DownloadFile(
-          'http://www.us.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.zip',
+          "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/$env:MAVEN_VERSION/apache-maven-$env:MAVEN_VERSION-bin.zip",
           'C:\maven-bin.zip'
         )
         [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven")
       }
-  - cmd: SET M2_HOME=C:\maven\apache-maven-3.2.5
-  - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH%
+  - cmd: SET M2_HOME=C:\maven\apache-maven-%MAVEN_VERSION%
+  # Prepend Java entry, remove Ruby entry (C:\Ruby193\bin;) from PATH
+  - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
   - cmd: SET MAVEN_OPTS=-Xmx512m
   - cmd: SET JAVA_OPTS=-Xmx512m
   - cmd: mvn --version
