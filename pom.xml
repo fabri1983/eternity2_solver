@@ -280,12 +280,6 @@
 						
 						<!-- Java9 and higher versions -->
 						<!--lib>${java.home}/jmods</lib-->
-						
-						<lib>${project.build.directory}/libs/jsr166.jar</lib>
-                        <lib>${project.build.directory}/libs/javamail-1.4.5/mail.jar</lib>
-                        <lib>${project.build.directory}/libs/mpj-v0_44/lib/mpi.jar</lib>
-                        <lib>${project.build.directory}/libs/mpj-v0_44/lib/mpiExp.jar</lib>
-                        <lib>${project.build.directory}/libs/mpj-v0_44/lib/mpj.jar</lib>
 					</libs>
 				</configuration>
 				<dependencies>
