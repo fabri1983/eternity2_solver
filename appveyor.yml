@@ -1,4 +1,4 @@
-version: '{build}'
+version: '{build}-{branch}'
 
 branches:
   # whitelist
@@ -7,6 +7,9 @@ branches:
     - dev
 
 skip_tags: true
+
+# By default AppVeyor tries to detect Visual Studio solution or project. To disable that behavior you can set build: off
+build: off
 
 environment:
   MAVEN_VERSION: 3.6.0
