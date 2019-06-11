@@ -151,9 +151,8 @@
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<source.version>1.7</source.version>
-				<compiler.version>10</compiler.version>
-				<release>10</release>
-				<pg.compiler.version>10</pg.compiler.version>
+				<compiler.version>1.8</compiler.version>
+				<pg.compiler.version>1.8</pg.compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 				<env.props.file>mpje.properties</env.props.file>
 			</properties>
