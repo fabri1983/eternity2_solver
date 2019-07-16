@@ -224,6 +224,7 @@ This will help you to decide which iso you need to download:
 - Building a native image for eternity 2 solver:
 	
 	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
+	Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation. 
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
 	See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	```sh
