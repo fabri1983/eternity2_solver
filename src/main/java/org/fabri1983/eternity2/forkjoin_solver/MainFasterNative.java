@@ -76,30 +76,10 @@ public final class MainFasterNative
 		System.out.println("\nPrograma terminado.");
 	}
 
-	/**
-	 * Directly read the properties file from disk instead of using ClassLoader.getResourceAsStream().
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
 	private static Properties readProperties() throws IOException {
 		Properties properties = new Properties();
 		String file = "application.properties";
-		InputStream input = null;
-		try {
-			input = new FileInputStream(file);
-			properties.load(input);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		properties.load(MainFaster.class.getClassLoader().getResourceAsStream(file));
 		return properties;
 	}
 

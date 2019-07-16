@@ -53,10 +53,10 @@ public final class MainFaster
 					Integer.parseInt(getProperty(properties, "exploration.limit")),
 					Integer.parseInt(getProperty(properties, "max.partial.files")),
 					Integer.parseInt(getProperty(properties, "target.rollback.pos")),
-					false, // ui.show
-					false, // ui.per.proc
-					0, // ui.cell.size
-					0, // ui.refresh.millis
+					Boolean.parseBoolean(getProperty(properties, "ui.show")),
+					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
+					Integer.parseInt(getProperty(properties, "ui.cell.size")),
+					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
@@ -66,8 +66,9 @@ public final class MainFaster
 			properties = null;
 			ResourceBundle.clearCache();
 
-			solver.setupInicial();
-			solver.atacar();
+			SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
+			solverWithUI.setupInicial();
+			solverWithUI.atacar();
 		}
 		catch(Exception e){
 			e.printStackTrace();

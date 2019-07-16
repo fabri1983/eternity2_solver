@@ -30,7 +30,7 @@ In the past, experiments showed that execution was faster using the JRockit JVM 
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.
 
 
-Papers where I took some ideas from
+Papers from where I took some ideas
 -----------------------------------
 
 - How many edges can be shared by N square tiles on a board?
@@ -80,7 +80,7 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 
 **Profiles (use -P)**
 - java7, java8: for execution with either JVM.
-- java10, java11: previous to build with either profile you need to edit `pom.xml` -> `plugin proguard-maven-plugin` -> `configuration`  -> `libs`: remove rt.jar and jsse.jar
+- java10, java11: before build with either profile you need to edit `pom.xml` -> `plugin proguard-maven-plugin` -> `configuration`  -> `libs`: remove rt.jar and jsse.jar
 - jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
 - mpje: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
 - java8native: only intended for Graal SubstrateVM native image generation.
@@ -132,9 +132,9 @@ We are going to build a graal compiler for Windows platform.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.59): 
+- Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.1.0):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -164,7 +164,7 @@ We are going to build a graal compiler for Windows platform.
 	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\openjdk-11.0.2+9_openj9-0.12.1
-	SET EXTRA_JAVA_HOMES=c:\java\openjdk1.8.0_202-jvmci-0.59
+	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-19.1.0
 	cd compiler
 	mx build
 	mx vm -version
@@ -193,16 +193,19 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
 - See https://github.com/oracle/graal/issues/946#issuecomment-459330069
-- Install a Open JDK 1.8 or Oracle Labs JDK 1.8 with support for JVMCI (currently jvmci-0.59):
+- Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.1.0):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
 - You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
 This will help you to decide which iso you need to download:
 	- GRMSDK_EN_DVD.iso is a version for x86 environment.
 	- GRMSDKIAI_EN_DVD.iso is a version for Itanium environment.
 	- GRMSDKX_EN_DVD.iso is a version for x64 environment. (This one is for an AMD64 architecture)
 - Install Windows SDK for Windows 7 from the download ISO.
-See this link for troubleshooting installation issues: https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
+	- If setup shows a warning message saying missing NET 4.x Framework tools then ignore it, and once installed install this:
+		https://www.microsoft.com/en-us/download/details.aspx?id=4422
+	- See this link for troubleshooting installation issues:
+		https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
 - Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
@@ -210,7 +213,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
 		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=c:\java\openjdk1.8.0_202-jvmci-0.59
+	SET JAVA_HOME=C:\java\graalvm-ee-19.1.0
 	cd substratevm
 	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
@@ -224,8 +227,7 @@ See this link for troubleshooting installation issues: https://stackoverflow.com
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
 	See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	```sh
-	copy e2pieces.txt and application.properties (the completed one) files on same directory than exe generation.
-	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar --no-fallback
 	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
@@ -253,7 +255,7 @@ Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 	- also need to add curl
 	- also need ncurses (for clear command, or use ctrl+l)
 - Set JAVA_HOME environment variable in your .bashrc file
-	- export JAVA_HOME=/cygdrive/c/java/jdk1.7
+	- export JAVA_HOME=/cygdrive/c/java/jdk1.8
 - Once cygwin is installed you need to clone avian, win32, and win64 repos.
 	- open cygwin terminal
 	- create a folder named avian_jvm wherever you want (eg: in /home/<user>/avian_jvm)

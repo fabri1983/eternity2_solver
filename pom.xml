@@ -70,10 +70,10 @@
 			</activation>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<pg.compiler.version>1.7</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -81,10 +81,10 @@
 			<id>java8</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<pg.compiler.version>1.8</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -92,7 +92,7 @@
 			<id>java8native</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
@@ -103,11 +103,11 @@
 			<id>java10</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>10</compiler.version>
 				<release>10</release>
 				<pg.compiler.version>10</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -115,23 +115,11 @@
 			<id>java11</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>11</compiler.version>
 				<release>11</release>
 				<pg.compiler.version>11</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
-			</properties>
-		</profile>
-		<profile>
-			<id>java11native</id>
-			<properties>
-				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.6</source.version>
-				<compiler.version>11</compiler.version>
-				<release>11</release>
-				<pg.compiler.version>11</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
@@ -139,10 +127,10 @@
 			<id>jrockit</id>
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
-				<source.version>1.6</source.version>
+				<source.version>1.7</source.version>
 				<compiler.version>1.6</compiler.version>
 				<pg.compiler.version>1.6</pg.compiler.version>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
 		</profile>
