@@ -127,7 +127,7 @@
 			<id>jrockit</id>
 			<properties>
 				<final.jar.name>e2solver_jrockit</final.jar.name>
-				<source.version>1.7</source.version>
+				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
 				<pg.compiler.version>1.6</pg.compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
