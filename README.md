@@ -222,13 +222,12 @@ This will help you to decide which iso you need to download:
 	HelloWorld
 	```
 - Building a native image for eternity 2 solver:
-	
 	Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
 	Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
 	See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
 	See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	```sh
-	mx native-image --static --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar --no-fallback
+	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
