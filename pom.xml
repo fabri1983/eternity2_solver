@@ -247,7 +247,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard}</skip>
-					<proguardInclude>proguard.conf</proguardInclude>
+					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
                     <outjar>${project.build.finalName}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -256,19 +256,6 @@
 					<options>
 						<option>-target ${pg.compiler.version}</option>
 					</options>
-					<libs>
-						<!-- List external jars your application depends on (that not listed in 
-							maven dependencies). You probably depend on jave runtime (rt.jar). JCE stands 
-							for Java Cryptography Extension. You probably don't need it. -->
-						<!-- Java 8 and lower versions -->
-						<lib>${java.home}/lib/rt.jar</lib>
-						<lib>${java.home}/lib/jsse.jar</lib>
-						<!--lib>${java.home}/lib/jce.jar</lib-->
-						<!--lib>${java.home}/lib/ext/sunjce_provider.jar</lib-->
-						
-						<!-- Java 9 and higher versions -->
-						<!--lib>${java.home}/jmods</lib-->
-					</libs>
 				</configuration>
 				<dependencies>
 					<dependency>
