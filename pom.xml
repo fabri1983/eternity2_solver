@@ -266,7 +266,7 @@
 						<!--lib>${java.home}/lib/jce.jar</lib-->
 						<!--lib>${java.home}/lib/ext/sunjce_provider.jar</lib-->
 						
-						<!-- Java9 and higher versions -->
+						<!-- Java 9 and higher versions -->
 						<!--lib>${java.home}/jmods</lib-->
 					</libs>
 				</configuration>
