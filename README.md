@@ -33,18 +33,15 @@ However new JVMs since 1.7 brought a gain in performance which made me leave the
 Papers from where I took some ideas
 -----------------------------------
 
-- How many edges can be shared by N square tiles on a board?  
-[link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
+- How many edges can be shared by N square tiles on a board? [link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
 Thierry Benoist  
 e-lab Research Report - April 2008
 
-- Fast Global Filtering for Eternity II  
-[link](https://www.semanticscholar.org/paper/Fast-Global-Filtering-for-Eternity-II-Eric-Bourreau-Benoist-Bourreau/e16db8447bd1afa9d92a2899afb9ede53039ba16)  
+- Fast Global Filtering for Eternity II [link](https://www.semanticscholar.org/paper/Fast-Global-Filtering-for-Eternity-II-Eric-Bourreau-Benoist-Bourreau/e16db8447bd1afa9d92a2899afb9ede53039ba16)  
 Thierry Benoist, e-lab - Bouygues SA, Paris  
 Eric Bourreau, LIRMM, Montpellier
 
-- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity    
-[link](http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf)  
+- Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity [link](http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf)  
 Erik D. Demaine, Martin L. Demaine  
 MIT Computer Science and Artificial Intelligence Laboratory
 
