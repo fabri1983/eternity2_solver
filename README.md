@@ -225,7 +225,7 @@ This will help you to decide which iso you need to download:
 	- Build the static image
 	```shjava8native
 	cd target
-	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -J-Xms300m -J-Xmx300m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
