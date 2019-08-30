@@ -2,7 +2,7 @@ eternity2_solver
 ================
 | Linux | Windows |
 | ----- | ------- |
-| ![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=master) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
+| [![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=master)] | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
 
 ![eternity solver mpje 8 threads image](/misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")
 
