@@ -189,7 +189,6 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
-- See https://github.com/oracle/graal/issues/946#issuecomment-459330069
 - Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.2.0):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
