@@ -247,6 +247,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard}</skip>
+					<proguardVersion>6.1.1</proguardVersion>
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
                     <outjar>${project.build.finalName}.jar</outjar>
