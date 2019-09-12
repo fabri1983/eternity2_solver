@@ -6,28 +6,29 @@ eternity2_solver
 
 ![eternity solver mpje 8 threads image](/misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")
 
-Java implementation of a backtracker solver for the Eternity II board game released in August 2007.
-Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.
+Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
+Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.  
 
-This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.
+This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.  
 
-The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.
-There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).
+The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.  
+There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).  
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.  
 
 Some stats:
 
-- Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:
-Currently placing approx **54 million pieces per second** in a fork-join pool with 8 threads. 
-And placing approx **80 million pieces per second** using MPJ Express framework as multi-core execution with 8 solver instances. 
+- Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:  
+Currently placing approx **54 million pieces per second** in a fork-join pool with 8 threads.  
+And placing approx **80 million pieces per second** using MPJ Express framework as multi-core execution with 8 solver instances.  
 
-- Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:
-Currently placing **38 million pieces per second** in a fork-join pool with 4 threads. 
-And placing around **90 million pieces per second** using MPJ Express framework with 4 instances of the solver. 
+- Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:  
+Currently placing **38 million pieces per second** in a fork-join pool with 4 threads.  
+And placing around **90 million pieces per second** using MPJ Express framework with 4 instances of the solver.  
 
-In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up. 
-However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.
+
+In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up.  
+However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.  
 
 
 Papers from where I took some ideas
@@ -48,23 +49,22 @@ MIT Computer Science and Artificial Intelligence Laboratory
 
 Third party APIs
 ----------------
-**MPJ Express**. http://mpj-express.org/.
-It is included in the project as a system dependency
+**MPJ Express**. http://mpj-express.org/.  
+It is included in the project as a system dependency  
 
-**jsr166**. https://www.jcp.org/en/jsr/detail?id=166
-Is the java concurrent api for Java 1.6 target builds.
-I use this to run the program on the Oracle JRockit VM.
+**jsr166**. https://www.jcp.org/en/jsr/detail?id=166.  
+Is the java concurrent api for Java 1.6 target builds.  
+I use this to run the program on the Oracle JRockit VM.  
 
-**ProGuard**. http://proguard.sourceforge.net/
-Tool for shrink, obfuscate, and optimize code.
-With this tool I could **decrease jar file size by 20%**.
-**Code execution is 50% faster** on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.
-I'm still playing with the program parameters.
-Helpful links:
-	http://www.alexeyshmalko.com/2014/proguard-real-world-example/
-	http://proguard.sourceforge.net/manual/usage.html
-	http://proguard.sourceforge.net/manual/examples.html
-
+**ProGuard**. http://proguard.sourceforge.net/.  
+Tool for shrink, obfuscate, and optimize code.  
+With this tool I could **decrease jar file size by 20%**.  
+**Code execution is 50% faster** on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.  
+I'm still playing with the program parameters.  
+Helpful links:  
+ - http://www.alexeyshmalko.com/2014/proguard-real-world-example/
+ - http://proguard.sourceforge.net/manual/usage.html
+ - http://proguard.sourceforge.net/manual/examples.html
 
 
 Packaging
@@ -72,8 +72,9 @@ Packaging
 ```sh
 mvn clean package
 ```
-It generates the jar file with default profile and copy the external dependencies under target folder.
-Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.
+*Note: if you don't have local Maven installation then use provided* `mvnw`.  
+It generates the jar file with default profile and copy the external dependencies under target folder.  
+Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.  
 
 **Profiles (use -P)**
 - java7, java8: for execution with either JVM.
@@ -85,13 +86,14 @@ Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to ge
 
 Execution
 ---------
-First create the package (previous section).
-Go under tools folder and use one of the runXXX commands. 
+First create the package (previous section).  
+Go under tools folder and use one of the runXXX commands.  
 E.g.:
+```sh
 	./run.sh
-
+```
 The app loads by default the next properties (may change between forkjoin and mpje). You can pass only those you want to change:
-
+```sh
 	max.ciclos.save_status=2147483647
 	min.pos.save.partial=211
 	exploration.limit=-1
@@ -105,21 +107,22 @@ The app loads by default the next properties (may change between forkjoin and mp
 	experimental.borde.left.explorado=false
 	task.distribution.pos=99
 	forkjoin.num.processes=4   <-- this has no effect on MPJE build
-
+```
 E.g.:
+```sh
 	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=8
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
-	 
-Use run.bat or run.sh for running the e2solver.jar package generated with profiles java7 (default) or java8.
-Use run_jrockit.bat or run_jrockit.sh for running the e2solver_jrockit.jar package generated with profile jrockit.
-Use run_mpje_xxx.bat or run_mpje_xxx.sh for running the e2solver_mpje.jar package generated with profile mpje.
+```
+Use `run.bat` or `run.sh` for running the `e2solver.jar` package generated with profiles *java7* (default), *java8*, etc.  
+Use `run_jrockit.bat` or `run_jrockit.sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
+Use `run_mpje_xxx.bat` or `run_mpje_xxx.sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
 
 
 Known issues
 ------------
-*Note for JRE 8:*
-I'm having an exception when using the jpanel:
-java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData
+*Note for JRE 8:*  
+I'm having an exception when using the jpanel:  
+`java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
 
 
