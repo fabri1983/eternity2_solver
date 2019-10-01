@@ -123,7 +123,8 @@ public final class SolverFaster {
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
 	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
-	 * @param readerForTilesFile: implementation of the tiles file reader.
+	 * @param reader: implementation of the tiles file reader.
+	 * @param numProcesses: total number of processes.
 	 */
 	public static SolverFaster build(long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 

@@ -146,7 +146,7 @@ public final class SolverFasterMPJE {
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
-	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
+	 * @param p_pos_multi_process: posición en tablero donde inicia exploración multi threading.
 	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 

@@ -90,6 +90,7 @@ First create the package (previous section).
 Go under tools folder and use one of the runXXX commands.  
 E.g.:
 ```sh
+	cd tools
 	./run.sh
 ```
 The app loads by default the next properties (may change between forkjoin and mpje). You can pass only those you want to change:
@@ -113,6 +114,7 @@ E.g.:
 	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=8
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
 ```
+**NOTE**: if running on a terminal with no X11 server then use `-Djava.awt.headless=true`.  
 Use `run.bat` or `run.sh` for running the `e2solver.jar` package generated with profiles *java7* (default), *java8*, etc.  
 Use `run_jrockit.bat` or `run_jrockit.sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
 Use `run_mpje_xxx.bat` or `run_mpje_xxx.sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
