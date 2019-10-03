@@ -69,20 +69,20 @@ Helpful links:
 
 Packaging
 ---------
+*Note: if you don't have local Maven installation then use provided* `mvnw`.  
+*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in `proguard.conf`: uncomment `rt.jar` and `jsse.jar`, comment `jmods`.  
 ```sh
 mvn clean package
 ```
-*Note: if you don't have local Maven installation then use provided* `mvnw`.  
-It generates the jar file with default profile and copy the external dependencies under target folder.  
-Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.    
+It generates the jar file with default profile `java7` and copy the external dependencies under target folder.  
+Also by default it uses ProGuard code processing. Add `-Dskip.proguard=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java7`, `java8`: for execution with either JVM.
-- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
+- `java7`, `java8`: for execution with either JVM. `java7` is active by default.
+- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only).
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
 - `java8native`: only intended for Graal SubstrateVM native image generation.
-- `java12`: before build you need to edit `proguard.conf`: comment `rt.jar` and `jsse.jar` and uncomment `jmods`.  
-If you are using a JVM version 9 or higher then you need to change as described in `java12`.
+- `java12`.
 
 
 Execution
@@ -116,7 +116,7 @@ E.g.:
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
 ```
 **NOTE**: if running on a terminal with no X11 server then use `-Djava.awt.headless=true`.  
-Use `run.bat` or `run.sh` for running the `e2solver.jar` package generated with profiles *java7* (default), *java8*, etc.  
+Use `run.bat` or `run.sh` for running the `e2solver.jar` package generated with profiles *java7* (default), *java8*, and *java12*.  
 Use `run_jrockit.bat` or `run_jrockit.sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
 Use `run_mpje_xxx.bat` or `run_mpje_xxx.sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
 
