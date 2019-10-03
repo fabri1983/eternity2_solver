@@ -88,7 +88,7 @@ public final class SolverFaster {
 	protected final static String NAME_FILE_LIBRES_MAX = "status/libresMAX";
 	protected static int LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
-	public static long count_cycles[]; // count cycles per task
+	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
 	protected static long count_filas;
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
@@ -920,7 +920,7 @@ public final class SolverFaster {
 			//indico si se utiliza poda de color explorado o no
 			writerBuffer.append(usar_poda_color_explorado).append("\n");
 			
-			//guardo el contenido de matrix_color_explorado
+			//guardo el contenido de arr_color_rigth_explorado
 			if (usar_poda_color_explorado)
 			{
 				for (int n=0; n < LADO; ++n) {
@@ -998,7 +998,9 @@ public final class SolverFaster {
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, startSignal, doneSignal, initialSetupSignal);
+			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, MAX_CICLOS, POSICION_START_FORK_JOIN, 
+					LIMITE_RESULTADO_PARCIAL, usar_poda_color_explorado, FairExperimentGif, usarTableroGrafico, 
+					startSignal, doneSignal, initialSetupSignal);
 			
 			// cargo las piezas desde archivo de piezas
 			cargarPiezas(actions[proc]);

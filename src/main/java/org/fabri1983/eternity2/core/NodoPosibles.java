@@ -22,7 +22,7 @@
 
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.arrays.ObjectArrayListSynchronized;
+import org.fabri1983.eternity2.arrays.ObjectArrayList;
 
 /**
  * Contiene una lista de referencias de piezas.
@@ -31,13 +31,13 @@ import org.fabri1983.eternity2.arrays.ObjectArrayListSynchronized;
  */
 public final class NodoPosibles
 {	
-	private ObjectArrayListSynchronized referencias_aux; //lista auxiliar de piezas
+	private ObjectArrayList referencias_aux; //lista auxiliar de piezas
 	public Pieza referencias[]; //arreglo de referencias a piezas
 	public boolean util = false;
 	
 	
 	public NodoPosibles() {
-		referencias_aux = new ObjectArrayListSynchronized();
+		referencias_aux = new ObjectArrayList();
 	}
 	
 	/**

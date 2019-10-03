@@ -30,15 +30,9 @@ package org.fabri1983.eternity2.core;
  * 
  * @author Fabricio Lettieri
  */
-public final class MapaKeys
-{
-	private static byte left;	
-	private static byte tops[];
-	private final static byte MAX_COLS;
+public final class MapaKeys {
 	
-	// Nota: las siguientes variables "part" de clase son para no tener que crearlas cada vez que se llama a getKey, pero en 
-	// el caso de usar multi-threading no se pueden usar mas como estáticas.
-	private static int part1, part2, part3, part4, part5;
+	private final static byte MAX_COLS;
 	
 	static {
 		byte maxCols = Byte.parseByte(System.getProperty(FilaPiezas.PARAM_MAX_COLS, "0"));
@@ -49,14 +43,23 @@ public final class MapaKeys
 		MAX_COLS = maxCols;
 	}
 	
-	private MapaKeys (){
+	private MapaKeys () {
 	}
 	
-	public static final int getKey (final byte pLeft, final byte pTops[])
+	/**
+	 * Devuelve la clave para la combinación de colores pasada como parámetro. Si retorna 0 siginifica que no existe
+	 * clave para esa combinación de colores.
+	 */
+	public static final int getKey (final byte pleft, final byte tops[])
 	{
-		left = pLeft;
-		tops = pTops;
-		return getKey();
+		switch (MAX_COLS)
+		{
+			case 2: return getKey(pleft, tops[0], tops[1]);
+			case 3: return getKey(pleft, tops[0], tops[1], tops[2]);
+			case 4: return getKey(pleft, tops[0], tops[1], tops[2], tops[3]);
+			case 5: return getKey(pleft, tops[0], tops[1], tops[2], tops[3], tops[4]);
+			default: return 0;
+		}
 	}
 	
 	/**
@@ -64,9 +67,7 @@ public final class MapaKeys
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2)
 	{
-		part1 = pleft;
-		part2 = top1;
-		return (part1 << 10) | (part2 << 5) | top2;
+		return (pleft << 10) | (top1 << 5) | top2;
 	}
 	
 	/**
@@ -74,10 +75,7 @@ public final class MapaKeys
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3)
 	{
-		part1 = pleft;
-		part2 = top1;
-		part3 = top2;
-		return (part1 << 15) | (part2 << 10) | (part3 << 5) | top3;
+		return (pleft << 15) | (top1 << 10) | (top2 << 5) | top3;
 	}
 	
 	/**
@@ -85,11 +83,7 @@ public final class MapaKeys
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4)
 	{
-		part1 = pleft;
-		part2 = top1;
-		part3 = top2;
-		part4 = top3;
-		return (part1 << 20) | (part2 << 15) | (part3 << 10) | (part4 << 5) | top4;
+		return (pleft << 20) | (top1 << 15) | (top2 << 10) | (top3 << 5) | top4;
 	}
 	
 	/**
@@ -97,27 +91,7 @@ public final class MapaKeys
 	 */
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4, final byte top5)
 	{
-		part1 = pleft;
-		part2 = top1;
-		part3 = top2;
-		part4 = top3;
-		part5 = top4;
-		return (part1 << 25) | (part2 << 20) | (part3 << 15) | (part4 << 10) | (part5 << 5) + top5;
+		return (pleft << 25) | (top1 << 20) | (top2 << 15) | (top3 << 10) | (top4 << 5) + top5;
 	}
 	
-	/**
-	 * Devuelve la clave para la combinación de colores pasada como parámetro. Si retorna 0 siginifica que no existe
-	 * clave para esa combinación de colores.
-	 */
-	private static final int getKey ()
-	{
-		switch (MAX_COLS)
-		{
-			case 2: return getKey(left,tops[0],tops[1]);
-			case 3: return getKey(left,tops[0],tops[1],tops[2]);
-			case 4: return getKey(left,tops[0],tops[1],tops[2],tops[3]);
-			case 5: return getKey(left,tops[0],tops[1],tops[2],tops[3],tops[4]);
-			default: return 0;
-		}
-	}
 }

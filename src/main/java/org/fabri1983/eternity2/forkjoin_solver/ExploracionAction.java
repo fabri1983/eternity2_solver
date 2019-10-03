@@ -52,7 +52,7 @@ public class ExploracionAction extends RecursiveAction {
 	
 	public int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	protected final byte desde_saved[] = new byte[SolverFaster.MAX_PIEZAS];
-	private Contorno contorno = new Contorno();
+	private final Contorno contorno = new Contorno();
 	protected boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
 	protected boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
@@ -68,18 +68,34 @@ public class ExploracionAction extends RecursiveAction {
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
 	public final int id;
-	private int NUM_PROCESSES;
-	private int num_processes_orig[] = new int[SolverFaster.MAX_PIEZAS];
+	
+	private final long MAX_CICLOS;
+	private int num_processes;
+	private final int POSICION_START_FORK_JOIN;
+	private final int LIMITE_RESULTADO_PARCIAL;
+	private final boolean usar_poda_color_explorado;
+	private final boolean FairExperimentGif;
+	private final boolean usarTableroGrafico;
+	private long count_cycles;
+	private final int num_processes_orig[] = new int[SolverFaster.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
-	private CountDownLatch startSignal;
-	private CountDownLatch doneSignal;
-	private CountDownLatch initialSetupSignal;
+	private final CountDownLatch startSignal;
+	private final CountDownLatch doneSignal;
+	private final CountDownLatch initialSetupSignal;
 	
-	public ExploracionAction(int _id, int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal, 
-			CountDownLatch initialSetupSignal) {
+	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, int limite_resultado_parcial, 
+			boolean _usar_poda_color_explorado, boolean _FairExperimentGif, boolean _usarTableroGrafico, 
+			CountDownLatch startSignal, CountDownLatch doneSignal, CountDownLatch initialSetupSignal) {
 		id = _id;
-		NUM_PROCESSES = _num_processes;
+		MAX_CICLOS = _max_ciclos;
+		num_processes = _num_processes;
+		POSICION_START_FORK_JOIN = _pos_start_fork_join;
+		LIMITE_RESULTADO_PARCIAL = limite_resultado_parcial;
+		usar_poda_color_explorado = _usar_poda_color_explorado;
+		FairExperimentGif = _FairExperimentGif;
+		usarTableroGrafico = _usarTableroGrafico;
+		
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
 		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + id + SolverFaster.FILE_EXT;
 		parcialMaxFileName = SolverFaster.NAME_FILE_PARCIAL_MAX + "_" + id + SolverFaster.FILE_EXT;
@@ -228,7 +244,7 @@ public class ExploracionAction extends RecursiveAction {
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 		if (cursor > mas_lejano_parcial_max) {
 			mas_lejano_parcial_max = cursor;
-			if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
+			if (cursor >= LIMITE_RESULTADO_PARCIAL) {
 				time_final = System.nanoTime();
 				System.out.println(id + " >>> "
 						+ TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS)
@@ -250,9 +266,12 @@ public class ExploracionAction extends RecursiveAction {
 		}
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
-		if (SolverFaster.count_cycles[id] >= SolverFaster.MAX_CICLOS) {
-			long currentCycles = SolverFaster.count_cycles[id];
-			SolverFaster.count_cycles[id] = 0;
+		
+		if (count_cycles >= MAX_CICLOS) {
+			long currentCycles = count_cycles;
+			count_cycles = 0;
+			if (usarTableroGrafico)
+				SolverFaster.count_cycles[id] = 0;
 			//calculo el tiempo transcurrido desd el último time_status_saved 
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
@@ -342,23 +361,23 @@ public class ExploracionAction extends RecursiveAction {
 		// old was: ((cursor+2) % LADO) == 0
 		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 		
-		num_processes_orig[cursor] = NUM_PROCESSES;
+		num_processes_orig[cursor] = num_processes;
 
 		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos.
-		if (cursor == SolverFaster.POSICION_START_FORK_JOIN + pos_multi_process_offset) {
+		if (cursor == POSICION_START_FORK_JOIN + pos_multi_process_offset) {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc
 			// para los calculos siguientes
-			int this_proc_absolute = id % NUM_PROCESSES;
+			int this_proc_absolute = id % num_processes;
 
 			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
-			if (NUM_PROCESSES == length_posibles) {
+			if (num_processes == length_posibles) {
 				desde = this_proc_absolute;
 				length_posibles = this_proc_absolute + 1;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (NUM_PROCESSES < length_posibles) {
-				int span = (length_posibles + 1) / NUM_PROCESSES;
+			else if (num_processes < length_posibles) {
+				int span = (length_posibles + 1) / num_processes;
 				desde = this_proc_absolute * span;
 				if (desde >= length_posibles)
 					desde = length_posibles - 1;
@@ -369,8 +388,8 @@ public class ExploracionAction extends RecursiveAction {
 			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
 			// Ahora la cantidad de procs se setea igual a length_posibles
 			else {
-				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
-				NUM_PROCESSES = length_posibles;
+				int divisor = (num_processes + 1) / length_posibles; // reparte los procs por posible pieza
+				num_processes = length_posibles;
 				desde = this_proc_absolute / divisor;
 				if (desde >= length_posibles)
 					desde = length_posibles - 1;
@@ -391,7 +410,9 @@ public class ExploracionAction extends RecursiveAction {
 			if (p.pusada.value)
 				continue; //es usada, pruebo con la siguiente pieza
 	
-			++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
+			++count_cycles;
+			if (usarTableroGrafico)
+				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
@@ -409,7 +430,7 @@ public class ExploracionAction extends RecursiveAction {
 			}
 				
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (SolverFaster.usar_poda_color_explorado)
+			if (usar_poda_color_explorado)
 			{
 				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
@@ -450,7 +471,7 @@ public class ExploracionAction extends RecursiveAction {
 			}*/
 			
 			//FairExperiment.gif: color bottom repetido en sentido horizontal
-			if (SolverFaster.FairExperimentGif)
+			if (FairExperimentGif)
 			{
 				if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP)
 					if (p.bottom == tablero[cursor-1].bottom)
@@ -496,7 +517,7 @@ public class ExploracionAction extends RecursiveAction {
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre
 
-		NUM_PROCESSES = num_processes_orig[cursor];
+		num_processes = num_processes_orig[cursor];
 		--pos_multi_process_offset;
 		if (pos_multi_process_offset < 0)
 			pos_multi_process_offset = 0;
