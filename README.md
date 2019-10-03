@@ -74,19 +74,20 @@ mvn clean package
 ```
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
 It generates the jar file with default profile and copy the external dependencies under target folder.  
-Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.  
+Also by default it uses ProGuard code processing. Add -Dskip.proguard=true to generate simple java jar.    
 
 **Profiles (use -P)**
-- java7, java8: for execution with either JVM.
-- java10, java11: before build with either profile you need to edit `pom.xml` -> `plugin proguard-maven-plugin` -> `configuration`  -> `libs`: remove rt.jar and jsse.jar
-- jrockit: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
-- mpje: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
-- java8native: only intended for Graal SubstrateVM native image generation.
+- `java7`, `java8`: for execution with either JVM.
+- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version).
+- `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
+- `java8native`: only intended for Graal SubstrateVM native image generation.
+- `java12`: before build you need to edit `proguard.conf`: comment `rt.jar` and `jsse.jar` and uncomment `jmods`.  
+If you are using a JVM version 9 or higher then you need to change as described in `java12`.
 
 
 Execution
 ---------
-First create the package (previous section).  
+First generate the artifact (previous section).  
 Go under tools folder and use one of the runXXX commands.  
 E.g.:
 ```sh
@@ -126,6 +127,58 @@ Known issues
 I'm having an exception when using the jpanel:  
 `java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774
+
+
+Using jdeps on generated jar to build custom JRE (Java 9+)
+----------------------------------------------------------
+Use `jdeps` to know which java modules the final application needs to run.  
+Note that we are using `--multi-release=12`.  
+Then you can build a custom and smaller JRE.  
+
+- *NOTE*: depending on the maven profile you use to geenrate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje`, `e2solver_jrockit`. 
+
+- Windows:
+```bash
+jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps ^
+  -cp target\libs\*;target\libs\javamail-1.4.5\lib\*;target\libs\mpj-v0_44\lib\* target\e2solver.jar
+```
+
+- Linux:
+```bash
+jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps \
+  -cp target/libs/*:target/libs/javamail-1.4.5/lib/*:target/libs/mpj-v0_44/lib/* target/e2solver.jar
+```
+
+- Example Output:
+```bash
+java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
+```
+
+- Use ouput modules to build a smaller JRE:
+	- Windows:
+	```bash
+	jlink ^
+	     --module-path %JAVA_HOME%\jmods ^
+	     --compress=2 ^
+	     --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql ^
+	     --no-header-files ^
+	     --no-man-pages ^
+	     --strip-debug ^
+	     --output %JAVA_HOME%\customjre
+	```
+
+	- Linux:
+	```bash
+	jlink \
+	     --module-path ${JAVA_HOME}/jmods \
+	     --compress=2 \
+	     --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql \
+	     --no-header-files \
+	     --no-man-pages \
+	     --strip-debug \
+	     --output ${JAVA_HOME}/customjre
+	```
+The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use it you have to update your `JAVA_HOME` environment variable and `PATH` too.
 
 
 Build a Graal VM on Windows and run your jar

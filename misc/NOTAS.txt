@@ -199,6 +199,8 @@ MPI
 - Tomando como POSICION_MULTI_PROCESSES = 99 y rank 8:
 Notebook Asus G73sw (Oracle JRockit)
 	Rank 5:    2800 ms, cursor 211
+Notebook Asus G73sw (Custom Java 12 JRE)
+	Rank 5:    2245 ms, cursor 211
 Notebook Asus GL552VW (Oracle JDK 10.0.2)
 	Rank 5:    1698 ms, cursor 211
 

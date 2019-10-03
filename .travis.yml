@@ -18,9 +18,8 @@ install:
 
 # overrides travis 'script' step
 script:
-  - mvn --batch-mode clean package -Pjava7
-  - mvn --batch-mode clean package -Pjava8
   - mvn --batch-mode clean package -Pjrockit
+  - mvn --batch-mode clean package -Pjava8
   - mvn --batch-mode clean package -Pmpje
 
 notifications:
