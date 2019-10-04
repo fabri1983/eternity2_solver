@@ -44,13 +44,10 @@ public final class SolverFasterWithUI {
 		
 		solver.setupInicial();
 		
-		// pinto en pantalla el tablero gráfico? 
-		if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
-			// solo dibujar el board de la primer action: SolverFaster.actions[0]
-			EternityII tableboardE2 = new EternityII(SolverFaster.LADO, SolverFaster.cellPixelsLado, 
-					SolverFaster.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]); 
-			tableboardE2.startPainting();
-		}
+		// solo dibujar el board de la primer action: SolverFaster.actions[0]
+		EternityII tableboardE2 = new EternityII(SolverFaster.LADO, SolverFaster.cellPixelsLado, 
+				SolverFaster.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]); 
+		tableboardE2.startPainting();
 	}
 	
 	/**

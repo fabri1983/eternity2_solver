@@ -66,9 +66,15 @@ public final class MainFaster
 			properties = null;
 			ResourceBundle.clearCache();
 
-			SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
-			solverWithUI.setupInicial();
-			solverWithUI.atacar();
+			// vamos a usar tablero gráfico? 
+			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
+				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
+				solverWithUI.setupInicial();
+				solverWithUI.atacar();
+			} else {
+				solver.setupInicial();
+				solver.atacar();
+			}
 		}
 		catch(Exception e){
 			e.printStackTrace();

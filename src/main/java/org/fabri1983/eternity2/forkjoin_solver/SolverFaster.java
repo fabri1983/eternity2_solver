@@ -124,7 +124,7 @@ public final class SolverFaster {
 	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
 	 * @param p_pos_fork_join: posición en tablero donde inicia exploración multi threading.
 	 * @param reader: implementation of the tiles file reader.
-	 * @param numProcesses: total number of processes.
+	 * @param numProcesses: parallelism level for the fork-join pool.
 	 */
 	public static SolverFaster build(long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
@@ -144,7 +144,7 @@ public final class SolverFaster {
 		// cycles counter per task
 		count_cycles = new long[NUM_PROCESSES];
 		
-		fjpool = new ForkJoinPool(NUM_PROCESSES,ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
+		fjpool = new ForkJoinPool(NUM_PROCESSES, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, false);
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (MAX_PIEZAS-2)))
@@ -154,7 +154,7 @@ public final class SolverFaster {
 		
 		FairExperimentGif = p_fair_experiment_gif;
 
-		if (destino_ret >= 0){
+		if (destino_ret >= 0) {
 			DESTINO_RET= destino_ret; //determina el valor hasta el cual debe retroceder cursor
 			flag_retroceder_externo= true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
