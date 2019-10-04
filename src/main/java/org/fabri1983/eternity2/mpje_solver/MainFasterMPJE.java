@@ -32,11 +32,11 @@ import mpi.MPI;
 public final class MainFasterMPJE
 {
 	public static void main (String[] args) throws Exception
-	{	
+	{
 		MPI.Init(args);
 		
 		int rank = MPI.COMM_WORLD.Rank();
-
+		
 		// imprimo una sola vez la portada
 		if (rank == 0){
 			System.out.println("################################################################################");
@@ -79,7 +79,7 @@ public final class MainFasterMPJE
 			sol.setupInicial(); // ejecuto una inicializacion global
 			sol.atacar();
 			
-		}catch(Exception e){
+		} catch(Exception e){
 			System.out.println("\nRank " + rank + ": Problema!! " + e.getMessage()); 
 			e.printStackTrace();
 		}
@@ -89,7 +89,7 @@ public final class MainFasterMPJE
 		MPI.Finalize();
 	}
 
-	private static ResourceBundle readProperties() throws IOException {
+	private static final ResourceBundle readProperties() throws IOException {
 		String file = "application.properties";
 		InputStream fis = MainFasterMPJE.class.getClassLoader().getResourceAsStream(file);
 		ResourceBundle r = new PropertyResourceBundle(fis);
@@ -97,10 +97,11 @@ public final class MainFasterMPJE
 		return r;
 	}
 
-	private static String getProperty(ResourceBundle properties, String key) {
+	private static final String getProperty(ResourceBundle properties, String key) {
 		String sysProp = System.getProperty(key);
 		if (sysProp != null && !"".equals(sysProp))
 			return sysProp;
 		return properties.getString(key);
 	}
+	
 }

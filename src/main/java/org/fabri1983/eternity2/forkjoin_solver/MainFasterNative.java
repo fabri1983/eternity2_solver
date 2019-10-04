@@ -22,9 +22,7 @@
 
 package org.fabri1983.eternity2.forkjoin_solver;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.fabri1983.eternity2.core.tilesreader.ClassLoaderReaderForTilesFile;
@@ -76,14 +74,14 @@ public final class MainFasterNative
 		System.out.println("\nPrograma terminado.");
 	}
 
-	private static Properties readProperties() throws IOException {
+	private static final Properties readProperties() throws IOException {
 		Properties properties = new Properties();
 		String file = "application.properties";
 		properties.load(MainFaster.class.getClassLoader().getResourceAsStream(file));
 		return properties;
 	}
 
-	private static String getProperty(Properties properties, String key) {
+	private static final String getProperty(Properties properties, String key) {
 		String sysProp = System.getProperty(key);
 		if (sysProp != null && !"".equals(sysProp))
 			return sysProp;
