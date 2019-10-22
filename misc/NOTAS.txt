@@ -123,7 +123,7 @@ Tips && Notes
 Link: http://stackoverflow.com/questions/4922932/java-performance-of-enums-vs-if-then-else 
 
 - Acotar pila de llamadas: una vez que paso cierta posición (por ejemplo la 70) puedo hacer lo mismo
-que cuando se carga estado para no tener en la pila 70 instancias que se que no voy a modificar en mucho tiempo.
+que cuando se carga estado para no tener en la pila 70 frames que sé no voy a modificar en mucho tiempo.
 
 - Cuántas combinaciones voy realizando teniendo en cuenta todo el arbol de exploración?
 En cada posición cuando obtengo la lista de posibles piezas desde super_matriz[] estoy acotando las posibles ramas 
@@ -134,7 +134,7 @@ Cuando podo en la posición cursor estoy descartando:
 - Cantidad de nodos visitados:
 Un nodo es una ubicación del arbol de exploración. En cada nodo puedo elegir varias piezas.
 Entonces es contabilizar las piezas que voy probando.
-Lo siguiente es extracto del yahoo grupo:
+Lo siguiente es extracto del yahoo group:
 
 	If you download eternityIIJavaV0.8.zip from the file area (doc_smith
 	folder) and check SimpleSearch.java method solve() you may get an idea.
@@ -150,10 +150,10 @@ El entero mas grande de 31 bits es 2147483648. Usar 2147483647 en Complemento a 
 El entero mas grande de 63 bits es 9223372036854775808. Usar 9223372036854775807 en Complemento a 2.
 
 - Filas precalculadas:
-para 2 colums tengo count maximo 29 con 34926 filas calculadas
-para 3 colums tengo count maximo 91 con 1556132 filas calculadas
-para 4 colums tengo count maximo 297 con 68981072 filas calculadas
-para 5 colums tengo count maximo ?? con 3042060164 filas calculadas
+para 2 columns tengo count maximo 29   con      34926 filas calculadas.
+para 3 columns tengo count maximo 91   con    1556132 filas calculadas.
+para 4 columns tengo count maximo 297  con   68981072 filas calculadas.
+para 5 columns tengo count maximo ??   con 3042060164 filas calculadas.
 
 - Max lenghts de objetos super_matriz[].referencias[] y sus ocurrencias de lenghts:
 Max length: 64
@@ -179,18 +179,18 @@ Max length: 64
 Entonces en cada posición de cursor donde necesite satisfacer combinación left-top voy a tener:
 	- en borde/esquina y matcheando con borde/esquina: 4 posibles ramas.
 	- en borde/esquina y matcheando con interior: 7 posibles ramas.
-	- alrededor de pieza central (sin tener en cuenta sus	rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
+	- alrededor de pieza central (sin tener en cuenta sus rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
 Y sabiendo que existen las siguientes celdas:
 	- 4 celdas esquinas
 	- 56 celdas de borde
 	- 195 celdas internas
-	- 1 celda interna fija
+	- 1 celda interna fija (son 5 hints pero en mi solver solo tengo 1)
 Por lo tanto el tope de combinaciones será: 4! * 4^56 * 7^194 * 2 * 2 = 4.432518e+199
-No siempre se vá a probar las 4 piezas en cada posición de borde ni tampoco las 7 piezas en cada posición interior debido 
+No siempre se van a probar las 4 piezas en cada posición de borde ni tampoco las 7 piezas en cada posición interior debido 
 a las podas. Y el uso de contorno_sup en el interior del tablero hace que una combinación dada left-top-top se pueda usar una 
 sola vez lo que hace descartar ramas.
 Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
-	(4! * 4^56 * 7^194 * 2 * 2) / 4 = 1.10813e+199 
+	4! * 2^56 * 3^194 * 2 * 2 = 2.520429e+111 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ Notebook Asus G73sw (Custom Java 12 JRE)
 Notebook Asus GL552VW (Oracle JDK 10.0.2)
 	Rank 5:    1698 ms, cursor 211
 Notebook Dell Latitude 7490 - Core I7 8650U (3.891 GHz max per core)
-	Rank 5:    1342 ms, cursor 211   (but using Fork/Join it took 1311)
+	Rank 5:    1342 ms, cursor 211   (but using Fork/Join it took 1282)
 
 - Cuando inicio por primera vez se hace la sincronización solo a fines de poder largar todos los procesos 
 a la vez. Si se carga estado no se debe sincronizar pues cada proceso ya sabe qué parte del arbol tomar.
@@ -251,11 +251,13 @@ un overhead. Sin dicha operación podría setear como no usada una pieza que ya 
 en posiciones anteriores).
 
 - Para lo de copiado de filas usando sun.misc.Unsafe
-Cuando se calculen todas las posibles combinaciones de filas ir guardándolas en memoria contigua usando allocateMemory o algo asi. 
+Cuando se calculen todas las posibles combinaciones de filas ir guardándolas en memoria contigua usando allocateDirect. 
 Tal vez no sea necesario si ya se guardan contiguamente.
-Luego cuando necesitemos copiar una fila al tablero hacerlo con copyMemory o algo asi. De esta forma es mucho más rápido.
+Luego cuando necesitemos copiar una fila al tablero hacerlo con copyDirect. 
+NOTA: usar sun.misc.Unsafe siempre y cuando no tenga esos datos en Java Heap porque sino me parece que se copian desde Off Heap.
 
-Usar todos los accesos a arreglos de tipo nativo con getAdress o parecido. Supuestamente acceder directamente a la memoria debería ser más rápido.
+Usar todos los accesos a arreglos de tipo nativo con getAdress. 
+Supuestamente acceder directamente a la memoria nativa y no al heap debería ser más rápido.
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -264,7 +266,7 @@ Contorno de piezas
 - Idea:
 Cada pieza ahora tiene su idUnico. Por lo tanto para un contorno de 2 columnas (left-top-top) dado existe un 
 conjunto de tripletas de piezas irrepetibles según su idUnico. 
-Ejemplo: para contorno 12-7-8 existen las tripletas (123,78,167); (99,101,452); etc. Estas tripletas apuntan al mismo contorno.
+Ejemplo: para contorno 12-7-8 existen las tripletas (123,78,167), (99,101,452), etc. Estas tripletas apuntan al mismo contorno.
 Ahora preguntar si un contorno está usado es preguntarle a la referencia en cuestión.
 No sé si sería mas rápido que lo actualmente implementado. Peeeeero... las tripletas que apuntan a ese contorno 
 no pueden ser cargadas en tablero. Por lo que puedo tener un objeto PunteroContorno el cual contiene las 
@@ -276,7 +278,7 @@ tripletas a ese contorno. Si el puntero es usado entonces puedo evitar que se fo
 	backtracker común tarda 99 segs (mismo resultado en ambos casos!!).
 	Pero para la posición 209 tardaba 89 segs contra 43 segs del backtracker simple y no son los mismos resultados,
 	por lo tanto usando contorno superior existe realmente una disminución del árbol de exploración.
-	Esto se deduce por el ordenamiento de las piezas y su acceso tambi锟絥 ordenado.
+	Esto se deduce por el ordenamiento de las piezas y su acceso también ordenado.
 	
 	* Usar mas de 2 columnas solamente me hace perder tiempo ya que alcanzo pos 211 con mismo resultado pero en 
 	mayor tiempo. Me parece que esto es un hecho notable. Si con diferentes algoritmos llego a una misma posición 
