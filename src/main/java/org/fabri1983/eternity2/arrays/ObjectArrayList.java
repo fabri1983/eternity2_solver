@@ -2,9 +2,9 @@ package org.fabri1983.eternity2.arrays;
 
 import java.lang.reflect.Array;
 
-public class ObjectArrayList extends AbstractCollection
+public class ObjectArrayList<T> extends AbstractCollection
 {
-	protected Object[] elements;
+	protected T[] elements;
 	protected int size;
 
 	public ObjectArrayList()
@@ -12,42 +12,44 @@ public class ObjectArrayList extends AbstractCollection
 		this(10);
 	}
 
+	@SuppressWarnings("unchecked")
 	public ObjectArrayList(int paramInt)
 	{
-		this.elements = new Object[paramInt];
+		this.elements = (T[]) new Object[paramInt];
 		this.size = 0;
 	}
 
-	public void add(Object paramObject)
+	public void add(T paramObject)
 	{
 		if (this.size == this.elements.length)
 			ensureCapacity(this.size + 1);
 		this.elements[(this.size++)] = paramObject;
 	}
 
-	public Object[] elements()
+	public T[] elements()
 	{
 		return this.elements;
 	}
 
-	public ObjectArrayList elements(Object[] paramArrayOfObject)
+	public ObjectArrayList<T> elements(T[] paramArrayOfObject)
 	{
 		this.elements = paramArrayOfObject;
 		this.size = paramArrayOfObject.length;
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void ensureCapacity(int paramInt)
 	{
-		this.elements = Arrays.ensureCapacity(this.elements, paramInt);
+		this.elements = (T[]) Arrays.ensureCapacity(this.elements, paramInt);
 	}
 
-	public Object get(int paramInt)
+	public T get(int paramInt)
 	{
 		return this.elements[paramInt];
 	}
 
-	public void set(int paramInt, Object paramObject)
+	public void set(int paramInt, T paramObject)
 	{
 		this.elements[paramInt] = paramObject;
 	}
@@ -57,11 +59,12 @@ public class ObjectArrayList extends AbstractCollection
 		return this.size;
 	}
 
-	public Object[] toArray(Object[] paramArrayOfObject)
+	@SuppressWarnings("unchecked")
+	public T[] toArray(T[] paramArrayOfObject)
 	{
 		if (paramArrayOfObject.length < this.size)
-			paramArrayOfObject = (Object[])Array.newInstance(paramArrayOfObject.getClass().getComponentType(), this.size);
-		Object[] arrayOfObject = this.elements;
+			paramArrayOfObject = (T[]) Array.newInstance(paramArrayOfObject.getClass().getComponentType(), this.size);
+		T[] arrayOfObject = this.elements;
 		int i = this.size;
 		while (--i >= 0)
 			paramArrayOfObject[i] = arrayOfObject[i];
@@ -70,14 +73,16 @@ public class ObjectArrayList extends AbstractCollection
 		return paramArrayOfObject;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void trimToSize()
 	{
-		this.elements = Arrays.trimToCapacity(this.elements, size());
+		this.elements = (T[]) Arrays.trimToCapacity(this.elements, size());
 	}
 
+	@SuppressWarnings("unchecked")
 	public void clear()
 	{
-		this.elements = new Object[0];
+		this.elements = (T[]) new Object[0];
 	}
 
 }

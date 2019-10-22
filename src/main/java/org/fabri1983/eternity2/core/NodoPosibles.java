@@ -31,13 +31,13 @@ import org.fabri1983.eternity2.arrays.ObjectArrayList;
  */
 public final class NodoPosibles
 {	
-	private ObjectArrayList referencias_aux; //lista auxiliar de piezas
+	private ObjectArrayList<Pieza> referencias_aux; //lista auxiliar de piezas
 	public Pieza referencias[]; //arreglo de referencias a piezas
 	public boolean util = false;
 	
 	
 	public NodoPosibles() {
-		referencias_aux = new ObjectArrayList();
+		referencias_aux = new ObjectArrayList<Pieza>(64); // is the max size I got experimentally
 	}
 	
 	/**
@@ -59,7 +59,7 @@ public final class NodoPosibles
 		
 		for (int i=0; i < size; i++){
 			if (np.referencias_aux.get(i) != null) {
-				np.referencias[i] = (Pieza) np.referencias_aux.get(i);
+				np.referencias[i] = np.referencias_aux.get(i);
 			}
 		}
 		

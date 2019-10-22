@@ -193,15 +193,15 @@ public class Pieza {
 	
 	public final String toString ()
 	{
-		return new String(top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE 
-						+ bottom + SECCIONES_SEPARATOR_EN_FILE + left + SECCIONES_SEPARATOR_EN_FILE 
-						+ numero + SECCIONES_SEPARATOR_EN_FILE + rotacion + SECCIONES_SEPARATOR_EN_FILE 
-						+ String.valueOf(pusada.value) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/);
+		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE 
+				+ bottom + SECCIONES_SEPARATOR_EN_FILE + left + SECCIONES_SEPARATOR_EN_FILE 
+				+ numero + SECCIONES_SEPARATOR_EN_FILE + rotacion + SECCIONES_SEPARATOR_EN_FILE 
+				+ String.valueOf(pusada.value) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
 	}
 	
 	public final String toStringColores ()
 	{
-		return new String(top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE + bottom + SECCIONES_SEPARATOR_EN_FILE + left);
+		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE + bottom + SECCIONES_SEPARATOR_EN_FILE + left;
 	}
 	
 	public static final boolean tieneColor (final Pieza p, final int color)

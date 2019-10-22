@@ -91,15 +91,13 @@ public final class FilaPiezas
 	 * @param array_fila Arreglo de FilaPiezas
 	 * @return El tamaño del arreglo array_fila
 	 */
-	public static final int primerFilaTotalmenteLibre (final ObjectArrayList array_fila)
+	public static final int primerFilaTotalmenteLibre (final ObjectArrayList<FilaPiezas> array_fila)
 	{
-		FilaPiezas fila;
-
 		//busco la primer fila con todas las piezas libres
 		final int length = array_fila.size();
 		for (int i=0; i < length; ++i)
 		{
-			fila = (FilaPiezas)array_fila.get(i);
+			FilaPiezas fila = array_fila.get(i);
 			switch (MAX_COLS){
 				case 2: if (fila.referencias[0].pusada.value || fila.referencias[1].pusada.value) break; else return i;
 				case 3: if (fila.referencias[0].pusada.value || fila.referencias[1].pusada.value || fila.referencias[2].pusada.value) break; else return i;
@@ -116,15 +114,14 @@ public final class FilaPiezas
 	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
-	public static final void ordenarFilasBublesort (final ObjectArrayList array_fila)
+	public static final void ordenarFilasBublesort (final ObjectArrayList<FilaPiezas> array_fila)
 	{		
-		Object fp_aux;
 		for (int i=0; i < array_fila.size(); ++i){
 			for (int j=i; j < (array_fila.size()-1); ++j){
 				//pregunto si la fila en j es mayor o igual a la fila en j+1
-				if (FilaPiezas.menorFila((FilaPiezas)array_fila.get(j), (FilaPiezas)array_fila.get(j+1)) == false){
+				if (FilaPiezas.menorFila(array_fila.get(j), array_fila.get(j+1)) == false){
 					//intercambio filas
-					fp_aux = array_fila.get(j+1);
+					FilaPiezas fp_aux = array_fila.get(j+1);
 					array_fila.set(j+1, array_fila.get(j));
 					array_fila.set(j, fp_aux);
 				}
@@ -137,7 +134,7 @@ public final class FilaPiezas
 	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
-	public static final void ordenarFilasQuicksort (final ObjectArrayList array_fila)
+	public static final void ordenarFilasQuicksort (final ObjectArrayList<FilaPiezas> array_fila)
 	{
 		FilaPiezas.quicksort(array_fila, 0, array_fila.size()-1);
 	}
@@ -149,23 +146,23 @@ public final class FilaPiezas
 	 * @param izq
 	 * @param der
 	 */
-	private static final void quicksort (final ObjectArrayList array_fila, final int izq, final int der)
+	private static final void quicksort (final ObjectArrayList<FilaPiezas> array_fila, final int izq, final int der)
 	{
 		int i = izq;
 	    int j = der;
-	    Object pivote = array_fila.get((izq + der) / 2);
+	    FilaPiezas pivote = array_fila.get((izq + der) / 2);
 	    
 	    do{
-	    	while (FilaPiezas.menorFila((FilaPiezas)array_fila.get(i), (FilaPiezas)pivote)) {
+	    	while (FilaPiezas.menorFila(array_fila.get(i), pivote)) {
 	    		i++;
 	    		if (i >= array_fila.size()){ i=array_fila.size()-1; break;}
 			}
-			while (FilaPiezas.mayorFila((FilaPiezas)array_fila.get(j), (FilaPiezas)pivote)) {
+			while (FilaPiezas.mayorFila(array_fila.get(j), pivote)) {
 				j--;
 				if (j < 0){ j=0; break;}
 			}
 			if (i <= j) {
-				Object fp_aux = array_fila.get(i);
+				FilaPiezas fp_aux = array_fila.get(i);
 				array_fila.set(i, array_fila.get(j));
 				array_fila.set(j, fp_aux);
 				i++;
@@ -185,7 +182,7 @@ public final class FilaPiezas
 	 * Usa Bucketsort.
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
-	public static final void ordenarFilasVertical (final ObjectArrayList array_fila)
+	public static final void ordenarFilasVertical (final ObjectArrayList<FilaPiezas> array_fila)
 	{
 		
 	}
@@ -195,18 +192,16 @@ public final class FilaPiezas
 	 * 
 	 * @param array_fila Arreglo de FilaPiezas
 	 */
-	public static final void calcularPosCargaInicial (final ObjectArrayList array_fila)
+	public static final void calcularPosCargaInicial (final ObjectArrayList<FilaPiezas> array_fila)
 	{
-		FilaPiezas fila_actual, fila_ant;
-
 		// Asigno el valor adecuado a la variable pos_carga que me dice a partir de qué posicién en filap[] cargo piezas
 		for (int j=0; j < array_fila.size(); ++j){
 			//al ser la primer fila en array_fila inicio la carga de piezas desde 0
 			if (j == 0)
-				((FilaPiezas)array_fila.get(j)).pos_carga = 0;
+				array_fila.get(j).pos_carga = 0;
 			else{
-				fila_ant = (FilaPiezas)array_fila.get(j - 1); //tomo la fila anterior para poder comparar
-				fila_actual = (FilaPiezas)array_fila.get(j); //tomo la fila actual
+				FilaPiezas fila_ant = array_fila.get(j - 1); //tomo la fila anterior para poder comparar
+				FilaPiezas fila_actual = array_fila.get(j); //tomo la fila actual
 				for (int c=0; c < MAX_COLS; ++c){
 					// si los numeros y las rotaciones son los mismos => seteo pos_carga en c+1
 					if ( (fila_ant.referencias[c].numero == fila_actual.referencias[c].numero) && 
@@ -225,12 +220,12 @@ public final class FilaPiezas
 	 * @param array_fila Arreglo de FilaPiezas
 	 * @param fp FilaPiezas
 	 */
-	public final static boolean existeFilaDePiezas (final ObjectArrayList array_fila, final FilaPiezas fp)
+	public final static boolean existeFilaDePiezas (final ObjectArrayList<FilaPiezas> array_fila, final FilaPiezas fp)
 	{
 		boolean esta = false;
 
 		for (int v=0; (v < array_fila.size()) && !esta; ++v){
-			if (FilaPiezas.equalsFila((FilaPiezas)array_fila.get(v), fp))
+			if (FilaPiezas.equalsFila(array_fila.get(v), fp))
 				return true;
 		}
 		
@@ -278,9 +273,10 @@ public final class FilaPiezas
 		if (FilaPiezas.equalsFila(fpthis, fp))
 			return false;
 		
-		for (int b=0; b < MAX_COLS; ++b)
+		for (int b=0; b < MAX_COLS; ++b) {
 			if (FilaPiezas.menorData(fpthis.referencias[b], fp.referencias[b]))
 				return false; //significa que fpthis es menor a fp
+		}
 		
 		return true;
 	}

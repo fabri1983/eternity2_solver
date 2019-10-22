@@ -1,6 +1,6 @@
 package org.fabri1983.eternity2.arrays;
 
-public abstract class AbstractCollection 
+public abstract class AbstractCollection
 {
 	public abstract void clear();
 

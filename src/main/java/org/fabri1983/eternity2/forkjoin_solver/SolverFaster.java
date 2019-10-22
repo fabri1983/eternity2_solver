@@ -334,8 +334,6 @@ public final class SolverFaster {
 	}
 	
 	private static final void llenarSuperEstructura (ExploracionAction action) {
-		Pieza pz;
-		int key1,key2,key3,key4,key5,key6,key7,key8,key9,key10,key11,key12,key13,key14,key15;
 		
 		// itero sobre el arreglo de piezas
 		for (int k = 0; k < MAX_PIEZAS; ++k) {
@@ -343,9 +341,9 @@ public final class SolverFaster {
 			if (k == INDICE_P_CENTRAL)
 				continue;
 			
-			pz = action.piezas[k];
+			Pieza pz = action.piezas[k];
 			
-			//guardo la rotaci�n de la pieza
+			//guardo la rotaciónn de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotaci�n en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
@@ -358,41 +356,41 @@ public final class SolverFaster {
 				Pieza newp = Pieza.copia(pz);
 				
 				//este caso es cuando tengo los 4 colores
-				key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key1], newp);
 				
 				//tengo tres colores y uno faltante
-				key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
+				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key2], newp);
-				key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
+				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key3], newp);
-				key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
+				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key4], newp);
-				key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
+				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key5], newp);
 				
 				//tengo dos colores y dos faltantes
-				key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
+				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key6], newp);
-				key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key7], newp);
-				key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key8], newp);
-				key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);	
+				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);	
 				NodoPosibles.addReferencia(action.super_matriz[key9], newp);
-				key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key10], newp);
-				key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key11], newp);
 
 				//tengo un color y tres faltantes
-				key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key12], newp);
-				key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key13], newp);
-				key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				NodoPosibles.addReferencia(action.super_matriz[key14], newp);
-				key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				NodoPosibles.addReferencia(action.super_matriz[key15], newp);
 			}
 			
@@ -495,7 +493,7 @@ public final class SolverFaster {
 			}
 			
 			reader = new BufferedReader(new FileReader(f));
-			String linea= reader.readLine();
+			String linea = reader.readLine();
 			int tablero_aux[] = new int[MAX_PIEZAS];
 			
 			if (linea==null) {
@@ -635,7 +633,6 @@ public final class SolverFaster {
 		
 		action.retroceder= true;
 		int cursor_destino = DESTINO_RET;
-		Pieza pzz;
 		
 		while (action.cursor>=0)
 		{
@@ -652,7 +649,7 @@ public final class SolverFaster {
 			if (action.cursor < 0)
 				break; //obliga a salir del while
 			if (action.cursor != POSICION_CENTRAL){
-				pzz= action.tablero[action.cursor];
+				Pieza pzz = action.tablero[action.cursor];
 				pzz.pusada.value= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
 				action.tablero[action.cursor]= null;
@@ -691,9 +688,8 @@ public final class SolverFaster {
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
 			PrintWriter wDispMax = null;
-			Pieza piezax;
-			StringBuffer parcialBuffer= new StringBuffer();
-			StringBuffer dispMaxBuff= new StringBuffer();
+			StringBuffer parcialBuffer= new StringBuffer(256 * 10);
+			StringBuffer dispMaxBuff= new StringBuffer(256 * 10);
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(action.parcialMaxFileName)));
@@ -709,9 +705,9 @@ public final class SolverFaster {
 			}
 			
 			int pos;
-			for (int b=0; b<MAX_PIEZAS; ++b) {
+			for (int b=0; b < MAX_PIEZAS; ++b) {
 				pos= b+1;
-				piezax= action.tablero[b];
+				Pieza piezax = action.tablero[b];
 				if (action.tablero[b] == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
@@ -768,17 +764,16 @@ public final class SolverFaster {
 	{
 		try{
 			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(action.libresMaxFileName)));
-			StringBuffer wLibresBuffer= new StringBuffer();
-			Pieza pzx;
+			StringBuffer wLibresBuffer= new StringBuffer(256 * 10);
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
-				pzx= action.piezas[b];
+				Pieza pzx= action.piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.numero).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
-				pzx= action.piezas[b];
+				Pieza pzx= action.piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.toStringColores()).append("\n");
 			}
@@ -810,8 +805,7 @@ public final class SolverFaster {
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(action.solucFileName,true)));
 			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(action.dispFileName,true)));
-			Pieza piezax;
-			StringBuffer contenidoDisp= new StringBuffer();
+			StringBuffer contenidoDisp= new StringBuffer(256 * 10);
 			
 			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
 			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
@@ -821,7 +815,7 @@ public final class SolverFaster {
 			int pos;
 			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
-				piezax= action.tablero[b];
+				Pieza piezax= action.tablero[b];
 				pos= b+1;
 				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
 				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
@@ -859,7 +853,7 @@ public final class SolverFaster {
 		
 		try{
 			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
-			StringBuffer writerBuffer= new StringBuffer();
+			StringBuffer writerBuffer= new StringBuffer(256 * 10);
 	
 			//guardo el valor de mas_bajo
 			writerBuffer.append(action.mas_bajo).append("\n");

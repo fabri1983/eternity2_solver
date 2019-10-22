@@ -39,13 +39,22 @@ public class ExploracionAction extends RecursiveAction {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected String statusFileName, parcialFileName, parcialMaxFileName, disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
+	protected String statusFileName, parcialFileName, parcialMaxFileName, 
+			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene una lista de {@link NodoPosibles} con las piezas que cumplen con esos colores.
-	 * Para el cálculo de la capacidad de la matriz de combinaciones de colores se tienen en cuenta solo combinaciones top,right,bottom,left de colores. 
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene una lista de {@link NodoPosibles} 
+	 * con las piezas que cumplen con esos colores.
+	 * Para el cálculo de la capacidad de la matriz de combinaciones de colores se tienen en cuenta solo 
+	 * combinaciones top,right,bottom,left de colores. 
 	 */
-	protected final NodoPosibles super_matriz[] = new NodoPosibles[(SolverFaster.MAX_COLORES << 20) | (SolverFaster.MAX_COLORES << 15) | (SolverFaster.MAX_COLORES << 10) | (SolverFaster.MAX_COLORES << 5) | SolverFaster.MAX_COLORES];
+	protected final NodoPosibles super_matriz[] = new NodoPosibles[
+	    (SolverFaster.MAX_COLORES << 20) 
+	    | (SolverFaster.MAX_COLORES << 15) 
+	    | (SolverFaster.MAX_COLORES << 10) 
+	    | (SolverFaster.MAX_COLORES << 5) 
+	    | SolverFaster.MAX_COLORES
+	];
 	
 	public final Pieza piezas[] = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza tablero[] = new Pieza[SolverFaster.MAX_PIEZAS];
@@ -111,7 +120,6 @@ public class ExploracionAction extends RecursiveAction {
 	
 	@Override
 	public void compute() {
-		
 		try {
 			// setup inicial
 			setupInicial();
