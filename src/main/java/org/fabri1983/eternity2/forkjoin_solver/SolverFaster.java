@@ -961,7 +961,7 @@ public final class SolverFaster {
 				t.start();
 			}*/
 		}
-		catch(Exception e) {
+		catch (Exception e) {
 			System.out.println("ERROR: No se pudo guardar el estado de la exploración.");
 			System.out.println(e);
 		}
@@ -1072,6 +1072,8 @@ public final class SolverFaster {
 				doneSignal.await();
 			}
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
 			System.out.println("Interrupting tasks...");
 			fjpool.shutdownNow();
 			System.out.println("Tasks interrupted.");
