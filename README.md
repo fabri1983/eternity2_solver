@@ -75,7 +75,7 @@ Packaging
 mvn clean package
 ```
 It generates the jar file with default profile `java7` and copy the external dependencies under target folder.  
-Also by default it uses ProGuard code processing. Add `-Dskip.proguard=true` to generate simple java jar.    
+Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
 - `java7`, `java8`: for execution with either JVM. `java7` is active by default.

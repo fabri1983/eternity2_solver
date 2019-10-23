@@ -48,20 +48,20 @@ public final class MainFaster
 		try{
 			Properties properties = readProperties();
 			SolverFaster solver = SolverFaster.build(
-					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
-					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
-					Integer.parseInt(getProperty(properties, "exploration.limit")),
-					Integer.parseInt(getProperty(properties, "max.partial.files")),
-					Integer.parseInt(getProperty(properties, "target.rollback.pos")),
+					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
+					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
+					Integer.parseInt(getProperty(properties,     "exploration.limit")),
+					Integer.parseInt(getProperty(properties,     "max.partial.files")),
+					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
 					Boolean.parseBoolean(getProperty(properties, "ui.show")),
 					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
-					Integer.parseInt(getProperty(properties, "ui.cell.size")),
-					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
+					Integer.parseInt(getProperty(properties,     "ui.cell.size")),
+					Integer.parseInt(getProperty(properties,     "ui.refresh.millis")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
-					Integer.parseInt(getProperty(properties, "forkjoin.num.processes")));
+					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
+					new ClassLoaderReaderForTilesFile(),
+					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 
 			properties = null;
 			ResourceBundle.clearCache();
@@ -70,10 +70,10 @@ public final class MainFaster
 			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
 				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
 				solverWithUI.setupInicial();
-				solverWithUI.atacar();
+				solverWithUI.atacar(0);
 			} else {
 				solver.setupInicial();
-				solver.atacar();
+				solver.atacar(0);
 			}
 		}
 		catch(Exception e){

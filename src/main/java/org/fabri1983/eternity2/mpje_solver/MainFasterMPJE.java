@@ -59,18 +59,18 @@ public final class MainFasterMPJE
 			//   para mpje cluster los primeros 8 parametros son para MPI
 			
 			SolverFasterMPJE sol = new SolverFasterMPJE(
-					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
-					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
-					Integer.parseInt(getProperty(properties, "exploration.limit")),
-					Integer.parseInt(getProperty(properties, "max.partial.files")),
-					Integer.parseInt(getProperty(properties, "target.rollback.pos")),
+					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
+					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
+					Integer.parseInt(getProperty(properties,     "exploration.limit")),
+					Integer.parseInt(getProperty(properties,     "max.partial.files")),
+					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
 					Boolean.parseBoolean(getProperty(properties, "ui.show")),
 					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
-					Integer.parseInt(getProperty(properties, "ui.cell.size")),
-					Integer.parseInt(getProperty(properties, "ui.refresh.millis")),
+					Integer.parseInt(getProperty(properties,     "ui.cell.size")),
+					Integer.parseInt(getProperty(properties,     "ui.refresh.millis")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
+					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
 					MPI.COMM_WORLD.Size());
 
 			properties = null;

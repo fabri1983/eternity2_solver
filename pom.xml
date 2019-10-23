@@ -10,9 +10,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
-		<skipTests>true</skipTests>
-		<skip.proguard>false</skip.proguard>
+		<jmh.version>1.21</jmh.version>
+		<junit.version>4.13-beta-3</junit.version>
 	</properties>
 
 	<dependencies>
@@ -32,13 +33,6 @@
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
 		</dependency>
-		<!-- dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
-		</dependency -->
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpi</artifactId>
@@ -60,6 +54,19 @@
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
 		</dependency>
+		<!-- JMH Java Microbenchmark Harness -->
+		<dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope> <!-- only this api will be added to the final jar as per profile -->
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<profiles>
@@ -73,6 +80,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
 				<pg.compiler.version>1.7</pg.compiler.version>
+				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -84,6 +92,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<pg.compiler.version>1.8</pg.compiler.version>
+				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -95,6 +104,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
 				<pg.compiler.version>1.8</pg.compiler.version>
+				<injar.filter>!imgs/**</injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -106,10 +116,32 @@
 				<source.version>1.7</source.version>
 				<compiler.version>12</compiler.version>
 				<release>12</release>
-				<pg.compiler.version>11</pg.compiler.version>
+				<pg.compiler.version>12</pg.compiler.version>
+				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
+		</profile>
+		<profile>
+			<id>java12benchmark</id>
+			<properties>
+				<final.jar.name>e2solver_benchmark</final.jar.name>
+				<source.version>1.7</source.version>
+				<compiler.version>12</compiler.version>
+				<release>12</release>
+				<pg.compiler.version>12</pg.compiler.version>
+				<injar.filter>!imgs/**</injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.benchmark.MainFasterBenchmark</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+			<dependencies>
+				<dependency>
+		            <groupId>org.openjdk.jmh</groupId>
+		            <artifactId>jmh-core</artifactId>
+		            <version>${jmh.version}</version>
+		            <scope>compile</scope>
+		        </dependency>
+			</dependencies>
 		</profile>
 		<profile>
 			<id>jrockit</id>
@@ -194,14 +226,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
-				<configuration>
-					<skipTests>${skipTests}</skipTests>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.1.2</version>
 				<executions>
@@ -224,6 +248,21 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.github.wvengen</groupId>
 				<artifactId>proguard-maven-plugin</artifactId>
 				<version>2.1.1</version>
@@ -237,10 +276,10 @@
 					</execution>
 				</executions>
 				<configuration>
-					<skip>${skip.proguard}</skip>
 					<proguardVersion>6.1.1</proguardVersion>
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
+					<inFilter>${injar.filter}</inFilter>
                     <outjar>${project.build.finalName}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
 					<obfuscate>true</obfuscate>
@@ -253,7 +292,7 @@
 					<dependency>
 						<groupId>net.sf.proguard</groupId>
 						<artifactId>proguard-base</artifactId>
-						<version>6.1.1</version>
+						<version>6.2.0</version>
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>

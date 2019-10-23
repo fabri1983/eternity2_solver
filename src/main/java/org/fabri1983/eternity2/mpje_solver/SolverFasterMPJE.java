@@ -833,7 +833,7 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println("Rank " + THIS_PROCESS + ": explorqación agotada.");
+		System.out.println("Rank " + THIS_PROCESS + ": exploración agotada.");
 
 		if (send_mail) { // Envio un mail diciendo que no se encontró solución
 			SendMail em = new SendMail();

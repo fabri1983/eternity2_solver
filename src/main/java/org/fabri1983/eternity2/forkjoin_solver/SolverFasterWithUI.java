@@ -55,8 +55,8 @@ public final class SolverFasterWithUI {
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
-	public final void atacar() {
-		solver.atacar();
+	public final void atacar(long timeoutTaskInSecs) {
+		solver.atacar(timeoutTaskInSecs);
 	}
 	
 }

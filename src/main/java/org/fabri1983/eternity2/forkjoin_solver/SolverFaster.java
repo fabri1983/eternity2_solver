@@ -1047,7 +1047,7 @@ public final class SolverFaster {
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
-	public final void atacar() {
+	public final void atacar(long timeoutTaskInSecs) {
 		// submit all fork join tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
 			System.out.println("ExploracionAction " + i + " submitted");
@@ -1066,9 +1066,15 @@ public final class SolverFaster {
 		
 		// wait for all to finish
 		try {
-			doneSignal.await();
+			if (timeoutTaskInSecs > 0) {
+				doneSignal.await(timeoutTaskInSecs, TimeUnit.SECONDS);
+			} else {
+				doneSignal.await();
+			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Interrupting tasks...");
+			fjpool.shutdownNow();
+			System.out.println("Tasks interrupted.");
 		}
 
 		/*fjpool.invoke(new RecursiveAction() {

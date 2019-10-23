@@ -47,25 +47,25 @@ public final class MainFasterNative
 		try{
 			Properties properties = readProperties();
 			SolverFaster solver = SolverFaster.build(
-					Long.parseLong(getProperty(properties, "max.ciclos.save_status")),
-					Integer.parseInt(getProperty(properties, "min.pos.save.partial")),
-					Integer.parseInt(getProperty(properties, "exploration.limit")),
-					Integer.parseInt(getProperty(properties, "max.partial.files")),
-					Integer.parseInt(getProperty(properties, "target.rollback.pos")),
+					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
+					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
+					Integer.parseInt(getProperty(properties,     "exploration.limit")),
+					Integer.parseInt(getProperty(properties,     "max.partial.files")),
+					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
 					false, // ui.show
 					false, // ui.per.proc
 					0, // ui.cell.size
 					0, // ui.refresh.millis
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties, "task.distribution.pos")),
+					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
 					new ClassLoaderReaderForTilesFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
-					Integer.parseInt(getProperty(properties, "forkjoin.num.processes")));
+					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 
 			properties = null;
 
 			solver.setupInicial();
-			solver.atacar();
+			solver.atacar(0);
 		}
 		catch(Exception e){
 			e.printStackTrace();
