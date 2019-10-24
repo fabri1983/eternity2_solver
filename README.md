@@ -285,7 +285,7 @@ This will help you to decide which iso you need to download:
 	```shjava8native
 	cd target
 	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
-	e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
+	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
 		0 >>> 3272859 ms, cursor 215  (54.5 mins)
@@ -294,7 +294,7 @@ This will help you to decide which iso you need to download:
 	```sh
 	mx native-image --pgo-instrument <same params than above>
 	execute the executable for some seconds:
-		e2solver.exe -Dforkjoin.num.processes=4 -Dmin.pos.save.partial=211
+		e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	mx native-image --pgo=default.iprof <same params than above>
 	execute again and see if there is an improvement in execution speed
 	```

@@ -81,7 +81,7 @@
 				<compiler.version>1.7</compiler.version>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.7</pg.compiler.version>
-				<injar.filter></injar.filter>
+				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -94,7 +94,7 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
-				<injar.filter></injar.filter>
+				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -107,7 +107,7 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
-				<injar.filter>!imgs/**</injar.filter>
+				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -121,7 +121,7 @@
 				<release>12</release>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>12</pg.compiler.version>
-				<injar.filter></injar.filter>
+				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -135,7 +135,7 @@
 				<release>12</release>
 				<shade.exclusion.filter>dummy.package.name</shade.exclusion.filter>
 				<pg.compiler.version>12</pg.compiler.version>
-				<injar.filter>!imgs/**</injar.filter>
+				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.benchmark.MainFasterBenchmark</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -156,6 +156,7 @@
 				<compiler.version>1.6</compiler.version>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.6</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
@@ -168,6 +169,7 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 				<env.props.file>mpje.properties</env.props.file>
 			</properties>
@@ -280,7 +282,7 @@
 			<plugin>
 				<groupId>com.github.wvengen</groupId>
 				<artifactId>proguard-maven-plugin</artifactId>
-				<version>2.1.1</version>
+				<version>2.2.0</version>
 				<executions>
 					<execution>
 						<id>process-classes-with-proguard</id>
@@ -291,6 +293,7 @@
 					</execution>
 				</executions>
 				<configuration>
+				
 					<proguardVersion>6.1.1</proguardVersion>
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
