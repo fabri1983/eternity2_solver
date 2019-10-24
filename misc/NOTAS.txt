@@ -198,7 +198,7 @@ Notebook Asus G73sw (Custom Java 12 JRE)
 Notebook Asus GL552VW (Oracle JDK 10.0.2)
 	Rank 5:    1698 ms, cursor 211
 Notebook Dell Latitude 7490 - Core I7 8650U (3.891 GHz max per core)
-	Rank 5:    1342 ms, cursor 211   (but using Fork/Join it took 1236)
+	Rank 5:    1342 ms, cursor 211   (but using Fork/Join it took 1232)
 
 - Cuando inicio por primera vez se hace la sincronización solo a fines de poder largar todos los procesos 
 a la vez. Si se carga estado no se debe sincronizar pues cada proceso ya sabe qué parte del arbol tomar.
