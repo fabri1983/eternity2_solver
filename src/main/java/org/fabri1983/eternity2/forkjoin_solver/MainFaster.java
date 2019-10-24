@@ -35,15 +35,7 @@ public final class MainFaster
 	 */
 	public static void main (String[] args)
 	{
-		System.out.println("################################################################################");
-		System.out.println("##- Uso de fork-join para distribución de tareas.                            -##");
-		System.out.println("##- Version con Estructura 4-dimensional, Smart-Podas y Contornos de colores -##");
-		System.out.println("##- Micro optimizaciones.                                                    -##");
-		System.out.println("################################################################################");
-		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("         Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)");
-		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println();
+		printBanner();
         
 		try{
 			Properties properties = readProperties();
@@ -83,6 +75,22 @@ public final class MainFaster
 		System.out.println("\nPrograma terminado.");
 	}
 
+	private static void printBanner() {
+		StringBuilder msgBuilder = new StringBuilder(64*9);
+		String lineSeparator = System.lineSeparator();
+		msgBuilder.append("############################################################").append(lineSeparator);
+		msgBuilder.append("##- Uso de fork-join para distribución de tareas.        -##").append(lineSeparator);
+		msgBuilder.append("##- Version con Estructura 4-dimensional, Smart-Podas y  -##").append(lineSeparator);
+		msgBuilder.append("##- Contornos de colores pre calculados.                 -##").append(lineSeparator);
+		msgBuilder.append("##- Micro optimizaciones.                                -##").append(lineSeparator);
+		msgBuilder.append("############################################################").append(lineSeparator);
+		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
+		msgBuilder.append(" Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)  ").append(lineSeparator);
+		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
+		msgBuilder.append(lineSeparator);
+		System.out.println(msgBuilder.toString());
+	}
+	
 	private static final Properties readProperties() throws IOException {
 		Properties properties = new Properties();
 		String file = "application.properties";

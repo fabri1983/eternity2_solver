@@ -39,16 +39,7 @@ public final class MainFasterMPJE
 		
 		// imprimo una sola vez la portada
 		if (rank == 0){
-			System.out.println("################################################################################");
-			System.out.println("##- Uso de MPJ Express para ejecucion como Sistema Distribuído               -##");
-			System.out.println("##- Version con Estructura 4-dimensional, Smart-Podas y Contornos de colores -##");
-			System.out.println("##- Micro optimizaciones.                                                    -##");
-			System.out.println("################################################################################");
-			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("         Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)");
-			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println();
-			System.out.println("Total procs: " + MPI.COMM_WORLD.Size() + "\n\n");
+			printBanner();
 		}
 		
 		try {
@@ -89,6 +80,24 @@ public final class MainFasterMPJE
 		MPI.Finalize();
 	}
 
+	private static void printBanner() {
+		StringBuilder msgBuilder = new StringBuilder(64*10);
+		String lineSeparator = System.lineSeparator();
+		msgBuilder.append("##################################################################").append(lineSeparator);
+		msgBuilder.append("##- Uso de MPJ Express en modo híbrido (multicore y cluster).  -##").append(lineSeparator);
+		msgBuilder.append("##- Version con Estructura 4-dimensional, Smart-Podas y        -##").append(lineSeparator);
+		msgBuilder.append("##- Contornos de colores pre calculados.                       -##").append(lineSeparator);
+		msgBuilder.append("##- Micro optimizaciones.                                      -##").append(lineSeparator);
+		msgBuilder.append("##################################################################").append(lineSeparator);
+		msgBuilder.append("------------------------------------------------------------------").append(lineSeparator);
+		msgBuilder.append("    Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)     ").append(lineSeparator);
+		msgBuilder.append("------------------------------------------------------------------").append(lineSeparator);
+		msgBuilder.append(lineSeparator);
+		msgBuilder.append("Total procs: " + MPI.COMM_WORLD.Size());
+		msgBuilder.append(lineSeparator);
+		System.out.println(msgBuilder.toString());
+	}
+	
 	private static final ResourceBundle readProperties() throws IOException {
 		String file = "application.properties";
 		InputStream fis = MainFasterMPJE.class.getClassLoader().getResourceAsStream(file);

@@ -27,10 +27,10 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.Throughput)
+	@BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Warmup(iterations = 5)
-    @Measurement(iterations = 5)
+    @Warmup(iterations = 0)
+    @Measurement(iterations = 1)
 	@Fork(value = 1)
 	public void init(MainFasterBenchmarkDataProvider data) {
 	    executeSolverFaster(data.properties, data.timeoutTaskInSecs);
@@ -44,7 +44,7 @@ public class MainFasterBenchmark {
 				Integer.parseInt(getProperty(properties,     "max.partial.files")),
 				Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
 				false, // ui.show
-				false, // "ui.per.proc"
+				false, // ui.per.proc
 				0,     // ui.cell.size
 				0,     // ui.refresh.millis
 				Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
