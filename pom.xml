@@ -79,6 +79,7 @@
 				<final.jar.name>e2solver</final.jar.name>
 				<source.version>1.7</source.version>
 				<compiler.version>1.7</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.7</pg.compiler.version>
 				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
@@ -91,6 +92,7 @@
 				<final.jar.name>e2solver</final.jar.name>
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
@@ -103,6 +105,7 @@
 				<final.jar.name>e2solver</final.jar.name>
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<injar.filter>!imgs/**</injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
@@ -116,6 +119,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>12</compiler.version>
 				<release>12</release>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>12</pg.compiler.version>
 				<injar.filter></injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
@@ -129,6 +133,7 @@
 				<source.version>1.7</source.version>
 				<compiler.version>12</compiler.version>
 				<release>12</release>
+				<shade.exclusion.filter>dummy.package.name</shade.exclusion.filter>
 				<pg.compiler.version>12</pg.compiler.version>
 				<injar.filter>!imgs/**</injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.benchmark.MainFasterBenchmark</manifest.main.class>
@@ -149,6 +154,7 @@
 				<final.jar.name>e2solver_jrockit</final.jar.name>
 				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.6</pg.compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
@@ -160,6 +166,7 @@
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<source.version>1.7</source.version>
 				<compiler.version>1.8</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
 				<env.props.file>mpje.properties</env.props.file>
@@ -258,6 +265,14 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<filters>
+								<filter>
+									<artifact>org.fabri1983.eternity2:solver</artifact>
+									<excludes>
+										<exclude>${shade.exclusion.filter}</exclude>
+									</excludes>
+								</filter>
+							</filters>
 						</configuration>
 					</execution>
 				</executions>
