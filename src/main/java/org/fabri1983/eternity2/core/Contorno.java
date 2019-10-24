@@ -23,6 +23,7 @@
 package org.fabri1983.eternity2.core;
 
 import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
+import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 
 
 /**
@@ -56,26 +57,29 @@ public final class Contorno
 	 */
 	public final void inicializarContornos (ExploracionAction action)
 	{
-		Pieza tablero[] = action.tablero;
-		int fila_actual, index;
+		Pieza[] tablero = action.tablero;
 		
 		// los limites iniciales me evitan los bordes sup e inf
-		for (int k=16; k < (256-16); ++k)
+		for (int k=16; k < (SolverFaster.MAX_PIEZAS - 16); ++k)
 		{
+			// given the way we populate the board is from top-left to bottom-right, 
+			// then if we find an empty slot it means there is no more pieces in the board
 			if (tablero[k] == null)
 				return;
+			
 			//borde izquierdo
 			if ((k % 16) == 0) continue;
 			//borde derecho
 			if (((k+1) % 16) == 0) continue;
 			//(k + MAX_COLS) no debe llegar ni sobrepasar borde right
-			fila_actual = k / 16;
+			int fila_actual = k / 16;
 			if (((k + MAX_COLS) / 16) != fila_actual)
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
-			for (int a=1; a < MAX_COLS; ++a)
+			for (int a=1; a < MAX_COLS; ++a) {
 				if (tablero[k+a] == null)
 					return;
+			}
 			
 			//Ahora k está en el interior del tablero
 			
@@ -84,32 +88,44 @@ public final class Contorno
 			//existan piezas colocadas indicando que se ha formado el contorno inferior.
 			switch (MAX_COLS)
 			{
-			case 2: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+			case 2: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
-					}*/
-					break;
-			case 3: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+							index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
+							contornos_used[index] = true;
+						}*/
+				}
+				break;
+			case 3: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						index = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
 						contornos_used[index] = true;
 					}*/
-					break;
-			case 4: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+				}
+				break;
+			case 4: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						index = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
 						contornos_used[index] = true;
 					}*/
-					break;
+				}
+				break;
 			default: break;
 			}
 		}
 	}
 	
+	public void resetContornos() {
+		for (int k=0; k < contornos_used.length; ++k) {
+			contornos_used[k] = false;
+		}
+	}
+
 	/**
 	 * Devuelve el indice de contorno asociado a la clave de 3 colores.
 	 */

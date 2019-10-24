@@ -48,7 +48,7 @@ public class ExploracionAction extends RecursiveAction {
 	 * Para el cálculo de la capacidad de la matriz de combinaciones de colores se tienen en cuenta solo 
 	 * combinaciones top,right,bottom,left de colores. 
 	 */
-	protected final NodoPosibles super_matriz[] = new NodoPosibles[
+	protected final NodoPosibles[] super_matriz = new NodoPosibles[
 	    (SolverFaster.MAX_COLORES << 20) 
 	    | (SolverFaster.MAX_COLORES << 15) 
 	    | (SolverFaster.MAX_COLORES << 10) 
@@ -56,23 +56,20 @@ public class ExploracionAction extends RecursiveAction {
 	    | SolverFaster.MAX_COLORES
 	];
 	
-	public final Pieza piezas[] = new Pieza[SolverFaster.MAX_PIEZAS];
-	public final Pieza tablero[] = new Pieza[SolverFaster.MAX_PIEZAS];
+	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
+	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
 	
 	public int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	protected final byte desde_saved[] = new byte[SolverFaster.MAX_PIEZAS];
+	protected final byte[] desde_saved = new byte[SolverFaster.MAX_PIEZAS];
 	private final Contorno contorno = new Contorno();
 	protected boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
 	protected boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
 	protected int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
 	
-	// VARIABLES GLOBALES para evitar ser declaradas cada vez que se llame a determinado método
-	protected Pieza pzxc; // se usa solamente en explorarPiezaCentral()
-	private Pieza pieza_extern_loop; // empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
 	private int index_sup; // empleados en varios métodos para pasar info
 
-	private long time_inicial, time_final; // sirven para calcular el tiempo al hito de posición lejana
+	private long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
@@ -86,16 +83,16 @@ public class ExploracionAction extends RecursiveAction {
 	private final boolean FairExperimentGif;
 	private final boolean usarTableroGrafico;
 	private long count_cycles;
-	private final int num_processes_orig[] = new int[SolverFaster.MAX_PIEZAS];
+	private final int[] num_processes_orig = new int[SolverFaster.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
-	private final CountDownLatch startSignal;
-	private final CountDownLatch doneSignal;
-	private final CountDownLatch initialSetupSignal;
+	private CountDownLatch startSignal;
+	private CountDownLatch doneSignal;
 	
 	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, int limite_resultado_parcial, 
 			boolean _usar_poda_color_explorado, boolean _FairExperimentGif, boolean _usarTableroGrafico, 
-			CountDownLatch startSignal, CountDownLatch doneSignal, CountDownLatch initialSetupSignal) {
+			CountDownLatch startSignal, CountDownLatch doneSignal) {
+		
 		id = _id;
 		MAX_CICLOS = _max_ciclos;
 		num_processes = _num_processes;
@@ -115,14 +112,62 @@ public class ExploracionAction extends RecursiveAction {
 
 		this.startSignal = startSignal;
 		this.doneSignal = doneSignal;
-		this.initialSetupSignal = initialSetupSignal;
 	}
-	
+
+	public void setupInicial() {
+		
+		// cargo las piezas desde archivo de piezas
+		SolverFaster.cargarPiezas(this);
+		
+		// hago una verificacion de las piezas cargadas
+		SolverFaster.verificarTiposDePieza(this);
+		
+		// cargar la super estructura 4-dimensional
+		SolverFaster.cargarSuperEstructura(this);
+		
+		// Pruebo cargar el primer status_saved
+		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
+		
+		// cargo las posiciones fijas
+		SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
+		
+		// seteo como usados los contornos ya existentes en tablero
+		contorno.inicializarContornos(this);
+		
+		// this call avoids a OutOfHeapMemory error
+		System.gc();
+	}
+
+	public void resetForAtaque(int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
+		
+		cursor = mas_bajo = mas_alto = mas_lejano_parcial_max = 0;
+		sig_parcial = 1;
+		pos_multi_process_offset = 0;
+		num_processes = _num_processes;
+		
+		for (int k=0; k < num_processes_orig.length; ++k) {
+			num_processes_orig[k] = 0;
+		}
+		
+		for (int k=0; k < desde_saved.length; ++k) {
+			desde_saved[k] = 0;
+		}
+		
+		this.startSignal = startSignal;
+		this.doneSignal = doneSignal;
+
+		for (int k=0; k < tablero.length; ++k) {
+			tablero[k] = null;
+		}
+		
+		SolverFaster.cargarPiezasFijas(this);
+		
+		contorno.resetContornos();
+	}
+
 	@Override
 	public void compute() {
 		try {
-			// setup inicial
-			setupInicial();
 			// await for starting signal
 			startSignal.await();
 			// start working
@@ -131,23 +176,6 @@ public class ExploracionAction extends RecursiveAction {
 			e.printStackTrace();
 		} finally {
 			doneSignal.countDown();
-		}
-	}
-
-	private void setupInicial() {
-		try {
-			// Pruebo cargar el primer status_saved
-			status_cargado = SolverFaster.cargarEstado(statusFileName, this);
-			
-			// cargo las posiciones fijas
-			SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
-			
-			// seteo como usados los contornos ya existentes en tablero
-			contorno.inicializarContornos(this);
-		
-			System.out.flush();
-		} finally {
-			initialSetupSignal.countDown();
 		}
 	}
 
@@ -190,12 +218,9 @@ public class ExploracionAction extends RecursiveAction {
 				index_sup = -1;
 				//index_inf = -1;
 
-				//debo setear la pieza en cursor como no usada
-				if (cursor != SolverFaster.POSICION_CENTRAL){
-					pieza_extern_loop= tablero[cursor];
-					pieza_extern_loop.pusada.value = false; // la seteo como no usada xq sino la exploración pensará que
-															// está usada (porque asi es como se guardó)
-					//pzz.pos= -1;
+				// debo setear la pieza en cursor como no usada y sacarla del tablero
+				if (cursor != SolverFaster.POSICION_CENTRAL) {
+					tablero[cursor].pusada.value = false;
 					tablero[cursor]= null;
 				}
 				
@@ -253,7 +278,7 @@ public class ExploracionAction extends RecursiveAction {
 		if (cursor > mas_lejano_parcial_max) {
 			mas_lejano_parcial_max = cursor;
 			if (cursor >= LIMITE_RESULTADO_PARCIAL) {
-				time_final = System.nanoTime();
+				long time_final = System.nanoTime();
 				System.out.println(id + " >>> "
 						+ TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS)
 						+ " ms, cursor " + cursor);
@@ -356,7 +381,7 @@ public class ExploracionAction extends RecursiveAction {
 	private final void exploracionStandard()
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas();
+		NodoPosibles nodoPosibles = obtenerPosiblesPiezas();
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -544,16 +569,16 @@ public class ExploracionAction extends RecursiveAction {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	protected final NodoPosibles obtenerPosiblesPiezas()
+	final NodoPosibles obtenerPosiblesPiezas()
 	{
 		switch (cursor) {
 			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
 				return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom,
-						SolverFaster.MAX_COLORES, pzxc.top, tablero[cursor - 1].right)];
+						SolverFaster.MAX_COLORES, piezas[SolverFaster.INDICE_P_CENTRAL].top, tablero[cursor - 1].right)];
 			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, pzxc.left,
+				return super_matriz[MapaKeys.getKey(tablero[cursor - SolverFaster.LADO].bottom, piezas[SolverFaster.INDICE_P_CENTRAL].left,
 						SolverFaster.MAX_COLORES, tablero[cursor - 1].right)];
 		}
 		
@@ -698,7 +723,7 @@ public class ExploracionAction extends RecursiveAction {
 		// obtengo la clave del contorno superior
 		int i_count = cursor - SolverFaster.LADO;
 		int auxi;
-		switch (Contorno.MAX_COLS){
+		switch (Contorno.MAX_COLS) {
 			case 2:
 				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
 						tablero[i_count + 1].bottom);

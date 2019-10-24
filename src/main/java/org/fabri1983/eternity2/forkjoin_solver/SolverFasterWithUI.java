@@ -38,7 +38,7 @@ public final class SolverFasterWithUI {
 	}
 	
 	/**
-	 * Inicializa varias estructuras y flags
+	 * Inicializa varias estructuras y flags.
 	 */
 	public final void setupInicial() {
 		

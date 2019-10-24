@@ -47,7 +47,6 @@ public final class SolverFaster {
 	protected static ExploracionAction actions[];
 	protected static CountDownLatch startSignal;
     protected static CountDownLatch doneSignal;
-    protected static CountDownLatch initialSetupSignal;
     
 	protected static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
@@ -100,17 +99,12 @@ public final class SolverFaster {
 	protected final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
 	protected final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
 	
-	private static ForkJoinPool fjpool;
 	private static ReaderForTilesFile readerForTilesFile;
 	
-	private static long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
-
 	private SolverFaster() {
 	}
 	
 	/**
-	 * Algoritmo backtracker.
-	 * 
 	 * @param m_ciclos: número máximo de ciclos para disparar guardar estado.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
@@ -133,7 +127,7 @@ public final class SolverFaster {
 		
 		readerForTilesFile = reader;
 		
-		MAX_CICLOS= m_ciclos;
+		MAX_CICLOS = m_ciclos;
 		
 		POSICION_START_FORK_JOIN = p_pos_fork_join;
 		NUM_PROCESSES = numProcesses;
@@ -144,26 +138,24 @@ public final class SolverFaster {
 		// cycles counter per task
 		count_cycles = new long[NUM_PROCESSES];
 		
-		fjpool = new ForkJoinPool(NUM_PROCESSES, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, false);
-		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (MAX_PIEZAS-2)))
-			LIMITE_RESULTADO_PARCIAL= lim_max_par;
+			LIMITE_RESULTADO_PARCIAL = lim_max_par;
 		
-		LIMITE_DE_EXPLORACION= lim_exploracion; //me dice hasta qué posicion debe explorar esta instancia 
+		LIMITE_DE_EXPLORACION = lim_exploracion; //me dice hasta qué posicion debe explorar esta instancia 
 		
 		FairExperimentGif = p_fair_experiment_gif;
 
 		if (destino_ret >= 0) {
-			DESTINO_RET= destino_ret; //determina el valor hasta el cual debe retroceder cursor
-			flag_retroceder_externo= true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
+			DESTINO_RET = destino_ret; //determina el valor hasta el cual debe retroceder cursor
+			flag_retroceder_externo = true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
 		
 		usar_poda_color_explorado = p_poda_color_explorado; //indica si se usará la poda de colores right explorados en borde left
-		MAX_NUM_PARCIAL= max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
-		ESQUINA_TOP_RIGHT= LADO - 1;
-		ESQUINA_BOTTOM_RIGHT= MAX_PIEZAS - 1;
-		ESQUINA_BOTTOM_LEFT= MAX_PIEZAS - LADO;
+		MAX_NUM_PARCIAL = max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
+		ESQUINA_TOP_RIGHT = LADO - 1;
+		ESQUINA_BOTTOM_RIGHT = MAX_PIEZAS - 1;
+		ESQUINA_BOTTOM_LEFT = MAX_PIEZAS - LADO;
 		
 		if (usar_poda_color_explorado)
 			arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
@@ -232,22 +224,20 @@ public final class SolverFaster {
 	 */
 	private final static void inicializarZonaReadContornos()
 	{	
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_read_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
-			//si estoy en borde top o bottom continuo con la siguiente posici�n
+			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posici�n
+			//si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
 				continue;
 			
-			//Hasta aqui estoy en el interior del tablero
+			//desde aqui estoy en el interior del tablero
 			
 			//me aseguro que no llegue ni sobrepase el borde right
 			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
@@ -256,28 +246,26 @@ public final class SolverFaster {
 	}
 	
 	/**
-	 * El arreglo zonas_proc_contorno[] me dice en qu� posiciones puedo procesar un contorno superior 
-	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, ning�n otro.
-	 * NOTA: para contorno inferior se debe chequear a parte que cursor sea [33,238].
+	 * El arreglo zonas_proc_contorno[] me dice en qué posiciones puedo procesar un contorno superior 
+	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, y ningún otro.
+	 * NOTA: para contorno inferior se debe chequear que cursor sea [33,238].
 	 */
-	private final static void inicializarZonaProcContornos()
+	private final static void inicializarZonaProcesoContornos()
 	{
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_proc_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
-			//si estoy en borde top o bottom continuo con la siguiente posici�n
+			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posici�n
+			//si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
 				continue;
 			
-			//Hasta aqui estoy en el interior del tablero
+			//desde aqui estoy en el interior del tablero
 			
 			//me aseguro que no est� cerca del borde left
 			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
@@ -293,10 +281,10 @@ public final class SolverFaster {
 	 * Carga cada entrada de la matriz con los indices de las piezas que 
 	 * tienen tales colores en ese orden.
 	 */
-	private final static void cargarSuperEstructura(ExploracionAction action)
+	final static void cargarSuperEstructura(ExploracionAction action)
 	{
-		System.out.print("cargando Estructura 4-Dimensional... ");
-		time_inicial=System.nanoTime();
+		System.out.print(action.id + " >>> Cargando Estructura 4-Dimensional... ");
+		long startingTime = System.nanoTime();
 		
 		/**
 		 * Inicializo todo con una referencia válida.
@@ -329,8 +317,7 @@ public final class SolverFaster {
 				NodoPosibles.finalizar(action.super_matriz[i]);
 		}
 		
-		System.gc();
-		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
+		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " microsecs)");
 	}
 	
 	private static final void llenarSuperEstructura (ExploracionAction action) {
@@ -421,7 +408,7 @@ public final class SolverFaster {
 	/**
 	 * Carga las piezas desde el archivo NAME_FILE_PIEZAS
 	 */
-	private final static void cargarPiezas(ExploracionAction action) {
+	final static void cargarPiezas(ExploracionAction action) {
 		
 		BufferedReader reader = null;
 		
@@ -466,7 +453,7 @@ public final class SolverFaster {
 	 * una sola pieza fija y es la pieza numero 139 en las posicion 136 real (135 para el
 	 * algoritmo porque es 0-based)
 	 */
-	protected final static void cargarPiezasFijas(ExploracionAction action) {
+	final static void cargarPiezasFijas(ExploracionAction action) {
 		
 		action.piezas[INDICE_P_CENTRAL].pusada.value= true;
 		//piezas[INDICE_P_CENTRAL].pos= POSICION_CENTRAL;
@@ -479,9 +466,9 @@ public final class SolverFaster {
 	 * Carga el ultimo estado de exploración guardado para la action pasada como parámetro. 
 	 * Si no existe tal estado* inicializa estructuras y variables para que la exploracion comienze desde cero.
 	 */
-	protected final static boolean cargarEstado(String n_file, ExploracionAction action)
+	final static boolean cargarEstado(String n_file, ExploracionAction action)
 	{
-		System.out.println(action.id + " >>> Cargando Estado de exploracion (" + n_file + ")... ");
+		System.out.print(action.id + " >>> Cargando Estado de exploracion (" + n_file + ")... ");
 		BufferedReader reader = null;
 		boolean status_cargado = false;
 		
@@ -605,7 +592,7 @@ public final class SolverFaster {
 	 * Verifica que no exista pieza extraña o que falte alguna pieza. 
 	 * Solo se usa al cargar las piezas desde archivo o al cargar estado.
 	 */
-	private final static void verificarTiposDePieza(ExploracionAction action) {
+	final static void verificarTiposDePieza(ExploracionAction action) {
 		
 		int n_esq= 0;
 		int n_bordes= 0;
@@ -629,7 +616,7 @@ public final class SolverFaster {
 	 * Si el programa es llamado con el argumento {@link SolverFaster#flag_retroceder_externo} en true, entonces
 	 * debo volver la exploracion hasta cierta posicion y guardar estado. No explora.
 	 */
-	protected final static void retrocederEstado(ExploracionAction action) {
+	final static void retrocederEstado(ExploracionAction action) {
 		
 		action.retroceder= true;
 		int cursor_destino = DESTINO_RET;
@@ -679,7 +666,7 @@ public final class SolverFaster {
 	 * Si max es false, el archivo generado contiene la disposición de piezas en el instante cuando
 	 * se guarda estado.
 	 */
-	protected final static void guardarResultadoParcial (final boolean max, ExploracionAction action)
+	final static void guardarResultadoParcial (final boolean max, ExploracionAction action)
 	{
 		if (MAX_NUM_PARCIAL == 0 && !max)
 			return;
@@ -760,7 +747,7 @@ public final class SolverFaster {
 	/**
 	 * Me guarda en el archivo NAME_FILE_LIBRES_MAX las numeros de las piezas que quedaron libres.
 	 */
-	protected final static void guardarLibres(ExploracionAction action)
+	final static void guardarLibres(ExploracionAction action)
 	{
 		try{
 			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(action.libresMaxFileName)));
@@ -800,7 +787,7 @@ public final class SolverFaster {
 	 * En el archivo NAME_FILE_SOLUCION se guardan los colores de cada pieza.
 	 * En el archivo NAME_FILE_DISPOSICION se guarda el numero y rotacion de cada pieza.
 	 */
-	protected final static void guardarSolucion (ExploracionAction action)
+	final static void guardarSolucion (ExploracionAction action)
 	{
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(action.solucFileName,true)));
@@ -849,7 +836,7 @@ public final class SolverFaster {
 	/**
 	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
 	 */
-	protected final static void guardarEstado (final String f_name, ExploracionAction action) {
+	final static void guardarEstado (final String f_name, ExploracionAction action) {
 		
 		try{
 			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
@@ -979,7 +966,7 @@ public final class SolverFaster {
 		inicializarZonaReadContornos();
 		
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
-		inicializarZonaProcContornos();
+		inicializarZonaProcesoContornos();
 		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];
@@ -987,26 +974,16 @@ public final class SolverFaster {
 		startSignal = new CountDownLatch(1);
 		// a completion signal that allows the driver orchestrator (this thread) to wait until all ExplorationAction have completed
 		doneSignal = new CountDownLatch(NUM_PROCESSES);
-		// another signal to let the start signal await until inital setup of ExploracionAction is finished
-		initialSetupSignal = new CountDownLatch(NUM_PROCESSES);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			actions[proc] = new ExploracionAction(proc, NUM_PROCESSES, MAX_CICLOS, POSICION_START_FORK_JOIN, 
+			ExploracionAction exploracionAction = new ExploracionAction(proc, NUM_PROCESSES, MAX_CICLOS, POSICION_START_FORK_JOIN, 
 					LIMITE_RESULTADO_PARCIAL, usar_poda_color_explorado, FairExperimentGif, usarTableroGrafico, 
-					startSignal, doneSignal, initialSetupSignal);
+					startSignal, doneSignal);
 			
-			// cargo las piezas desde archivo de piezas
-			cargarPiezas(actions[proc]);
+			exploracionAction.setupInicial();
 			
-			// hago una verificacion de las piezas cargadas
-			verificarTiposDePieza(actions[proc]);
-			
-			// referencia global a la única pieza fija
-			actions[proc].pzxc = actions[proc].piezas[INDICE_P_CENTRAL];
-			
-			// cargar la super estructura 4-dimensional
-			cargarSuperEstructura(actions[proc]);
+			actions[proc] = exploracionAction;
 		}
 	}
 	
@@ -1048,17 +1025,13 @@ public final class SolverFaster {
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
 	public final void atacar(long timeoutTaskInSecs) {
+		
+		ForkJoinPool fjpool = new ForkJoinPool(NUM_PROCESSES, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, false);
+		
 		// submit all fork join tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
 			System.out.println("ExploracionAction " + i + " submitted");
 			fjpool.submit(actions[i]);
-		}
-		
-		// lets await until initial setup has finished in all tasks
-		try {
-			initialSetupSignal.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 		
 		// let all tasks proceed
@@ -1096,4 +1069,15 @@ public final class SolverFaster {
 		});*/
 	}
 	
+	public void resetInternalStatus() {
+		
+		startSignal = new CountDownLatch(1);
+		doneSignal = new CountDownLatch(NUM_PROCESSES);
+		
+		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
+			ExploracionAction exploracionAction = actions[proc];
+			exploracionAction.reinitialize();
+			exploracionAction.resetForAtaque(NUM_PROCESSES, startSignal, doneSignal);
+		}
+	}
 }

@@ -27,36 +27,14 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.SingleShotTime)
+	@BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 0)
     @Measurement(iterations = 1)
 	@Fork(value = 1)
-	public void init(MainFasterBenchmarkDataProvider data) {
-	    executeSolverFaster(data.properties, data.timeoutTaskInSecs);
-	}
-
-	private void executeSolverFaster(Properties properties, long timeoutTaskInSecs) {
-		SolverFaster solver = SolverFaster.build(
-				Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
-				Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
-				Integer.parseInt(getProperty(properties,     "exploration.limit")),
-				Integer.parseInt(getProperty(properties,     "max.partial.files")),
-				Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
-				false, // ui.show
-				false, // ui.per.proc
-				0,     // ui.cell.size
-				0,     // ui.refresh.millis
-				Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
-				Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-				Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-				new ClassLoaderReaderForTilesFile(),
-				Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
-		
-		System.out.println(); // to get a clean output
-		
-		solver.setupInicial();
-		solver.atacar(timeoutTaskInSecs);
+	public void init(MainFasterBenchmarkContextProvider context) {
+		context.solver.atacar(context.timeoutTaskInSecs);
+		context.solver.resetInternalStatus();
 	}
 	
 	private static final String getProperty(Properties properties, String key) {
@@ -67,15 +45,37 @@ public class MainFasterBenchmark {
 	}
 	
 	@State(Scope.Benchmark)
-	public static class MainFasterBenchmarkDataProvider {
+	public static class MainFasterBenchmarkContextProvider {
 
 		public long timeoutTaskInSecs = 10;
-		public Properties properties;
+		public SolverFaster solver;
 		
 		@Setup(Level.Invocation)
 		public void setup() throws IOException {
-			properties = readProperties();
+			
+			Properties properties = readProperties();
+			
+			SolverFaster solver = SolverFaster.build(
+					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
+					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
+					Integer.parseInt(getProperty(properties,     "exploration.limit")),
+					Integer.parseInt(getProperty(properties,     "max.partial.files")),
+					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
+					false, // ui.show
+					false, // ui.per.proc
+					0,     // ui.cell.size
+					0,     // ui.refresh.millis
+					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
+					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
+					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
+					new ClassLoaderReaderForTilesFile(),
+					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
+			
 			ResourceBundle.clearCache();
+			
+			System.out.println(); // to get a clean output
+			
+			solver.setupInicial();
 		}
 		
 		private final Properties readProperties() throws IOException {

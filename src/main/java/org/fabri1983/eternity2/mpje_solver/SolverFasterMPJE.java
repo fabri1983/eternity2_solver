@@ -48,10 +48,10 @@ public final class SolverFasterMPJE {
 	public final static int THIS_PROCESS = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
 	private static int TAG_SINCRO = 333; // tags para identificar mensajes interprocesos
 	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 200; // mensajes para comunicar una acción o estado
-	private static int mpi_send_info[] = new int[1]; // arreglo de envío de mensajes entre procesos
+	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
 	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
-	private static int num_processes_orig[];
+	private static int[] num_processes_orig;
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 														// los calculos de distribución de exploración
 	
@@ -97,18 +97,18 @@ public final class SolverFasterMPJE {
 	private static int sig_parcial, cur_destino;
 	public static long count_cicles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	public final static Pieza piezas[] = new Pieza[MAX_PIEZAS];
-	public final static Pieza tablero[] = new Pieza[MAX_PIEZAS];
-	private final static byte desde_saved[] = new byte[MAX_PIEZAS];
-	private final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
-	private static int arr_color_rigth_explorado[]; // cada posición es un entero donde se usan 23 bits para los colores
+	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
+	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
+	private final static byte[] desde_saved = new byte[MAX_PIEZAS];
+	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
+	private static int[] arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores
 													// donde un bit valdrá 0 si ese color (right en borde left) no ha
 													// sido exlorado para la fila actual, sino valdrá 1
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
 	private static boolean send_mail = false;
-	private final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
-	private final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
+	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
+	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
 	/*
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
@@ -121,11 +121,6 @@ public final class SolverFasterMPJE {
 			(MAX_COLORES * Math.pow(2, 5 * 2)) +
 			(MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
-	//VARIABLES GLOBALES para evitar ser declaradas cada vez que se llame a determinado método
-	private static Pieza pieza_extern_loop; //empleada en atacar() y en obtenerPosPiezaFaltanteAnteCentral()
-	private static Pieza pzxc;//se usa solamente en explorarPiezaCentral()
-	private static int auxi; //empleada en varios metodos que requieren loop o calculos temporales
-	private static int i_count; // mepleado en varios métodos
 	private static int index_sup; //empleados en varios métodos para pasar info
 	
 	private static long time_inicial, time_final; //sirven para calcular el tiempo al hito de posición lejana
@@ -765,8 +760,6 @@ public final class SolverFasterMPJE {
 		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
 		System.out.flush();
 		
-		pzxc = piezas[INDICE_P_CENTRAL];
-		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
 	}
@@ -813,11 +806,10 @@ public final class SolverFasterMPJE {
 				index_sup = -1;
 				//index_inf = -1;
 
-				//debo setear la pieza en cursor como no usada
+				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
-					pieza_extern_loop= tablero[cursor];
-					pieza_extern_loop.pusada.value= false; //la seteo como no usada xq sino la exploracion pensará que está usada (porque asi es como se guardó)
-					//pieza_extern_loop.pos= -1;
+					tablero[cursor].pusada.value= false;
+					//tablero[cursor].pos= -1;
 					tablero[cursor]= null;
 				}
 				
@@ -1209,32 +1201,32 @@ public final class SolverFasterMPJE {
 		switch (cursor) {
 			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, pzxc.top, tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[cursor-1].right)];
 			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,pzxc.left,MAX_COLORES,tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES,tablero[cursor-1].right)];
 		}
 		
 		final int flag_m = matrix_zonas[cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,MAX_COLORES,MAX_COLORES,tablero[cursor-1].right)];
+			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,GRIS,MAX_COLORES,tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, MAX_COLORES, tablero[cursor-1].right)];
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,MAX_COLORES,MAX_COLORES,GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
 				// borde top
 				case F_BORDE_TOP:
-					return super_matriz[MapaKeys.getKey(GRIS,MAX_COLORES,MAX_COLORES,tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
 				//borde bottom
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,MAX_COLORES,GRIS,tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, tablero[cursor-1].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1242,16 +1234,16 @@ public final class SolverFasterMPJE {
 			switch (flag_m) {
 				//esquina top-left
 				case F_ESQ_TOP_LEFT:
-					return super_matriz[MapaKeys.getKey(GRIS,MAX_COLORES,MAX_COLORES,GRIS)];
+					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, GRIS)];
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return super_matriz[MapaKeys.getKey(GRIS,GRIS,MAX_COLORES,tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[cursor-1].right)];
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,MAX_COLORES,GRIS,GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom,GRIS,GRIS,tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, GRIS, tablero[cursor-1].right)];
 			}
 		}
 	}
@@ -1313,7 +1305,8 @@ public final class SolverFasterMPJE {
 			return false;
 		
 		//obtengo la clave del contorno superior
-		i_count = cursor-LADO;
+		int i_count = cursor-LADO;
+		int auxi;
 		switch (Contorno.MAX_COLS){
 			case 2:
 				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom);
