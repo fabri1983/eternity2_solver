@@ -62,7 +62,7 @@ public final class SolverFasterMPJE {
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	private final static int LADO= 16;
 	private final static int LADO_SHIFT_AS_DIVISION = 4;
-	public static int MAX_PIEZAS= 256;
+	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
 	public final static int POS_FILA_P_CENTRAL = 8;
 	public final static int POS_COL_P_CENTRAL = 7;
@@ -319,8 +319,9 @@ public final class SolverFasterMPJE {
 		
 		llenarSuperEstructura();
 		finalizarSuperEstructura();
-		System.gc();
 		System.out.println("Rank " + THIS_PROCESS + ": carga de estructura 4-Dimensional finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
+		
+		System.gc();
 		
 		// combinación de 2 colores consecutivos con mayor número de coincidencias para piezas interiores y para todos los tipos a la vez.
 		/*int maxTotal = 0, maxInterior = 0, key = 0;
@@ -1402,9 +1403,8 @@ public final class SolverFasterMPJE {
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
 			PrintWriter wDispMax= null;
-			Pieza piezax;
-			StringBuffer parcialBuffer= new StringBuffer();
-			StringBuffer dispMaxBuff= new StringBuffer();
+			StringBuffer parcialBuffer= new StringBuffer(256 * 10);
+			StringBuffer dispMaxBuff= new StringBuffer(256 * 10);
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL_MAX)));
@@ -1418,10 +1418,9 @@ public final class SolverFasterMPJE {
 					sig_parcial= 1;
 			}
 			
-			int pos;
 			for (int b=0; b<MAX_PIEZAS; ++b){
-				pos= b+1;
-				piezax= tablero[b];
+				int pos= b+1;
+				Pieza piezax= tablero[b];
 				if (tablero[b] == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
@@ -1477,17 +1476,16 @@ public final class SolverFasterMPJE {
 	private final static void guardarLibres (){
 		try{
 			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_LIBRES_MAX)));
-			StringBuffer wLibresBuffer= new StringBuffer();
-			Pieza pzx;
+			StringBuffer wLibresBuffer= new StringBuffer(256 * 10);
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
-				pzx= piezas[b];
+				Pieza pzx= piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.numero).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
-				pzx= piezas[b];
+				Pieza pzx= piezas[b];
 				if (pzx.pusada.value == false)
 					wLibresBuffer.append(pzx.toStringColores()).append("\n");
 			}
@@ -1518,18 +1516,17 @@ public final class SolverFasterMPJE {
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_SOLUCION,true)));
 			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICION,true)));
-			Pieza piezax;
-			StringBuffer contenidoDisp= new StringBuffer();
+			StringBuffer contenidoDisp= new StringBuffer(256 * 10);
 			
 			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
 			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
 			contenidoDisp.append("Disposicion para " + MAX_PIEZAS + " piezas.\n");
 			wDisp.println("(num pieza) (estado rotacion) (posicion en tablero real)");
 			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
-			int pos;
+			
 			for (int b=0; b<MAX_PIEZAS; ++b){
-				piezax= tablero[b];
-				pos= b+1;
+				Pieza piezax= tablero[b];
+				int pos= b+1;
 				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
 				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
 				contenidoDisp.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
@@ -1565,7 +1562,7 @@ public final class SolverFasterMPJE {
 	{
 		try{
 			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
-			StringBuffer writerBuffer = new StringBuffer();
+			StringBuffer writerBuffer = new StringBuffer(256 * 10);
 
 			//guardo el valor de mas_bajo
 			writerBuffer.append(mas_bajo).append("\n");

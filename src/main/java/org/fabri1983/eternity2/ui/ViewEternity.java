@@ -67,8 +67,7 @@ public class ViewEternity extends JFrame implements KeyListener {
     	num_colours = p_num_colours;
     	LADO = pLado;
 		LADO_SHIFT_FOR_DIV = (int) (Math.log10(LADO) / Math.log10(2)); // siempre y cuando LADO sea potencia de 2
-    	byte cero = 0;
-    	pieza_gris = new Pieza(cero,cero,cero,cero,cero);
+    	pieza_gris = Pieza.dummy();
         try {
             jbInit();
         } catch (Exception e) {

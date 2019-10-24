@@ -64,6 +64,29 @@ public class Pieza {
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen
 	// copias private static int countIdUnico = 0;
 	
+	public Pieza() {
+	}
+	
+	public static Pieza dummy()
+	{
+		Pieza p = new Pieza();
+		p.top=0;
+		p.right=0;
+		p.bottom=0;
+		p.left=0;
+		contarGrises(p);
+		p.numero=0;
+		p.rotacion=0;
+		p.pusada=new PUsada();
+		//p.pos= -1;
+		setMatchCentral(p);
+		
+		/*p.idUnico = countIdUnico;
+		++p.countIdUnico;*/
+		
+		return p;
+	}
+
 	public Pieza (String s, int num)
 	{
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
@@ -78,23 +101,6 @@ public class Pieza {
 		contarGrises(this);
 		
 		numero= num;
-		rotacion=0;
-		pusada=new PUsada();
-		//pos= -1;
-		setMatchCentral(this);
-		
-		/*idUnico = countIdUnico;
-		++countIdUnico;*/
-	}
-	
-	public Pieza (byte t, byte r, byte b, byte l, int num)
-	{
-		top=t;
-		right=r;
-		bottom=b;
-		left=l;
-		contarGrises(this);
-		numero=num;
 		rotacion=0;
 		pusada=new PUsada();
 		//pos= -1;
@@ -132,6 +138,7 @@ public class Pieza {
 		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,primer_sep+1);
 		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,seg_sep+1);
 		int cuarto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,tercer_sep+1);
+		
 		top= Byte.parseByte(s.substring(0,primer_sep));
 		right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
 		bottom= Byte.parseByte(s.substring(seg_sep+1,tercer_sep));

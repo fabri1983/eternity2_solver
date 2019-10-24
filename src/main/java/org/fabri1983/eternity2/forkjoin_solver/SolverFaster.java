@@ -318,10 +318,11 @@ public final class SolverFaster {
 		}
 		
 		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " microsecs)");
+		System.gc();
 	}
 	
-	private static final void llenarSuperEstructura (ExploracionAction action) {
-		
+	private static final void llenarSuperEstructura (ExploracionAction action)
+	{
 		// itero sobre el arreglo de piezas
 		for (int k = 0; k < MAX_PIEZAS; ++k) {
 			
@@ -691,9 +692,8 @@ public final class SolverFaster {
 					action.sig_parcial= 1;
 			}
 			
-			int pos;
 			for (int b=0; b < MAX_PIEZAS; ++b) {
-				pos= b+1;
+				int pos= b+1;
 				Pieza piezax = action.tablero[b];
 				if (action.tablero[b] == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
@@ -799,11 +799,11 @@ public final class SolverFaster {
 			contenidoDisp.append("Disposicion para " + MAX_PIEZAS + " piezas.\n");
 			wDisp.println("(num pieza) (estado rotacion) (posicion en tablero real)");
 			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
-			int pos;
+			
 			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
 				Pieza piezax= action.tablero[b];
-				pos= b+1;
+				int pos= b+1;
 				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
 				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
 				contenidoDisp.append(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
