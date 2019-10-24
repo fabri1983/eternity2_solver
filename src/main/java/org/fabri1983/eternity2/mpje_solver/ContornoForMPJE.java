@@ -52,28 +52,29 @@ public final class ContornoForMPJE
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero
 	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public static final void inicializarContornos ()
+	public static final void inicializarContornos (Pieza[] tablero)
 	{
-		Pieza tablero[] = SolverFasterMPJE.tablero;
-		int fila_actual, index;
-		
 		// los limites iniciales me evitan los bordes sup e inf
-		for (int k=16; k < (256-16); ++k)
+		for (int k=16; k < (SolverFasterMPJE.MAX_PIEZAS - 16); ++k)
 		{
+			// given the way we populate the board is from top-left to bottom-right, 
+			// then if we find an empty slot it means there is no more pieces in the board
 			if (tablero[k] == null)
 				return;
+			
 			//borde izquierdo
 			if ((k % 16) == 0) continue;
 			//borde derecho
 			if (((k+1) % 16) == 0) continue;
 			//(k + MAX_COLS) no debe llegar ni sobrepasar borde right
-			fila_actual = k / 16;
+			int fila_actual = k / 16;
 			if (((k + MAX_COLS) / 16) != fila_actual)
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
-			for (int a=1; a < MAX_COLS; ++a)
+			for (int a=1; a < MAX_COLS; ++a) {
 				if (tablero[k+a] == null)
 					return;
+			}
 			
 			//Ahora k está en el interior del tablero
 			
@@ -82,27 +83,33 @@ public final class ContornoForMPJE
 			//existan piezas colocadas indicando que se ha formado el contorno inferior.
 			switch (MAX_COLS)
 			{
-			case 2: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+			case 2: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
 						contornos_used[index] = true;
 					}*/
-					break;
-			case 3: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+				}
+				break;
+			case 3: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						index = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
 						contornos_used[index] = true;
 					}*/
-					break;
-			case 4: index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+				}
+				break;
+			case 4: {
+					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						index = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
 						contornos_used[index] = true;
 					}*/
-					break;
+				}
+				break;
 			default: break;
 			}
 		}

@@ -62,7 +62,7 @@ public final class SolverFasterMPJE {
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	private final static int LADO= 16;
 	private final static int LADO_SHIFT_AS_DIVISION = 4;
-	private final static int MAX_PIEZAS= 256;
+	public static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
 	public final static int POS_FILA_P_CENTRAL = 8;
 	public final static int POS_COL_P_CENTRAL = 7;
@@ -751,7 +751,7 @@ public final class SolverFasterMPJE {
 		cargarSuperEstructura();
 
 		//seteo como usados los contornos ya existentes en tablero
-		ContornoForMPJE.inicializarContornos();
+		ContornoForMPJE.inicializarContornos(tablero);
 		
 		//seteo las posiciones donde se puede preguntar por contorno superior usado
 		inicializarZonaReadContornos();

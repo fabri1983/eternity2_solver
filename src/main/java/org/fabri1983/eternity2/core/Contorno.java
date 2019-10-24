@@ -22,7 +22,6 @@
 
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
 import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 
 
@@ -55,10 +54,8 @@ public final class Contorno
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero
 	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public final void inicializarContornos (ExploracionAction action)
+	public final void inicializarContornos (Pieza[] tablero)
 	{
-		Pieza[] tablero = action.tablero;
-		
 		// los limites iniciales me evitan los bordes sup e inf
 		for (int k=16; k < (SolverFaster.MAX_PIEZAS - 16); ++k)
 		{
@@ -92,9 +89,9 @@ public final class Contorno
 					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
 					contornos_used[index] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-							index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
-							contornos_used[index] = true;
-						}*/
+						index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
+						contornos_used[index] = true;
+					}*/
 				}
 				break;
 			case 3: {

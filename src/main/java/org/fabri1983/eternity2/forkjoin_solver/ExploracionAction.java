@@ -132,7 +132,7 @@ public class ExploracionAction extends RecursiveAction {
 		SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
 		
 		// seteo como usados los contornos ya existentes en tablero
-		contorno.inicializarContornos(this);
+		contorno.inicializarContornos(this.tablero);
 		
 		// this call avoids a OutOfHeapMemory error
 		System.gc();
