@@ -220,7 +220,7 @@ public class ExploracionAction extends RecursiveAction {
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != SolverFaster.POSICION_CENTRAL) {
-					tablero[cursor].pusada.value = false;
+					tablero[cursor].usada = false;
 					tablero[cursor]= null;
 				}
 				
@@ -438,9 +438,10 @@ public class ExploracionAction extends RecursiveAction {
 		{
 			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			Pieza p = nodoPosibles.referencias[desde];
+			byte rot = nodoPosibles.rots[desde];
 			
 			// pregunto si la pieza candidata está siendo usada
-			if (p.pusada.value)
+			if (p.usada)
 				continue; //es usada, pruebo con la siguiente pieza
 	
 			++count_cycles;
@@ -474,7 +475,7 @@ public class ExploracionAction extends RecursiveAction {
 					final int mask = 1 << p.right;
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
 					if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
-						p.pusada.value = false; //la pieza ahora no es usada
+						p.usada = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue; // sigo con otra pieza de borde
 					}
@@ -482,7 +483,7 @@ public class ExploracionAction extends RecursiveAction {
 					else {
 						// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
 						SolverFaster.arr_color_rigth_explorado.addAndGet(fila_actual, mask);
-						// final int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
+						// int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
 						// SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual, value);
 					}
 				}
@@ -491,14 +492,15 @@ public class ExploracionAction extends RecursiveAction {
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
 			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza de indice "indice"
-			p.pusada.value = true; //en este punto la pieza va a ser usada
+			p.usada = true; //en este punto la pieza va a ser usada
+			Pieza.llevarARotacion(p, rot);
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 	
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
 			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
-				p.pusada.value = false; //la pieza ahora no es usada
+				p.usada = false; //la pieza ahora no es usada
 				//p.pos= -1;
 				continue;
 			}*/
@@ -509,7 +511,7 @@ public class ExploracionAction extends RecursiveAction {
 				if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP)
 					if (p.bottom == tablero[cursor-1].bottom)
 					{
-						p.pusada.value = false; //la pieza ahora no es usada
+						p.usada = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue;
 					}
@@ -533,10 +535,10 @@ public class ExploracionAction extends RecursiveAction {
 			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
 			setContornoLibre();
 			
-			p.pusada.value = false; //la pieza ahora no es usada
+			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
 			
-			//si retroced� hasta la posicion destino, seteo la variable retroceder en false e inval�do a cur_destino
+			//si retrocedí hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
 			/*@RETROCEDER
 			if (cursor <= cur_destino){
 				retroceder= false;

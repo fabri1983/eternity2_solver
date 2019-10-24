@@ -7,6 +7,7 @@ export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
 export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target
+
 # 50m max usage per VM instance. For GraalVM it needs 60m.
 mem_alloc="60m"
 

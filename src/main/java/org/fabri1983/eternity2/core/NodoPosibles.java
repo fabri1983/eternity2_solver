@@ -22,6 +22,7 @@
 
 package org.fabri1983.eternity2.core;
 
+import org.fabri1983.eternity2.arrays.IntArrayList;
 import org.fabri1983.eternity2.arrays.ObjectArrayList;
 
 /**
@@ -32,20 +33,25 @@ import org.fabri1983.eternity2.arrays.ObjectArrayList;
 public final class NodoPosibles
 {	
 	private ObjectArrayList<Pieza> referencias_aux; //lista auxiliar de piezas
-	public Pieza referencias[]; //arreglo de referencias a piezas
+	private IntArrayList rots_aux; //lista auxiliar de piezas
+	public Pieza[] referencias; //arreglo de referencias a piezas
+	public byte[] rots;
 	public boolean util = false;
 	
-	
 	public NodoPosibles() {
-		referencias_aux = new ObjectArrayList<Pieza>(64); // is the max size I got experimentally
+		referencias_aux = new ObjectArrayList<Pieza>(64 + 1); // is the max size I got experimentally
+		rots_aux = new IntArrayList(64 + 1); // is the max size I got experimentally
 	}
 	
 	/**
-	 * Agrega la pieza referenciada por p_referencia.
+	 * Agrega la pieza a la lista auxiliar.
+	 * 
+	 * @param rot 
 	 */
-	public static final void addReferencia (NodoPosibles np, final Pieza p_referencia)
+	public static final void addReferencia (NodoPosibles np, final Pieza p_referencia, int rot)
 	{
 		np.util = true;
+		np.rots_aux.add(rot);
 		np.referencias_aux.add(p_referencia);
 	}
 	
@@ -56,22 +62,25 @@ public final class NodoPosibles
 	{
 		int size = np.referencias_aux.size();
 		np.referencias = new Pieza[size];
+		np.rots = new byte[size];
 		
 		for (int i=0; i < size; i++){
-			if (np.referencias_aux.get(i) != null) {
-				np.referencias[i] = np.referencias_aux.get(i);
-			}
+			np.referencias[i] = np.referencias_aux.get(i);
+			np.rots[i] = (byte)np.rots_aux.get(i);
 		}
 		
 		np.referencias_aux.clear();
 		np.referencias_aux = null;
+		np.rots_aux.clear();
+		np.rots_aux = null;
 	}
 	
 	public static final int getUbicPieza(final NodoPosibles np, final int numero)
 	{
-		for (int i=np.referencias.length-1; i>=0; --i)
+		for (int i=0, c=np.referencias.length; i < c; ++i) {
 			if (np.referencias[i].numero == numero)
 				return i;
+		}
 		return 0;
 	}
 }

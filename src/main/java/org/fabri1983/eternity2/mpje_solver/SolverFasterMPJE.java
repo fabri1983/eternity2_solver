@@ -363,94 +363,90 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void llenarSuperEstructura ()
 	{
-		Pieza pz;
-		int key1,key2,key3,key4,key5,key6,key11,key22,key33,key44,key55,key111,key222,key333,key444;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			if (k == INDICE_P_CENTRAL)
 				continue;
-			pz = piezas[k];
+			Pieza pz = piezas[k];
 			
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
-			for (int rt=0; rt < MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
+			for (int rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
 				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
 				if (FairExperimentGif && (pz.top == pz.bottom))
 					continue;
-				Pieza newp = Pieza.copia(pz);
 				
 				//este caso es cuando tengo los 4 colores
-				key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (super_matriz[key1] == null)
 					super_matriz[key1]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key1], newp);
+				NodoPosibles.addReferencia(super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
-				key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
+				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (super_matriz[key2] == null)
 					super_matriz[key2]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key2], newp);
-				key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
+				NodoPosibles.addReferencia(super_matriz[key2], pz, rot);
+				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key3] == null)
 					super_matriz[key3]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key3], newp);
-				key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(super_matriz[key3], pz, rot);
+				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key4] == null)
 					super_matriz[key4]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key4], newp);
-				key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key4], pz, rot);
+				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key5] == null)
 					super_matriz[key5]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key5], newp);
+				NodoPosibles.addReferencia(super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				key11 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
+				int key11 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key11] == null)
 					super_matriz[key11]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key11], newp);
-				key22 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
+				int key22 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key22] == null)
 					super_matriz[key22]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key22], newp);
-				key33 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key22], pz, rot);
+				int key33 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key33] == null)
 					super_matriz[key33]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key33], newp);
-				key44 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(super_matriz[key33], pz, rot);
+				int key44 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key44] == null)
 					super_matriz[key44]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key44], newp);
-				key55 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key44], pz, rot);
+				int key55 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key55] == null)
 					super_matriz[key55]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key55], newp);
-				key6 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key55], pz, rot);
+				int key6 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key6] == null)
 					super_matriz[key6]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key6], newp);
+				NodoPosibles.addReferencia(super_matriz[key6], pz, rot);
 
 				//tengo un color y tres faltantes
-				key111 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				int key111 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key111] == null)
 					super_matriz[key111]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key111], newp);
-				key222 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key111], pz, rot);
+				int key222 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key222] == null)
 					super_matriz[key222]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key222], newp);
-				key333 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				NodoPosibles.addReferencia(super_matriz[key222], pz, rot);
+				int key333 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key333] == null)
 					super_matriz[key333]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key333], newp);
-				key444 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				NodoPosibles.addReferencia(super_matriz[key333], pz, rot);
+				int key444 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key444] == null)
 					super_matriz[key444]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key444], newp);
+				NodoPosibles.addReferencia(super_matriz[key444], pz, rot);
 			}
 			
 			//restauro la rotación
@@ -540,9 +536,10 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void cargarPiezasFijas () {
 		
-		piezas[INDICE_P_CENTRAL].pusada.value= true;
-		//piezas[INDICE_P_CENTRAL].pos= POSICION_CENTRAL;
-		tablero[POSICION_CENTRAL]= piezas[INDICE_P_CENTRAL];
+		Pieza piezaCentral = piezas[INDICE_P_CENTRAL];
+		piezaCentral.usada= true;
+		//piezaCentral.pos= POSICION_CENTRAL;
+		tablero[POSICION_CENTRAL]= piezaCentral;
 		
 		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -641,7 +638,7 @@ public final class SolverFasterMPJE {
 				while ((linea != null) && (pos < MAX_PIEZAS)){
 					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
 					Pieza.llevarARotacion(piezas[pos],Byte.parseByte(splitted[0]));
-					piezas[pos].pusada.value = Boolean.parseBoolean(splitted[1]);
+					piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
 				}
@@ -700,7 +697,7 @@ public final class SolverFasterMPJE {
 				break; //obliga a salir del while
 			if (cursor != POSICION_CENTRAL){
 				pzz= tablero[cursor];
-				pzz.pusada.value= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
+				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
 				tablero[cursor]= null;
 			}
@@ -809,7 +806,7 @@ public final class SolverFasterMPJE {
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
-					tablero[cursor].pusada.value= false;
+					tablero[cursor].usada= false;
 					//tablero[cursor].pos= -1;
 					tablero[cursor]= null;
 				}
@@ -1077,9 +1074,10 @@ public final class SolverFasterMPJE {
 		for (; desde < length_posibles; ++desde) {
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			Pieza p = nodoPosibles.referencias[desde];
+			byte rot = nodoPosibles.rots[desde];
 			
 			// pregunto si la pieza candidata está siendo usada
-			if (p.pusada.value)
+			if (p.usada)
 				continue; // es usada, pruebo con la siguiente pieza
 		
 			++count_cicles; // incremento el contador de combinaciones de piezas
@@ -1108,7 +1106,7 @@ public final class SolverFasterMPJE {
 					final int mask = 1 << p.right;
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
 					if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
-						p.pusada.value = false; //la pieza ahora no es usada
+						p.usada = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue; // sigo con otra pieza de borde
 					}
@@ -1121,14 +1119,15 @@ public final class SolverFasterMPJE {
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
 			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza de indice "indice"
-			p.pusada.value = true; // en este punto la pieza va a ser usada
+			p.usada = true; // en este punto la pieza va a ser usada
+			Pieza.llevarARotacion(p, rot);
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
 			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
-				p.pusada.value = false; //la pieza ahora no es usada
+				p.usada = false; //la pieza ahora no es usada
 				//p.pos= -1;
 				continue;
 			}*/
@@ -1137,7 +1136,7 @@ public final class SolverFasterMPJE {
 			if (FairExperimentGif){
 				if (flag_zona == F_INTERIOR || flag_zona == F_BORDE_TOP)
 					if (p.bottom == tablero[cursor-1].bottom){
-						p.pusada.value = false; //la pieza ahora no es usada
+						p.usada = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue;
 					}
@@ -1161,7 +1160,7 @@ public final class SolverFasterMPJE {
 			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
 			setContornoLibre();
 			
-			p.pusada.value = false; //la pieza ahora no es usada
+			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
 			
 			// si retrocedió hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
@@ -1480,13 +1479,13 @@ public final class SolverFasterMPJE {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= piezas[b];
-				if (pzx.pusada.value == false)
+				if (pzx.usada == false)
 					wLibresBuffer.append(pzx.numero).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= piezas[b];
-				if (pzx.pusada.value == false)
+				if (pzx.usada == false)
 					wLibresBuffer.append(pzx.toStringColores()).append("\n");
 			}
 			
@@ -1633,24 +1632,7 @@ public final class SolverFasterMPJE {
 			//guardo el estado de rotación y el valor de usada de cada pieza
 			for (int n=0; n < MAX_PIEZAS; ++n)
 			{
-				// debido a que ahora en tablero[] existen copias de piezas, debo obtener la rotación 
-				// de la pieza n tal cual se encuentra en tablero.
-				boolean encontradax = false;
-				// además si la pieza está usada => está en tablero
-				if (piezas[n].pusada.value)
-				{
-					for (int i=0; i < MAX_PIEZAS; ++i) {
-						if ((tablero[i] != null) && (tablero[i].numero-1) == n)
-						{
-							writerBuffer.append(tablero[i].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(tablero[i].pusada.value)).append("\n");
-							encontradax = true;
-							break;
-						}
-					}
-				}
-				// como la pieza n no está en tablero entonces uso la información del arreglo piezas[]
-				if (!encontradax)
-					writerBuffer.append(piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(piezas[n].pusada.value)).append("\n");
+				writerBuffer.append(piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(piezas[n].usada)).append("\n");
 			}
 			
 			String sContent = writerBuffer.toString();

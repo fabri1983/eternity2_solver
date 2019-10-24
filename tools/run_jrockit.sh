@@ -8,7 +8,7 @@ cd ../target
 
 java="/usr/local/java/jrockit-jdk1.6.0_45-R28.2.7-4.1.0/bin/java"
 jsr166="lib/jsr166.jar"
-# 900m max usage for 8 threads
-mem_alloc="900m"
+# 1000m max usage for 8 threads
+mem_alloc="1000m"
 
 java -Xbootclasspath/p:$jsr166 -server -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver_jrockit.jar

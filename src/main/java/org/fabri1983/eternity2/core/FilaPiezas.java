@@ -74,9 +74,9 @@ public final class FilaPiezas
 	public static final boolean tienePiezaUsada (FilaPiezas fila)
 	{
 		switch (MAX_COLS){
-			case 2: return fila.referencias[0].pusada.value || fila.referencias[1].pusada.value;
-			case 3: return fila.referencias[0].pusada.value || fila.referencias[1].pusada.value || fila.referencias[2].pusada.value;
-			case 4: return fila.referencias[0].pusada.value || fila.referencias[1].pusada.value || fila.referencias[2].pusada.value || fila.referencias[3].pusada.value;
+			case 2: return fila.referencias[0].usada || fila.referencias[1].usada;
+			case 3: return fila.referencias[0].usada || fila.referencias[1].usada || fila.referencias[2].usada;
+			case 4: return fila.referencias[0].usada || fila.referencias[1].usada || fila.referencias[2].usada || fila.referencias[3].usada;
 		}
 		return false;
 	}
@@ -95,9 +95,9 @@ public final class FilaPiezas
 		{
 			FilaPiezas fila = array_fila.get(i);
 			switch (MAX_COLS){
-				case 2: if (fila.referencias[0].pusada.value || fila.referencias[1].pusada.value) break; else return i;
-				case 3: if (fila.referencias[0].pusada.value || fila.referencias[1].pusada.value || fila.referencias[2].pusada.value) break; else return i;
-				case 4: if (fila.referencias[0].pusada.value || fila.referencias[1].pusada.value || fila.referencias[2].pusada.value || fila.referencias[3].pusada.value) break; else return i;
+				case 2: if (fila.referencias[0].usada || fila.referencias[1].usada) break; else return i;
+				case 3: if (fila.referencias[0].usada || fila.referencias[1].usada || fila.referencias[2].usada) break; else return i;
+				case 4: if (fila.referencias[0].usada || fila.referencias[1].usada || fila.referencias[2].usada || fila.referencias[3].usada) break; else return i;
 			}
 		}
 

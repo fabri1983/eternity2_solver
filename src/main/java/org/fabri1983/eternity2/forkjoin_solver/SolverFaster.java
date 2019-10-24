@@ -333,56 +333,55 @@ public final class SolverFaster {
 			
 			//guardo la rotaciónn de la pieza
 			byte temp_rot = pz.rotacion;
-			//seteo su rotaci�n en 0. Esto es para generar la matriz siempre en el mismo orden
+			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
-			for (int rt=0; rt < MAX_ESTADOS_ROTACION; ++rt, Pieza.rotar90(pz))
+			for (int rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
 				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
 				if (FairExperimentGif && (pz.top == pz.bottom))
 					continue;
-				Pieza newp = Pieza.copia(pz);
 				
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key1], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key2], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key3], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key4], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key5], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
 				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key6], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key6], pz, rot);
 				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key7], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key7], pz, rot);
 				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key8], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key8], pz, rot);
 				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);	
-				NodoPosibles.addReferencia(action.super_matriz[key9], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key9], pz, rot);
 				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key10], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key10], pz, rot);
 				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key11], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
 				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key12], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key12], pz, rot);
 				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key13], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key13], pz, rot);
 				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
-				NodoPosibles.addReferencia(action.super_matriz[key14], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key14], pz, rot);
 				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
-				NodoPosibles.addReferencia(action.super_matriz[key15], newp);
+				NodoPosibles.addReferencia(action.super_matriz[key15], pz, rot);
 			}
 			
-			//restauro la rotaci�n
+			//restauro la rotación
 			Pieza.llevarARotacion(pz, temp_rot);
 		}
 	}
@@ -456,9 +455,10 @@ public final class SolverFaster {
 	 */
 	final static void cargarPiezasFijas(ExploracionAction action) {
 		
-		action.piezas[INDICE_P_CENTRAL].pusada.value= true;
-		//piezas[INDICE_P_CENTRAL].pos= POSICION_CENTRAL;
-		action.tablero[POSICION_CENTRAL]= action.piezas[INDICE_P_CENTRAL];
+		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
+		piezaCentral.usada= true;
+		//piezaCentral.pos= POSICION_CENTRAL;
+		action.tablero[POSICION_CENTRAL]= piezaCentral;
 		
 		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -556,7 +556,7 @@ public final class SolverFaster {
 				while ((linea != null) && (pos < MAX_PIEZAS)){
 					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
 					Pieza.llevarARotacion(action.piezas[pos],Byte.parseByte(splitted[0]));
-					action.piezas[pos].pusada.value = Boolean.parseBoolean(splitted[1]);
+					action.piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
 				}
@@ -638,7 +638,7 @@ public final class SolverFaster {
 				break; //obliga a salir del while
 			if (action.cursor != POSICION_CENTRAL){
 				Pieza pzz = action.tablero[action.cursor];
-				pzz.pusada.value= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
+				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
 				action.tablero[action.cursor]= null;
 			}
@@ -755,13 +755,13 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
-				if (pzx.pusada.value == false)
+				if (pzx.usada == false)
 					wLibresBuffer.append(pzx.numero).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
-				if (pzx.pusada.value == false)
+				if (pzx.usada == false)
 					wLibresBuffer.append(pzx.toStringColores()).append("\n");
 			}
 			
@@ -915,24 +915,7 @@ public final class SolverFaster {
 			//guardo el estado de rotación y el valor de usada de cada pieza
 			for (int n=0; n < MAX_PIEZAS; ++n)
 			{
-				// debido a que ahora en tablero[] existen copias de piezas, debo obtener la rotación 
-				// de la pieza n tal cual se encuentra en tablero.
-				boolean encontradax = false;
-				// adem�s si la pieza está usada => está en tablero
-				if (action.piezas[n].pusada.value)
-				{
-					for (int i=0; i < MAX_PIEZAS; ++i) {
-						if ((action.tablero[i] != null) && (action.tablero[i].numero-1) == n)
-						{
-							writerBuffer.append(action.tablero[i].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.tablero[i].pusada.value)).append("\n");
-							encontradax = true;
-							break;
-						}
-					}
-				}
-				// como la pieza n no está en tablero entonces uso la información del arreglo piezas[]
-				if (!encontradax)
-					writerBuffer.append(action.piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.piezas[n].pusada.value)).append("\n");
+				writerBuffer.append(action.piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(action.piezas[n].usada)).append("\n");
 			}
 			
 			String sContent = writerBuffer.toString();

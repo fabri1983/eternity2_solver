@@ -54,7 +54,7 @@ public class Pieza {
 	public byte top,right,bottom,left;
 	public int numero; // número que representa la pieza en el juego real
 	public byte rotacion;
-	public PUsada pusada;
+	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza
 	public byte count_grises;
 	public boolean es_match_central; //me dice si tiene al menos uno de los colores de la pieza central (6, 11 o 18)
@@ -77,7 +77,7 @@ public class Pieza {
 		contarGrises(p);
 		p.numero=0;
 		p.rotacion=0;
-		p.pusada=new PUsada();
+		p.usada=false;
 		//p.pos= -1;
 		setMatchCentral(p);
 		
@@ -102,7 +102,7 @@ public class Pieza {
 		
 		numero= num;
 		rotacion=0;
-		pusada=new PUsada();
+		usada=false;
 		//pos= -1;
 		setMatchCentral(this);
 		
@@ -119,7 +119,7 @@ public class Pieza {
 		contarGrises(this);
 		numero= pz.numero;
 		rotacion= pz.rotacion;
-		pusada= pz.pusada;
+		usada= pz.usada;
 		//pos= pz.pos;
 		setMatchCentral(this);
 		
@@ -155,7 +155,7 @@ public class Pieza {
 		
 		//Cuarto: separo el valor usada de la pieza
 		int sept_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,sexto_sep+1);
-		pusada= new PUsada(Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep)));
+		usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
 
 		// Quinto: separo la posición en la que se encuentra la pieza
 		//pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
@@ -203,7 +203,7 @@ public class Pieza {
 		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE 
 				+ bottom + SECCIONES_SEPARATOR_EN_FILE + left + SECCIONES_SEPARATOR_EN_FILE 
 				+ numero + SECCIONES_SEPARATOR_EN_FILE + rotacion + SECCIONES_SEPARATOR_EN_FILE 
-				+ String.valueOf(pusada.value) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
+				+ String.valueOf(usada) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
 	}
 	
 	public final String toStringColores ()
@@ -325,11 +325,6 @@ public class Pieza {
 				break;
 			}
 		}*/
-	}
-	
-	public final static Pieza copia (final Pieza p)
-	{
-		return new Pieza(p);
 	}
 
 	@Override

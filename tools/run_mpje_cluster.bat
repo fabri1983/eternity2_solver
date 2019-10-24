@@ -10,6 +10,7 @@ cd ../target
 
 :: 50m max usage per VM instance. For GraalVM it needs 60m.
 set mem_alloc=60m
+
 :: set the amount of total threads in the cluster. It has to be an homogeneous cluster type
 set TOTAL_THREADS_IN_CLUSTER=8
 
