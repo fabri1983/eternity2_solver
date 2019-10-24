@@ -32,16 +32,7 @@ package org.fabri1983.eternity2.core;
  */
 public final class MapaKeys {
 	
-	private final static byte MAX_COLS;
-	
-	static {
-		byte maxCols = Byte.parseByte(System.getProperty(FilaPiezas.PARAM_MAX_COLS, "0"));
-		if (maxCols < 2)
-			maxCols = 0;
-		else if (maxCols > 4)
-			maxCols = 4;
-		MAX_COLS = maxCols;
-	}
+	private final static byte MAX_COLS = 2; // usar valor entre 2 y 4
 	
 	private MapaKeys () {
 	}
@@ -57,7 +48,6 @@ public final class MapaKeys {
 			case 2: return getKey(pleft, tops[0], tops[1]);
 			case 3: return getKey(pleft, tops[0], tops[1], tops[2]);
 			case 4: return getKey(pleft, tops[0], tops[1], tops[2], tops[3]);
-			case 5: return getKey(pleft, tops[0], tops[1], tops[2], tops[3], tops[4]);
 			default: return 0;
 		}
 	}
@@ -84,14 +74,6 @@ public final class MapaKeys {
 	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4)
 	{
 		return (pleft << 20) | (top1 << 15) | (top2 << 10) | (top3 << 5) | top4;
-	}
-	
-	/**
-	 * Devuelve la clave asociada a esa combinación de 6 colores.
-	 */
-	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4, final byte top5)
-	{
-		return (pleft << 25) | (top1 << 20) | (top2 << 15) | (top3 << 10) | (top4 << 5) + top5;
 	}
 	
 }
