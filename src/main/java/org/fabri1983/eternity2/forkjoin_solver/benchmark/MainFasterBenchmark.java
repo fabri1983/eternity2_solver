@@ -27,11 +27,11 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.SingleShotTime)
+	@BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 0)
-    @Measurement(iterations = 5)
-	@Fork(value = 1)
+    @Measurement(iterations = 1)
+	@Fork(value = 5)
 	public void init(MainFasterBenchmarkContextProvider context) {
 		context.solver.atacar(context.timeoutTaskInSecs);
 		context.solver.resetInternalStatus();

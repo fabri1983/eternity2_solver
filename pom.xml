@@ -270,7 +270,7 @@
 							<minimizeJar>true</minimizeJar>
 							<filters>
 								<filter>
-									<artifact>org.fabri1983.eternity2:solver</artifact>
+									<artifact>org.fabri1983.eternity2:*</artifact>
 									<excludes>
 										<exclude>${shade.exclusion.filter}</exclude>
 									</excludes>
@@ -300,7 +300,6 @@
 					<inFilter>${pg.injar.filter}</inFilter>
                     <outjar>${project.build.finalName}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
-					<obfuscate>true</obfuscate>
 					<addMavenDescriptor>false</addMavenDescriptor>
 					<options>
 						<option>-target ${pg.compiler.version}</option>
