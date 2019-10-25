@@ -27,10 +27,10 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.SampleTime)
+	@BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
+    @Measurement(iterations = 5)
 	@Fork(value = 1)
 	public void init(MainFasterBenchmarkContextProvider context) {
 		context.solver.atacar(context.timeoutTaskInSecs);
@@ -47,7 +47,9 @@ public class MainFasterBenchmark {
 	@State(Scope.Benchmark)
 	public static class MainFasterBenchmarkContextProvider {
 
+		// use a timeout to finish all tasks since those provided by @Warmup and @Measurement don't work
 		public long timeoutTaskInSecs = 10;
+		// we are going to create and initialize the solver and only benchmark
 		public SolverFaster solver;
 		
 		@Setup(Level.Invocation)

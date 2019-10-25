@@ -22,7 +22,6 @@
 
 package org.fabri1983.eternity2.core;
 
-
 public class Pieza {
 	
 	private final static byte GRIS=0;
@@ -59,12 +58,11 @@ public class Pieza {
 	public byte count_grises;
 	public boolean es_match_central; //me dice si tiene al menos uno de los colores de la pieza central (6, 11 o 18)
 	public boolean es_esquina, es_borde, es_interior;
-
 	
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen
 	// copias private static int countIdUnico = 0;
 	
-	public Pieza() {
+	private Pieza() {
 	}
 	
 	public static Pieza dummy()

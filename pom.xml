@@ -267,6 +267,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<minimizeJar>true</minimizeJar>
 							<filters>
 								<filter>
 									<artifact>org.fabri1983.eternity2:solver</artifact>
@@ -293,11 +294,10 @@
 					</execution>
 				</executions>
 				<configuration>
-				
 					<proguardVersion>6.1.1</proguardVersion>
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
-					<inFilter>${injar.filter}</inFilter>
+					<inFilter>${pg.injar.filter}</inFilter>
                     <outjar>${project.build.finalName}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
 					<obfuscate>true</obfuscate>
