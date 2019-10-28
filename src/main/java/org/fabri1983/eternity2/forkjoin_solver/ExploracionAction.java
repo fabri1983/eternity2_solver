@@ -49,11 +49,11 @@ public class ExploracionAction extends RecursiveAction {
 	 * combinaciones top,right,bottom,left de colores. 
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[
-	    (SolverFaster.MAX_COLORES << 20) 
-	    | (SolverFaster.MAX_COLORES << 15) 
-	    | (SolverFaster.MAX_COLORES << 10) 
-	    | (SolverFaster.MAX_COLORES << 5) 
-	    | SolverFaster.MAX_COLORES
+	    (SolverFaster.MAX_COLORES << 20) | 
+	    (SolverFaster.MAX_COLORES << 15) | 
+	    (SolverFaster.MAX_COLORES << 10) | 
+	    (SolverFaster.MAX_COLORES << 5) | 
+	    SolverFaster.MAX_COLORES
 	];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
