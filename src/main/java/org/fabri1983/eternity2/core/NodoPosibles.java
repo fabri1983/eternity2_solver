@@ -22,9 +22,6 @@
 
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.arrays.IntArrayList;
-import org.fabri1983.eternity2.arrays.ObjectArrayList;
-
 /**
  * Contiene una lista de referencias de piezas.
  * 
@@ -32,50 +29,45 @@ import org.fabri1983.eternity2.arrays.ObjectArrayList;
  */
 public final class NodoPosibles
 {	
-	private ObjectArrayList<Pieza> referencias_aux; //lista auxiliar de piezas
-	private IntArrayList rots_aux; //lista auxiliar de piezas
-	public Pieza[] referencias; //arreglo de referencias a piezas
-	public byte[] rots;
+	public Pieza[] referencias = new Pieza[64];
+	public byte[] rots = new byte[64];
 	public boolean util = false;
 	
-	public NodoPosibles() {
-		referencias_aux = new ObjectArrayList<Pieza>(64 + 1); // is the max size I got experimentally
-		rots_aux = new IntArrayList(64 + 1); // is the max size I got experimentally
-	}
+	private int currentIndex = 0;
 	
 	/**
 	 * Agrega la pieza a la lista auxiliar.
 	 * 
 	 * @param rot 
 	 */
-	public static final void addReferencia (NodoPosibles np, final Pieza p_referencia, int rot)
+	public static final void addReferencia (final NodoPosibles np, final Pieza p_referencia, byte rot)
 	{
+		np.referencias[np.currentIndex] = p_referencia;
+		np.rots[np.currentIndex] = rot;
 		np.util = true;
-		np.rots_aux.add(rot);
-		np.referencias_aux.add(p_referencia);
+		np.currentIndex++;
 	}
 	
 	/**
-	 * Convierto las listas a arreglos.
+	 * Descarta memoria no utilizada.
 	 */
-	public static final void finalizar (NodoPosibles np)
+	public static final void finalizar (final NodoPosibles np)
 	{
-		int size = np.referencias_aux.size();
-		np.referencias = new Pieza[size];
-		np.rots = new byte[size];
+		Pieza[] newRefs = new Pieza[np.currentIndex];
+		System.arraycopy(np.referencias, 0, newRefs, 0, np.currentIndex);
+		np.referencias = newRefs;
 		
-		for (int i=0; i < size; i++){
-			np.referencias[i] = np.referencias_aux.get(i);
-			np.rots[i] = (byte)np.rots_aux.get(i);
-		}
-		
-		np.referencias_aux.clear();
-		np.referencias_aux = null;
-		np.rots_aux.clear();
-		np.rots_aux = null;
+		byte[] newRots = new byte[np.currentIndex];
+		System.arraycopy(np.rots, 0, newRots, 0, np.currentIndex);
+		np.rots = newRots;
 	}
 	
-	public static final int getUbicPieza(final NodoPosibles np, final int numero)
+	public static void disposeAll(final NodoPosibles np) {
+		np.referencias = null;
+		np.rots = null;
+	}
+
+	public static final int getUbicPieza(final NodoPosibles np, int numero)
 	{
 		for (int i=0, c=np.referencias.length; i < c; ++i) {
 			if (np.referencias[i].numero == numero)
@@ -83,4 +75,5 @@ public final class NodoPosibles
 		}
 		return 0;
 	}
+	
 }

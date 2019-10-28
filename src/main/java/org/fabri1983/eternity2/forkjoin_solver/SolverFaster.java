@@ -305,14 +305,16 @@ public final class SolverFaster {
 		llenarSuperEstructura(action);
 		
 		/**
-		 * Para cada entrada de la super estructura les acota el espacio de memoria empleado al espacio actual 
-		 * convirtiendo las listas en arreglos. También setea como null aquellas entradas no útiles.
+		 * Para cada entrada de la super estructura les acota el espacio de memoria empleado actualmente 
+		 * por la carga de las posible Piezas y rotaciones. También setea como null aquellas entradas no útiles.
 		 */
 		for (int i=action.super_matriz.length-1; i >=0; --i) {
 			if (action.super_matriz[i] == null)
 				continue;
-			if (action.super_matriz[i].util == false)
+			else if (action.super_matriz[i].util == false) {
+				NodoPosibles.disposeAll(action.super_matriz[i]);
 				action.super_matriz[i] = null;
+			}
 			else
 				NodoPosibles.finalizar(action.super_matriz[i]);
 		}
@@ -336,7 +338,7 @@ public final class SolverFaster {
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
-			for (int rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
+			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
 				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
 				if (FairExperimentGif && (pz.top == pz.bottom))
@@ -476,7 +478,7 @@ public final class SolverFaster {
 		try{
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println(action.id + " >>> No existe.");
+				System.out.println(" No existe.");
 				return status_cargado;
 			}
 			

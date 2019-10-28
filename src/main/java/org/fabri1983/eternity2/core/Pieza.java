@@ -209,7 +209,7 @@ public class Pieza {
 		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE + bottom + SECCIONES_SEPARATOR_EN_FILE + left;
 	}
 	
-	public static final boolean tieneColor (final Pieza p, final int color)
+	public static final boolean tieneColor (final Pieza p, int color)
 	{
 		if ((p.top==color) || (p.right==color) || (p.bottom==color) || (p.left==color))
 			return true;
@@ -251,7 +251,7 @@ public class Pieza {
 	 * Esta funcion lleva el estado actual de rotacion de la pieza
 	 * al estado indicado en el parametro rot.
 	 */
-	public static final void llevarARotacion (final Pieza p, final byte rot)
+	public static final void llevarARotacion (final Pieza p, int rot)
 	{
 		if (p.rotacion == 2) {
 			switch (rot) {
@@ -338,8 +338,6 @@ public class Pieza {
 		if (this == obj)
 			return true;
 		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		Pieza other = (Pieza) obj;
 		if (numero != other.numero)

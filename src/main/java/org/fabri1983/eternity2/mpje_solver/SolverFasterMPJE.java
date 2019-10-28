@@ -374,7 +374,7 @@ public final class SolverFasterMPJE {
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
 			Pieza.llevarARotacion(pz, (byte)0);
 			
-			for (int rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
+			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
 				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
 				if (FairExperimentGif && (pz.top == pz.bottom))
@@ -460,9 +460,16 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void finalizarSuperEstructura (){
 
-		for (int i=super_matriz.length-1; i >=0; --i)
-			if (super_matriz[i] != null)
+		for (int i=super_matriz.length-1; i >=0; --i) {
+			if (super_matriz[i] == null)
+				continue;
+			if (super_matriz[i].util == false) {
+				NodoPosibles.disposeAll(super_matriz[i]);
+				super_matriz[i] = null;
+			}
+			else
 				NodoPosibles.finalizar(super_matriz[i]);
+		}
 	}
 	
 	/**
