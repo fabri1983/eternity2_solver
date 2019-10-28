@@ -1030,7 +1030,7 @@ public final class SolverFaster {
 				doneSignal.await();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
 			System.out.println("Interrupting tasks...");
 			fjpool.shutdownNow();

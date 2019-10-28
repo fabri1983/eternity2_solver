@@ -11,6 +11,6 @@ set jsr166=lib/jsr166.jar
 :: 1000m max usage for 8 threads
 set mem_alloc=1000m
 
-%java% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% -jar e2solver_jrockit.jar
+%java% -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% -jar e2solver_jrockit.jar
 
 chdir /d %ORIG_DIR%
