@@ -54,8 +54,7 @@ public class Pieza {
 	public byte rotacion;
 	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza
-	public byte count_grises;
-	public boolean es_esquina, es_borde, es_interior;
+	public byte feature;// es_interior = 0 GRIS, es_borde = 1 GRIS, es_esquina = 2 GRIS
 	
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
 //	private static int countIdUnico = 0;

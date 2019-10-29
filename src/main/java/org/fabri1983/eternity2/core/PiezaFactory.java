@@ -32,7 +32,7 @@ public final class PiezaFactory {
 		p.right=0;
 		p.bottom=0;
 		p.left=0;
-		contarGrises(p);
+		setFeature(p);
 		p.numero=0;
 		p.rotacion=0;
 		p.usada=false;
@@ -57,7 +57,7 @@ public final class PiezaFactory {
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
 		p.bottom= Byte.parseByte(s.substring(seg_sep+1,tercer_sep));
 		p.left= Byte.parseByte(s.substring(tercer_sep+1,s.length()));
-		contarGrises(p);
+		setFeature(p);
 		
 		p.numero= num;
 		p.rotacion=0;
@@ -78,7 +78,7 @@ public final class PiezaFactory {
 		p.right= pz.right;
 		p.bottom= pz.bottom;
 		p.left= pz.left;
-		contarGrises(p);
+		setFeature(p);
 		p.numero= pz.numero;
 		p.rotacion= pz.rotacion;
 		p.usada= pz.usada;
@@ -108,7 +108,7 @@ public final class PiezaFactory {
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
 		p.bottom= Byte.parseByte(s.substring(seg_sep+1,tercer_sep));
 		p.left= Byte.parseByte(s.substring(tercer_sep+1,cuarto_sep));
-		contarGrises(p);
+		setFeature(p);
 		
 		//Segundo: separo el valor numerico de la pieza
 		int quinto_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
@@ -131,23 +131,15 @@ public final class PiezaFactory {
 		return p;
 	}
 	
-	private static final void contarGrises(final Pieza p)
+	private static final void setFeature(final Pieza p)
 	{
-		p.count_grises=0;
-		if (p.top == Pieza.GRIS) ++p.count_grises;
-		if (p.right == Pieza.GRIS) ++p.count_grises;
-		if (p.bottom == Pieza.GRIS) ++p.count_grises;
-		if (p.left == Pieza.GRIS) ++p.count_grises;
+		byte count_grises=0;
+		if (p.top == Pieza.GRIS) ++count_grises;
+		if (p.right == Pieza.GRIS) ++count_grises;
+		if (p.bottom == Pieza.GRIS) ++count_grises;
+		if (p.left == Pieza.GRIS) ++count_grises;
 		
-		p.es_esquina = false;
-		p.es_borde = false;
-		p.es_interior = false;
-		if (p.count_grises==2)
-			p.es_esquina = true;
-		else if (p.count_grises==1)
-			p.es_borde = true;
-		else
-			p.es_interior = true;
+		p.feature = count_grises;
 	}
 	
 }

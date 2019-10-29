@@ -452,15 +452,18 @@ public class ExploracionAction extends RecursiveAction {
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
 			// la más común que es interior
 			if (flag_zona == SolverFaster.F_INTERIOR ) {
-				if (!p.es_interior) continue;
+				// si pieza actual no es interior
+				if (p.feature != 0) continue;
 			}
 			// mayor a F_INTERIOR significa que estoy en borde
 			else if (flag_zona > SolverFaster.F_INTERIOR) {
-				if (!p.es_borde) continue;
+				// si pieza actual no es borde
+				if (p.feature != 1) continue;
 			}
 			// menor a F_INTERIOR significa que estoy en esquina
 			else {
-				if (!p.es_esquina) continue;
+				// si pieza actual no es esquina
+				if (p.feature != 2) continue;
 			}
 				
 			// pregunto si está activada la poda del color right explorado en borde left

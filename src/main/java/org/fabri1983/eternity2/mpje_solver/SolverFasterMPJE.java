@@ -1086,15 +1086,18 @@ public final class SolverFasterMPJE {
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
 			// la más común que es interior
 			if (flag_zona == F_INTERIOR ) {
-				if (!p.es_interior) continue;
+				// si pieza actual no es interior
+				if (p.feature != 0) continue;
 			}
 			// mayor a F_INTERIOR significa que estoy en borde
 			else if (flag_zona > F_INTERIOR) {
-				if (!p.es_borde) continue;
+				// si pieza actual no es borde
+				if (p.feature != 1) continue;
 			}
 			// menor a F_INTERIOR significa que estoy en esquina
 			else {
-				if (!p.es_esquina) continue;
+				// si pieza actual no es esquina
+				if (p.feature != 2) continue;
 			}
 			
 			// pregunto si está activada la poda del color right explorado en borde left
@@ -1363,18 +1366,18 @@ public final class SolverFasterMPJE {
 	private final static void verificarTiposDePieza (){
 		int n_esq= 0;
 		int n_bordes= 0;
-		int n_centrales= 0;
+		int n_interiores= 0;
 	
 		for (int g=0; g < MAX_PIEZAS; ++g){
 			Pieza pzx = piezas[g];
-			if (pzx.es_esquina)
-				++n_esq;
-			if (pzx.es_borde)
+			if (pzx.feature == 0)
+				++n_interiores;
+			else if (pzx.feature == 1)
 				++n_bordes;
-			if (pzx.es_interior)
-				++n_centrales;
+			else if (pzx.feature == 2)
+				++n_esq;
 		}
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_centrales != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
 			System.out.println("ERROR. Existe una o varias piezas incorrectas.");
 	}
 	

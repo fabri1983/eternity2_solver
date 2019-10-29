@@ -616,20 +616,20 @@ public final class SolverFaster {
 		
 		int n_esq= 0;
 		int n_bordes= 0;
-		int n_centrales= 0;
+		int n_interiores= 0;
 	
 		for (int g=0; g < MAX_PIEZAS; ++g)
 		{
 			Pieza pzx = action.piezas[g];
-			if (pzx.es_esquina)
-				++n_esq;
-			if (pzx.es_borde)
+			if (pzx.feature == 0)
+				++n_interiores;
+			else if (pzx.feature == 1)
 				++n_bordes;
-			if (pzx.es_interior)
-				++n_centrales;
+			else if (pzx.feature == 2)
+				++n_esq;
 		}
 		
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_centrales != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
 			System.out.println(action.id + " >>> ERROR. Existe una o varias piezas incorrectas.");
 	}
 
