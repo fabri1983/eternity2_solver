@@ -288,16 +288,6 @@ public final class SolverFaster {
 		long startingTime = System.nanoTime();
 		
 		/**
-		 * Inicializo todo con una referencia válida.
-		 * Ojo que hay celdas en la matriz que no se generan con las combinaciones de los colores de piezas, por ende pueden quedar celdas en null 
-		 */
-		for (byte i=0; i <= MAX_COLORES; ++i)
-			for (byte j=0; j <= MAX_COLORES; ++j)
-				for (byte k=0; k <= MAX_COLORES; ++k)
-					for (byte l=0; l <= MAX_COLORES; ++l)
-						action.super_matriz[MapaKeys.getKey(i,j,k,l)]= new NodoPosibles();
-		
-		/**
 		 * Para cada posible combinacion entre los colores de las secciones top, 
 		 * right, bottom y left creo un vector que contendrá las piezas que tengan
 		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
@@ -312,10 +302,6 @@ public final class SolverFaster {
 		for (int i=action.super_matriz.length-1; i >=0; --i) {
 			if (action.super_matriz[i] == null)
 				continue;
-			else if (action.super_matriz[i].util == false) {
-				NodoPosibles.disposeAll(action.super_matriz[i]);
-				action.super_matriz[i] = null;
-			}
 			else
 				NodoPosibles.finalizar(action.super_matriz[i]);
 		}
@@ -347,40 +333,70 @@ public final class SolverFaster {
 				
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				if (action.super_matriz[key1] == null)
+					action.super_matriz[key1] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
+				if (action.super_matriz[key2] == null)
+					action.super_matriz[key2] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
+				if (action.super_matriz[key3] == null)
+					action.super_matriz[key3] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
+				if (action.super_matriz[key4] == null)
+					action.super_matriz[key4] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
+				if (action.super_matriz[key5] == null)
+					action.super_matriz[key5] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
 				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
+				if (action.super_matriz[key6] == null)
+					action.super_matriz[key6] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key6], pz, rot);
 				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				if (action.super_matriz[key7] == null)
+					action.super_matriz[key7] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key7], pz, rot);
 				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				if (action.super_matriz[key8] == null)
+					action.super_matriz[key8] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key8], pz, rot);
-				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);	
+				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
+				if (action.super_matriz[key9] == null)
+					action.super_matriz[key9] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key9], pz, rot);
 				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (action.super_matriz[key10] == null)
+					action.super_matriz[key10] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key10], pz, rot);
 				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				if (action.super_matriz[key11] == null)
+					action.super_matriz[key11] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
 				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				if (action.super_matriz[key12] == null)
+					action.super_matriz[key12] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key12], pz, rot);
 				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				if (action.super_matriz[key13] == null)
+					action.super_matriz[key13] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key13], pz, rot);
 				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (action.super_matriz[key14] == null)
+					action.super_matriz[key14] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key14], pz, rot);
 				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				if (action.super_matriz[key15] == null)
+					action.super_matriz[key15] = new NodoPosibles();
 				NodoPosibles.addReferencia(action.super_matriz[key15], pz, rot);
 			}
 			

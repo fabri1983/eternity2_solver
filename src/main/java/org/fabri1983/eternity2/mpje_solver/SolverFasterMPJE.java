@@ -311,15 +311,10 @@ public final class SolverFasterMPJE {
 	{
 		time_inicial=System.nanoTime();
 		
-		//inicializo todo en null
-		/*for (int i=0; i <= MAX_COLORES; ++i)
-			for (int j=0; j <= MAX_COLORES; ++j)
-				for (int k=0; k <= MAX_COLORES; ++k)
-					for (int l=0; l <= MAX_COLORES; ++l)
-						super_matriz[i][j][k][l]= null;*/
-		
 		llenarSuperEstructura();
+		
 		finalizarSuperEstructura();
+		
 		System.out.println("Rank " + THIS_PROCESS + ": carga de estructura 4-Dimensional finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
 		
 		System.gc();
@@ -368,6 +363,7 @@ public final class SolverFasterMPJE {
 		{
 			if (k == INDICE_P_CENTRAL)
 				continue;
+			
 			Pieza pz = piezas[k];
 			
 			//guardo la rotación de la pieza
@@ -384,70 +380,70 @@ public final class SolverFasterMPJE {
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (super_matriz[key1] == null)
-					super_matriz[key1]= new NodoPosibles();
+					super_matriz[key1] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (super_matriz[key2] == null)
-					super_matriz[key2]= new NodoPosibles();
+					super_matriz[key2] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key3] == null)
-					super_matriz[key3]= new NodoPosibles();
+					super_matriz[key3] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key4] == null)
-					super_matriz[key4]= new NodoPosibles();
+					super_matriz[key4] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key5] == null)
-					super_matriz[key5]= new NodoPosibles();
+					super_matriz[key5] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				int key11 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
-				if (super_matriz[key11] == null)
-					super_matriz[key11]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
-				int key22 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
-				if (super_matriz[key22] == null)
-					super_matriz[key22]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key22], pz, rot);
-				int key33 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
-				if (super_matriz[key33] == null)
-					super_matriz[key33]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key33], pz, rot);
-				int key44 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
-				if (super_matriz[key44] == null)
-					super_matriz[key44]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key44], pz, rot);
-				int key55 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
-				if (super_matriz[key55] == null)
-					super_matriz[key55]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key55], pz, rot);
-				int key6 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key6] == null)
-					super_matriz[key6]= new NodoPosibles();
+					super_matriz[key6] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key6], pz, rot);
+				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				if (super_matriz[key7] == null)
+					super_matriz[key7] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key7], pz, rot);
+				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				if (super_matriz[key8] == null)
+					super_matriz[key8] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key8], pz, rot);
+				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
+				if (super_matriz[key9] == null)
+					super_matriz[key9] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key9], pz, rot);
+				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (super_matriz[key10] == null)
+					super_matriz[key10] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key10], pz, rot);
+				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key11] == null)
+					super_matriz[key11] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
-				int key111 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
-				if (super_matriz[key111] == null)
-					super_matriz[key111]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key111], pz, rot);
-				int key222 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
-				if (super_matriz[key222] == null)
-					super_matriz[key222]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key222], pz, rot);
-				int key333 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
-				if (super_matriz[key333] == null)
-					super_matriz[key333]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key333], pz, rot);
-				int key444 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
-				if (super_matriz[key444] == null)
-					super_matriz[key444]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key444], pz, rot);
+				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key12] == null)
+					super_matriz[key12] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key12], pz, rot);
+				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key13] == null)
+					super_matriz[key13] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key13], pz, rot);
+				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (super_matriz[key14] == null)
+					super_matriz[key14] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key14], pz, rot);
+				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				if (super_matriz[key15] == null)
+					super_matriz[key15] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key15], pz, rot);
 			}
 			
 			//restauro la rotación
@@ -464,10 +460,6 @@ public final class SolverFasterMPJE {
 		for (int i=super_matriz.length-1; i >=0; --i) {
 			if (super_matriz[i] == null)
 				continue;
-			if (super_matriz[i].util == false) {
-				NodoPosibles.disposeAll(super_matriz[i]);
-				super_matriz[i] = null;
-			}
 			else
 				NodoPosibles.finalizar(super_matriz[i]);
 		}
