@@ -23,7 +23,6 @@
 package org.fabri1983.eternity2.core;
 
 public final class PiezaFactory {
-
 	
 	public static Pieza dummy()
 	{
@@ -38,7 +37,6 @@ public final class PiezaFactory {
 		p.rotacion=0;
 		p.usada=false;
 		//p.pos= -1;
-		setMatchCentral(p);
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
@@ -65,7 +63,6 @@ public final class PiezaFactory {
 		p.rotacion=0;
 		p.usada=false;
 		//pos= -1;
-		setMatchCentral(p);
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
@@ -86,7 +83,6 @@ public final class PiezaFactory {
 		p.rotacion= pz.rotacion;
 		p.usada= pz.usada;
 		//pos= pz.pos;
-		setMatchCentral(p);
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
@@ -127,9 +123,7 @@ public final class PiezaFactory {
 		p.usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
 
 		// Quinto: separo la posición en la que se encuentra la pieza
-		//pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
-		
-		setMatchCentral(p);
+		//p.pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
@@ -154,19 +148,6 @@ public final class PiezaFactory {
 			p.es_borde = true;
 		else
 			p.es_interior = true;
-	}
-	
-	private static final void setMatchCentral (final Pieza p)
-	{
-		p.es_match_central= false;
-		if (p.top==6 || p.top==11 || p.top==18)
-			p.es_match_central=true;
-		else if (p.right==6 || p.right==11 || p.right==18)
-			p.es_match_central=true;
-		else if (p.bottom==6 || p.bottom==11 || p.bottom==18)
-			p.es_match_central=true;
-		else if (p.left==6 || p.left==11 || p.left==18)
-			p.es_match_central=true;
 	}
 	
 }

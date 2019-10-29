@@ -55,7 +55,6 @@ public class Pieza {
 	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza
 	public byte count_grises;
-	public boolean es_match_central; //me dice si tiene al menos uno de los colores de la pieza central (6, 11 o 18)
 	public boolean es_esquina, es_borde, es_interior;
 	
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
