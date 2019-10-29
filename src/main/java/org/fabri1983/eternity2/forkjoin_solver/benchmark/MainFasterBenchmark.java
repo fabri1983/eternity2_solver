@@ -40,6 +40,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 public class MainFasterBenchmark {
@@ -52,8 +53,8 @@ public class MainFasterBenchmark {
 	@BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
-	@Fork(value = 5)
+    @Measurement(iterations = 1) // I'm doing 1 iteration due to OutOfMemoryError
+	@Fork(value = 5) // since I'm having a OutOfMemoryError iterating more than once, then I fork new JVMs
 	public void init(MainFasterBenchmarkContextProvider context) {
 		context.solver.atacar(context.timeoutTaskInSecs);
 		context.solver.resetInternalStatus();
@@ -100,6 +101,10 @@ public class MainFasterBenchmark {
 			System.out.println(); // to get a clean output
 			
 			solver.setupInicial();
+		}
+		
+		@TearDown(Level.Invocation)
+		public void doTearDown() {
 		}
 		
 		private final Properties readProperties() throws IOException {

@@ -53,8 +53,8 @@ Third party APIs
 It is included in the project as a system dependency  
 
 **jsr166**. https://www.jcp.org/en/jsr/detail?id=166.  
-Is the java concurrent api for Java 1.6 target builds.  
-I use this to run the program on the Oracle JRockit VM.  
+Is the java concurrent api for JVM 1.6 target builds.  
+This api provides fork/join functionality to run the program on the Oracle JRockit VM.  
 
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
