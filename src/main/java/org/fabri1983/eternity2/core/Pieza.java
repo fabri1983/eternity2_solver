@@ -50,7 +50,7 @@ public class Pieza {
 	public static final int OFFSET_USADA = 30;*/
 	
 	public byte top,right,bottom,left;
-	public int numero; // número que representa la pieza en el juego real
+	public byte numero; // número que representa la pieza en el juego real
 	public byte rotacion;
 	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza
@@ -84,7 +84,7 @@ public class Pieza {
 		return p;
 	}
 
-	public Pieza (String s, int num)
+	public Pieza (String s, byte num)
 	{
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
 		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,0);
@@ -144,7 +144,7 @@ public class Pieza {
 		
 		//Segundo: separo el valor numerico de la pieza
 		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,cuarto_sep+1);
-		numero= Integer.parseInt(s.substring(cuarto_sep+1,quinto_sep));
+		numero= Byte.parseByte(s.substring(cuarto_sep+1,quinto_sep));
 		
 		// Tercero: separo el valor de rotación de la pieza
 		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,quinto_sep+1);
