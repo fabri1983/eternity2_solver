@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,9 @@ package org.fabri1983.eternity2.core;
 
 public class Pieza {
 	
-	private final static byte GRIS=0;
-	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
-	private final static byte MAX_ESTADOS_ROTACION = 4; // el número máximo de estados de rotación por pieza
+	final static byte GRIS=0;
+	final static String SECCIONES_SEPARATOR_EN_FILE= " ";
+	final static byte MAX_ESTADOS_ROTACION = 4; // el número máximo de estados de rotación por pieza
 	
 	// NOTA: ubicación de datos en data
 	// Los bits 0..4 color top.
@@ -54,159 +54,10 @@ public class Pieza {
 	public byte rotacion;
 	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza
-	public byte count_grises;
-	public boolean es_match_central; //me dice si tiene al menos uno de los colores de la pieza central (6, 11 o 18)
-	public boolean es_esquina, es_borde, es_interior;
+	public byte feature;// es_interior = 0 GRIS, es_borde = 1 GRIS, es_esquina = 2 GRIS
 	
-	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen
-	// copias private static int countIdUnico = 0;
-	
-	private Pieza() {
-	}
-	
-	public static Pieza dummy()
-	{
-		Pieza p = new Pieza();
-		p.top=0;
-		p.right=0;
-		p.bottom=0;
-		p.left=0;
-		contarGrises(p);
-		p.numero=0;
-		p.rotacion=0;
-		p.usada=false;
-		//p.pos= -1;
-		setMatchCentral(p);
-		
-		/*p.idUnico = countIdUnico;
-		++p.countIdUnico;*/
-		
-		return p;
-	}
-
-	public Pieza (String s, byte num)
-	{
-		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
-		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,0);
-		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,primer_sep+1);
-		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,seg_sep+1);
-
-		top= Byte.parseByte(s.substring(0,primer_sep));
-		right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
-		bottom= Byte.parseByte(s.substring(seg_sep+1,tercer_sep));
-		left= Byte.parseByte(s.substring(tercer_sep+1,s.length()));
-		contarGrises(this);
-		
-		numero= num;
-		rotacion=0;
-		usada=false;
-		//pos= -1;
-		setMatchCentral(this);
-		
-		/*idUnico = countIdUnico;
-		++countIdUnico;*/
-	}
-	
-	public Pieza (Pieza pz)
-	{
-		top= pz.top;
-		right= pz.right;
-		bottom= pz.bottom;
-		left= pz.left;
-		contarGrises(this);
-		numero= pz.numero;
-		rotacion= pz.rotacion;
-		usada= pz.usada;
-		//pos= pz.pos;
-		setMatchCentral(this);
-		
-		/*idUnico = countIdUnico;
-		++countIdUnico;*/
-	}
-	
-	/**
-	 * Este constructor se encarga de extraer todos los parametros de una pieza
-	 * contenidos en un String.
-	 */
-	public Pieza (String s)
-	{
-		// Primero: separo los valores de top, right, bottom y left
-		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,0);
-		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,primer_sep+1);
-		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,seg_sep+1);
-		int cuarto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,tercer_sep+1);
-		
-		top= Byte.parseByte(s.substring(0,primer_sep));
-		right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
-		bottom= Byte.parseByte(s.substring(seg_sep+1,tercer_sep));
-		left= Byte.parseByte(s.substring(tercer_sep+1,cuarto_sep));
-		contarGrises(this);
-		
-		//Segundo: separo el valor numerico de la pieza
-		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,cuarto_sep+1);
-		numero= Byte.parseByte(s.substring(cuarto_sep+1,quinto_sep));
-		
-		// Tercero: separo el valor de rotación de la pieza
-		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,quinto_sep+1);
-		rotacion= Byte.parseByte(s.substring(quinto_sep+1,sexto_sep));
-		
-		//Cuarto: separo el valor usada de la pieza
-		int sept_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE,sexto_sep+1);
-		usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
-
-		// Quinto: separo la posición en la que se encuentra la pieza
-		//pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
-		
-		setMatchCentral(this);
-		
-		/*idUnico = countIdUnico;
-		++countIdUnico;*/
-	}
-	
-	private static final void contarGrises(final Pieza p)
-	{
-		p.count_grises=0;
-		if (p.top==GRIS) ++p.count_grises;
-		if (p.right==GRIS) ++p.count_grises;
-		if (p.bottom==GRIS) ++p.count_grises;
-		if (p.left==GRIS) ++p.count_grises;
-		
-		p.es_esquina = false;
-		p.es_borde = false;
-		p.es_interior = false;
-		if (p.count_grises==2)
-			p.es_esquina = true;
-		else if (p.count_grises==1)
-			p.es_borde = true;
-		else
-			p.es_interior = true;
-	}
-	
-	private static final void setMatchCentral (final Pieza p)
-	{
-		p.es_match_central= false;
-		if (p.top==6 || p.top==11 || p.top==18)
-			p.es_match_central=true;
-		else if (p.right==6 || p.right==11 || p.right==18)
-			p.es_match_central=true;
-		else if (p.bottom==6 || p.bottom==11 || p.bottom==18)
-			p.es_match_central=true;
-		else if (p.left==6 || p.left==11 || p.left==18)
-			p.es_match_central=true;
-	}
-	
-	public final String toString ()
-	{
-		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE 
-				+ bottom + SECCIONES_SEPARATOR_EN_FILE + left + SECCIONES_SEPARATOR_EN_FILE 
-				+ numero + SECCIONES_SEPARATOR_EN_FILE + rotacion + SECCIONES_SEPARATOR_EN_FILE 
-				+ String.valueOf(usada) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
-	}
-	
-	public final String toStringColores ()
-	{
-		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE + bottom + SECCIONES_SEPARATOR_EN_FILE + left;
-	}
+	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
+//	private static int countIdUnico = 0;
 	
 	public static final boolean tieneColor (final Pieza p, int color)
 	{
@@ -290,26 +141,6 @@ public class Pieza {
 				return;
 			}
 		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + numero;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Pieza other = (Pieza) obj;
-		if (numero != other.numero)
-			return false;
-		return true;
 	}
 
 }

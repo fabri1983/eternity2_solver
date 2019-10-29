@@ -139,7 +139,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<!-- This profile can only be activated for java 6, 7, 8 only -->
+			<!-- This profile can only be activated for java 6, 7, 8, 9, 10, 11 only -->
 			<id>junion</id>
 			<properties>
 				<!-- junion outputs modified source so we have to put it in new location. -->

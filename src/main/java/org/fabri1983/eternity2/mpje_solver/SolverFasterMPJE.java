@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,8 @@ import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.PiezaFactory;
+import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.SendMail;
 import org.fabri1983.eternity2.ui.EternityIIForMPJE;
 
@@ -310,15 +312,10 @@ public final class SolverFasterMPJE {
 	{
 		time_inicial=System.nanoTime();
 		
-		//inicializo todo en null
-		/*for (int i=0; i <= MAX_COLORES; ++i)
-			for (int j=0; j <= MAX_COLORES; ++j)
-				for (int k=0; k <= MAX_COLORES; ++k)
-					for (int l=0; l <= MAX_COLORES; ++l)
-						super_matriz[i][j][k][l]= null;*/
-		
 		llenarSuperEstructura();
+		
 		finalizarSuperEstructura();
+		
 		System.out.println("Rank " + THIS_PROCESS + ": carga de estructura 4-Dimensional finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
 		
 		System.gc();
@@ -367,6 +364,7 @@ public final class SolverFasterMPJE {
 		{
 			if (k == INDICE_P_CENTRAL)
 				continue;
+			
 			Pieza pz = piezas[k];
 			
 			//guardo la rotación de la pieza
@@ -383,70 +381,70 @@ public final class SolverFasterMPJE {
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (super_matriz[key1] == null)
-					super_matriz[key1]= new NodoPosibles();
+					super_matriz[key1] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (super_matriz[key2] == null)
-					super_matriz[key2]= new NodoPosibles();
+					super_matriz[key2] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key3] == null)
-					super_matriz[key3]= new NodoPosibles();
+					super_matriz[key3] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key4] == null)
-					super_matriz[key4]= new NodoPosibles();
+					super_matriz[key4] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key5] == null)
-					super_matriz[key5]= new NodoPosibles();
+					super_matriz[key5] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				int key11 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
-				if (super_matriz[key11] == null)
-					super_matriz[key11]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
-				int key22 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
-				if (super_matriz[key22] == null)
-					super_matriz[key22]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key22], pz, rot);
-				int key33 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
-				if (super_matriz[key33] == null)
-					super_matriz[key33]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key33], pz, rot);
-				int key44 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
-				if (super_matriz[key44] == null)
-					super_matriz[key44]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key44], pz, rot);
-				int key55 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
-				if (super_matriz[key55] == null)
-					super_matriz[key55]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key55], pz, rot);
-				int key6 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key6] == null)
-					super_matriz[key6]= new NodoPosibles();
+					super_matriz[key6] = new NodoPosibles();
 				NodoPosibles.addReferencia(super_matriz[key6], pz, rot);
+				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				if (super_matriz[key7] == null)
+					super_matriz[key7] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key7], pz, rot);
+				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				if (super_matriz[key8] == null)
+					super_matriz[key8] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key8], pz, rot);
+				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
+				if (super_matriz[key9] == null)
+					super_matriz[key9] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key9], pz, rot);
+				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (super_matriz[key10] == null)
+					super_matriz[key10] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key10], pz, rot);
+				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key11] == null)
+					super_matriz[key11] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
-				int key111 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
-				if (super_matriz[key111] == null)
-					super_matriz[key111]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key111], pz, rot);
-				int key222 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
-				if (super_matriz[key222] == null)
-					super_matriz[key222]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key222], pz, rot);
-				int key333 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
-				if (super_matriz[key333] == null)
-					super_matriz[key333]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key333], pz, rot);
-				int key444 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
-				if (super_matriz[key444] == null)
-					super_matriz[key444]= new NodoPosibles();
-				NodoPosibles.addReferencia(super_matriz[key444], pz, rot);
+				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key12] == null)
+					super_matriz[key12] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key12], pz, rot);
+				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				if (super_matriz[key13] == null)
+					super_matriz[key13] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key13], pz, rot);
+				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				if (super_matriz[key14] == null)
+					super_matriz[key14] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key14], pz, rot);
+				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				if (super_matriz[key15] == null)
+					super_matriz[key15] = new NodoPosibles();
+				NodoPosibles.addReferencia(super_matriz[key15], pz, rot);
 			}
 			
 			//restauro la rotación
@@ -463,10 +461,6 @@ public final class SolverFasterMPJE {
 		for (int i=super_matriz.length-1; i >=0; --i) {
 			if (super_matriz[i] == null)
 				continue;
-			if (super_matriz[i].util == false) {
-				NodoPosibles.disposeAll(super_matriz[i]);
-				super_matriz[i] = null;
-			}
 			else
 				NodoPosibles.finalizar(super_matriz[i]);
 		}
@@ -517,7 +511,7 @@ public final class SolverFasterMPJE {
 			while (linea != null){
 				if (num >= MAX_PIEZAS) 
 					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= new Pieza(linea, (byte)num); 
+				piezas[num]= PiezaFactory.from(linea, (byte)num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -1092,15 +1086,18 @@ public final class SolverFasterMPJE {
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
 			// la más común que es interior
 			if (flag_zona == F_INTERIOR ) {
-				if (!p.es_interior) continue;
+				// si pieza actual no es interior
+				if (p.feature != 0) continue;
 			}
 			// mayor a F_INTERIOR significa que estoy en borde
 			else if (flag_zona > F_INTERIOR) {
-				if (!p.es_borde) continue;
+				// si pieza actual no es borde
+				if (p.feature != 1) continue;
 			}
 			// menor a F_INTERIOR significa que estoy en esquina
 			else {
-				if (!p.es_esquina) continue;
+				// si pieza actual no es esquina
+				if (p.feature != 2) continue;
 			}
 			
 			// pregunto si está activada la poda del color right explorado en borde left
@@ -1369,17 +1366,18 @@ public final class SolverFasterMPJE {
 	private final static void verificarTiposDePieza (){
 		int n_esq= 0;
 		int n_bordes= 0;
-		int n_centrales= 0;
+		int n_interiores= 0;
 	
 		for (int g=0; g < MAX_PIEZAS; ++g){
-			if (piezas[g].es_esquina)
-				++n_esq;
-			if (piezas[g].es_borde)
+			Pieza pzx = piezas[g];
+			if (pzx.feature == 0)
+				++n_interiores;
+			else if (pzx.feature == 1)
 				++n_bordes;
-			if (piezas[g].es_interior)
-				++n_centrales;
+			else if (pzx.feature == 2)
+				++n_esq;
 		}
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_centrales != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
 			System.out.println("ERROR. Existe una o varias piezas incorrectas.");
 	}
 	
@@ -1425,16 +1423,16 @@ public final class SolverFasterMPJE {
 			
 			for (int b=0; b<MAX_PIEZAS; ++b){
 				int pos= b+1;
-				Pieza piezax= tablero[b];
+				Pieza p= tablero[b];
 				if (tablero[b] == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else{
-					parcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
+					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
-						dispMaxBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -1492,7 +1490,7 @@ public final class SolverFasterMPJE {
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= piezas[b];
 				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.toStringColores()).append("\n");
+					wLibresBuffer.append(PiezaStringer.toStringColores(pzx)).append("\n");
 			}
 			
 			String sContent = wLibresBuffer.toString();
@@ -1530,11 +1528,11 @@ public final class SolverFasterMPJE {
 			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
 			
 			for (int b=0; b<MAX_PIEZAS; ++b){
-				Pieza piezax= tablero[b];
+				Pieza p= tablero[b];
 				int pos= b+1;
-				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
-				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
+				wDisp.println(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");

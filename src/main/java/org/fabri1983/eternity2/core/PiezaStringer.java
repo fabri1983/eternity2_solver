@@ -20,24 +20,22 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.core.tilesreader;
+package org.fabri1983.eternity2.core;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+public class PiezaStringer {
 
-public class FileReaderForTilesFile implements ReaderForTilesFile {
-
-	@Override
-	public BufferedReader getReader(String file) {
-		try {
-			return new BufferedReader(
-					new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return null;
-		}
+	public static final String toString (Pieza p)
+	{
+		return p.top + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.right + Pieza.SECCIONES_SEPARATOR_EN_FILE 
+				+ p.bottom + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.left + Pieza.SECCIONES_SEPARATOR_EN_FILE 
+				+ p.numero + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.rotacion + Pieza.SECCIONES_SEPARATOR_EN_FILE 
+				+ String.valueOf(p.usada) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
+	}
+	
+	public static final String toStringColores (Pieza p)
+	{
+		return p.top + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.right + Pieza.SECCIONES_SEPARATOR_EN_FILE 
+				+ p.bottom + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.left;
 	}
 	
 }
