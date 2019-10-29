@@ -61,19 +61,6 @@ public class Pieza {
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
 //	private static int countIdUnico = 0;
 	
-	public final String toString ()
-	{
-		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE 
-				+ bottom + SECCIONES_SEPARATOR_EN_FILE + left + SECCIONES_SEPARATOR_EN_FILE 
-				+ numero + SECCIONES_SEPARATOR_EN_FILE + rotacion + SECCIONES_SEPARATOR_EN_FILE 
-				+ String.valueOf(usada) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
-	}
-	
-	public final String toStringColores ()
-	{
-		return top + SECCIONES_SEPARATOR_EN_FILE + right + SECCIONES_SEPARATOR_EN_FILE + bottom + SECCIONES_SEPARATOR_EN_FILE + left;
-	}
-	
 	public static final boolean tieneColor (final Pieza p, int color)
 	{
 		if ((p.top==color) || (p.right==color) || (p.bottom==color) || (p.left==color))

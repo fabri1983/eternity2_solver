@@ -39,6 +39,7 @@ import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
+import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
 
 public final class SolverFaster {
@@ -619,11 +620,12 @@ public final class SolverFaster {
 	
 		for (int g=0; g < MAX_PIEZAS; ++g)
 		{
-			if (action.piezas[g].es_esquina)
+			Pieza pzx = action.piezas[g];
+			if (pzx.es_esquina)
 				++n_esq;
-			if (action.piezas[g].es_borde)
+			if (pzx.es_borde)
 				++n_bordes;
-			if (action.piezas[g].es_interior)
+			if (pzx.es_interior)
 				++n_centrales;
 		}
 		
@@ -712,16 +714,16 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				int pos= b+1;
-				Pieza piezax = action.tablero[b];
+				Pieza p = action.tablero[b];
 				if (action.tablero[b] == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else{
-					parcialBuffer.append(piezax.top).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.right).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.left).append("\n");
+					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
-						dispMaxBuff.append(piezax.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(piezax.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -780,7 +782,7 @@ public final class SolverFaster {
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
 				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.toStringColores()).append("\n");
+					wLibresBuffer.append(PiezaStringer.toStringColores(pzx)).append("\n");
 			}
 			
 			String sContent = wLibresBuffer.toString();
@@ -820,11 +822,11 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
-				Pieza piezax= action.tablero[b];
+				Pieza p= action.tablero[b];
 				int pos= b+1;
-				wSol.println(piezax.top + SECCIONES_SEPARATOR_EN_FILE + piezax.right + SECCIONES_SEPARATOR_EN_FILE + piezax.bottom + SECCIONES_SEPARATOR_EN_FILE + piezax.left);
-				wDisp.println(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(piezax.numero + SECCIONES_SEPARATOR_EN_FILE + piezax.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
+				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
+				wDisp.println(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
