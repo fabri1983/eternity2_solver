@@ -1,13 +1,13 @@
 eternity2_solver
 ================
+Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
+Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.  
+
 | Linux | Windows |
 | ----- | ------- |
 | [![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=master)](https://travis-ci.org/fabri1983/eternity2_solver?branch=master) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
 
-![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")
-
-Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
-Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.  
+![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
 This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.  
 
@@ -70,7 +70,8 @@ Helpful links:
 Packaging
 ---------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
-*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in* `proguard.conf`: *uncomment* `rt.jar` *and* `jsse.jar`, *comment* `jmods`.  
+*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in* `proguard.conf`: *uncomment* `rt.jar` *and* `jsse.jar`, *comment* `jmods`.    
+
 Generate the jar artifact:  
 ```sh
 mvn clean package
