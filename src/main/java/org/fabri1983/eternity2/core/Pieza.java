@@ -28,7 +28,6 @@ public class Pieza {
 	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
 	private final static byte MAX_ESTADOS_ROTACION = 4; // el número máximo de estados de rotación por pieza
 	
-	
 	// NOTA: ubicación de datos en data
 	// Los bits 0..4 color top.
 	// Los bits 5..9 color right.
@@ -253,76 +252,44 @@ public class Pieza {
 	 */
 	public static final void llevarARotacion (final Pieza p, int rot)
 	{
-		if (p.rotacion == 2) {
-			switch (rot) {
-				case 0: rotar180(p); break;
-				case 1: rotar270(p); break;
-				case 2: break;
-				case 3: rotar90(p); break;
+		switch (p.rotacion){
+			case 0: {
+				switch (rot){
+					case 0: break;
+					case 1: rotar90(p); break;
+					case 2: rotar180(p); break;
+					case 3: rotar270(p); break;
+				}
+				return;
+			}
+			case 1: {
+				switch (rot){
+					case 0: rotar270(p); break;
+					case 1: break;
+					case 2: rotar90(p); break;
+					case 3: rotar180(p); break;
+				}
+				return;
+			}
+			case 2: {
+				switch (rot){
+					case 0: rotar180(p); break;
+					case 1: rotar270(p); break;
+					case 2: break;
+					case 3: rotar90(p); break;
+				}
+				return;
+			}
+			case 3: {
+				switch (rot){
+					case 0: rotar90(p); break;
+					case 1: rotar180(p); break;
+					case 2: rotar270(p); break;
+					case 3: break;
+				}
+				return;
 			}
 		}
-		else if (p.rotacion > 2) {
-			switch (rot){
-				case 0: rotar90(p); break;
-				case 1: rotar180(p); break;
-				case 2: rotar270(p); break;
-				case 3: break;
-			}
-		}
-		else if (p.rotacion == 1) {
-			switch (rot){
-				case 0: rotar270(p); break;
-				case 1: break;
-				case 2: rotar90(p); break;
-				case 3: rotar180(p); break;
-			}
-		}
-		else {
-			switch (rot){
-				case 0: break;
-				case 1: rotar90(p); break;
-				case 2: rotar180(p); break;
-				case 3: rotar270(p); break;
-			}
-		}
-		/*switch (p.rotacion){
-			case 0:{
-				switch (rot){
-				case 0: break;
-				case 1: rotar90(p); break;
-				case 2: rotar180(p); break;
-				case 3: rotar270(p); break;
-				}
-				break;
-			}
-			case 1:{
-				switch (rot){
-				case 0: rotar270(p); break;
-				case 1: break;
-				case 2: rotar90(p); break;
-				case 3: rotar180(p); break;
-				}
-				break;
-			}
-			case 2:{
-				switch (rot){
-				case 0: rotar180(p); break;
-				case 1: rotar270(p); break;
-				case 2: break;
-				case 3: rotar90(p); break;
-				}
-				break;
-			}
-			case 3:{
-				switch (rot){
-				case 0: rotar90(p); break;
-				case 1: rotar180(p); break;
-				case 2: rotar270(p); break;
-				case 3: break;
-				}
-				break;
-			}
-		}*/
 	}
 
 	@Override
