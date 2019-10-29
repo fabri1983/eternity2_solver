@@ -11,9 +11,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<source.dir>${basedir}/src/main/java</source.dir> <!-- overridden by junion profile -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
 		<jmh.version>1.21</jmh.version>
-		<junit.version>4.13-beta-3</junit.version>
 	</properties>
 
 	<dependencies>
@@ -59,7 +59,7 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
-            <scope>provided</scope> <!-- only this api will be added to the final jar as per profile -->
+            <scope>provided</scope> <!-- only this dependency will be added to the final jar as per profile settings -->
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -70,6 +70,19 @@
 	</dependencies>
 
 	<profiles>
+		<profile>
+			<id>jrockit</id>
+			<properties>
+				<final.jar.name>e2solver_jrockit</final.jar.name>
+				<source.version>1.6</source.version>
+				<compiler.version>1.6</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<pg.compiler.version>1.6</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
 		<profile>
 			<id>java7</id>
 			<activation>
@@ -84,6 +97,19 @@
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
+			<id>mpje</id>
+			<properties>
+				<final.jar.name>e2solver_mpje</final.jar.name>
+				<source.version>1.7</source.version>
+				<compiler.version>1.8</compiler.version>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<pg.compiler.version>1.8</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
+				<env.props.file>mpje.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -111,6 +137,157 @@
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
+		</profile>
+		<profile>
+			<!-- This profile can only be activated for java 6, 7, 8 only -->
+			<id>junion</id>
+			<properties>
+				<!-- junion outputs modified source so we have to put it in new location. -->
+				<!-- Additionally, this value will be used by tag <sourceDirectory> on <build> phase and maven compiler plugin -->
+				<source.dir>${basedir}/target/generated-sources</source.dir>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.github.tehleo</groupId>
+					<artifactId>junion</artifactId>
+					<version>1.2.2</version>
+					<scope>system</scope>
+					<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<!-- required by junion -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>build-classpath</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>build-classpath</goal>
+								</goals>
+								<configuration>
+									<outputProperty>classpath-string</outputProperty>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- required by junion -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+						<executions>
+							<execution>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>java</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<includePluginDependencies>true</includePluginDependencies>
+							<mainClass>theleo.jstruct.plugin.SourceCompiler</mainClass>
+							<sourceRoot>${basedir}/target/generated-sources</sourceRoot>
+							<arguments>
+								<argument>-noSystemExitOnSuccess</argument>
+								<argument>-classpath</argument>
+								<argument>${classpath-string}</argument>
+								<argument>-version</argument>
+								<argument>${compiler.version}</argument>
+								<argument>-sourcepath</argument>
+								<argument>${basedir}/src/main/java</argument>
+								<argument>-outputpath</argument>
+								<argument>${source.dir}</argument>
+							</arguments>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>com.github.tehleo</groupId>
+								<artifactId>junion</artifactId>
+								<version>1.2.2</version>
+								<scope>system</scope>
+								<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
+							</dependency>
+							<dependency>
+								<groupId>com.github.tehleo</groupId>
+								<artifactId>junionc</artifactId>
+								<version>1.2.2</version>
+								<scope>system</scope>
+								<systemPath>${external.libs.dir}/junion/junionc1.2.2.jar</systemPath>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
+							<dependency>
+								<groupId>org.eclipse.jdt</groupId>
+								<artifactId>org.eclipse.jdt.core</artifactId>
+								<version>3.13.102</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core.manipulation -->
+							<dependency>
+								<groupId>org.eclipse.jdt</groupId>
+								<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
+								<version>1.9.100</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.compiler.tool -->
+							<dependency>
+								<groupId>org.eclipse.jdt</groupId>
+								<artifactId>org.eclipse.jdt.compiler.tool</artifactId>
+								<version>1.2.101</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.contenttype -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.core.contenttype</artifactId>
+								<version>3.6.0</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.jobs -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.core.jobs</artifactId>
+								<version>3.9.3</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.resources -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.core.resources</artifactId>
+								<version>3.12.0</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.runtime -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.core.runtime</artifactId>
+								<version>3.13.0</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.equinox.common -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.equinox.common</artifactId>
+								<version>3.9.0</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.equinox.preferences -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.equinox.preferences</artifactId>
+								<version>3.7.0</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.osgi -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.osgi</artifactId>
+								<version>3.12.100</version>
+							</dependency>
+							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.text -->
+							<dependency>
+								<groupId>org.eclipse.platform</groupId>
+								<artifactId>org.eclipse.text</artifactId>
+								<version>3.6.100</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		<profile>
 			<id>java12</id>
@@ -148,36 +325,11 @@
 		        </dependency>
 			</dependencies>
 		</profile>
-		<profile>
-			<id>jrockit</id>
-			<properties>
-				<final.jar.name>e2solver_jrockit</final.jar.name>
-				<source.version>1.6</source.version>
-				<compiler.version>1.6</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
-				<pg.compiler.version>1.6</pg.compiler.version>
-				<pg.injar.filter></pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
-			</properties>
-		</profile>
-		<profile>
-			<id>mpje</id>
-			<properties>
-				<final.jar.name>e2solver_mpje</final.jar.name>
-				<source.version>1.7</source.version>
-				<compiler.version>1.8</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
-				<pg.compiler.version>1.8</pg.compiler.version>
-				<pg.injar.filter></pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
-				<env.props.file>mpje.properties</env.props.file>
-			</properties>
-		</profile>
 	</profiles>
 
 	<build>
 		<finalName>${final.jar.name}</finalName>
+		<sourceDirectory>${source.dir}</sourceDirectory>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -195,43 +347,11 @@
 				<configuration>
 					<source>${source.version}</source>
 					<target>${compiler.version}</target>
-					<encoding>UTF-8</encoding>
 					<compilerArgs>
 						<arg>-O</arg>
 						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
 					</compilerArgs>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>copy</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target name="copy-external-libs">
-                                <copy todir="${project.build.directory}/libs">
-                                    <fileset dir="${external.libs.dir}">
-                                        <include name="**/*" />
-                                    </fileset>
-                                </copy>
-                                <chmod perm="u+rwx" type="file">
-                                    <fileset dir="${project.build.directory}/libs/mpj-v0_44/bin">
-                                        <include name="*" />
-                                        <exclude name="*.bat" />
-                                    </fileset>
-                                </chmod>
-                            </target>
-
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -313,6 +433,35 @@
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>copy-libs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target name="copy-external-libs">
+								<copy todir="${project.build.directory}/libs">
+									<fileset dir="${external.libs.dir}">
+										<include name="mpj-v0_44/**/*" />
+									</fileset>
+								</copy>
+								<chmod perm="u+rwx" type="file">
+									<fileset dir="${project.build.directory}/libs/mpj-v0_44/bin">
+										<include name="*" />
+										<exclude name="*.bat" />
+									</fileset>
+								</chmod>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
