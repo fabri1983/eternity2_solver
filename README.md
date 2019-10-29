@@ -70,7 +70,8 @@ Helpful links:
 Packaging
 ---------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
-*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in `proguard.conf`: uncomment `rt.jar` and `jsse.jar`, comment `jmods`.  
+*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in* `proguard.conf`: *uncomment* `rt.jar` *and* `jsse.jar`, *comment* `jmods`.  
+Generate the jar artifact:  
 ```sh
 mvn clean package
 ```

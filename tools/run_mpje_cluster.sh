@@ -15,4 +15,4 @@ mem_alloc="60m"
 TOTAL_THREADS_IN_CLUSTER=8
 
 # edit mpjrun.sh to select the desired JVM
-$MPJ_HOME/bin/mpjrun.sh -np $TOTAL_THREADS_IN_CLUSTER -dev hybdev -Xms$mem_alloc -Xmx$mem_alloc $all_args e2solver_mpje.jar
+$MPJ_HOME/bin/mpjrun.sh -np $TOTAL_THREADS_IN_CLUSTER -dev hybdev -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Xms$mem_alloc -Xmx$mem_alloc $all_args e2solver_mpje.jar

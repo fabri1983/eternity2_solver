@@ -173,7 +173,7 @@ public class ExploracionAction extends RecursiveAction {
 			// start working
 			doWork();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("ExplorationAction interrupted.");
 		} finally {
 			doneSignal.countDown();
 		}

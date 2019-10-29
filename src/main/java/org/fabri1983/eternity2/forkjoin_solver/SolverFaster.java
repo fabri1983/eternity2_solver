@@ -431,7 +431,7 @@ public final class SolverFaster {
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= new Pieza(linea,num+1); 
+				action.piezas[num]= new Pieza(linea, (byte)num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -491,7 +491,6 @@ public final class SolverFaster {
 			}
 			else{
 				int sep,sep_ant;
-				byte valor;
 				
 				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
 				action.mas_bajo= Integer.parseInt(linea);
@@ -515,7 +514,7 @@ public final class SolverFaster {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 					tablero_aux[k]=valor;
 				}
@@ -527,7 +526,7 @@ public final class SolverFaster {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 					action.desde_saved[k] = valor;
 				}
@@ -544,7 +543,7 @@ public final class SolverFaster {
 							if (k==(LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							valor= Byte.parseByte(linea.substring(sep_ant,sep));
+							byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 							arr_color_rigth_explorado.set(k, valor);
 						}
@@ -862,13 +861,13 @@ public final class SolverFaster {
 					if (action.tablero[n] == null)
 						writerBuffer.append("-1").append("\n");
 					else
-						writerBuffer.append((action.tablero[n].numero-1)).append("\n");
+						writerBuffer.append((action.tablero[n].numero)).append("\n");
 				}
 				else{
 					if (action.tablero[n] == null)
 						writerBuffer.append("-1").append(SECCIONES_SEPARATOR_EN_FILE);
 					else
-						writerBuffer.append((action.tablero[n].numero-1)).append(SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append((action.tablero[n].numero)).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -883,8 +882,8 @@ public final class SolverFaster {
 				if (action.cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[action.cursor] = (byte) (NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
-						action.tablero[action.cursor].numero) + 1);
+				action.desde_saved[action.cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
+						action.tablero[action.cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;action.cursor < MAX_PIEZAS; ++action.cursor)
@@ -1030,7 +1029,7 @@ public final class SolverFaster {
 				doneSignal.await();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
 			System.out.println("Interrupting tasks...");
 			fjpool.shutdownNow();

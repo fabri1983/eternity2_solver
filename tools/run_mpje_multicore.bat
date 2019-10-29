@@ -12,6 +12,6 @@ cd ../target
 set mem_alloc=60m
 
 :: edit mpjrun.bat to select the desired JVM
-%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% e2solver_mpje.jar
+%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% e2solver_mpje.jar
 
 chdir /d %ORIG_DIR%

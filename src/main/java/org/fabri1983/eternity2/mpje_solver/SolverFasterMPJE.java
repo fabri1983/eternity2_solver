@@ -517,7 +517,7 @@ public final class SolverFasterMPJE {
 			while (linea != null){
 				if (num >= MAX_PIEZAS) 
 					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= new Pieza(linea,num+1); 
+				piezas[num]= new Pieza(linea, (byte)num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -576,7 +576,6 @@ public final class SolverFasterMPJE {
 				throw new Exception("First line is null.");
 			else{
 				int sep,sep_ant;
-				byte valor;
 				
 				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
 				mas_bajo= Integer.parseInt(linea);
@@ -600,7 +599,7 @@ public final class SolverFasterMPJE {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 					tablero_aux[k]=valor;
 				}
@@ -612,7 +611,7 @@ public final class SolverFasterMPJE {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 					desde_saved[k] = valor;
 				}
@@ -629,7 +628,7 @@ public final class SolverFasterMPJE {
 							if (k==(LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							valor= Byte.parseByte(linea.substring(sep_ant,sep));
+							byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
 							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
 							arr_color_rigth_explorado[k] = valor;
 						}
@@ -1588,13 +1587,13 @@ public final class SolverFasterMPJE {
 					if (tablero[n] == null)
 						writerBuffer.append("-1").append("\n");
 					else
-						writerBuffer.append((tablero[n].numero-1)).append("\n");
+						writerBuffer.append((tablero[n].numero)).append("\n");
 				}
 				else{
 					if (tablero[n] == null)
 						writerBuffer.append("-1").append(SECCIONES_SEPARATOR_EN_FILE);
 					else
-						writerBuffer.append((tablero[n].numero-1)).append(SECCIONES_SEPARATOR_EN_FILE);
+						writerBuffer.append((tablero[n].numero)).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -1608,7 +1607,7 @@ public final class SolverFasterMPJE {
 				if (cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[cursor] = (byte) (NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(), tablero[cursor].numero) + 1);
+				desde_saved[cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(), tablero[cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;cursor < MAX_PIEZAS; ++cursor)
