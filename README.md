@@ -19,11 +19,11 @@ The project is under continuous development, mostly on spare time. Every time I 
 Some stats:
 
 - Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:  
-Currently placing approx **54 million pieces per second** in a fork-join pool with 8 threads.  
+Currently placing approx **54 million pieces per second** in a fork-join pool **with 8 threads**.  
 And placing approx **80 million pieces per second** using MPJ Express framework as multi-core execution with 8 solver instances.  
 
 - Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:  
-Currently placing **38 million pieces per second** in a fork-join pool with 4 threads.  
+Currently placing **38 million pieces per second** in a fork-join pool **with 4 threads**.  
 And placing around **90 million pieces per second** using MPJ Express framework with 4 instances of the solver.  
 
 
