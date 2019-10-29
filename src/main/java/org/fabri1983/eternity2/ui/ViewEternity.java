@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
 import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 
@@ -67,7 +68,7 @@ public class ViewEternity extends JFrame implements KeyListener {
     	num_colours = p_num_colours;
     	LADO = pLado;
 		LADO_SHIFT_FOR_DIV = (int) (Math.log10(LADO) / Math.log10(2)); // siempre y cuando LADO sea potencia de 2
-    	pieza_gris = Pieza.dummy();
+    	pieza_gris = PiezaFactory.dummy();
         try {
             jbInit();
         } catch (Exception e) {

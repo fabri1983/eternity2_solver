@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
 
 public final class SolverFaster {
@@ -431,7 +432,7 @@ public final class SolverFaster {
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= new Pieza(linea, (byte)num); 
+				action.piezas[num]= PiezaFactory.from(linea, (byte)num); 
 				linea= reader.readLine();
 				++num;
 			}

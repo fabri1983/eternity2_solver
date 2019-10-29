@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@ public final class NodoPosibles
 		np.referencias[np.currentIndex] = p_referencia;
 		np.rots[np.currentIndex] = rot;
 		np.util = true;
-		np.currentIndex++;
+		++np.currentIndex;
 	}
 	
 	/**

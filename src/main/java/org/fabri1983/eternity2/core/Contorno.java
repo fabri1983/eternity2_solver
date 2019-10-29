@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@
 package org.fabri1983.eternity2.core;
 
 import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
-
 
 /**
  * Esta clase ayuda a saber si un determinado contorno (superior o inferior) está siendo usado o no.
@@ -56,7 +55,7 @@ public final class Contorno
 	 */
 	public final void inicializarContornos (Pieza[] tablero)
 	{
-		// los limites iniciales me evitan los bordes sup e inf
+		// el limite inicial y el final me evitan los bordes sup e inf
 		for (int k=16; k < (SolverFaster.MAX_PIEZAS - 16); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
