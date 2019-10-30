@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
+import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
@@ -97,7 +98,7 @@ public final class SolverFasterMPJE {
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	private static int sig_parcial, cur_destino;
-	public static long count_cicles;
+	public static long count_cycles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -112,10 +113,14 @@ public final class SolverFasterMPJE {
 	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
-	/*
+	/**
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Es 4 porque la matriz de colores solo usa top,right,bottom,left.
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene las piezas que cumplen con esos colores 
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * After getting some stats:
+	 *   - total empty positions = 771021
+	 *   - total valid positions =   6954
+	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	private final static NodoPosibles super_matriz[] = new NodoPosibles[
 	  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
@@ -125,9 +130,10 @@ public final class SolverFasterMPJE {
 	
 	private static int index_sup; //empleados en varios métodos para pasar info
 	
-	private static long time_inicial, time_final; //sirven para calcular el tiempo al hito de posición lejana
+	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 
+	private static StringBuilder printBuffer = new StringBuilder(64);
 	
 	/**
 	 * Algoritmo backtracker.
@@ -302,6 +308,9 @@ public final class SolverFasterMPJE {
 			
 			zona_proc_contorno[k] = true;
 		}
+		
+		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.flush();
 	}
 	
 	/**
@@ -314,11 +323,7 @@ public final class SolverFasterMPJE {
 		
 		llenarSuperEstructura();
 		
-		finalizarSuperEstructura();
-		
 		System.out.println("Rank " + THIS_PROCESS + ": carga de estructura 4-Dimensional finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
-		
-		System.gc();
 		
 		// combinación de 2 colores consecutivos con mayor número de coincidencias para piezas interiores y para todos los tipos a la vez.
 		/*int maxTotal = 0, maxInterior = 0, key = 0;
@@ -381,88 +386,74 @@ public final class SolverFasterMPJE {
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (super_matriz[key1] == null)
-					super_matriz[key1] = new NodoPosibles();
+					super_matriz[key1] = NodoPosibles.newForKey(key1);
 				NodoPosibles.addReferencia(super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (super_matriz[key2] == null)
-					super_matriz[key2] = new NodoPosibles();
+					super_matriz[key2] = NodoPosibles.newForKey(key2);
 				NodoPosibles.addReferencia(super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key3] == null)
-					super_matriz[key3] = new NodoPosibles();
+					super_matriz[key3] = NodoPosibles.newForKey(key3);
 				NodoPosibles.addReferencia(super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key4] == null)
-					super_matriz[key4] = new NodoPosibles();
+					super_matriz[key4] = NodoPosibles.newForKey(key4);
 				NodoPosibles.addReferencia(super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key5] == null)
-					super_matriz[key5] = new NodoPosibles();
+					super_matriz[key5] = NodoPosibles.newForKey(key5);
 				NodoPosibles.addReferencia(super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
 				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key6] == null)
-					super_matriz[key6] = new NodoPosibles();
+					super_matriz[key6] = NodoPosibles.newForKey(key6);
 				NodoPosibles.addReferencia(super_matriz[key6], pz, rot);
 				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key7] == null)
-					super_matriz[key7] = new NodoPosibles();
+					super_matriz[key7] = NodoPosibles.newForKey(key7);
 				NodoPosibles.addReferencia(super_matriz[key7], pz, rot);
 				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key8] == null)
-					super_matriz[key8] = new NodoPosibles();
+					super_matriz[key8] = NodoPosibles.newForKey(key8);
 				NodoPosibles.addReferencia(super_matriz[key8], pz, rot);
 				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key9] == null)
-					super_matriz[key9] = new NodoPosibles();
+					super_matriz[key9] = NodoPosibles.newForKey(key9);
 				NodoPosibles.addReferencia(super_matriz[key9], pz, rot);
 				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key10] == null)
-					super_matriz[key10] = new NodoPosibles();
+					super_matriz[key10] = NodoPosibles.newForKey(key10);
 				NodoPosibles.addReferencia(super_matriz[key10], pz, rot);
 				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key11] == null)
-					super_matriz[key11] = new NodoPosibles();
+					super_matriz[key11] = NodoPosibles.newForKey(key11);
 				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
 				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key12] == null)
-					super_matriz[key12] = new NodoPosibles();
+					super_matriz[key12] = NodoPosibles.newForKey(key12);
 				NodoPosibles.addReferencia(super_matriz[key12], pz, rot);
 				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key13] == null)
-					super_matriz[key13] = new NodoPosibles();
+					super_matriz[key13] = NodoPosibles.newForKey(key13);
 				NodoPosibles.addReferencia(super_matriz[key13], pz, rot);
 				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key14] == null)
-					super_matriz[key14] = new NodoPosibles();
+					super_matriz[key14] = NodoPosibles.newForKey(key14);
 				NodoPosibles.addReferencia(super_matriz[key14], pz, rot);
 				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key15] == null)
-					super_matriz[key15] = new NodoPosibles();
+					super_matriz[key15] = NodoPosibles.newForKey(key15);
 				NodoPosibles.addReferencia(super_matriz[key15], pz, rot);
 			}
 			
 			//restauro la rotación
 			Pieza.llevarARotacion(pz, temp_rot);
-		}
-	}
-
-	/**
-	 * Para cada entrada de la super estructura les acota el espacio de memoria empleado
-	 * al espacio actual convirtiendo las listas en arreglos.
-	 */
-	private final static void finalizarSuperEstructura (){
-
-		for (int i=super_matriz.length-1; i >=0; --i) {
-			if (super_matriz[i] == null)
-				continue;
-			else
-				NodoPosibles.finalizar(super_matriz[i]);
 		}
 	}
 	
@@ -727,7 +718,7 @@ public final class SolverFasterMPJE {
 	 */
 	public final void setupInicial () {
 		
-		count_cicles=0;
+		count_cycles=0;
 		
 		// Pruebo cargar el primer status_saved
 		cargarEstado(NAME_FILE_STATUS);
@@ -742,6 +733,15 @@ public final class SolverFasterMPJE {
 		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
+		//seteo las posiciones donde se puede preguntar por contorno superior usado
+		inicializarZonaReadContornos();
+		
+		//seteo las posiciones donde puedo setear un contorno como usado o libre
+		inicializarZonaProcContornos();
+		
+		// cargar mapa de indice -> size de arreglos para NodoPosibles
+		MapaArraySizePerIndex.getInstance().load();
+		
 		//cargo las posiciones fijas
 		cargarPiezasFijas(); //OJO! antes debo cargar matrix_zonas[]
 		
@@ -751,15 +751,14 @@ public final class SolverFasterMPJE {
 		//seteo como usados los contornos ya existentes en tablero
 		ContornoForMPJE.inicializarContornos(tablero);
 		
-		//seteo las posiciones donde se puede preguntar por contorno superior usado
-		inicializarZonaReadContornos();
-		//seteo las posiciones donde puedo setear un contorno como usado o libre
-		inicializarZonaProcContornos();
-		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
-		System.out.flush();
-		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
+		
+		// limpiar mapa de indices -> size de arreglos para NodoPosibles
+		MapaArraySizePerIndex.getInstance().clean();
+		
+		// this call avoids a OutOfHeapMemory error
+		System.gc();
 	}
 	
 	/**
@@ -873,9 +872,14 @@ public final class SolverFasterMPJE {
 		if (cursor > mas_lejano_parcial_max){
 			mas_lejano_parcial_max= cursor;
 			if (cursor >= LIMITE_RESULTADO_PARCIAL){
-				time_final= System.nanoTime();
-				System.out.println("Rank " + THIS_PROCESS + ": " + TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS) + " ms, cursor " + cursor);
+				long time_final= System.nanoTime();
+				printBuffer.setLength(0);
+				printBuffer.append("Rank ").append(THIS_PROCESS).append(": ")
+					.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
+					.append(" ms, cursor ").append(cursor);
+				System.out.println(printBuffer.toString());
 				System.out.flush();
+				printBuffer.setLength(0);
 				guardarResultadoParcial(true);
 			}
 		}
@@ -893,14 +897,24 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llegué a MAX_CICLOS de ejecución guardo el estado de exploración
-		if (count_cicles >= MAX_CICLOS){
-			count_cicles = 0;
+		if (count_cycles >= MAX_CICLOS){
 			//calculo el tiempo entre status saved
-			long mili_temp = System.nanoTime();
+			long nanoTimeNow = System.nanoTime();
+			long durationNanos = nanoTimeNow - time_status_saved;
+			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			count_cycles = 0;
 			guardarEstado(NAME_FILE_STATUS);
 			guardarResultadoParcial(false);
-			System.out.println("Rank " + THIS_PROCESS + ": -> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo + ", Pos Max " + mas_alto + ". Tiempo: " + TimeUnit.MILLISECONDS.convert(mili_temp - time_status_saved, TimeUnit.NANOSECONDS) + " ms.");
-			time_status_saved = mili_temp;
+			printBuffer.setLength(0);
+			printBuffer.append("Rank ").append(THIS_PROCESS).append(": Estado guardado en cursor ").append(cursor)
+					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
+					.append(". Tiempo: ").append(durationMillis).append(" ms") 
+					.append(", ").append(piecesPerSec).append(" pieces/sec");
+			System.out.println(printBuffer.toString());
+			System.out.flush();
+			printBuffer.setLength(0);
+			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo= MAX_PIEZAS;
 			mas_alto= 0;
@@ -1080,7 +1094,7 @@ public final class SolverFasterMPJE {
 			if (p.usada)
 				continue; // es usada, pruebo con la siguiente pieza
 		
-			++count_cicles; // incremento el contador de combinaciones de piezas
+			++count_cycles; // incremento el contador de combinaciones de piezas
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
@@ -1406,8 +1420,8 @@ public final class SolverFasterMPJE {
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
 			PrintWriter wDispMax= null;
-			StringBuffer parcialBuffer= new StringBuffer(256 * 10);
-			StringBuffer dispMaxBuff= new StringBuffer(256 * 10);
+			StringBuilder parcialBuffer= new StringBuilder(256 * 13);
+			StringBuilder dispMaxBuff= new StringBuilder(256 * 13);
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL_MAX)));
@@ -1479,7 +1493,7 @@ public final class SolverFasterMPJE {
 	private final static void guardarLibres (){
 		try{
 			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_LIBRES_MAX)));
-			StringBuffer wLibresBuffer= new StringBuffer(256 * 10);
+			StringBuilder wLibresBuffer= new StringBuilder(256 * 13);
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= piezas[b];
@@ -1519,7 +1533,7 @@ public final class SolverFasterMPJE {
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_SOLUCION,true)));
 			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICION,true)));
-			StringBuffer contenidoDisp= new StringBuffer(256 * 10);
+			StringBuilder contenidoDisp= new StringBuilder(256 * 13);
 			
 			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
 			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
@@ -1565,7 +1579,7 @@ public final class SolverFasterMPJE {
 	{
 		try{
 			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
-			StringBuffer writerBuffer = new StringBuffer(256 * 10);
+			StringBuilder writerBuffer = new StringBuilder(256 * 13);
 
 			//guardo el valor de mas_bajo
 			writerBuffer.append(mas_bajo).append("\n");

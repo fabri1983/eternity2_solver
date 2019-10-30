@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.fabri1983.eternity2.core.Contorno;
+import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
@@ -91,7 +92,6 @@ public final class SolverFaster {
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
-	protected static long count_filas;
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
 	protected static AtomicIntegerArray arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
@@ -288,29 +288,17 @@ public final class SolverFaster {
 		System.out.print(action.id + " >>> Cargando Estructura 4-Dimensional... ");
 		long startingTime = System.nanoTime();
 		
-		/**
-		 * Para cada posible combinacion entre los colores de las secciones top, 
-		 * right, bottom y left creo un vector que contendrá las piezas que tengan
-		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
-		 * estado de rotacion la cumplen.
-		 */
 		llenarSuperEstructura(action);
 		
-		/**
-		 * Para cada entrada de la super estructura les acota el espacio de memoria empleado actualmente 
-		 * por la carga de las posible Piezas y rotaciones. También setea como null aquellas entradas no útiles.
-		 */
-		for (int i=action.super_matriz.length-1; i >=0; --i) {
-			if (action.super_matriz[i] == null)
-				continue;
-			else
-				NodoPosibles.finalizar(action.super_matriz[i]);
-		}
-		
 		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " microsecs)");
-		System.gc();
 	}
-	
+
+	/**
+	 * Para cada posible combinacion entre los colores de las secciones top, 
+	 * right, bottom y left creo un vector que contendrá las piezas que tengan
+	 * esa combinacion de colores en dichas secciones y ademas guardo en qué
+	 * estado de rotacion la cumplen.
+	 */
 	private static final void llenarSuperEstructura (ExploracionAction action)
 	{
 		// itero sobre el arreglo de piezas
@@ -335,69 +323,69 @@ public final class SolverFaster {
 				//este caso es cuando tengo los 4 colores
 				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (action.super_matriz[key1] == null)
-					action.super_matriz[key1] = new NodoPosibles();
+					action.super_matriz[key1] = NodoPosibles.newForKey(key1);
 				NodoPosibles.addReferencia(action.super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
 				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (action.super_matriz[key2] == null)
-					action.super_matriz[key2] = new NodoPosibles();
+					action.super_matriz[key2] = NodoPosibles.newForKey(key2);
 				NodoPosibles.addReferencia(action.super_matriz[key2], pz, rot);
 				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (action.super_matriz[key3] == null)
-					action.super_matriz[key3] = new NodoPosibles();
+					action.super_matriz[key3] = NodoPosibles.newForKey(key3);
 				NodoPosibles.addReferencia(action.super_matriz[key3], pz, rot);
 				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (action.super_matriz[key4] == null)
-					action.super_matriz[key4] = new NodoPosibles();
+					action.super_matriz[key4] = NodoPosibles.newForKey(key4);
 				NodoPosibles.addReferencia(action.super_matriz[key4], pz, rot);
 				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (action.super_matriz[key5] == null)
-					action.super_matriz[key5] = new NodoPosibles();
+					action.super_matriz[key5] = NodoPosibles.newForKey(key5);
 				NodoPosibles.addReferencia(action.super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
 				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (action.super_matriz[key6] == null)
-					action.super_matriz[key6] = new NodoPosibles();
+					action.super_matriz[key6] = NodoPosibles.newForKey(key6);
 				NodoPosibles.addReferencia(action.super_matriz[key6], pz, rot);
 				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				if (action.super_matriz[key7] == null)
-					action.super_matriz[key7] = new NodoPosibles();
+					action.super_matriz[key7] = NodoPosibles.newForKey(key7);
 				NodoPosibles.addReferencia(action.super_matriz[key7], pz, rot);
 				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				if (action.super_matriz[key8] == null)
-					action.super_matriz[key8] = new NodoPosibles();
+					action.super_matriz[key8] = NodoPosibles.newForKey(key8);
 				NodoPosibles.addReferencia(action.super_matriz[key8], pz, rot);
 				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
 				if (action.super_matriz[key9] == null)
-					action.super_matriz[key9] = new NodoPosibles();
+					action.super_matriz[key9] = NodoPosibles.newForKey(key9);
 				NodoPosibles.addReferencia(action.super_matriz[key9], pz, rot);
 				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (action.super_matriz[key10] == null)
-					action.super_matriz[key10] = new NodoPosibles();
+					action.super_matriz[key10] = NodoPosibles.newForKey(key10);
 				NodoPosibles.addReferencia(action.super_matriz[key10], pz, rot);
 				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				if (action.super_matriz[key11] == null)
-					action.super_matriz[key11] = new NodoPosibles();
+					action.super_matriz[key11] = NodoPosibles.newForKey(key11);
 				NodoPosibles.addReferencia(action.super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
 				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				if (action.super_matriz[key12] == null)
-					action.super_matriz[key12] = new NodoPosibles();
+					action.super_matriz[key12] = NodoPosibles.newForKey(key12);
 				NodoPosibles.addReferencia(action.super_matriz[key12], pz, rot);
 				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				if (action.super_matriz[key13] == null)
-					action.super_matriz[key13] = new NodoPosibles();
+					action.super_matriz[key13] = NodoPosibles.newForKey(key13);
 				NodoPosibles.addReferencia(action.super_matriz[key13], pz, rot);
 				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (action.super_matriz[key14] == null)
-					action.super_matriz[key14] = new NodoPosibles();
+					action.super_matriz[key14] = NodoPosibles.newForKey(key14);
 				NodoPosibles.addReferencia(action.super_matriz[key14], pz, rot);
 				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				if (action.super_matriz[key15] == null)
-					action.super_matriz[key15] = new NodoPosibles();
+					action.super_matriz[key15] = NodoPosibles.newForKey(key15);
 				NodoPosibles.addReferencia(action.super_matriz[key15], pz, rot);
 			}
 			
@@ -405,7 +393,7 @@ public final class SolverFaster {
 			Pieza.llevarARotacion(pz, temp_rot);
 		}
 	}
-	
+
 	/**
 	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar
 	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
@@ -696,8 +684,8 @@ public final class SolverFaster {
 			PrintWriter wParcial= null;
 			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
 			PrintWriter wDispMax = null;
-			StringBuffer parcialBuffer= new StringBuffer(256 * 10);
-			StringBuffer dispMaxBuff= new StringBuffer(256 * 10);
+			StringBuilder parcialBuffer= new StringBuilder(256 * 13);
+			StringBuilder dispMaxBuff= new StringBuilder(256 * 13);
 			
 			if (max){
 				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(action.parcialMaxFileName)));
@@ -771,7 +759,7 @@ public final class SolverFaster {
 	{
 		try{
 			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(action.libresMaxFileName)));
-			StringBuffer wLibresBuffer= new StringBuffer(256 * 10);
+			StringBuilder wLibresBuffer= new StringBuilder(256 * 13);
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
@@ -812,7 +800,7 @@ public final class SolverFaster {
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(action.solucFileName,true)));
 			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(action.dispFileName,true)));
-			StringBuffer contenidoDisp= new StringBuffer(256 * 10);
+			StringBuilder contenidoDisp= new StringBuilder(256 * 13);
 			
 			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
 			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
@@ -860,7 +848,7 @@ public final class SolverFaster {
 		
 		try{
 			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
-			StringBuffer writerBuffer= new StringBuffer(256 * 10);
+			StringBuilder writerBuffer= new StringBuilder(256 * 13);
 	
 			//guardo el valor de mas_bajo
 			writerBuffer.append(action.mas_bajo).append("\n");
@@ -971,6 +959,9 @@ public final class SolverFaster {
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcesoContornos();
 		
+		// cargar mapa de indice -> size de arreglos para NodoPosibles
+		MapaArraySizePerIndex.getInstance().load();
+		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];
 		// a start signal that prevents any ExplorationAction from proceeding until the orchestrator (this thread) is ready for them to proceed
@@ -988,6 +979,12 @@ public final class SolverFaster {
 			
 			actions[proc] = exploracionAction;
 		}
+		
+		// limpiar mapa de indices -> size de arreglos para NodoPosibles
+		MapaArraySizePerIndex.getInstance().clean();
+		
+		// this call avoids a OutOfHeapMemory error
+		System.gc();
 	}
 	
 	/**

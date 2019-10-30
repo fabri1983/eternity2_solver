@@ -24,10 +24,17 @@ package org.fabri1983.eternity2.core;
 
 public final class PiezaFactory {
 	
+	private static final byte GRIS = 0;
+	private static final String SECCIONES_SEPARATOR_EN_FILE= " ";
+	
 	public static Pieza dummy()
 	{
 		Pieza p = new Pieza();
-		
+		setAsDummy(p);
+		return p;
+	}
+
+	public static void setAsDummy(Pieza p) {
 		p.top=0;
 		p.right=0;
 		p.bottom=0;
@@ -40,18 +47,20 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 
 	public static Pieza from (String s, byte num)
 	{
 		Pieza p = new Pieza();
-		
+		setFromStringWithNum(s, num, p);
+		return p;
+	}
+
+	public static void setFromStringWithNum(String s, byte num, Pieza p) {
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
-		int primer_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, 0);
-		int seg_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
-		int tercer_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
+		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
+		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
+		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
 
 		p.top= Byte.parseByte(s.substring(0,primer_sep));
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
@@ -62,18 +71,20 @@ public final class PiezaFactory {
 		p.numero= num;
 		p.rotacion=0;
 		p.usada=false;
-		//pos= -1;
+		//p.pos= -1;
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	public static Pieza from (Pieza pz)
 	{
 		Pieza p = new Pieza();
-		
+		setFromPieza(pz, p);
+		return p;
+	}
+
+	public static void setFromPieza(Pieza pz, Pieza p) {
 		p.top= pz.top;
 		p.right= pz.right;
 		p.bottom= pz.bottom;
@@ -82,12 +93,10 @@ public final class PiezaFactory {
 		p.numero= pz.numero;
 		p.rotacion= pz.rotacion;
 		p.usada= pz.usada;
-		//pos= pz.pos;
+		//p.pos= pz.pos;
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	/**
@@ -97,12 +106,16 @@ public final class PiezaFactory {
 	public static Pieza from (String s)
 	{
 		Pieza p = new Pieza();
-		
+		setFromString(s, p);
+		return p;
+	}
+
+	public static void setFromString(String s, Pieza p) {
 		// Primero: separo los valores de top, right, bottom y left
-		int primer_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, 0);
-		int seg_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
-		int tercer_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
-		int cuarto_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, tercer_sep+1);
+		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
+		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
+		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
+		int cuarto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, tercer_sep+1);
 		
 		p.top= Byte.parseByte(s.substring(0,primer_sep));
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
@@ -111,15 +124,15 @@ public final class PiezaFactory {
 		setFeature(p);
 		
 		//Segundo: separo el valor numerico de la pieza
-		int quinto_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
+		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
 		p.numero= Byte.parseByte(s.substring(cuarto_sep+1,quinto_sep));
 		
 		// Tercero: separo el valor de rotación de la pieza
-		int sexto_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
+		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
 		p.rotacion= Byte.parseByte(s.substring(quinto_sep+1,sexto_sep));
 		
 		//Cuarto: separo el valor usada de la pieza
-		int sept_sep= s.indexOf(Pieza.SECCIONES_SEPARATOR_EN_FILE, sexto_sep+1);
+		int sept_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, sexto_sep+1);
 		p.usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
 
 		// Quinto: separo la posición en la que se encuentra la pieza
@@ -127,17 +140,15 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	private static final void setFeature(final Pieza p)
 	{
 		byte count_grises=0;
-		if (p.top == Pieza.GRIS) ++count_grises;
-		if (p.right == Pieza.GRIS) ++count_grises;
-		if (p.bottom == Pieza.GRIS) ++count_grises;
-		if (p.left == Pieza.GRIS) ++count_grises;
+		if (p.top == GRIS) ++count_grises;
+		if (p.right == GRIS) ++count_grises;
+		if (p.bottom == GRIS) ++count_grises;
+		if (p.left == GRIS) ++count_grises;
 		
 		p.feature = count_grises;
 	}

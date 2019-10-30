@@ -56,6 +56,10 @@ It is included in the project as a system dependency
 Is the java concurrent api for JVM 1.6 target builds.  
 This api provides fork/join functionality to run the program on the Oracle JRockit VM.  
 
+**Junion: structs in Java**. https://github.com/TehLeo/junion.  
+Delivers struct types to Java programming language to decrease memory usage and the possibility to allocate on off-heap area.  
+WIP.  
+
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
 With this tool I could **decrease jar file size by 20%**.  

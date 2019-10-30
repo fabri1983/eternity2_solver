@@ -43,18 +43,19 @@ public class ExploracionAction extends RecursiveAction {
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene una lista de {@link NodoPosibles} 
-	 * con las piezas que cumplen con esos colores.
-	 * Para el cálculo de la capacidad de la matriz de combinaciones de colores se tienen en cuenta solo 
-	 * combinaciones top,right,bottom,left de colores. 
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * After getting some stats:
+	 *   - total empty positions = 771021
+	 *   - total valid positions =   6954
+	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[
-	    (SolverFaster.MAX_COLORES << 20) | 
-	    (SolverFaster.MAX_COLORES << 15) | 
-	    (SolverFaster.MAX_COLORES << 10) | 
-	    (SolverFaster.MAX_COLORES << 5) | 
-	    SolverFaster.MAX_COLORES
-	];
+	  (int) ((SolverFaster.MAX_COLORES * Math.pow(2, 5 * 0)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 1)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 2)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
@@ -85,6 +86,8 @@ public class ExploracionAction extends RecursiveAction {
 	private long count_cycles;
 	private final int[] num_processes_orig = new int[SolverFaster.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
+	
+	private StringBuilder printBuffer = new StringBuilder(64);
 	
 	private CountDownLatch startSignal;
 	private CountDownLatch doneSignal;
@@ -133,9 +136,6 @@ public class ExploracionAction extends RecursiveAction {
 		
 		// seteo como usados los contornos ya existentes en tablero
 		contorno.inicializarContornos(this.tablero);
-		
-		// this call avoids a OutOfHeapMemory error
-		System.gc();
 	}
 
 	public void resetForAtaque(int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
@@ -279,9 +279,12 @@ public class ExploracionAction extends RecursiveAction {
 			mas_lejano_parcial_max = cursor;
 			if (cursor >= LIMITE_RESULTADO_PARCIAL) {
 				long time_final = System.nanoTime();
-				System.out.println(id + " >>> "
-						+ TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS)
-						+ " ms, cursor " + cursor);
+				printBuffer.setLength(0);
+				printBuffer.append(id).append(" >>> ")
+					.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
+					.append(" ms, cursor ").append(cursor);
+				System.out.println(printBuffer.toString());
+				printBuffer.setLength(0);
 				SolverFaster.guardarResultadoParcial(true, this);
 			}
 		}
@@ -301,20 +304,23 @@ public class ExploracionAction extends RecursiveAction {
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
 		
 		if (count_cycles >= MAX_CICLOS) {
-			long currentCycles = count_cycles;
-			count_cycles = 0;
-			if (usarTableroGrafico)
-				SolverFaster.count_cycles[id] = 0;
 			//calculo el tiempo transcurrido desd el último time_status_saved 
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			count_cycles = 0;
+			if (usarTableroGrafico)
+				SolverFaster.count_cycles[id] = 0;
 			SolverFaster.guardarEstado(statusFileName, this);
 			SolverFaster.guardarResultadoParcial(false, this);
-			long piecesPerSec = currentCycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
-			System.out.println(id + " >>> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo 
-					+ ", Pos Max " + mas_alto + ". Tiempo: " + durationMillis + " ms" 
-					+ ", " + piecesPerSec + " pieces/sec");
+			printBuffer.setLength(0);
+			printBuffer.append(id).append(" >>> Estado guardado en cursor ").append(cursor)
+					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
+					.append(". Tiempo: ").append(durationMillis).append(" ms") 
+					.append(", ").append(piecesPerSec).append(" pieces/sec");
+			System.out.println(printBuffer.toString());
+			printBuffer.setLength(0);
 			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo = SolverFaster.MAX_PIEZAS;

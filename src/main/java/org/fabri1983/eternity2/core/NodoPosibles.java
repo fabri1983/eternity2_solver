@@ -28,12 +28,22 @@ package org.fabri1983.eternity2.core;
  * @author Fabricio Lettieri
  */
 public final class NodoPosibles
-{	
+{
 	public Pieza[] referencias = new Pieza[64];
 	public byte[] rots = new byte[64];
 	
-	private int currentIndex = 0;
+	public static NodoPosibles newForKey(int key) {
+		NodoPosibles np = new NodoPosibles();
+		setSizesByKey(np, key);
+		return np;
+	}
 	
+	private static void setSizesByKey(NodoPosibles np, int key) {
+		int size = MapaArraySizePerIndex.getInstance().getSizeForKey(key);
+		np.referencias = new Pieza[size];
+		np.rots = new byte[size];
+	}
+
 	/**
 	 * Agrega la pieza a la lista auxiliar.
 	 * 
@@ -41,23 +51,14 @@ public final class NodoPosibles
 	 */
 	public static final void addReferencia (final NodoPosibles np, final Pieza p_referencia, byte rot)
 	{
-		np.referencias[np.currentIndex] = p_referencia;
-		np.rots[np.currentIndex] = rot;
-		++np.currentIndex;
-	}
-	
-	/**
-	 * Descarta memoria no utilizada.
-	 */
-	public static final void finalizar (final NodoPosibles np)
-	{
-		Pieza[] newRefs = new Pieza[np.currentIndex];
-		System.arraycopy(np.referencias, 0, newRefs, 0, np.currentIndex);
-		np.referencias = newRefs;
+		int nextIndex = 0;
+		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
+			if (np.referencias[nextIndex] == null)
+				break;
+		}
 		
-		byte[] newRots = new byte[np.currentIndex];
-		System.arraycopy(np.rots, 0, newRots, 0, np.currentIndex);
-		np.rots = newRots;
+		np.referencias[nextIndex] = p_referencia;
+		np.rots[nextIndex] = rot;
 	}
 	
 	public static final byte getUbicPieza(final NodoPosibles np, byte numero)
