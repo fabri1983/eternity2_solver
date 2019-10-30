@@ -28,12 +28,12 @@ package org.fabri1983.eternity2.core;
  * @author Fabricio Lettieri
  */
 public final class NodoPosibles
-{	
+{
 	public Pieza[] referencias = new Pieza[64];
 	public byte[] rots = new byte[64];
 	
 	private int currentIndex = 0;
-	
+
 	/**
 	 * Agrega la pieza a la lista auxiliar.
 	 * 

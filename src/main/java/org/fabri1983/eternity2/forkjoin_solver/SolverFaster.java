@@ -91,7 +91,6 @@ public final class SolverFaster {
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
-	protected static long count_filas;
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
 	protected static AtomicIntegerArray arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
@@ -288,29 +287,20 @@ public final class SolverFaster {
 		System.out.print(action.id + " >>> Cargando Estructura 4-Dimensional... ");
 		long startingTime = System.nanoTime();
 		
-		/**
-		 * Para cada posible combinacion entre los colores de las secciones top, 
-		 * right, bottom y left creo un vector que contendrá las piezas que tengan
-		 * esa combinacion de colores en dichas secciones y ademas guardo en qué
-		 * estado de rotacion la cumplen.
-		 */
 		llenarSuperEstructura(action);
 		
-		/**
-		 * Para cada entrada de la super estructura les acota el espacio de memoria empleado actualmente 
-		 * por la carga de las posible Piezas y rotaciones. También setea como null aquellas entradas no útiles.
-		 */
-		for (int i=action.super_matriz.length-1; i >=0; --i) {
-			if (action.super_matriz[i] == null)
-				continue;
-			else
-				NodoPosibles.finalizar(action.super_matriz[i]);
-		}
+		finalizarSuperEstructura(action);
 		
 		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " microsecs)");
 		System.gc();
 	}
-	
+
+	/**
+	 * Para cada posible combinacion entre los colores de las secciones top, 
+	 * right, bottom y left creo un vector que contendrá las piezas que tengan
+	 * esa combinacion de colores en dichas secciones y ademas guardo en qué
+	 * estado de rotacion la cumplen.
+	 */
 	private static final void llenarSuperEstructura (ExploracionAction action)
 	{
 		// itero sobre el arreglo de piezas
@@ -406,6 +396,21 @@ public final class SolverFaster {
 		}
 	}
 	
+	/**
+	 * Para cada entrada de la super estructura les acota el espacio de memoria empleado actualmente 
+	 * por la carga de las posible Piezas y rotaciones. También setea como null aquellas entradas no útiles.
+	 */
+	private static void finalizarSuperEstructura(ExploracionAction action) {
+		for (int i=action.super_matriz.length-1; i >=0; --i) {
+			if (action.super_matriz[i] == null) {
+				continue;
+			}
+			else {
+				NodoPosibles.finalizar(action.super_matriz[i]);
+			}
+		}
+	}
+
 	/**
 	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar
 	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia

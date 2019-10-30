@@ -112,10 +112,14 @@ public final class SolverFasterMPJE {
 	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
-	/*
+	/**
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Es 4 porque la matriz de colores solo usa top,right,bottom,left.
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene las piezas que cumplen con esos colores 
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * After getting some stats:
+	 *   - total empty positions = 771021
+	 *   - total valid positions =   6954
+	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	private final static NodoPosibles super_matriz[] = new NodoPosibles[
 	  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
@@ -457,12 +461,13 @@ public final class SolverFasterMPJE {
 	 * al espacio actual convirtiendo las listas en arreglos.
 	 */
 	private final static void finalizarSuperEstructura (){
-
 		for (int i=super_matriz.length-1; i >=0; --i) {
-			if (super_matriz[i] == null)
+			if (super_matriz[i] == null) {
 				continue;
-			else
+			}
+			else {
 				NodoPosibles.finalizar(super_matriz[i]);
+			}
 		}
 	}
 	

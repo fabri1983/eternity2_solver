@@ -43,18 +43,19 @@ public class ExploracionAction extends RecursiveAction {
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene una lista de {@link NodoPosibles} 
-	 * con las piezas que cumplen con esos colores.
-	 * Para el cálculo de la capacidad de la matriz de combinaciones de colores se tienen en cuenta solo 
-	 * combinaciones top,right,bottom,left de colores. 
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * After getting some stats:
+	 *   - total empty positions = 771021
+	 *   - total valid positions =   6954
+	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[
-	    (SolverFaster.MAX_COLORES << 20) | 
-	    (SolverFaster.MAX_COLORES << 15) | 
-	    (SolverFaster.MAX_COLORES << 10) | 
-	    (SolverFaster.MAX_COLORES << 5) | 
-	    SolverFaster.MAX_COLORES
-	];
+	  (int) ((SolverFaster.MAX_COLORES * Math.pow(2, 5 * 0)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 1)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 2)) +
+			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
