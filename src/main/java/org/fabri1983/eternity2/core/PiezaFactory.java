@@ -30,7 +30,11 @@ public final class PiezaFactory {
 	public static Pieza dummy()
 	{
 		Pieza p = new Pieza();
-		
+		setAsDummy(p);
+		return p;
+	}
+
+	public static void setAsDummy(Pieza p) {
 		p.top=0;
 		p.right=0;
 		p.bottom=0;
@@ -43,14 +47,16 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 
 	public static Pieza from (String s, byte num)
 	{
 		Pieza p = new Pieza();
-		
+		setFromStringWithNum(s, num, p);
+		return p;
+	}
+
+	public static void setFromStringWithNum(String s, byte num, Pieza p) {
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
 		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
 		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
@@ -69,14 +75,16 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	public static Pieza from (Pieza pz)
 	{
 		Pieza p = new Pieza();
-		
+		setFromPieza(pz, p);
+		return p;
+	}
+
+	public static void setFromPieza(Pieza pz, Pieza p) {
 		p.top= pz.top;
 		p.right= pz.right;
 		p.bottom= pz.bottom;
@@ -89,8 +97,6 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	/**
@@ -100,7 +106,11 @@ public final class PiezaFactory {
 	public static Pieza from (String s)
 	{
 		Pieza p = new Pieza();
-		
+		setFromString(s, p);
+		return p;
+	}
+
+	public static void setFromString(String s, Pieza p) {
 		// Primero: separo los valores de top, right, bottom y left
 		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
 		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
@@ -130,8 +140,6 @@ public final class PiezaFactory {
 		
 		/*p.idUnico = p.countIdUnico;
 		++p.countIdUnico;*/
-		
-		return p;
 	}
 	
 	private static final void setFeature(final Pieza p)
