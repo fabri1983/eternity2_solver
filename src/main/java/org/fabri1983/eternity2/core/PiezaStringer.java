@@ -24,18 +24,20 @@ package org.fabri1983.eternity2.core;
 
 public class PiezaStringer {
 
+	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
+	
 	public static final String toString (Pieza p)
 	{
-		return p.top + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.right + Pieza.SECCIONES_SEPARATOR_EN_FILE 
-				+ p.bottom + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.left + Pieza.SECCIONES_SEPARATOR_EN_FILE 
-				+ p.numero + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.rotacion + Pieza.SECCIONES_SEPARATOR_EN_FILE 
+		return p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE 
+				+ p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left + SECCIONES_SEPARATOR_EN_FILE 
+				+ p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE 
 				+ String.valueOf(p.usada) /*+ SECCIONES_SEPARATOR_EN_FILE + pos*/;
 	}
 	
 	public static final String toStringColores (Pieza p)
 	{
-		return p.top + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.right + Pieza.SECCIONES_SEPARATOR_EN_FILE 
-				+ p.bottom + Pieza.SECCIONES_SEPARATOR_EN_FILE + p.left;
+		return p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE 
+				+ p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left;
 	}
 	
 }
