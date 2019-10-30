@@ -17,15 +17,6 @@
 	</properties>
 
 	<dependencies>
-		<!-- The jsr166 dependency is only used when compiling for java 1.6 and 
-			executed under Oracle's Jrockit JVM -->
-		<dependency>
-			<groupId>jsr</groupId>
-			<artifactId>jsr166</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
-		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
@@ -33,6 +24,7 @@
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/javamail-1.4.5/mail.jar</systemPath>
 		</dependency>
+		<!-- MPJExpress -->
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpi</artifactId>
@@ -53,6 +45,14 @@
 			<version>0.44</version>
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
+		</dependency>
+		<!-- Junion: Structs in Java -->
+		<dependency>
+			<groupId>com.github.tehleo</groupId>
+			<artifactId>junion</artifactId>
+			<version>1.2.2</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
 		</dependency>
 		<!-- JMH Java Microbenchmark Harness -->
 		<dependency>
@@ -82,6 +82,17 @@
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
+			<dependencies>
+				<!-- The jsr166 dependency is only used when compiling for java 1.6 and 
+				executed under Oracle's Jrockit JVM -->
+				<dependency>
+					<groupId>jsr</groupId>
+					<artifactId>jsr166</artifactId>
+					<version>1.0</version>
+					<scope>system</scope>
+					<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
+				</dependency>
+			</dependencies>
 		</profile>
 		<profile>
 			<id>java7</id>
