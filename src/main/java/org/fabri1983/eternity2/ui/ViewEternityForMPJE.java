@@ -138,7 +138,7 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
     	
     	if (periodStepping == COUNT_PERIOD) {
     		periodStepping = 0; // lo reseteo 
-    		long accum = SolverFasterMPJE.count_cicles - prevAccum;
+    		long accum = SolverFasterMPJE.count_cycles - prevAccum;
 			long piezasPerSeg = (accum * 1000) / (COUNT_PERIOD * refresh_milis);
 			StringBuilder titleRefreshed = new StringBuilder(64);
 	    	titleRefreshed.append(title).append(" - Pcs/sec: ").append(piezasPerSeg);

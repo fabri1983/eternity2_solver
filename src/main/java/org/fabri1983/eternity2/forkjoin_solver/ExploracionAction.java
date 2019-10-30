@@ -301,19 +301,19 @@ public class ExploracionAction extends RecursiveAction {
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
 		
 		if (count_cycles >= MAX_CICLOS) {
-			long currentCycles = count_cycles;
-			count_cycles = 0;
-			if (usarTableroGrafico)
-				SolverFaster.count_cycles[id] = 0;
 			//calculo el tiempo transcurrido desd el último time_status_saved 
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			count_cycles = 0;
+			if (usarTableroGrafico)
+				SolverFaster.count_cycles[id] = 0;
 			SolverFaster.guardarEstado(statusFileName, this);
 			SolverFaster.guardarResultadoParcial(false, this);
-			long piecesPerSec = currentCycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
-			System.out.println(id + " >>> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo 
-					+ ", Pos Max " + mas_alto + ". Tiempo: " + durationMillis + " ms" 
+			System.out.println(id + " >>> Estado guardado en cursor " + cursor 
+					+ ". Pos Min " + mas_bajo + ", Pos Max " + mas_alto 
+					+ ". Tiempo: " + durationMillis + " ms" 
 					+ ", " + piecesPerSec + " pieces/sec");
 			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto

@@ -97,7 +97,7 @@ public final class SolverFasterMPJE {
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	private static int sig_parcial, cur_destino;
-	public static long count_cicles;
+	public static long count_cycles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -125,7 +125,7 @@ public final class SolverFasterMPJE {
 	
 	private static int index_sup; //empleados en varios métodos para pasar info
 	
-	private static long time_inicial, time_final; //sirven para calcular el tiempo al hito de posición lejana
+	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
 
 	
@@ -727,7 +727,7 @@ public final class SolverFasterMPJE {
 	 */
 	public final void setupInicial () {
 		
-		count_cicles=0;
+		count_cycles=0;
 		
 		// Pruebo cargar el primer status_saved
 		cargarEstado(NAME_FILE_STATUS);
@@ -873,7 +873,7 @@ public final class SolverFasterMPJE {
 		if (cursor > mas_lejano_parcial_max){
 			mas_lejano_parcial_max= cursor;
 			if (cursor >= LIMITE_RESULTADO_PARCIAL){
-				time_final= System.nanoTime();
+				long time_final= System.nanoTime();
 				System.out.println("Rank " + THIS_PROCESS + ": " + TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS) + " ms, cursor " + cursor);
 				System.out.flush();
 				guardarResultadoParcial(true);
@@ -893,14 +893,20 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llegué a MAX_CICLOS de ejecución guardo el estado de exploración
-		if (count_cicles >= MAX_CICLOS){
-			count_cicles = 0;
+		if (count_cycles >= MAX_CICLOS){
 			//calculo el tiempo entre status saved
-			long mili_temp = System.nanoTime();
+			long nanoTimeNow = System.nanoTime();
+			long durationNanos = nanoTimeNow - time_status_saved;
+			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			count_cycles = 0;
 			guardarEstado(NAME_FILE_STATUS);
 			guardarResultadoParcial(false);
-			System.out.println("Rank " + THIS_PROCESS + ": -> Estado guardado en cursor " + cursor + ". Pos Min " + mas_bajo + ", Pos Max " + mas_alto + ". Tiempo: " + TimeUnit.MILLISECONDS.convert(mili_temp - time_status_saved, TimeUnit.NANOSECONDS) + " ms.");
-			time_status_saved = mili_temp;
+			System.out.println("Rank " + THIS_PROCESS + ": -> Estado guardado en cursor " + cursor 
+					+ ". Pos Min " + mas_bajo + ", Pos Max " + mas_alto 
+					+ ". Tiempo: " + durationMillis + " ms."
+					+ ", " + piecesPerSec + " pieces/sec");
+			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo= MAX_PIEZAS;
 			mas_alto= 0;
@@ -1080,7 +1086,7 @@ public final class SolverFasterMPJE {
 			if (p.usada)
 				continue; // es usada, pruebo con la siguiente pieza
 		
-			++count_cicles; // incremento el contador de combinaciones de piezas
+			++count_cycles; // incremento el contador de combinaciones de piezas
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
