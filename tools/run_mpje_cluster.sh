@@ -8,8 +8,8 @@ export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target
 
-# 50m max usage per VM instance
-mem_alloc="50m"
+# 40m max usage per VM instance
+mem_alloc="40m"
 
 # set the amount of total threads in the cluster. It has to be an homogeneous cluster
 TOTAL_THREADS_IN_CLUSTER=8
