@@ -26,7 +26,7 @@ Placing approx **54 million pieces per second** in a fork-join pool **with 8 thr
 Placing approx **80 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
 - Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). Results:  
-Placing **95 million pieces per second** in a fork-join pool **with 8 threads**.  
+Placing **97 million pieces per second** in a fork-join pool **with 8 threads**.  
 Placing around **107 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 Placing around **95 million pieces per second** using MPJ Express framework as multi-core mode **with 16 solver instances**.  
 
