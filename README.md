@@ -23,18 +23,14 @@ The project is under continuous development, mostly on spare time. Every time I 
 
 - Environment Windows 10 Home, Intel Core i7-2630QM (2.6 GHz max per core), DDR3 Dual Channel. Results:  
 Placing approx **54 million pieces per second** in a fork-join pool **with 8 threads**.  
-And placing approx **80 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **80 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
-- Environment Ubuntu 14.04, Intel Core i5, DDR3 Dual Channel OpenJDK 1.7. Results:  
-Placing **38 million pieces per second** in a fork-join pool **with 4 threads**.  
-And placing around **90 million pieces per second** using MPJ Express framework as multi-core mode **with 4 solver instances**.  
+- Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). Results:  
+Placing **95 million pieces per second** in a fork-join pool **with 8 threads**.  
+Placing around **107 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing around **95 million pieces per second** using MPJ Express framework as multi-core mode **with 16 solver instances**.  
 
-- Environment Windows 10 Pro, Intel Code i7 8650U (3.891 GHz max per core). Results:  
-Placing **90 million pieces per second** in a fork-join pool **with 8 threads**.  
-Placing **93 million pieces per second** in a fork-join pool **with 16 threads**.  
-And placing around **90 million pieces per second** using MPJ Express framework as multi-core mode **with 16 solver instances**.  
-
-I still have to solve some miss cache issues by maximizing data locality and data time span.  
+I still have to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data locality and data time span.  
 
 In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up.  
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.  

@@ -32,7 +32,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
-import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
@@ -128,8 +127,6 @@ public final class SolverFasterMPJE {
 			(MAX_COLORES * Math.pow(2, 5 * 1)) +
 			(MAX_COLORES * Math.pow(2, 5 * 2)) +
 			(MAX_COLORES * Math.pow(2, 5 * 3)))];
-	
-	private static int index_sup; //empleados en varios métodos para pasar info
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
@@ -272,7 +269,7 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no llegue ni sobrepase el borde right
-			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
+			if ((k + (ContornoForMPJE.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
 				zona_read_contorno[k] = true;
 		}
 	}
@@ -300,13 +297,13 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no esté cerca del borde left
-			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
+			if (((k - ContornoForMPJE.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
 			zona_proc_contorno[k] = true;
 		}
 		
-		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + ContornoForMPJE.MAX_COLS + " columnas.");
 		System.out.flush();
 	}
 	
@@ -795,10 +792,8 @@ public final class SolverFasterMPJE {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres
-				getIndexDeContornoYaPuesto();
-				setContornoLibre();
-				index_sup = -1;
-				//index_inf = -1;
+				int index_both = getIndexDeContornoYaPuesto(cursor);
+				setContornoLibre(index_both);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
@@ -930,17 +925,13 @@ public final class SolverFasterMPJE {
 		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya está debidamente colocada
 		if (cursor == POSICION_CENTRAL){
 			//seteo los contornos como usados
-			getIndexDeContornoYaPuesto();
-			setContornoUsado();
-			int index_sup_aux = index_sup;
-			//@CONTORNO_INFERIORint index_inf_aux = index_inf;
+			int index_both = getIndexDeContornoYaPuesto(cursor);
+			setContornoUsado(index_both);
 			++cursor;
 			explorar();
 			--cursor;
 			//seteo los contornoscomo libres
-			index_sup = index_sup_aux;
-			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre();
+			setContornoLibre(index_both);
 			/*if (cursor <= cur_destino){
 				retroceder= false;
 				cur_destino=CURSOR_INVALIDO;
@@ -958,7 +949,7 @@ public final class SolverFasterMPJE {
 		//#############################################################################################
 		
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (esContornoUsado())
+		if (esContornoSuperiorUsado(cursor))
 			return;
 		
 		// sincronización de los procesos (Knock Knock) una única vez
@@ -1148,7 +1139,7 @@ public final class SolverFasterMPJE {
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
-			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
+			/*@CONTORNO_INFERIORif (esContornoInferiorUsado(cursor)){
 				p.usada = false; //la pieza ahora no es usada
 				//p.pos= -1;
 				continue;
@@ -1165,10 +1156,8 @@ public final class SolverFasterMPJE {
 			}
 
 			// seteo los contornos como usados
-			getIndexDeContornoYaPuesto();
-			setContornoUsado();
-			int index_sup_aux = index_sup;
-			//@CONTORNO_INFERIORindex_inf_aux = index_inf;
+			int index_both = getIndexDeContornoYaPuesto(cursor);
+			setContornoUsado(index_both);
 				
 			//##########################
 			// Llamo una nueva instancia
@@ -1178,9 +1167,7 @@ public final class SolverFasterMPJE {
 			//##########################
 				
 			// seteo los contornos como libres
-			index_sup = index_sup_aux;
-			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre();
+			setContornoLibre(index_both);
 			
 			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
@@ -1275,103 +1262,105 @@ public final class SolverFasterMPJE {
 	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
 	 * @return
 	 */
-	private final static void getIndexDeContornoYaPuesto(){
+	private final static int getIndexDeContornoYaPuesto(int _cursor){
 		//primero me fijo si estoy en posición válida
-		if (zona_proc_contorno[cursor] == false){
-			index_sup = -1;
-			//@CONTORNO_INFERIORindex_inf = -1;
-			return;
+		if (zona_proc_contorno[_cursor] == false){
+			return -1;
 		}
 
 		//obtengo las claves de acceso
-		switch (Contorno.MAX_COLS) {
-			case 2:
-				index_sup = Contorno.getIndex(tablero[cursor-1].left, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top);*/
-				break;
-			case 3:
-				index_sup = Contorno.getIndex(tablero[cursor-2].left, tablero[cursor-2].top, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top);*/
-				break;
-			case 4:
-				index_sup = Contorno.getIndex(tablero[cursor-3].left, tablero[cursor-3].top, tablero[cursor-2].top, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top, tablero[cursor-3].top);*/
-				break;
-			default: break;
+		switch (ContornoForMPJE.MAX_COLS) {
+			case 2: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			case 3: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			case 4: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			default: return -1;
 		}
 	}
 	
-	private final static void setContornoUsado()
+	private final static void setContornoUsado(int index_both)
 	{
-		if (index_sup != -1)
-			ContornoForMPJE.contornos_used[index_sup] = true;
+		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
+		if (index_both != -1)
+			ContornoForMPJE.contornos_used[index_both] = true;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
 			ContornoForMPJE.contornos_used[index_inf] = true;*/
 	}
 	
-	private final static void setContornoLibre()
+	private final static void setContornoLibre(int index_both)
 	{
-		if (index_sup != -1)
-			ContornoForMPJE.contornos_used[index_sup] = false;
+		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
+		if (index_both != -1)
+			ContornoForMPJE.contornos_used[index_both] = false;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
 			ContornoForMPJE.contornos_used[index_inf] = false;*/
 	}
 
-	private final static boolean esContornoUsado()
+	private final static boolean esContornoSuperiorUsado(int _cursor)
 	{
 		//primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_read_contorno[cursor] == false)
+		if (zona_read_contorno[_cursor] == false)
 			return false;
 		
 		//obtengo la clave del contorno superior
-		int cursor_at_top = cursor-LADO;
-		switch (Contorno.MAX_COLS){
+		int cursor_at_top = _cursor-LADO;
+		switch (ContornoForMPJE.MAX_COLS){
 			case 2: {
-				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			case 3: {
-				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			case 4: {
-				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			default: return false;
 		}
 	}
 	
-	/*@CONTORNO_INFERIORprivate final static boolean esContornoInferiorUsado(){
+	/*@CONTORNO_INFERIOR
+	private final static boolean esContornoInferiorUsado(int _cursor)
+	{
 		//primero me fijo si estoy en la posición correcta para preguntar por contorno inferior usado
-		if (zona_proc_contorno[cursor] == false)
+		if (zona_proc_contorno[_cursor] == false)
 			return false;
 		//debo estar entre filas [2,13]
-		if (cursor < 33 || cursor > 238)
+		if (_cursor < 33 || _cursor > 238)
 			return false;
 		
 		//obtengo la clave del contorno inferior
-		switch (Contorno.MAX_COLS){
-			case 2:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom);
-				break;
-			case 3:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom, tablero[cursor-2].bottom);
-				break;
-			case 4:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom, tablero[cursor-2].bottom, tablero[cursor-3].bottom);
-				break;
+		switch (ContornoForMPJE.MAX_COLS){
+			case 2: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 3: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 4: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
 			default: return false;
 		}
-		
-		//si el contorno está siendo usado entonces devuelvo true
-		if (Contorno.contornos_used[auxi])
-			return true;
-		
-		return false;
 	}*/
 	
 	/**
