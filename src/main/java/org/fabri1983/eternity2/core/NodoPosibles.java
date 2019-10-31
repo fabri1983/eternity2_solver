@@ -61,9 +61,9 @@ public final class NodoPosibles
 		np.rots[nextIndex] = rot;
 	}
 	
-	public static final byte getUbicPieza(final NodoPosibles np, byte numero)
+	public static final short getUbicPieza(final NodoPosibles np, short numero)
 	{
-		for (byte i=0, c=(byte)np.referencias.length; i < c; ++i) {
+		for (short i=0, c=(short)np.referencias.length; i < c; ++i) {
 			if (np.referencias[i].numero == numero)
 				return i;
 		}

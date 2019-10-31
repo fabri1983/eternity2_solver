@@ -48,7 +48,7 @@ public class Pieza {
 //	public static final int OFFSET_USADA = 30;
 	
 	public byte top,right,bottom,left;
-	public byte numero; // número que representa la pieza en el juego real
+	public short numero; // número que representa la pieza en el juego real (pero aqui es 0-based)
 	public byte rotacion;
 	public boolean usada;
 	// public int pos; //indica la posición en tablero en la que se encuentra la pieza

@@ -30,13 +30,11 @@ import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
  * piezas libres talque se pueda completar otro contorno igual. Es decir, contorno usado => no solución.
  * 
  * Nota: Usar un contorno por tablero.
- * 
- * @author Fabricio Lettieri
  */
 public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
-	public final static byte MAX_COLS = 2;
+	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
 	private final static byte MAX_COLORES = 23;
 		
 	/**
@@ -85,29 +83,29 @@ public final class Contorno
 			switch (MAX_COLS)
 			{
 			case 2: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 3: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 4: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;

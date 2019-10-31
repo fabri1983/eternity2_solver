@@ -8,7 +8,7 @@ set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 40m max usage per VM instance
+:: 40m max usage for 8 local process instances.
 set mem_alloc=40m
 
 :: edit mpjrun.bat to select the desired JVM

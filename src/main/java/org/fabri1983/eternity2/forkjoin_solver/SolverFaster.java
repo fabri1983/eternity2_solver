@@ -55,7 +55,7 @@ public final class SolverFaster {
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	protected static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	protected static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
-	protected static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
+	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	protected final static int LADO= 16;
 	protected final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
@@ -94,7 +94,10 @@ public final class SolverFaster {
 	
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
-	protected static AtomicIntegerArray arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
+	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
+	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	protected static AtomicIntegerArray arr_color_rigth_explorado;
+	
 	protected static boolean retroceder, FairExperimentGif, usarTableroGrafico;
 	protected static int cellPixelsLado, tableboardRefreshMillis;
 	protected static boolean flag_retroceder_externo, usar_poda_color_explorado;
@@ -399,19 +402,18 @@ public final class SolverFaster {
 	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
 	 * ha finalizado su exploracion asignada.
 	 */
-	/*private final static void operarSituacionLimiteAlcanzado (){
-		guardarEstado(NAME_FILE_STATUS);
-		guardarEstado(NAME_FILE_STATUS_COPY);
-		
-		System.out.println("El caso " + CASO + " ha llegado a su limite de exploracion. Exploracion finalizada.");
-		
-		if (send_mail){
-			SendMail em= new SendMail();
-			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
-			Thread t= new Thread(em);
-			t.start();
-		}
-	}*/
+//	final static void operarSituacionLimiteAlcanzado(ExploracionAction action) {
+//		guardarEstado(action.statusFileName, action);
+//		
+//		System.out.println("El caso " + action.id + " ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
+//		
+//		if (send_mail){
+//			SendMail em= new SendMail();
+//			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
+//			Thread t= new Thread(em);
+//			t.start();
+//		}
+//	}
 	
 	/**
 	 * Carga las piezas desde el archivo NAME_FILE_PIEZAS
@@ -433,11 +435,11 @@ public final class SolverFaster {
 			
 			reader = readerForTilesFile.getReader(NAME_FILE_PIEZAS);
 			String linea= reader.readLine();
-			int num=0;
+			short num=0;
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= PiezaFactory.from(linea, (byte)num); 
+				action.piezas[num]= PiezaFactory.from(linea, num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -711,7 +713,7 @@ public final class SolverFaster {
 				else{
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
-						dispMaxBuff.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -764,7 +766,7 @@ public final class SolverFaster {
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
 				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.numero).append("\n");
+					wLibresBuffer.append(pzx.numero + 1).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
@@ -813,8 +815,8 @@ public final class SolverFaster {
 				Pieza p= action.tablero[b];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
-				wDisp.println(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
+				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(p.numero + 1).append( SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
@@ -881,21 +883,20 @@ public final class SolverFaster {
 			//########################################################################
 			/**
 			 * Calculo los valores para desde_saved[]
-			*/
+			 */
 			//########################################################################
-			int cur_copy= action.cursor; //guardo una copia de cursor xq voy a usarlo
-			for (action.cursor=0; action.cursor < cur_copy; ++action.cursor) {
+			int _cursor = 0;
+			for (; _cursor < action.cursor; ++_cursor) {
 				
-				if (action.cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[action.cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
-						action.tablero[action.cursor].numero);
+				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor),
+						action.tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;action.cursor < MAX_PIEZAS; ++action.cursor)
-				action.desde_saved[action.cursor] = 0;
-			action.cursor= cur_copy; //restauro el valor de cursor
+			for (;_cursor < MAX_PIEZAS; ++_cursor)
+				action.desde_saved[_cursor] = 0;
 			//########################################################################
 			
 			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking

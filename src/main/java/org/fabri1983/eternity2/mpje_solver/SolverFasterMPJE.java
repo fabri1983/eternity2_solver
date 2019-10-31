@@ -32,7 +32,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
-import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
 import org.fabri1983.eternity2.core.MapaKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
@@ -56,7 +55,6 @@ public final class SolverFasterMPJE {
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
 	private static int[] num_processes_orig;
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
-														// los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
@@ -102,11 +100,13 @@ public final class SolverFasterMPJE {
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
-	private final static byte[] desde_saved = new byte[MAX_PIEZAS];
+	private final static short[] desde_saved = new short[MAX_PIEZAS];
 	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
-	private static int[] arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores
-													// donde un bit valdrá 0 si ese color (right en borde left) no ha
-													// sido exlorado para la fila actual, sino valdrá 1
+	
+	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
+	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	private static int[] arr_color_rigth_explorado;
+	
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
 	private static boolean send_mail = false;
@@ -127,8 +127,6 @@ public final class SolverFasterMPJE {
 			(MAX_COLORES * Math.pow(2, 5 * 1)) +
 			(MAX_COLORES * Math.pow(2, 5 * 2)) +
 			(MAX_COLORES * Math.pow(2, 5 * 3)))];
-	
-	private static int index_sup; //empleados en varios métodos para pasar info
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
@@ -255,13 +253,11 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void inicializarZonaReadContornos()
 	{	
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_read_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
@@ -273,7 +269,7 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no llegue ni sobrepase el borde right
-			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
+			if ((k + (ContornoForMPJE.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
 				zona_read_contorno[k] = true;
 		}
 	}
@@ -285,13 +281,11 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void inicializarZonaProcContornos()
 	{
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_proc_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
@@ -303,13 +297,13 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no esté cerca del borde left
-			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
+			if (((k - ContornoForMPJE.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
 			zona_proc_contorno[k] = true;
 		}
 		
-		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + ContornoForMPJE.MAX_COLS + " columnas.");
 		System.out.flush();
 	}
 	
@@ -483,7 +477,7 @@ public final class SolverFasterMPJE {
 		
 		BufferedReader reader = null;
 		
-		try{
+		try {
 			//verifico si no se han cargado ya las piezas en cargarEstado()
 			boolean cargadas = true;
 			for (int i=0; (i < MAX_PIEZAS) && cargadas; ++i){
@@ -495,14 +489,13 @@ public final class SolverFasterMPJE {
 				return;
 			
 			// reader= new BufferedReader(new FileReader(NAME_FILE_PIEZAS));
-			reader = new BufferedReader(new InputStreamReader(SolverFasterMPJE.class.getClassLoader()
-					.getResourceAsStream(NAME_FILE_PIEZAS)));
+			reader = new BufferedReader(new InputStreamReader(SolverFasterMPJE.class.getClassLoader().getResourceAsStream(NAME_FILE_PIEZAS)));
 			String linea= reader.readLine();
-			int num=0;
+			short num=0;
 			while (linea != null){
 				if (num >= MAX_PIEZAS) 
 					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= PiezaFactory.from(linea, (byte)num); 
+				piezas[num]= PiezaFactory.from(linea, num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -798,10 +791,8 @@ public final class SolverFasterMPJE {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres
-				getIndexDeContornoYaPuesto();
-				setContornoLibre();
-				index_sup = -1;
-				//index_inf = -1;
+				int index_both = getIndexDeContornoYaPuesto(cursor);
+				setContornoLibre(index_both);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
@@ -902,7 +893,7 @@ public final class SolverFasterMPJE {
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
-			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
 			count_cycles = 0;
 			guardarEstado(NAME_FILE_STATUS);
 			guardarResultadoParcial(false);
@@ -933,17 +924,13 @@ public final class SolverFasterMPJE {
 		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya está debidamente colocada
 		if (cursor == POSICION_CENTRAL){
 			//seteo los contornos como usados
-			getIndexDeContornoYaPuesto();
-			setContornoUsado();
-			int index_sup_aux = index_sup;
-			//@CONTORNO_INFERIORint index_inf_aux = index_inf;
+			int index_both = getIndexDeContornoYaPuesto(cursor);
+			setContornoUsado(index_both);
 			++cursor;
 			explorar();
 			--cursor;
 			//seteo los contornoscomo libres
-			index_sup = index_sup_aux;
-			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre();
+			setContornoLibre(index_both);
 			/*if (cursor <= cur_destino){
 				retroceder= false;
 				cur_destino=CURSOR_INVALIDO;
@@ -961,7 +948,7 @@ public final class SolverFasterMPJE {
 		//#############################################################################################
 		
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (esContornoUsado())
+		if (esContornoSuperiorUsado(cursor))
 			return;
 		
 		// sincronización de los procesos (Knock Knock) una única vez
@@ -1035,18 +1022,13 @@ public final class SolverFasterMPJE {
 	private final static void exploracionStandard ()
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas();
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
 		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = matrix_zonas[cursor];
-		int index_sup_aux;
-		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
 		
 		num_processes_orig[cursor] = NUM_PROCESSES;
 
@@ -1115,12 +1097,22 @@ public final class SolverFasterMPJE {
 			}
 			
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (usar_poda_color_explorado){
+			if (usar_poda_color_explorado)
+			{
+				final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+			
+				// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+				// old was: ((cursor+2) % LADO) == 0
+				final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
+
 				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
 					arr_color_rigth_explorado[fila_actual + 1] = 0;
-				if (flag_zona == F_BORDE_LEFT){
+				
+				if (flag_zona == F_BORDE_LEFT)
+				{
 					final int mask = 1 << p.right;
+					
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
 					if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
 						p.usada = false; //la pieza ahora no es usada
@@ -1128,8 +1120,11 @@ public final class SolverFasterMPJE {
 						continue; // sigo con otra pieza de borde
 					}
 					// si no es así entonces lo seteo como explorado
-					else
+					else {
 						arr_color_rigth_explorado[fila_actual] |= mask;
+						// int value = arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
+						// arr_color_rigth_explorado.getAndSet(fila_actual, value);
+					}
 				}
 			}
 			
@@ -1143,7 +1138,7 @@ public final class SolverFasterMPJE {
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
-			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
+			/*@CONTORNO_INFERIORif (esContornoInferiorUsado(cursor)){
 				p.usada = false; //la pieza ahora no es usada
 				//p.pos= -1;
 				continue;
@@ -1160,10 +1155,8 @@ public final class SolverFasterMPJE {
 			}
 
 			// seteo los contornos como usados
-			getIndexDeContornoYaPuesto();
-			setContornoUsado();
-			index_sup_aux = index_sup;
-			//@CONTORNO_INFERIORindex_inf_aux = index_inf;
+			int index_both = getIndexDeContornoYaPuesto(cursor);
+			setContornoUsado(index_both);
 				
 			//##########################
 			// Llamo una nueva instancia
@@ -1173,9 +1166,7 @@ public final class SolverFasterMPJE {
 			//##########################
 				
 			// seteo los contornos como libres
-			index_sup = index_sup_aux;
-			//@CONTORNO_INFERIORindex_inf = index_inf_aux;
-			setContornoLibre();
+			setContornoLibre(index_both);
 			
 			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
@@ -1213,37 +1204,37 @@ public final class SolverFasterMPJE {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	private final static NodoPosibles obtenerPosiblesPiezas ()
+	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
 	{
-		switch (cursor) {
+		switch (_cursor) {
 			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[_cursor-1].right)];
 			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES,tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES,tablero[_cursor-1].right)];
 		}
 		
-		final int flag_m = matrix_zonas[cursor];
+		final int flag_m = matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
+			return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
 				// borde top
 				case F_BORDE_TOP:
-					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde bottom
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1254,13 +1245,13 @@ public final class SolverFasterMPJE {
 					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, GRIS)];
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, GRIS, GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, GRIS, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, GRIS, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 	}
@@ -1270,107 +1261,105 @@ public final class SolverFasterMPJE {
 	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
 	 * @return
 	 */
-	private final static void getIndexDeContornoYaPuesto(){
+	private final static int getIndexDeContornoYaPuesto(int _cursor){
 		//primero me fijo si estoy en posición válida
-		if (zona_proc_contorno[cursor] == false){
-			index_sup = -1;
-			//@CONTORNO_INFERIORindex_inf = -1;
-			return;
+		if (zona_proc_contorno[_cursor] == false){
+			return -1;
 		}
 
 		//obtengo las claves de acceso
-		switch (Contorno.MAX_COLS){
-			case 2:
-				index_sup = Contorno.getIndex(tablero[cursor-1].left, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top);*/
-				break;
-			case 3:
-				index_sup = Contorno.getIndex(tablero[cursor-2].left, tablero[cursor-2].top, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top);*/
-				break;
-			case 4:
-				index_sup = Contorno.getIndex(tablero[cursor-3].left, tablero[cursor-3].top, tablero[cursor-2].top, tablero[cursor-1].top, tablero[cursor].top);
-				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
-					index_inf = Contorno.getIndex(tablero[cursor-LADO].right, tablero[cursor].top, tablero[cursor-1].top, tablero[cursor-2].top, tablero[cursor-3].top);*/
-				break;
-			default: break;
+		switch (ContornoForMPJE.MAX_COLS) {
+			case 2: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			case 3: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			case 4: {
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
+					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
+				return index_sup; // meter el index_inf con << y mask
+				}
+			default: return -1;
 		}
 	}
 	
-	private final static void setContornoUsado()
+	private final static void setContornoUsado(int index_both)
 	{
-		if (index_sup != -1)
-			ContornoForMPJE.contornos_used[index_sup] = true;
+		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
+		if (index_both != -1)
+			ContornoForMPJE.contornos_used[index_both] = true;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
 			ContornoForMPJE.contornos_used[index_inf] = true;*/
 	}
 	
-	private final static void setContornoLibre()
+	private final static void setContornoLibre(int index_both)
 	{
-		if (index_sup != -1)
-			ContornoForMPJE.contornos_used[index_sup] = false;
+		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
+		if (index_both != -1)
+			ContornoForMPJE.contornos_used[index_both] = false;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
 			ContornoForMPJE.contornos_used[index_inf] = false;*/
 	}
 
-	private final static boolean esContornoUsado()
+	private final static boolean esContornoSuperiorUsado(int _cursor)
 	{
 		//primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_read_contorno[cursor] == false)
+		if (zona_read_contorno[_cursor] == false)
 			return false;
 		
 		//obtengo la clave del contorno superior
-		int i_count = cursor-LADO;
-		int auxi;
-		switch (Contorno.MAX_COLS){
-			case 2:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom);
-				break;
-			case 3:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom, tablero[i_count + 2].bottom);
-				break;
-			case 4:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom, tablero[i_count + 2].bottom, tablero[i_count + 3].bottom);
-				break;
+		int cursor_at_top = _cursor-LADO;
+		switch (ContornoForMPJE.MAX_COLS){
+			case 2: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 3: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 4: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
 			default: return false;
 		}
-		
-		//si el contorno está siendo usado entonces devuelvo true
-		if (ContornoForMPJE.contornos_used[auxi])
-			return true;
-		
-		return false;
 	}
 	
-	/*@CONTORNO_INFERIORprivate final static boolean esContornoInferiorUsado(){
+	/*@CONTORNO_INFERIOR
+	private final static boolean esContornoInferiorUsado(int _cursor)
+	{
 		//primero me fijo si estoy en la posición correcta para preguntar por contorno inferior usado
-		if (zona_proc_contorno[cursor] == false)
+		if (zona_proc_contorno[_cursor] == false)
 			return false;
 		//debo estar entre filas [2,13]
-		if (cursor < 33 || cursor > 238)
+		if (_cursor < 33 || _cursor > 238)
 			return false;
 		
 		//obtengo la clave del contorno inferior
-		switch (Contorno.MAX_COLS){
-			case 2:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom);
-				break;
-			case 3:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom, tablero[cursor-2].bottom);
-				break;
-			case 4:
-				auxi = Contorno.getIndex(tablero[cursor].right, tablero[cursor].bottom, tablero[cursor-1].bottom, tablero[cursor-2].bottom, tablero[cursor-3].bottom);
-				break;
+		switch (ContornoForMPJE.MAX_COLS){
+			case 2: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 3: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 4: {
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
 			default: return false;
 		}
-		
-		//si el contorno está siendo usado entonces devuelvo true
-		if (Contorno.contornos_used[auxi])
-			return true;
-		
-		return false;
 	}*/
 	
 	/**
@@ -1446,7 +1435,7 @@ public final class SolverFasterMPJE {
 				else{
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
-						dispMaxBuff.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -1498,7 +1487,7 @@ public final class SolverFasterMPJE {
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= piezas[b];
 				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.numero).append("\n");
+					wLibresBuffer.append(pzx.numero + 1).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
@@ -1545,8 +1534,8 @@ public final class SolverFasterMPJE {
 				Pieza p= tablero[b];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
-				wDisp.println(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
@@ -1612,19 +1601,18 @@ public final class SolverFasterMPJE {
 			//########################################################################
 			/**
 			 * Calculo los valores para desde_saved[]
-			*/
+			 */
 			//########################################################################
-			int cur_copy= cursor; //guardo una copia de cursor xq voy a usarlo
-			for (cursor=0; cursor < cur_copy; ++cursor) {
-				if (cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+			int _cursor=0;
+			for (; _cursor < cursor; ++_cursor) {
+				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(), tablero[cursor].numero);
+				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;cursor < MAX_PIEZAS; ++cursor)
-				desde_saved[cursor] = 0;
-			cursor= cur_copy; //restauro el valor de cursor
+			for (;_cursor < MAX_PIEZAS; ++_cursor)
+				desde_saved[_cursor] = 0;
 			//########################################################################
 			
 			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking

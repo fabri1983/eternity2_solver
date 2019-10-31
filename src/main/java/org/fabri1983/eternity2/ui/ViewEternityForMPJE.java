@@ -51,6 +51,7 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
 	private long prevAccum = 0;
 	private static final int COUNT_PERIOD = 5; // periodo de refresco del contador de piezas aplicado a refresh_milis
 	private int periodStepping = 1; // ayuda a  COUNT_PERIOD
+	private StringBuilder titleRefreshed = new StringBuilder(64);
 	private String title = "";
 	
 	private EternityTable jTable1;
@@ -70,6 +71,7 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
         try {
             jbInit();
         } catch (Exception e) {
+        	System.out.println("Problem when initializing JPnael and related components.");
             e.printStackTrace();
         }
     }
@@ -139,11 +141,12 @@ public class ViewEternityForMPJE extends JFrame implements KeyListener {
     	if (periodStepping == COUNT_PERIOD) {
     		periodStepping = 0; // lo reseteo 
     		long accum = SolverFasterMPJE.count_cycles - prevAccum;
-			long piezasPerSeg = (accum * 1000) / (COUNT_PERIOD * refresh_milis);
-			StringBuilder titleRefreshed = new StringBuilder(64);
-	    	titleRefreshed.append(title).append(" - Pcs/sec: ").append(piezasPerSeg);
+			long piezasPerSec = (accum * 1000) / (COUNT_PERIOD * refresh_milis); // multiplico por 1000 para pasar de millis to seconds
+			titleRefreshed.setLength(0);
+	    	titleRefreshed.append(title).append(" - Pcs/sec: ").append(piezasPerSec);
 	    	this.setTitle(titleRefreshed.toString());
-	    	prevAccum += accum; // SolverFasterMPJE.count_cicles;
+	    	titleRefreshed.setLength(0);
+	    	prevAccum += accum;
 	    }
     	else
     		++periodStepping;
