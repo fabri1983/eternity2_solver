@@ -24,18 +24,16 @@ package org.fabri1983.eternity2.mpje_solver;
 
 import org.fabri1983.eternity2.core.Pieza;
 
-
 /**
  * Esta clase ayuda a saber si un determinado contorno (superior o inferior) está siendo usado o no.
  * La teoria a la que concluí es: si un contorno aparece como usado, luego no existe combinacion de 
  * piezas libres talque se pueda completar otro contorno igual. Es decir, contorno usado => no solución .
  * 
- * @author Fabricio Lettieri
  */
 public final class ContornoForMPJE
 {
 	// El mejor número de columnas es 2 (es más rápido)
-	public final static byte MAX_COLS = 2;
+	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
 	private final static byte MAX_COLORES = 23;
 		
 	/**
@@ -54,7 +52,7 @@ public final class ContornoForMPJE
 	 */
 	public static final void inicializarContornos (Pieza[] tablero)
 	{
-		// los limites iniciales me evitan los bordes sup e inf
+		// el limite inicial y el final me evitan los bordes sup e inf
 		for (int k=16; k < (SolverFasterMPJE.MAX_PIEZAS - 16); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 

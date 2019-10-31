@@ -1284,7 +1284,7 @@ public final class SolverFasterMPJE {
 		}
 
 		//obtengo las claves de acceso
-		switch (Contorno.MAX_COLS){
+		switch (Contorno.MAX_COLS) {
 			case 2:
 				index_sup = Contorno.getIndex(tablero[cursor-1].left, tablero[cursor-1].top, tablero[cursor].top);
 				/*@CONTORNO_INFERIORif (cursor >= 33 && cursor <= 238)
@@ -1327,26 +1327,22 @@ public final class SolverFasterMPJE {
 			return false;
 		
 		//obtengo la clave del contorno superior
-		int i_count = cursor-LADO;
-		int auxi;
+		int cursor_at_top = cursor-LADO;
 		switch (Contorno.MAX_COLS){
-			case 2:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom);
-				break;
-			case 3:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom, tablero[i_count + 2].bottom);
-				break;
-			case 4:
-				auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[i_count].bottom, tablero[i_count + 1].bottom, tablero[i_count + 2].bottom, tablero[i_count + 3].bottom);
-				break;
+			case 2: {
+				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 3: {
+				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
+			case 4: {
+				int auxi = Contorno.getIndex(tablero[cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
+				return ContornoForMPJE.contornos_used[auxi];
+			}
 			default: return false;
 		}
-		
-		//si el contorno está siendo usado entonces devuelvo true
-		if (ContornoForMPJE.contornos_used[auxi])
-			return true;
-		
-		return false;
 	}
 	
 	/*@CONTORNO_INFERIORprivate final static boolean esContornoInferiorUsado(){

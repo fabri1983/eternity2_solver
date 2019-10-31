@@ -734,29 +734,25 @@ public class ExploracionAction extends RecursiveAction {
 			return false;
 		
 		// obtengo la clave del contorno superior
-		int i_count = cursor - SolverFaster.LADO;
-		int auxi;
+		int cursor_at_top = cursor - SolverFaster.LADO;
 		switch (Contorno.MAX_COLS) {
-			case 2:
-				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
-						tablero[i_count + 1].bottom);
-				break;
-			case 3:
-				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
-						tablero[i_count + 1].bottom, tablero[i_count + 2].bottom);
-				break;
-			case 4:
-				auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[i_count].bottom,
-						tablero[i_count + 1].bottom, tablero[i_count + 2].bottom, tablero[i_count + 3].bottom);
-				break;
+			case 2: {
+				int auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[cursor_at_top].bottom,
+						tablero[cursor_at_top + 1].bottom);
+				return contorno.contornos_used[auxi];
+			}
+			case 3: {
+				int auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[cursor_at_top].bottom,
+						tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
+				return contorno.contornos_used[auxi];
+			}
+			case 4: {
+				int auxi = Contorno.getIndex(tablero[cursor - 1].right, tablero[cursor_at_top].bottom,
+						tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
+				return contorno.contornos_used[auxi];
+			}
 			default: return false;
 		}
-		
-		// si el contorno está siendo usado entonces devuelvo true
-		if (contorno.contornos_used[auxi])
-			return true;
-		
-		return false;
 	}
 
 }

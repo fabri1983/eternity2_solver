@@ -30,13 +30,11 @@ import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
  * piezas libres talque se pueda completar otro contorno igual. Es decir, contorno usado => no solución.
  * 
  * Nota: Usar un contorno por tablero.
- * 
- * @author Fabricio Lettieri
  */
 public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
-	public final static byte MAX_COLS = 2;
+	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
 	private final static byte MAX_COLORES = 23;
 		
 	/**
