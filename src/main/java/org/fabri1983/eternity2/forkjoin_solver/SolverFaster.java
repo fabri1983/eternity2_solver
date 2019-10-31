@@ -96,7 +96,7 @@ public final class SolverFaster {
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
 	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
-	protected static AtomicIntegerArray arr_color_rigth_explorado;
+	protected final static AtomicIntegerArray arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
 	
 	protected static boolean retroceder, FairExperimentGif, usarTableroGrafico;
 	protected static int cellPixelsLado, tableboardRefreshMillis;
@@ -162,9 +162,6 @@ public final class SolverFaster {
 		ESQUINA_BOTTOM_RIGHT = MAX_PIEZAS - 1;
 		ESQUINA_BOTTOM_LEFT = MAX_PIEZAS - LADO;
 		
-		if (usar_poda_color_explorado)
-			arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
-
 		usarTableroGrafico = usar_tableboard;
 		cellPixelsLado = cell_pixels_lado;
 		tableboardRefreshMillis = p_refresh_millis;
@@ -522,9 +519,9 @@ public final class SolverFaster {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					tablero_aux[k]=valor;
+					tablero_aux[k]= numPieza;
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -534,9 +531,9 @@ public final class SolverFaster {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					action.desde_saved[k] = valor;
+					action.desde_saved[k] = numPieza;
 				}
 				
 				// la siguiente línea indica si se estaba usando poda de color explorado
@@ -551,9 +548,9 @@ public final class SolverFaster {
 							if (k==(LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+							int val= Integer.parseInt(linea.substring(sep_ant,sep));
 							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-							arr_color_rigth_explorado.set(k, valor);
+							arr_color_rigth_explorado.set(k, val);
 						}
 					}
 				}

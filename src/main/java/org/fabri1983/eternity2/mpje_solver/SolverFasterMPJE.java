@@ -105,7 +105,7 @@ public final class SolverFasterMPJE {
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
 	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
-	private static int[] arr_color_rigth_explorado;
+	private final static int[] arr_color_rigth_explorado = new int[LADO];
 	
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
@@ -182,9 +182,6 @@ public final class SolverFasterMPJE {
 		ESQUINA_TOP_RIGHT= LADO - 1;
 		ESQUINA_BOTTOM_RIGHT= MAX_PIEZAS - 1;
 		ESQUINA_BOTTOM_LEFT= MAX_PIEZAS - LADO;
-		
-		if (usar_poda_color_explorado)
-			arr_color_rigth_explorado = new int[LADO];
 		
 		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
 		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
@@ -577,9 +574,9 @@ public final class SolverFasterMPJE {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					tablero_aux[k]=valor;
+					tablero_aux[k]= numPieza;
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -589,9 +586,9 @@ public final class SolverFasterMPJE {
 					if (k==(MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					desde_saved[k] = valor;
+					desde_saved[k] = numPieza;
 				}
 				
 				//la siguiente línea indica si se estaba usando poda de color explorado
@@ -606,9 +603,9 @@ public final class SolverFasterMPJE {
 							if (k==(LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							byte valor= Byte.parseByte(linea.substring(sep_ant,sep));
+							int val= Integer.parseInt(linea.substring(sep_ant,sep));
 							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-							arr_color_rigth_explorado[k] = valor;
+							arr_color_rigth_explorado[k] = val;
 						}
 					}
 				}
