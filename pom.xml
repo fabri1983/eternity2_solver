@@ -150,6 +150,20 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>java12</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.7</source.version>
+				<compiler.version>12</compiler.version>
+				<release>12</release>
+				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<pg.compiler.version>12</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<!-- This profile can only be activated for java 6, 7, 8, 9, 10, 11 only -->
 			<id>junion</id>
 			<properties>
@@ -299,20 +313,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>java12</id>
-			<properties>
-				<final.jar.name>e2solver</final.jar.name>
-				<source.version>1.7</source.version>
-				<compiler.version>12</compiler.version>
-				<release>12</release>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
-				<pg.compiler.version>12</pg.compiler.version>
-				<pg.injar.filter></pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
-			</properties>
 		</profile>
 		<profile>
 			<id>java12benchmark</id>

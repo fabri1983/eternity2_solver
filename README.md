@@ -16,16 +16,22 @@ There are two versions of the same solver: one using fork-join and other using M
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.  
 
-Some stats:
+**Some stats:**
 
-- Environment Windows 7 Intel Core i7-2630QM 2.6GHz DDR3 Dual Channel. Results:  
-Currently placing approx **54 million pieces per second** in a fork-join pool **with 8 threads**.  
-And placing approx **80 million pieces per second** using MPJ Express framework as multi-core execution with 8 solver instances.  
+- Environment Windows 10 Home, Intel Core i7-2630QM (2.6 GHz max per core), DDR3 Dual Channel. Results:  
+Placing approx **54 million pieces per second** in a fork-join pool **with 8 threads**.  
+And placing approx **80 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
-- Environment Ubuntu 14.04 Intel core i5 DDR3 Dual Channel OpenJDK 1.7. Results:  
-Currently placing **38 million pieces per second** in a fork-join pool **with 4 threads**.  
-And placing around **90 million pieces per second** using MPJ Express framework with 4 instances of the solver.  
+- Environment Ubuntu 14.04, Intel Core i5, DDR3 Dual Channel OpenJDK 1.7. Results:  
+Placing **38 million pieces per second** in a fork-join pool **with 4 threads**.  
+And placing around **90 million pieces per second** using MPJ Express framework as multi-core mode **with 4 solver instances**.  
 
+- Environment Windows 10 Pro, Intel Code i7 8650U (3.891 GHz max per core). Results:  
+Placing **90 million pieces per second** in a fork-join pool **with 8 threads**.  
+Placing **93 million pieces per second** in a fork-join pool **with 16 threads**.  
+And placing around **90 million pieces per second** using MPJ Express framework as multi-core mode **with 16 solver instances**.  
+
+I still have to solve some miss cache issues by maximizing data locality and data time span.  
 
 In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up.  
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.  
@@ -54,11 +60,10 @@ It is included in the project as a system dependency
 
 **jsr166**. https://www.jcp.org/en/jsr/detail?id=166.  
 Is the java concurrent api for JVM 1.6 target builds.  
-This api provides fork/join functionality to run the program on the Oracle JRockit VM.  
+This api provides fork/join concurrency functionality to run the program on the Oracle JRockit VM.  
 
 **Junion: structs in Java**. https://github.com/TehLeo/junion.  
 Delivers struct types to Java programming language to decrease memory usage and the possibility to allocate on off-heap area.  
-WIP.  
 
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
@@ -80,15 +85,16 @@ Generate the jar artifact:
 ```sh
 mvn clean package
 ```
-It generates the jar file with default profile `java7` and copy the external dependencies under target folder.  
+It generates the jar file with **default profile java7** and copy the external dependencies under target folder.  
 Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java7`, `java8`: for execution with either JVM. `java7` is active by default.
-- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only).
-- `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 10.
-- `java8native`: only intended for Graal SubstrateVM native image generation.
-- `java12`.
+- `java7`, `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
+- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
+- `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
+- `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
+- `java12benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`.**WIP**.
+- `junion`: additional profile which enables process of Junion annotations to pre-process sources for byte code manipulation. **WIP**.
 
 
 Execution
@@ -100,7 +106,8 @@ E.g.:
 	cd tools
 	./run.sh
 ```
-The app loads by default the next properties (may change between forkjoin and mpje). You can pass only those you want to change:
+
+The app loads by default the next properties (may vary between forkjoin and mpje profiles). You can pass only those you want to change:
 ```sh
 	max.ciclos.save_status=2147483647
 	min.pos.save.partial=211
@@ -119,12 +126,15 @@ The app loads by default the next properties (may change between forkjoin and mp
 E.g.:
 ```sh
 	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=8
-	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
+	./run_mpje_multicore.sh -Dmin.pos.save.partial=215     <-- it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
 ```
-**NOTE**: if running on a terminal with no X11 server then use `-Djava.awt.headless=true`.  
-Use `run.bat` or `run.sh` for running the `e2solver.jar` package generated with profiles *java7* (default), *java8*, and *java12*.  
-Use `run_jrockit.bat` or `run_jrockit.sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
-Use `run_mpje_xxx.bat` or `run_mpje_xxx.sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
+
+**NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
+
+Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java7*, *java8*, and *java12*.  
+Use `run_jrockit.bat/sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
+Use `run_mpje_[multicore|cluster].bat/sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
+Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *java12benchmark*.  
 
 
 Known issues
