@@ -394,11 +394,6 @@ public class ExploracionAction extends RecursiveAction {
 		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
-		int index_sup_aux;
-		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 		
 		num_processes_orig[cursor] = num_processes;
 
@@ -475,6 +470,12 @@ public class ExploracionAction extends RecursiveAction {
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (usar_poda_color_explorado)
 			{
+				final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+				
+				// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+				// old was: ((cursor+2) % LADO) == 0
+				final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
+				
 				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
 					SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual + 1, 0);
@@ -482,6 +483,7 @@ public class ExploracionAction extends RecursiveAction {
 				if (flag_zona == SolverFaster.F_BORDE_LEFT)
 				{
 					final int mask = 1 << p.right;
+					
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
 					if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
 						p.usada = false; //la pieza ahora no es usada
@@ -529,7 +531,7 @@ public class ExploracionAction extends RecursiveAction {
 			//seteo los contornos como usados
 			getIndexDeContornoYaPuesto();
 			setContornoUsado();
-			index_sup_aux = index_sup;
+			int index_sup_aux = index_sup;
 			//@CONTORNO_INFERIORindex_inf_aux = index_inf;
 				
 			//##########################

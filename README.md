@@ -12,10 +12,13 @@ Game finished in 2010 without anyone claiming the solution. Prize for any valid 
 This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.  
 
 The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.  
-There are two versions of the same solver: one using fork-join and other using MPI (for distributed execution).  
+There are two versions of the same solver: one using fork-join pool and other using MPI (for distributed execution).  
+The placement of pieces follows a row scan schema from top-left to bottom-right.  
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance purpose.  
-
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:
+ - *Speed of pieces placed by second after all filtering took place*. This is, after knowing that the piece is a valid candidate for the current position.
+ - *Time needed to reach a given position (ie 211) with a fixed configuration (8 threads)*. Given the fact that board positions, pieces, and filtering structures are visited always in the same order, this gives us a framework in which CPU processing capabilities is decoupled from game logic.
+  
 **Some stats:**
 
 - Environment Windows 10 Home, Intel Core i7-2630QM (2.6 GHz max per core), DDR3 Dual Channel. Results:  

@@ -94,7 +94,10 @@ public final class SolverFaster {
 	
 	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
-	protected static AtomicIntegerArray arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1
+	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
+	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	protected static AtomicIntegerArray arr_color_rigth_explorado;
+	
 	protected static boolean retroceder, FairExperimentGif, usarTableroGrafico;
 	protected static int cellPixelsLado, tableboardRefreshMillis;
 	protected static boolean flag_retroceder_externo, usar_poda_color_explorado;

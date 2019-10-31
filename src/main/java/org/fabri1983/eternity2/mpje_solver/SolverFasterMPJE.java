@@ -103,9 +103,11 @@ public final class SolverFasterMPJE {
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
 	private final static byte[] desde_saved = new byte[MAX_PIEZAS];
 	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
-	private static int[] arr_color_rigth_explorado; // cada posición es un entero donde se usan 23 bits para los colores
-													// donde un bit valdrá 0 si ese color (right en borde left) no ha
-													// sido exlorado para la fila actual, sino valdrá 1
+	
+	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
+	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	private static int[] arr_color_rigth_explorado;
+	
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
 	private static boolean send_mail = false;
@@ -254,13 +256,11 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void inicializarZonaReadContornos()
 	{	
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_read_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
@@ -284,13 +284,11 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void inicializarZonaProcContornos()
 	{
-		int fila_actual;
-		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			//inicializo en false
 			zona_proc_contorno[k] = false;
-			fila_actual = k / LADO;
+			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
@@ -1041,11 +1039,6 @@ public final class SolverFasterMPJE {
 		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = matrix_zonas[cursor];
-		int index_sup_aux;
-		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>.
-		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
 		
 		num_processes_orig[cursor] = NUM_PROCESSES;
 
@@ -1114,12 +1107,22 @@ public final class SolverFasterMPJE {
 			}
 			
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (usar_poda_color_explorado){
+			if (usar_poda_color_explorado)
+			{
+				final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+			
+				// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+				// old was: ((cursor+2) % LADO) == 0
+				final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
+
 				// si estoy antes del borde right limpio el arreglo de colores right usados
 				if (flag_antes_borde_right)
 					arr_color_rigth_explorado[fila_actual + 1] = 0;
-				if (flag_zona == F_BORDE_LEFT){
+				
+				if (flag_zona == F_BORDE_LEFT)
+				{
 					final int mask = 1 << p.right;
+					
 					// pregunto si el color right de la pieza de borde left actual ya está explorado
 					if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
 						p.usada = false; //la pieza ahora no es usada
@@ -1127,8 +1130,11 @@ public final class SolverFasterMPJE {
 						continue; // sigo con otra pieza de borde
 					}
 					// si no es así entonces lo seteo como explorado
-					else
+					else {
 						arr_color_rigth_explorado[fila_actual] |= mask;
+						// int value = arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
+						// arr_color_rigth_explorado.getAndSet(fila_actual, value);
+					}
 				}
 			}
 			
@@ -1161,7 +1167,7 @@ public final class SolverFasterMPJE {
 			// seteo los contornos como usados
 			getIndexDeContornoYaPuesto();
 			setContornoUsado();
-			index_sup_aux = index_sup;
+			int index_sup_aux = index_sup;
 			//@CONTORNO_INFERIORindex_inf_aux = index_inf;
 				
 			//##########################
