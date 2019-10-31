@@ -55,7 +55,7 @@ public final class SolverFaster {
 	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	protected static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	protected static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
-	protected static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
+	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	protected final static int LADO= 16;
 	protected final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
@@ -399,19 +399,18 @@ public final class SolverFaster {
 	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
 	 * ha finalizado su exploracion asignada.
 	 */
-	/*private final static void operarSituacionLimiteAlcanzado (){
-		guardarEstado(NAME_FILE_STATUS);
-		guardarEstado(NAME_FILE_STATUS_COPY);
-		
-		System.out.println("El caso " + CASO + " ha llegado a su limite de exploracion. Exploracion finalizada.");
-		
-		if (send_mail){
-			SendMail em= new SendMail();
-			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
-			Thread t= new Thread(em);
-			t.start();
-		}
-	}*/
+//	final static void operarSituacionLimiteAlcanzado(ExploracionAction action) {
+//		guardarEstado(action.statusFileName, action);
+//		
+//		System.out.println("El caso " + action.id + " ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
+//		
+//		if (send_mail){
+//			SendMail em= new SendMail();
+//			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
+//			Thread t= new Thread(em);
+//			t.start();
+//		}
+//	}
 	
 	/**
 	 * Carga las piezas desde el archivo NAME_FILE_PIEZAS

@@ -199,8 +199,8 @@ public class ExploracionAction extends RecursiveAction {
 			while (cursor >= 0) {
 				if (!retroceder) {
 					// pregunto si llegué al limite de esta instancia de exploracion
-					/*if (cursor <= LIMITE_DE_EXPLORACION){
-						operarSituacionLimiteAlcanzado();
+					/*if (cursor <= SolverFaster.LIMITE_DE_EXPLORACION) {
+						SolverFaster.operarSituacionLimiteAlcanzado(this);
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
@@ -308,7 +308,7 @@ public class ExploracionAction extends RecursiveAction {
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
-			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
 			count_cycles = 0;
 			if (usarTableroGrafico)
 				SolverFaster.count_cycles[id] = 0;

@@ -56,7 +56,6 @@ public final class SolverFasterMPJE {
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
 	private static int[] num_processes_orig;
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
-														// los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
@@ -902,7 +901,7 @@ public final class SolverFasterMPJE {
 			long nanoTimeNow = System.nanoTime();
 			long durationNanos = nanoTimeNow - time_status_saved;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
-			long piecesPerSec = count_cycles * 1000000000L / durationNanos; // multiply by 10^9 to convert nanos into seconds
+			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
 			count_cycles = 0;
 			guardarEstado(NAME_FILE_STATUS);
 			guardarResultadoParcial(false);
@@ -1043,7 +1042,7 @@ public final class SolverFasterMPJE {
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = matrix_zonas[cursor];
 		int index_sup_aux;
-		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>.
 		// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
 		// old was: ((cursor+2) % LADO) == 0
 		final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
