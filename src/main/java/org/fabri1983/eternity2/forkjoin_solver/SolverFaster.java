@@ -435,11 +435,11 @@ public final class SolverFaster {
 			
 			reader = readerForTilesFile.getReader(NAME_FILE_PIEZAS);
 			String linea= reader.readLine();
-			int num=0;
+			short num=0;
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= PiezaFactory.from(linea, (byte)num); 
+				action.piezas[num]= PiezaFactory.from(linea, num); 
 				linea= reader.readLine();
 				++num;
 			}
@@ -713,7 +713,7 @@ public final class SolverFaster {
 				else{
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
-						dispMaxBuff.append(p.numero).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -766,7 +766,7 @@ public final class SolverFaster {
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				Pieza pzx= action.piezas[b];
 				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.numero).append("\n");
+					wLibresBuffer.append(pzx.numero + 1).append("\n");
 			}
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
@@ -815,8 +815,8 @@ public final class SolverFaster {
 				Pieza p= action.tablero[b];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
-				wDisp.println(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(p.numero + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos + "\n");
+				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(p.numero + 1).append( SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
@@ -883,7 +883,7 @@ public final class SolverFaster {
 			//########################################################################
 			/**
 			 * Calculo los valores para desde_saved[]
-			*/
+			 */
 			//########################################################################
 			int _cursor = 0;
 			for (; _cursor < action.cursor; ++_cursor) {

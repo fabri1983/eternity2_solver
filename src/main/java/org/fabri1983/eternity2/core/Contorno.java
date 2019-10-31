@@ -83,29 +83,29 @@ public final class Contorno
 			switch (MAX_COLS)
 			{
 			case 2: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 3: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 4: {
-					int index = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
-					contornos_used[index] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						index = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contornos_used[index] = true;
+						int indexInf = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
