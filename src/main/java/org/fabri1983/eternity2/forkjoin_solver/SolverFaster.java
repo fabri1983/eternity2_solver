@@ -885,19 +885,18 @@ public final class SolverFaster {
 			 * Calculo los valores para desde_saved[]
 			*/
 			//########################################################################
-			int cur_copy= action.cursor; //guardo una copia de cursor xq voy a usarlo
-			for (action.cursor=0; action.cursor < cur_copy; ++action.cursor) {
+			int _cursor = 0;
+			for (; _cursor < action.cursor; ++_cursor) {
 				
-				if (action.cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[action.cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(),
-						action.tablero[action.cursor].numero);
+				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor),
+						action.tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;action.cursor < MAX_PIEZAS; ++action.cursor)
-				action.desde_saved[action.cursor] = 0;
-			action.cursor= cur_copy; //restauro el valor de cursor
+			for (;_cursor < MAX_PIEZAS; ++_cursor)
+				action.desde_saved[_cursor] = 0;
 			//########################################################################
 			
 			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking

@@ -101,7 +101,7 @@ public final class SolverFasterMPJE {
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
-	private final static byte[] desde_saved = new byte[MAX_PIEZAS];
+	private final static short[] desde_saved = new short[MAX_PIEZAS];
 	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
@@ -1032,7 +1032,7 @@ public final class SolverFasterMPJE {
 	private final static void exploracionStandard ()
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas();
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -1218,37 +1218,37 @@ public final class SolverFasterMPJE {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	private final static NodoPosibles obtenerPosiblesPiezas ()
+	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
 	{
-		switch (cursor) {
+		switch (_cursor) {
 			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[_cursor-1].right)];
 			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES,tablero[cursor-1].right)];
+				return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES,tablero[_cursor-1].right)];
 		}
 		
-		final int flag_m = matrix_zonas[cursor];
+		final int flag_m = matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
+			return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
 				// borde top
 				case F_BORDE_TOP:
-					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde bottom
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1259,13 +1259,13 @@ public final class SolverFasterMPJE {
 					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, GRIS)];
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, MAX_COLORES, GRIS, GRIS)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, MAX_COLORES, GRIS, GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(tablero[cursor-LADO].bottom, GRIS, GRIS, tablero[cursor-1].right)];
+					return super_matriz[MapaKeys.getKey(tablero[_cursor-LADO].bottom, GRIS, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 	}
@@ -1619,17 +1619,16 @@ public final class SolverFasterMPJE {
 			 * Calculo los valores para desde_saved[]
 			*/
 			//########################################################################
-			int cur_copy= cursor; //guardo una copia de cursor xq voy a usarlo
-			for (cursor=0; cursor < cur_copy; ++cursor) {
-				if (cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+			int _cursor=0;
+			for (; _cursor < cursor; ++_cursor) {
+				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(), tablero[cursor].numero);
+				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;cursor < MAX_PIEZAS; ++cursor)
-				desde_saved[cursor] = 0;
-			cursor= cur_copy; //restauro el valor de cursor
+			for (;_cursor < MAX_PIEZAS; ++_cursor)
+				desde_saved[_cursor] = 0;
 			//########################################################################
 			
 			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking

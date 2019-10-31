@@ -49,14 +49,14 @@ public final class PiezaFactory {
 		++p.countIdUnico;*/
 	}
 
-	public static Pieza from (String s, byte num)
+	public static Pieza from (String s, short num)
 	{
 		Pieza p = new Pieza();
 		setFromStringWithNum(s, num, p);
 		return p;
 	}
 
-	public static void setFromStringWithNum(String s, byte num, Pieza p) {
+	public static void setFromStringWithNum(String s, short num, Pieza p) {
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
 		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
 		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
@@ -125,7 +125,7 @@ public final class PiezaFactory {
 		
 		//Segundo: separo el valor numerico de la pieza
 		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
-		p.numero= Byte.parseByte(s.substring(cuarto_sep+1,quinto_sep));
+		p.numero= Short.parseShort(s.substring(cuarto_sep+1,quinto_sep));
 		
 		// Tercero: separo el valor de rotación de la pieza
 		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
