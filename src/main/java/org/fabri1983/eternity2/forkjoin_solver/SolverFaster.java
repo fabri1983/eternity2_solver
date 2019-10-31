@@ -465,7 +465,7 @@ public final class SolverFaster {
 		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		action.tablero[POSICION_CENTRAL]= piezaCentral;
+		action.tablero[POSICION_CENTRAL]= piezaCentral.numero;
 		
 		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -489,7 +489,6 @@ public final class SolverFaster {
 			
 			reader = new BufferedReader(new FileReader(f));
 			String linea = reader.readLine();
-			int tablero_aux[] = new int[MAX_PIEZAS];
 			
 			if (linea==null) {
 				throw new Exception(action.id + " >>> First line is null.");
@@ -521,7 +520,7 @@ public final class SolverFaster {
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					tablero_aux[k]= numPieza;
+					action.tablero[k]= numPieza;
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -571,14 +570,8 @@ public final class SolverFaster {
 					throw new Exception("Inconsistent number of pieces.");
 				}
 				
-				//obtengo las referencias de piezas en tablero[]
-				for (int i=0; i < MAX_PIEZAS; ++i){
-					if (tablero_aux[i] < 0)
-						continue;
-					action.tablero[i] = action.piezas[tablero_aux[i]];
-				}
-					
 				status_cargado=true;
+				
 				System.out.println("cargado!");
 			}
 		}
@@ -636,24 +629,29 @@ public final class SolverFaster {
 				action.mas_bajo= action.cursor;
 				guardarEstado(action.statusFileName, action);
 				guardarResultadoParcial(false, action);
-				System.out.println("Exploracion retrocedio a la posicion " + action.cursor + ". Estado salvado.");
+				System.out.println(action.id + ": Exploracion retrocedio a la posicion " + action.cursor + ". Estado salvado.");
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
+			
 			--action.cursor;
+			
 			//si me paso de la posición inicial significa que no puedo volver mas estados de exploración
 			if (action.cursor < 0)
 				break; //obliga a salir del while
+			
 			if (action.cursor != POSICION_CENTRAL){
-				Pieza pzz = action.tablero[action.cursor];
+				Pieza pzz = action.piezas[action.tablero[action.cursor]];
 				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
-				action.tablero[action.cursor]= null;
+				action.tablero[action.cursor]= -1;
 			}
+			
 			//si retrocedá hasta el cursor destino, entonces no retrocedo mas
 			if ((action.cursor+1) <= cursor_destino){
 				action.retroceder= false;
 				cursor_destino= CURSOR_INVALIDO;
 			}
+			
 			//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 			if (action.retroceder)
 				action.desde_saved[action.cursor] = 0; //la exploracion de posibles piezas para la posición cursor debe empezar desde la primer pieza
@@ -701,13 +699,13 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				int pos= b+1;
-				Pieza p = action.tablero[b];
-				if (action.tablero[b] == null){
+				if (action.tablero[b] == -1){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
-				else{
+				else {
+					Pieza p = action.piezas[action.tablero[b]];
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
 						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
@@ -809,12 +807,13 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
-				Pieza p= action.tablero[b];
+				Pieza p= action.piezas[action.tablero[b]];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
 				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
 				contenidoDisp.append(p.numero + 1).append( SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
+			
 			wSol.println();
 			wSol.println("-----------------------------------------------------------------");
 			wSol.println();
@@ -864,16 +863,10 @@ public final class SolverFaster {
 			//guardo los indices de tablero[]
 			for (int n=0; n < MAX_PIEZAS; ++n) {
 				if (n==(MAX_PIEZAS - 1)){
-					if (action.tablero[n] == null)
-						writerBuffer.append("-1").append("\n");
-					else
-						writerBuffer.append((action.tablero[n].numero)).append("\n");
+					writerBuffer.append((action.tablero[n])).append("\n");
 				}
-				else{
-					if (action.tablero[n] == null)
-						writerBuffer.append("-1").append(SECCIONES_SEPARATOR_EN_FILE);
-					else
-						writerBuffer.append((action.tablero[n].numero)).append(SECCIONES_SEPARATOR_EN_FILE);
+				else {
+					writerBuffer.append(action.tablero[n]).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -888,8 +881,7 @@ public final class SolverFaster {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor),
-						action.tablero[_cursor].numero);
+				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor), action.tablero[_cursor]);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)

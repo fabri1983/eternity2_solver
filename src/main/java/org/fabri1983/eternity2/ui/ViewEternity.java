@@ -170,7 +170,7 @@ public class ViewEternity extends JFrame implements KeyListener {
     	for (int i=cursor; i >= inferior; --i){
     		//jTable1.canvas.viewPieces[i / LADO][i % LADO] = action.tablero[i];
     		// better performance for power of 2:
-    		jTable1.canvas.viewPieces[i >> LADO_SHIFT_FOR_DIV][i & (LADO-1)] = action.tablero[i];
+    		jTable1.canvas.viewPieces[i >> LADO_SHIFT_FOR_DIV][i & (LADO-1)] = action.piezas[action.tablero[i]];
     	}
     	
     	//indico la posición de la pieza mas lejana

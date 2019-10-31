@@ -48,16 +48,18 @@ public final class ContornoForMPJE
 	
 	/**
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero
-	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public static final void inicializarContornos (Pieza[] tablero)
+	public static final void inicializarContornos ()
 	{
+		short[] tablero = SolverFasterMPJE.tablero;
+		Pieza[] piezas = SolverFasterMPJE.piezas;
+		
 		// el limite inicial y el final me evitan los bordes sup e inf
 		for (int k=16; k < (SolverFasterMPJE.MAX_PIEZAS - 16); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
-			if (tablero[k] == null)
+			if (tablero[k] == -1)
 				return;
 			
 			//borde izquierdo
@@ -70,7 +72,7 @@ public final class ContornoForMPJE
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
 			for (int a=1; a < MAX_COLS; ++a) {
-				if (tablero[k+a] == null)
+				if (tablero[k+a] == -1)
 					return;
 			}
 			
@@ -82,7 +84,7 @@ public final class ContornoForMPJE
 			switch (MAX_COLS)
 			{
 			case 2: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+					int indexSup = getIndex(piezas[tablero[k]].left, piezas[tablero[k]].top, piezas[tablero[k+1]].top);
 					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						int indexInf = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
@@ -91,7 +93,7 @@ public final class ContornoForMPJE
 				}
 				break;
 			case 3: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+					int indexSup = getIndex(piezas[tablero[k]].left, piezas[tablero[k]].top, piezas[tablero[k+1]].top, piezas[tablero[k+2]].top);
 					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						int indexInf = getIndex(tablero[k+2-16].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
@@ -100,7 +102,7 @@ public final class ContornoForMPJE
 				}
 				break;
 			case 4: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+					int indexSup = getIndex(piezas[tablero[k]].left, piezas[tablero[k]].top, piezas[tablero[k+1]].top, piezas[tablero[k+2]].top, piezas[tablero[k+3]].top);
 					contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
 						int indexInf = getIndex(tablero[k+3-16].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
