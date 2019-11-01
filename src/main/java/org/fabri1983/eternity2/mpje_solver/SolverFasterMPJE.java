@@ -1373,8 +1373,10 @@ public final class SolverFasterMPJE {
 			else if (pzx.feature == 2)
 				++n_esq;
 		}
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes)))) {
 			System.out.println("ERROR. Existe una o varias piezas incorrectas.");
+			throw new RuntimeException("ERROR. Existe una o varias piezas incorrectas.");
+		}
 	}
 	
 	
