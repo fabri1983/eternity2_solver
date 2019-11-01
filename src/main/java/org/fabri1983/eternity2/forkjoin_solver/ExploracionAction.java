@@ -589,29 +589,29 @@ public class ExploracionAction extends RecursiveAction {
 	final NodoPosibles obtenerPosiblesPiezas(int _cursor)
 	{
 		switch (_cursor) {
-			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
+			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
 				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom,
 						SolverFaster.MAX_COLORES, piezas[SolverFaster.INDICE_P_CENTRAL].top, piezas[tablero[_cursor - 1]].right)];
-			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
+			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
 				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, piezas[SolverFaster.INDICE_P_CENTRAL].left,
-						SolverFaster.MAX_COLORES,piezas[ tablero[_cursor - 1]].right)];
+						SolverFaster.MAX_COLORES,piezas[tablero[_cursor - 1]].right)];
 		}
 		
 		final int flag_m = SolverFaster.matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, SolverFaster.MAX_COLORES,
-					SolverFaster.MAX_COLORES, piezas[tablero[_cursor - 1]].right)];
+			return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, 
+					SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, piezas[tablero[_cursor - 1]].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, SolverFaster.GRIS,
-							SolverFaster.MAX_COLORES, piezas[tablero[_cursor - 1]].right)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, 
+							SolverFaster.GRIS, SolverFaster.MAX_COLORES, piezas[tablero[_cursor - 1]].right)];
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
 					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom,
@@ -635,16 +635,16 @@ public class ExploracionAction extends RecursiveAction {
 							SolverFaster.MAX_COLORES, SolverFaster.GRIS)];
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.GRIS, SolverFaster.MAX_COLORES,
-							piezas[tablero[_cursor - 1]].right)];
+					return super_matriz[MapaKeys.getKey(SolverFaster.GRIS, SolverFaster.GRIS, 
+							SolverFaster.MAX_COLORES, piezas[tablero[_cursor - 1]].right)];
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
 					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom,
 							SolverFaster.MAX_COLORES, SolverFaster.GRIS, SolverFaster.GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, SolverFaster.GRIS,
-							SolverFaster.GRIS, piezas[tablero[_cursor - 1]].right)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor - SolverFaster.LADO]].bottom, 
+							SolverFaster.GRIS, SolverFaster.GRIS, piezas[tablero[_cursor - 1]].right)];
 			}
 		}
 	}
