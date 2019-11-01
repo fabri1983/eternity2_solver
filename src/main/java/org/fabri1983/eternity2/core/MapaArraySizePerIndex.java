@@ -48,12 +48,21 @@ public class MapaArraySizePerIndex {
 		return map.get(key);
 	}
 	
+//	private void calculateAverageOfSizes() {
+//		long sum = 0L;
+//		for (Integer val : map.values()) {
+//			sum += val.intValue();
+//		}
+//		System.out.println("Average of sizes: " + (sum / 6954)); // prints 2
+//	}
+	
 	public void load() {
-		map = new HashMap<>((int)(6954 / 0.75) + 1);
+		map = new HashMap<>((int)(6954 / 0.75) + 1); // 6954 is the total number of keys I´m gonna need
 		load1();
 		load2();
 		load3();
 		load4();
+//		calculateAverageOfSizes();
 	}
 	
 	private void load1() {

@@ -1198,7 +1198,7 @@ public final class SolverFasterMPJE {
 	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de NodoPosibles 
 	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
 	 *  
-	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
+	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
 	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)

@@ -168,23 +168,38 @@ Max length: 64
 50 - 44
 64 - 4
 
-- Usando super_matriz[] calculé que existen como máximo 7 piezas interiores (incluyendo las rotadas) para combinación de 
-2, 3, y 4 colores consecutivos. Y 4 piezas restantes incluyendo rotadas para borde/esquina.
+- Usando super_matriz[] calculé que existen como máximo 7 piezas interiores (incluyendo las rotadas) para 
+combinación de hasta 4 colores consecutivos. Y 4 piezas restantes para borde/esquina.
+
 Entonces en cada posición de cursor donde necesite satisfacer combinación left-top voy a tener:
-	- en borde/esquina y matcheando con borde/esquina: 4 posibles ramas.
-	- en borde/esquina y matcheando con interior: 7 posibles ramas.
-	- alrededor de pieza central (sin tener en cuenta sus rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
-Y sabiendo que existen las siguientes celdas:
-	- 4 celdas esquinas
-	- 56 celdas de borde
-	- 195 celdas internas
-	- 1 celda interna fija (son 5 hints pero en mi solver solo tengo 1)
-Por lo tanto el tope de combinaciones será: 4! * 4^56 * 7^194 * 2 * 2 = 4.432518e+199
-No siempre se van a probar las 4 piezas en cada posición de borde ni tampoco las 7 piezas en cada posición interior debido 
-a las podas. Y el uso de contorno_sup en el interior del tablero hace que una combinación dada left-top-top se pueda usar una 
+ - en borde/esquina y matcheando con borde/esquina: 4 posibles ramas.
+ - en borde/esquina y matcheando con interior: 7 posibles ramas.
+ - alrededor de pieza central (sin tener en cuenta sus rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
+
+Sabiendo que existen las siguientes celdas y rotaciones:
+ - 4 celdas esquinas (sin rotación): 4! * 4^0
+ - 56 celdas de borde (sin rotación): 56! * 56^0
+	Pero cada pieza borde puede matchear con hasta otras 12 piezas de borde debido a sus 5 colores que solo pertenecen a borde.
+	Por lo que sería: 12!^5
+	Pero como mencioné arriba solo voy a matchear con hasta 4 piezas como máximo.
+	Por lo que sería: 4!^5
+ - 195 celdas internas (4 rotaciones): 195! * 4^195
+	Pero cada pieza interior puede matchear con hasta otras 25 piezas de interior debido a sus 17 colores que solo pertenecen a borde.
+	Por lo que sería: (25!^17) * (4^25)
+	Pero como mencioné arriba solo voy a matchear con hasta 7 piezas como máximo (incluyendo rotadas) y asi eliminando las rotaciones.
+	Por lo que sería: 7!^17
+ - 1 celda interna fija (son 5 hints pero en mi solver solo tengo 1)
+ 
+El calculo sin los calculos que logré:
+	(4! * 4^0) * (12!^5) * (25!^17) * (4^25) = 1.1867... × 10^488
+
+El cálculo con los cálculos que logré:
+	(4! * 4^0) * (4!^5) * (7!^17) = 1.6695... × 10^71
+	
+El uso de contorno_sup en el interior del tablero hace que una combinación dada left-top-top se pueda usar una 
 sola vez lo que hace descartar ramas.
 Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
-	4! * 2^56 * 3^194 * 2 * 2 = 2.520429e+111 
+	(4! * 4^0) * (2!^5) * (3!^17) = 1.2999... × 10^16
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
