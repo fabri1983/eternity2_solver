@@ -16,8 +16,9 @@ There are two versions of the same solver: one using fork-join pool and other us
 The placement of pieces follows a row-scan schema from top-left to bottom-right.  
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:
- - *Speed of pieces placed by second after all filtering took place*. This is, after knowing that the piece is a valid candidate for the current position.
- - *Time needed to reach a given position (ie 211) with a fixed configuration (8 threads)*. Given the fact that board positions, pieces, and filtering structures are visited always in the same order, this gives us a framework in which CPU processing capabilities is decoupled from game logic.
+- *Speed of pieces placed by second after all filtering took place*. A piece is consider placed in the board after it passes a series of filters. 
+Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
+- *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, pieces, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
   
 **Some stats:**
 
