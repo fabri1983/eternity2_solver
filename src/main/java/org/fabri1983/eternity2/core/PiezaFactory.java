@@ -40,7 +40,7 @@ public final class PiezaFactory {
 		p.bottom=0;
 		p.left=0;
 		setFeature(p);
-		p.numero=0;
+		p.numero=-1;
 		p.rotacion=0;
 		p.usada=false;
 		//p.pos= -1;
