@@ -11,9 +11,9 @@ Game finished in 2010 without anyone claiming the solution. Prize for any valid 
 
 This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.  
 
-The backtracker uses smart prunes, data structures for quickly accessing information, and micro optimizations.  
+The backtracker uses smart prunes, data structures for quickly accessing information, primitive and objects arrays, and micro optimizations.  
 There are two versions of the same solver: one using fork-join pool and other using MPI (for distributed execution).  
-The placement of pieces follows a row scan schema from top-left to bottom-right.  
+The placement of pieces follows a row-scan schema from top-left to bottom-right.  
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:
  - *Speed of pieces placed by second after all filtering took place*. This is, after knowing that the piece is a valid candidate for the current position.
@@ -21,14 +21,14 @@ The project is under continuous development, mostly on spare time. Every time I 
   
 **Some stats:**
 
-- Environment Windows 10 Home, Intel Core i7-2630QM (2.6 GHz max per core), DDR3 Dual Channel. Results:  
-Placing approx **54 million pieces per second** in a fork-join pool **with 8 threads**.  
-Placing approx **80 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+- Environment Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
+Placing approx **62 million pieces per second** in a fork-join pool **with 8 threads**.  
+Placing approx **68 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **40 million pieces per second** with the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
 
-- Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). Results:  
+- Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
 Placing **97 million pieces per second** in a fork-join pool **with 8 threads**.  
 Placing around **107 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing around **95 million pieces per second** using MPJ Express framework as multi-core mode **with 16 solver instances**.  
 
 I still have to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data locality and data time span.  
 
@@ -78,7 +78,7 @@ Helpful links:
 Packaging
 ---------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
-*Note: if you are using a JVM version 8 or smaller then you need to apply these changes in* `proguard.conf`: *uncomment* `rt.jar` *and* `jsse.jar`, *comment* `jmods`.    
+*Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` and `jsse.jar`, *comment* `jmods`.    
 
 Generate the jar artifact:  
 ```sh
@@ -299,7 +299,7 @@ This will help you to decide which iso you need to download:
 	- Build the static image
 	```shjava8native
 	cd target
-	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -J-Xms400m -J-Xmx400m -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces -J-Xms1400m -J-Xmx1400m -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
