@@ -9,27 +9,27 @@ Game finished in 2010 without anyone claiming the solution. Prize for any valid 
 
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
-This project is managed with Maven 3.x. And has a maven profile and script instructions to compile a native image using Graal's SubstrateVM.  
+This project is managed with Maven 3.x. It provides several jar artifacts for java 6 to 12. Additionally, a maven profile and scripting instructions to compile a native image using Graal's SubstrateVM.  
 
-The backtracker uses smart prunes, data structures for quickly accessing information, primitive and objects arrays, and micro optimizations.  
+The backtracker uses smart prunes, clever data structures for quickly accessing data, primitive and object arrays, and lot of micro optimizations.  
 There are two versions of the same solver: one using fork-join pool and other using MPI (for distributed execution).  
-The placement of pieces follows a row-scan schema from top-left to bottom-right.  
+The placement of tiles follows a row-scan schema from top-left to bottom-right.  
 
 The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:
-- *Speed of pieces placed by second after all filtering took place*. A piece is consider placed in the board after it passes a series of filters. 
+- *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board after it passes a series of filters. 
 Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
-- *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, pieces, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
+- *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
   
 **Some stats:**
 
 - Environment Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
-Placing approx **62 million pieces per second** in a fork-join pool **with 8 threads**.  
-Placing approx **68 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing approx **40 million pieces per second** with the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
+Placing approx **62 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **68 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **40 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
 
 - Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
-Placing **97 million pieces per second** in a fork-join pool **with 8 threads**.  
-Placing around **107 million pieces per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
 I still have to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data locality and data time span.  
 
@@ -41,16 +41,15 @@ Papers from where I took some ideas
 -----------------------------------
 
 - How many edges can be shared by N square tiles on a board? [link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
-Thierry Benoist  
-e-lab Research Report - April 2008
+Thierry Benoist, e-lab Research Report - April 2008.
 
 - Fast Global Filtering for Eternity II [link](https://www.semanticscholar.org/paper/Fast-Global-Filtering-for-Eternity-II-Eric-Bourreau-Benoist-Bourreau/e16db8447bd1afa9d92a2899afb9ede53039ba16)  
-Thierry Benoist, e-lab - Bouygues SA, Paris  
-Eric Bourreau, LIRMM, Montpellier
+Thierry Benoist, e-lab - Bouygues SA, Paris.  
+Eric Bourreau, LIRMM, Montpellier.
 
 - Jigsaw Puzzles, Edge Matching, and Polyomino Packing: Connections and Complexity [link](http://erikdemaine.org/papers/Jigsaw_GC/paper.pdf)  
-Erik D. Demaine, Martin L. Demaine  
-MIT Computer Science and Artificial Intelligence Laboratory
+Erik D. Demaine, Martin L. Demaine.  
+MIT Computer Science and Artificial Intelligence Laboratory.
 
 
 Third party APIs
@@ -67,17 +66,16 @@ Delivers struct types to Java programming language to decrease memory usage and 
 
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
-With this tool I could **decrease jar file size by 20%**.  
-**Code execution is 50% faster** on Windows box using MPJe. Although, on Linux box with an OpenJDK it seems to be slower.  
-I'm still playing with the program parameters.  
+With this tool I could **decrease jar file size by 20%**. **Code execution is 50% faster** on Windows box using MPJe.  
+I'm still playing with the program options.  
 Helpful links:  
  - http://www.alexeyshmalko.com/2014/proguard-real-world-example/
  - http://proguard.sourceforge.net/manual/usage.html
  - http://proguard.sourceforge.net/manual/examples.html
 
 
-Packaging
----------
+Generate Artifact
+-----------------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
 *Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` and `jsse.jar`, *comment* `jmods`.    
 
@@ -121,11 +119,11 @@ The app loads by default the next properties (may vary between forkjoin and mpje
 	experimental.gif.fair=false
 	experimental.borde.left.explorado=false
 	task.distribution.pos=99
-	forkjoin.num.processes=4   <-- this has no effect on MPJE build
+	forkjoin.num.processes=8   <-- this has no effect on MPJE build
 ```
 E.g.:
 ```sh
-	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=8
+	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=4
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215     <-- it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
 ```
 
@@ -139,7 +137,7 @@ Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package gene
 
 Known issues
 ------------
-*Note for JRE 8:*  
+*Affects some JVM 8 builds:*  
 I'm having an exception when using the jpanel:  
 `java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774  
@@ -200,7 +198,7 @@ The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use i
 
 Build a Graal VM on Windows and run your jar
 --------------------------------------------
-We are going to build a graal compiler for Windows platform.
+We are going to build Graal VM for Windows platform.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
