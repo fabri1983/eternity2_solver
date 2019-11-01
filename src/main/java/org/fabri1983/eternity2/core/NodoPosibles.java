@@ -51,6 +51,7 @@ public final class NodoPosibles
 	 */
 	public static final void addReferencia (final NodoPosibles np, final Pieza p_referencia, byte rot)
 	{
+		// get next position with no data
 		int nextIndex = 0;
 		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
 			if (np.referencias[nextIndex] == null)
