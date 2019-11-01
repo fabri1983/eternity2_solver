@@ -31,48 +31,15 @@ package org.fabri1983.eternity2.core;
  */
 public final class MapaKeys {
 	
-	private final static byte MAX_COLS = 2; // usar valor entre 2 y 4
-	
 	private MapaKeys () {
-	}
-	
-	/**
-	 * Devuelve la clave para la combinación de colores pasada como parámetro. Si retorna 0 siginifica que no existe
-	 * clave para esa combinación de colores.
-	 */
-	public static final int getKey (final byte pleft, final byte tops[])
-	{
-		switch (MAX_COLS)
-		{
-			case 2: return getKey(pleft, tops[0], tops[1]);
-			case 3: return getKey(pleft, tops[0], tops[1], tops[2]);
-			case 4: return getKey(pleft, tops[0], tops[1], tops[2], tops[3]);
-			default: return 0;
-		}
-	}
-	
-	/**
-	 * Devuelve la clave asociada a esa combinación de 3 colores.
-	 */
-	public static final int getKey (final byte pleft, final byte top1, final byte top2)
-	{
-		return (pleft << 10) | (top1 << 5) | top2;
 	}
 	
 	/**
 	 * Devuelve la clave asociada a esa combinación de 4 colores.
 	 */
-	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3)
+	public static final int getKey (final byte top, final byte right, final byte bottom, final byte left)
 	{
-		return (pleft << 15) | (top1 << 10) | (top2 << 5) | top3;
-	}
-	
-	/**
-	 * Devuelve la clave asociada a esa combinación de 5 colores.
-	 */
-	public static final int getKey (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4)
-	{
-		return (pleft << 20) | (top1 << 15) | (top2 << 10) | (top3 << 5) | top4;
+		return (top << 15) | (right << 10) | (bottom << 5) | left;
 	}
 	
 }

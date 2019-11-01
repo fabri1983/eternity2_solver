@@ -1198,40 +1198,46 @@ public final class SolverFasterMPJE {
 	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de NodoPosibles 
 	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
 	 *  
-	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (en la pos 135), por eso 
+	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
 	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
 	{
 		switch (_cursor) {
-			//pregunto si me encuentro en la posicion inmediatamente arriba de la posicion central
+			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, piezas[tablero[_cursor-1]].right)];
-			//pregunto si me encuentro en la posicion inmediatamente a la izq de la posicion central
+				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+						MAX_COLORES, piezas[INDICE_P_CENTRAL].top, piezas[tablero[_cursor-1]].right)];
+			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+						piezas[INDICE_P_CENTRAL].left, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
 		}
 		
 		final int flag_m = matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, MAX_COLORES, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+			return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+					MAX_COLORES, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, GRIS, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+							GRIS, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, MAX_COLORES, MAX_COLORES,GRIS)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+							MAX_COLORES, MAX_COLORES,GRIS)];
 				// borde top
 				case F_BORDE_TOP:
 					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
 				//borde bottom
 				default:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, MAX_COLORES, GRIS, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+							MAX_COLORES, GRIS, piezas[tablero[_cursor-1]].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1245,10 +1251,12 @@ public final class SolverFasterMPJE {
 					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, MAX_COLORES, GRIS, GRIS)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+							MAX_COLORES, GRIS, GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, GRIS, GRIS, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+							GRIS, GRIS, piezas[tablero[_cursor-1]].right)];
 			}
 		}
 	}

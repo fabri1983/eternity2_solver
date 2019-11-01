@@ -1,6 +1,6 @@
 @echo off
 
-:: they can only be -Dxxx arguments to the JVM
+:: they can only be -Dxxx arguments for the spawn processes
 set ALL_ARGS=%*
 
 set MPJ_HOME=%cd%/../target/libs/mpj-v0_44

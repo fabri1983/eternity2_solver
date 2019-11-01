@@ -29,8 +29,8 @@ package org.fabri1983.eternity2.core;
  */
 public final class NodoPosibles
 {
-	public Pieza[] referencias = new Pieza[64];
-	public byte[] rots = new byte[64];
+	public Pieza[] referencias;
+	public byte[] rots;
 	
 	public static NodoPosibles newForKey(int key) {
 		NodoPosibles np = new NodoPosibles();
