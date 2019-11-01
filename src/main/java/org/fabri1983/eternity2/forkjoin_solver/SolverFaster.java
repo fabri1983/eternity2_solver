@@ -436,12 +436,14 @@ public final class SolverFaster {
 		}
 		catch (Exception exc){
 			System.out.println(exc.getMessage());
+			throw new RuntimeException(exc);
 		}
 		finally {
-			if (reader != null)
+			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {}
+			}
 		}
 	}
 	
