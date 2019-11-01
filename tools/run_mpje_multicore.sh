@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# they can only be -Dxxx arguments to the JVM
+# they can only be -Dxxx arguments for the spawn processes
 all_args=$@
 
 export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
