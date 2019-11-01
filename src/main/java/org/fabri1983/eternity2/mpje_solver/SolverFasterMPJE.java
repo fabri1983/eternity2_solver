@@ -210,20 +210,6 @@ public final class SolverFasterMPJE {
 	 */
 	public final void setupInicial () {
 		
-		count_cycles=0;
-		
-		cleanTablero();
-		
-		// Pruebo cargar el primer status_saved
-		cargarEstado(NAME_FILE_STATUS);
-	
-		//la carga de la copia tmb falló entonces cargo desde cero
-		if (!status_cargado) 
-			cargarEnLimpio();
-		
-		//hago una verificacion de las piezas cargadas
-		verificarTiposDePieza();
-		
 		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
@@ -236,12 +222,30 @@ public final class SolverFasterMPJE {
 		// cargar mapa de indice -> size de arreglos para NodoPosibles
 		MapaArraySizePerIndex.getInstance().load();
 		
-		//cargo las posiciones fijas
-		cargarPiezasFijas(); //OJO! antes debo cargar matrix_zonas[]
+		cleanTablero();
+		
+		cargarPiezas();
+		
+		//hago una verificacion de las piezas cargadas
+		verificarTiposDePieza();
 		
 		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
 		cargarSuperEstructura();
-	
+		
+		// Pruebo cargar el primer status_saved
+		status_cargado = cargarEstado(NAME_FILE_STATUS);
+		if (!status_cargado) {
+			cursor=0;
+			mas_bajo= 0; //este valor se setea empiricamente
+			mas_alto= 0;
+			mas_lejano_parcial_max= 0;
+			status_cargado=false;
+			sincronizar = true;
+		}
+		
+		//cargo las posiciones fijas
+		cargarPiezasFijas();
+		
 		//seteo como usados los contornos ya existentes en tablero
 		ContornoForMPJE.inicializarContornos();
 		
@@ -531,16 +535,6 @@ public final class SolverFasterMPJE {
 		BufferedReader reader = null;
 		
 		try {
-			//verifico si no se han cargado ya las piezas en cargarEstado()
-			boolean cargadas = true;
-			for (int i=0; (i < MAX_PIEZAS) && cargadas; ++i){
-				if (piezas[i] == null)
-					cargadas = false;
-			}
-			
-			if (cargadas)
-				return;
-			
 			// reader= new BufferedReader(new FileReader(NAME_FILE_PIEZAS));
 			reader = new BufferedReader(new InputStreamReader(SolverFasterMPJE.class.getClassLoader().getResourceAsStream(NAME_FILE_PIEZAS)));
 			String linea= reader.readLine();
@@ -587,9 +581,10 @@ public final class SolverFasterMPJE {
 	 * inicializa estructuras y variables para que la exploracion comienze 
 	 * desde cero.
 	 */
-	private final static void cargarEstado (String n_file)
+	private final static boolean cargarEstado (String n_file)
 	{
 		BufferedReader reader = null;
+		boolean status_cargado = false;
 		
 		try{
 			// first ask if file exists
@@ -597,6 +592,7 @@ public final class SolverFasterMPJE {
 			if (!f.isFile()) {
 				System.out.println("Rank " + THIS_PROCESS + " >>> estado de exploracion no existe.");
 				System.out.flush();
+				return status_cargado;
 			}
 			
 			reader= new BufferedReader(new FileReader(f));
@@ -685,7 +681,7 @@ public final class SolverFasterMPJE {
 					
 				status_cargado=true;
 				sincronizar = false;
-				System.out.print("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
+				System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
 				System.out.flush();
 			}
 		}
@@ -699,6 +695,8 @@ public final class SolverFasterMPJE {
 					reader.close();
 				} catch (IOException e) {}
 		}
+		
+		return status_cargado;
 	}
 
 	/**
@@ -738,16 +736,6 @@ public final class SolverFasterMPJE {
 			if (retroceder)
 				desde_saved[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 		}
-	}
-	
-	private final static void cargarEnLimpio () { 
-		cargarPiezas();
-		cursor=0;
-		mas_bajo= 0; //este valor se setea empiricamente
-		mas_alto= 0;
-		mas_lejano_parcial_max= 0;
-		status_cargado=false;
-		sincronizar = true;
 	}
 	
 	/**

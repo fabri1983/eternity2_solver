@@ -83,11 +83,11 @@ Generate the jar artifact:
 ```sh
 mvn clean package
 ```
-It generates the jar file with **default profile java7** and copy the external dependencies under target folder.  
+It generates the jar file with **default profile java8** and copy the external dependencies under target folder.  
 Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java7`, `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
+- `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
@@ -129,7 +129,7 @@ E.g.:
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java7*, *java8*, and *java12*.  
+Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java8*, and *java12*.  
 Use `run_jrockit.bat/sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
 Use `run_mpje_[multicore|cluster].bat/sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
 Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *java12benchmark*.  

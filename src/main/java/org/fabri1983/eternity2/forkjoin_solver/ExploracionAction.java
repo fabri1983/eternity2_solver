@@ -132,7 +132,7 @@ public class ExploracionAction extends RecursiveAction {
 		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
 		
 		// cargo las posiciones fijas
-		SolverFaster.cargarPiezasFijas(this); // OJO! antes debo cargar matrix_zonas[]
+		SolverFaster.cargarPiezasFijas(this);
 		
 		// seteo como usados los contornos ya existentes en tablero
 		contorno.inicializarContornos(this);

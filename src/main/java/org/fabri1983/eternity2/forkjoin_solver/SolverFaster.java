@@ -420,23 +420,13 @@ public final class SolverFaster {
 		BufferedReader reader = null;
 		
 		try{
-			//verifico si no se han cargado ya las piezas en cargarEstado()
-			boolean cargadas = true;
-			for (int i=0; (i < MAX_PIEZAS) && cargadas; ++i){
-				if (action.piezas[i] == null)
-					cargadas = false;
-			}
-			
-			if (cargadas)
-				return;
-			
 			reader = readerForTilesFile.getReader(NAME_FILE_PIEZAS);
 			String linea= reader.readLine();
 			short num=0;
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= PiezaFactory.from(linea, num); 
+				action.piezas[num]= PiezaFactory.from(linea, num);
 				linea= reader.readLine();
 				++num;
 			}
@@ -507,7 +497,7 @@ public final class SolverFaster {
 				linea= reader.readLine();
 				action.mas_lejano_parcial_max= Integer.parseInt(linea);
 				
-				// contiene la posici�n del cursor en el momento de guardar estado
+				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
 				action.cursor= Integer.parseInt(linea);
 				
