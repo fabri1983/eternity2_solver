@@ -76,7 +76,8 @@
 				<final.jar.name>e2solver_jrockit</final.jar.name>
 				<source.version>1.6</source.version>
 				<compiler.version>1.6</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<pg.compiler.version>1.6</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
@@ -100,7 +101,8 @@
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<source.version>1.8</source.version>
 				<compiler.version>1.8</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
@@ -116,7 +118,8 @@
 				<final.jar.name>e2solver</final.jar.name>
 				<source.version>1.8</source.version>
 				<compiler.version>1.8</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
@@ -129,7 +132,8 @@
 				<final.jar.name>e2solver</final.jar.name>
 				<source.version>1.8</source.version>
 				<compiler.version>1.8</compiler.version>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFasterNative</manifest.main.class>
@@ -143,12 +147,36 @@
 				<source.version>1.8</source.version>
 				<compiler.version>12</compiler.version>
 				<release>12</release>
-				<shade.exclusion.filter>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/forkjoin_solver/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<pg.compiler.version>12</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.MainFaster</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
 			</properties>
+		</profile>
+		<profile>
+			<id>java12benchmark</id>
+			<properties>
+				<final.jar.name>e2solver_benchmark</final.jar.name>
+				<source.version>1.8</source.version>
+				<compiler.version>12</compiler.version>
+				<release>12</release>
+				<shade.exclusion.filter.1>dummy/package/name</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
+				<pg.compiler.version>12</pg.compiler.version>
+				<pg.injar.filter>!imgs/**</pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.benchmark.MainFasterBenchmark</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+			<dependencies>
+				<dependency>
+		            <groupId>org.openjdk.jmh</groupId>
+		            <artifactId>jmh-core</artifactId>
+		            <version>${jmh.version}</version>
+		            <scope>compile</scope>
+		        </dependency>
+			</dependencies>
 		</profile>
 		<profile>
 			<!-- This profile can only be activated for java 6, 7, 8, 9, 10, 11 only -->
@@ -301,28 +329,6 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>java12benchmark</id>
-			<properties>
-				<final.jar.name>e2solver_benchmark</final.jar.name>
-				<source.version>1.8</source.version>
-				<compiler.version>12</compiler.version>
-				<release>12</release>
-				<shade.exclusion.filter>dummy.package.name</shade.exclusion.filter>
-				<pg.compiler.version>12</pg.compiler.version>
-				<pg.injar.filter>!imgs/**</pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.forkjoin_solver.benchmark.MainFasterBenchmark</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
-			</properties>
-			<dependencies>
-				<dependency>
-		            <groupId>org.openjdk.jmh</groupId>
-		            <artifactId>jmh-core</artifactId>
-		            <version>${jmh.version}</version>
-		            <scope>compile</scope>
-		        </dependency>
-			</dependencies>
-		</profile>
 	</profiles>
 
 	<build>
@@ -346,7 +352,7 @@
 					<source>${source.version}</source>
 					<target>${compiler.version}</target>
 					<compilerArgs>
-						<arg>-O</arg>
+						<!--arg>-O</arg-->
 						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
 					</compilerArgs>
 				</configuration>
@@ -390,7 +396,8 @@
 								<filter>
 									<artifact>org.fabri1983.eternity2:*</artifact>
 									<excludes>
-										<exclude>${shade.exclusion.filter}</exclude>
+										<exclude>${shade.exclusion.filter.1}</exclude>
+										<exclude>${shade.exclusion.filter.2}</exclude>
 									</excludes>
 								</filter>
 							</filters>
