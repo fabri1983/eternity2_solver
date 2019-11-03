@@ -27,8 +27,8 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
-import org.fabri1983.eternity2.core.tilesreader.ClassLoaderReaderForTilesFile;
-import org.fabri1983.eternity2.forkjoin_solver.MainFaster;
+import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
+import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
 import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -60,13 +60,6 @@ public class MainFasterBenchmark {
 		context.solver.resetInternalStatus();
 	}
 	
-	private static final String getProperty(Properties properties, String key) {
-		String sysProp = System.getProperty(key);
-		if (sysProp != null && !"".equals(sysProp))
-			return sysProp;
-		return properties.getProperty(key);
-	}
-	
 	@State(Scope.Benchmark)
 	public static class MainFasterBenchmarkContextProvider {
 
@@ -78,7 +71,7 @@ public class MainFasterBenchmark {
 		@Setup(Level.Invocation)
 		public void setup() throws IOException {
 			
-			Properties properties = readProperties();
+			Properties properties = AppPropertiesReader.readProperties();
 			
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
@@ -96,6 +89,7 @@ public class MainFasterBenchmark {
 					new ClassLoaderReaderForTilesFile(),
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 			
+			properties = null;
 			ResourceBundle.clearCache();
 			
 			System.out.println(); // to get a clean output
@@ -103,17 +97,15 @@ public class MainFasterBenchmark {
 			solver.setupInicial();
 		}
 		
+		private String getProperty(Properties properties, String key) {
+			return AppPropertiesReader.getProperty(properties, key);
+		}
+
 		@TearDown(Level.Invocation)
 		public void doTearDown() {
 			System.gc();
 		}
 		
-		private final Properties readProperties() throws IOException {
-			Properties properties = new Properties();
-			String file = "application.properties";
-			properties.load(MainFaster.class.getClassLoader().getResourceAsStream(file));
-			return properties;
-		}
 	}
 	
 }

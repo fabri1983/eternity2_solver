@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,47 +28,56 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
-
 public class EternityII {
 
-	public ViewEternity frame; //es la ventanita
-	
-    public EternityII(int lado, int cell_size_pixels, int num_colours, long refreshMillis, int numProcesors, ExploracionAction action) {
-    	
-    	// lo siguiente es solamente para el tablero gráfico
+	private ViewEternity frame; // es la ventanita
+
+	public EternityII(ViewEternityFactory viewFactory) {
+		// lo siguiente es solamente para el tablero gráfico
 		try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-        frame = new ViewEternity(refreshMillis, lado, cell_size_pixels, num_colours, action);
-        frame.setVisible(false);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.setTitle("E2Solver");
-        
-		setLocation(numProcesors, action.id);
-    }
-    
+		frame = viewFactory.create();
+		setupFrame(viewFactory.getProc(), viewFactory.getTotalProcs());
+	}
+
+	/**
+	 * Se encarga de inicializar el canvas y de mostrar el estado actual del tablero.
+	 */
+	public void startPainting() {
+		frame.setVisible(true);
+		frame.run();
+	}
+
+	private void setupFrame(int proc, int totalProcs) {
+		frame.setVisible(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
+		frame.setTitle("(" + proc + ") E2Solver");
+
+		setLocation(totalProcs, proc % totalProcs);
+	}
+
 	private void setLocation(int numProcesors, int procId) {
-        
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = frame.getSize(); // returns a copy
-        
-        if (frameSize.height > screenSize.height) {
-            frameSize.height = screenSize.height;
-        }
-        if (frameSize.width > screenSize.width) {
-            frameSize.width = screenSize.width;
-        }
-        
+
+		if (frameSize.height > screenSize.height) {
+			frameSize.height = screenSize.height;
+		}
+		if (frameSize.width > screenSize.width) {
+			frameSize.width = screenSize.width;
+		}
+
 		// if only one processor then locate the frame in the middle of the canvas
-    	if (numProcesors == 1)
-    		frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+		if (numProcesors == 1)
+			frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
 		// locate this frame in a tiled fashion according its id
-    	else {
+		else {
 			int maxCols = 4;
 			int maxRows = 2;
 			int xPos = (procId % maxCols) * frameSize.width;
@@ -79,16 +88,7 @@ public class EternityII {
 			if (yPos + frameSize.height > screenSize.height)
 				yPos -= (xPos + frameSize.height) - screenSize.height;
 			frame.setLocation(xPos, yPos);
-    	}
-    		
+		}
 	}
-    
-    /**
-     * Se encarga de inicializar el canvas y de mostrar el estado actual del tablero.
-     */
-    public void startPainting() {
-    	frame.setVisible(true);
-    	frame.run();
-    }
 
 }

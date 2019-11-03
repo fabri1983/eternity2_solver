@@ -1,25 +1,3 @@
-/**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package org.fabri1983.eternity2.ui;
 
 import java.awt.BorderLayout;
@@ -32,19 +10,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.core.PiezaFactory;
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
-import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
-
-public class ViewEternity extends JFrame implements KeyListener {
+public abstract class ViewEternity extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static int LADO, LADO_SHIFT_FOR_DIV, cell_size, num_colours;
+	private int lado, cell_size, num_colours;
 	private int last_superior;
 	private boolean primera_vez = true;
-	private Pieza pieza_gris;
 	private boolean running = false;
 	private boolean pauseAll = false;
 	private boolean pauseGraphic = false;
@@ -55,58 +27,57 @@ public class ViewEternity extends JFrame implements KeyListener {
 	private StringBuilder titleRefreshed = new StringBuilder(64);
 	private String title = "";
 	
-	private EternityTable jTable1;
+	private EternityTable eternityJTable;
     private JScrollPane jScrollPane1 = new JScrollPane();
     private JPanel jPanel1 = new JPanel();
 
-    private ExploracionAction action;
     private RefreshThread rt = null;
 
-    public ViewEternity(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours, ExploracionAction _action) {
-    	
-    	refresh_milis = p_refresh_milis;
+	public ViewEternity(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
+		super();
+
+		refresh_milis = p_refresh_milis;
     	cell_size = cell_size_pixels;
     	num_colours = p_num_colours;
-    	LADO = pLado;
-		LADO_SHIFT_FOR_DIV = (int) (Math.log10(LADO) / Math.log10(2)); // siempre y cuando LADO sea potencia de 2
-    	pieza_gris = PiezaFactory.dummy();
-        try {
+    	lado = pLado;
+        
+    	try {
             jbInit();
         } catch (Exception e) {
         	System.out.println("Problem when initializing JPnael and related components.");
             e.printStackTrace();
         }
-
-        action = _action;
-    }
-
-    private void jbInit() throws Exception {
+	}
+    
+	private void jbInit() throws Exception {
     	
-    	this.setSize(new Dimension((LADO * cell_size) + 13, (LADO * cell_size) + 50));
+    	this.setSize(new Dimension((lado * cell_size) + 13, (lado * cell_size) + 50));
 
-		jTable1 = new EternityTable(cell_size, num_colours);
-        jTable1.addKeyListener(this);
+        eternityJTable = new EternityTable(cell_size, num_colours);
+        eternityJTable.addKeyListener(this);
         
         jPanel1.setMaximumSize(new Dimension(0, 32767));
         jPanel1.setMinimumSize(new Dimension(0, 100));
         jPanel1.setPreferredSize(new Dimension(0, 100));
         jPanel1.setLayout(null);
 
-		jScrollPane1.setSize(new Dimension(LADO * cell_size, LADO * cell_size));
-		jScrollPane1.getViewport().add(jTable1, null);
+		jScrollPane1.setSize(new Dimension(lado * cell_size, lado * cell_size));
+		jScrollPane1.getViewport().add(eternityJTable, null);
 
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
 		this.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
     }
     
-    /**
+    protected abstract Canvas createCanvas(int rows, int cols);
+
+	/**
      * Inicializa el canvas y muestra el estado actual del tablero.
      */
     public void run() {
     	
         //creo el canvas y obtengo el estado actual del tablero
-        EternityCanvas c = new EternityCanvas(LADO, LADO);
-        jTable1.setCanvas(c);
+        Canvas c = createCanvas(lado, lado);
+        eternityJTable.setCanvas(c);
         running = true;
         pauseAll = false;
         title = this.getTitle();
@@ -124,10 +95,18 @@ public class ViewEternity extends JFrame implements KeyListener {
     	
     	updateTablero();
     	
-        jTable1.paintImmediately(jTable1.getBounds());
+        eternityJTable.paintImmediately(eternityJTable.getBounds());
         
         repaint();
     }
+    
+    protected abstract long getAccum();
+    
+	protected abstract int getCursorTablero();
+
+	protected abstract int getCursorMasBajo();
+
+	protected abstract int getCursorMasLejano();
     
     /**
      * Actualiza el tablero a dibujar en pantalla.
@@ -144,10 +123,7 @@ public class ViewEternity extends JFrame implements KeyListener {
     	
     	if (periodStepping == COUNT_PERIOD) {
     		periodStepping = 0; // lo reseteo 
-    		long accum = 0;
-			for (int i = SolverFaster.count_cycles.length - 1; i >= 0; --i)
-				accum += SolverFaster.count_cycles[i]; // SolverFaster.count_cycles son acumuladores de piezas procesadas
-			accum -= prevAccum;
+    		long accum = getAccum() - prevAccum;
 			long piezasPerSec =  (accum * 1000) / (COUNT_PERIOD * refresh_milis); // multiplico por 1000 para pasar de millis to seconds
 			titleRefreshed.setLength(0);
 	    	titleRefreshed.append(title).append(" - (Total)Pcs/sec: ").append(piezasPerSec);
@@ -162,44 +138,36 @@ public class ViewEternity extends JFrame implements KeyListener {
     	if (pauseGraphic)
     		return;
     	
-    	int cursor = action.cursor - 1;
-    	int inferior = primera_vez? action.mas_bajo : 0;
-    	int superior = Math.max(cursor, action.mas_lejano_parcial_max);
+    	int cursor = getCursorTablero() - 1;
+    	int inferior = primera_vez? getCursorMasBajo() : 0;
+    	int superior = Math.max(cursor, getCursorMasLejano());
 
     	//seteo las piezas desde cursor hasta inferior
     	for (int i=cursor; i >= inferior; --i){
-    		//jTable1.canvas.viewPieces[i / LADO][i % LADO] = action.tablero[i];
-    		// better performance for power of 2:
-    		jTable1.canvas.viewPieces[i >> LADO_SHIFT_FOR_DIV][i & (LADO-1)] = action.piezas[action.tablero[i]];
+    		eternityJTable.canvas.setPiezaFromTablero(i);
     	}
     	
     	//indico la posición de la pieza mas lejana
     	if (primera_vez)
     		last_superior = superior;
-    	//jTable1.canvas.viewPieces[last_superior / LADO][last_superior % LADO] = null;
-    	//jTable1.canvas.viewPieces[superior / LADO][superior % LADO] = pieza_gris;
-    	// better performance for power of 2:
-    	jTable1.canvas.viewPieces[last_superior >> LADO_SHIFT_FOR_DIV][last_superior & (LADO-1)] = null;
-    	jTable1.canvas.viewPieces[superior >> LADO_SHIFT_FOR_DIV][superior & (LADO-1)] = pieza_gris; 	
+    	eternityJTable.canvas.setPiezaEmpty(last_superior);
+    	eternityJTable.canvas.setPiezaGris(superior);
     	
-    	//seteo null desde cursor hacia adelante hasta la primer pieza de ViewPice null
+    	//seteo null desde cursor hacia adelante hasta el primer null que encuentre
     	for (int i=cursor+1; i < superior; ++i){
-    		//int r = i / LADO, c = i % LADO;
-    		// better performance for power of 2:
-    		int r = i >> LADO_SHIFT_FOR_DIV, c = i & (LADO-1);
-    		if (jTable1.canvas.viewPieces[r][c] == null)
+    		if (eternityJTable.canvas.isEmpty(i))
     			break;
-    		jTable1.canvas.viewPieces[r][c] = null;
+    		eternityJTable.canvas.setPiezaEmpty(i);
     	}
     	
     	//seteo la pieza central
-    	jTable1.canvas.viewPieces[SolverFaster.POS_FILA_P_CENTRAL][SolverFaster.POS_COL_P_CENTRAL] = action.piezas[SolverFaster.INDICE_P_CENTRAL];
+    	eternityJTable.canvas.setPiezaCentralFromTablero();
     	
     	last_superior = superior;
     	primera_vez = false;
     }
-
-	@Override
+    
+    @Override
 	public void keyPressed(KeyEvent arg0) {
 		
 		switch (arg0.getKeyCode()) {
@@ -263,6 +231,7 @@ public class ViewEternity extends JFrame implements KeyListener {
             this.refresh_nanos = p_refresh_milis * 1000000;
         }
     
+        @Override
         public void run() {
         	// this loop won't have a lock loop effect since we're using parking pattern
             while(viewEternity.running) {
@@ -275,5 +244,5 @@ public class ViewEternity extends JFrame implements KeyListener {
             }
         }
     }
-
+    
 }

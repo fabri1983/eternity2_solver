@@ -41,7 +41,7 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
+import org.fabri1983.eternity2.core.resourcereader.ReaderForTilesFile;
 
 public final class SolverFaster {
 	
@@ -60,8 +60,6 @@ public final class SolverFaster {
 	protected final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int POS_FILA_P_CENTRAL = 8;
-	public final static int POS_COL_P_CENTRAL = 7;
 	public final static int INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
 	protected final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
 	protected final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
@@ -457,7 +455,7 @@ public final class SolverFaster {
 		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		action.tablero[POSICION_CENTRAL]= piezaCentral.numero;
+		action.tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
 		
 		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	

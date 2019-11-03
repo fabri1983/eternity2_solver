@@ -23,9 +23,9 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 **Some stats:**
 
 - Environment Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
-Placing approx **62 million tiles per second** running with a fork-join pool **with 8 threads**.  
-Placing approx **68 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing approx **40 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
+Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
 
 - Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
 Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,13 @@
 package org.fabri1983.eternity2.ui;
 
 import javax.swing.JTable;
-
 import javax.swing.table.DefaultTableColumnModel;
 
 public class EternityTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
-	public EternityCanvas canvas;
+	
+	public Canvas canvas;
     private EternityModel eternityModel;
     private EternityCellRenderer cellRender;
     private static int cell_size, num_colours;
@@ -39,7 +39,7 @@ public class EternityTable extends JTable {
     	num_colours = p_num_colours;
     }
     
-    public void setCanvas(EternityCanvas canvas) {
+    public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
         eternityModel = new EternityModel(canvas);
         cellRender = new EternityCellRenderer(cell_size, num_colours);
@@ -57,7 +57,7 @@ public class EternityTable extends JTable {
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
 
-    public EternityCanvas getCanvas() {
+    public Canvas getCanvas() {
         return canvas;
     }
 }

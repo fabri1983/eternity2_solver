@@ -23,9 +23,10 @@
 package org.fabri1983.eternity2.mpje_solver;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.PropertyResourceBundle;
+import java.util.Properties;
 import java.util.ResourceBundle;
+
+import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
 
 import mpi.MPI;
 
@@ -38,12 +39,12 @@ public final class MainFasterMPJE
 		int rank = MPI.COMM_WORLD.Rank();
 		
 		// imprimo una sola vez la portada
-		if (rank == 0){
-			printBanner();
+		if (rank == 0) {
+			BannerPrinterForMPJE.printBanner();
 		}
 		
 		try {
-			ResourceBundle properties = readProperties();
+			Properties properties = AppPropertiesReader.readProperties();
 
 			// NOTA:
 			//   para mpje multicore los primeros 3 parametros son para MPI
@@ -71,46 +72,17 @@ public final class MainFasterMPJE
 			sol.atacar();
 			
 		} catch(Exception e){
-			System.out.println("\nRank " + rank + ": Problema!! " + e.getMessage()); 
+			System.out.println(System.lineSeparator() + "Rank " + rank + ": Error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
-		System.out.println("\nRank " + rank + ": Programa terminado.");
+		System.out.println(System.lineSeparator() + "Rank " + rank + ": Programa terminado.");
 		
 		MPI.Finalize();
 	}
 
-	private static void printBanner() {
-		StringBuilder msgBuilder = new StringBuilder(64*10);
-		String lineSeparator = System.lineSeparator();
-		msgBuilder.append("##################################################################").append(lineSeparator);
-		msgBuilder.append("##- Uso de MPJ Express en modo híbrido (multicore y cluster).  -##").append(lineSeparator);
-		msgBuilder.append("##- Version con Estructura 4-dimensional, Smart-Podas y        -##").append(lineSeparator);
-		msgBuilder.append("##- Contornos de colores pre calculados.                       -##").append(lineSeparator);
-		msgBuilder.append("##- Micro optimizaciones.                                      -##").append(lineSeparator);
-		msgBuilder.append("##################################################################").append(lineSeparator);
-		msgBuilder.append("------------------------------------------------------------------").append(lineSeparator);
-		msgBuilder.append("    Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)     ").append(lineSeparator);
-		msgBuilder.append("------------------------------------------------------------------").append(lineSeparator);
-		msgBuilder.append(lineSeparator);
-		msgBuilder.append("Total procs: " + MPI.COMM_WORLD.Size());
-		msgBuilder.append(lineSeparator);
-		System.out.println(msgBuilder.toString());
-	}
-	
-	private static final ResourceBundle readProperties() throws IOException {
-		String file = "application.properties";
-		InputStream fis = MainFasterMPJE.class.getClassLoader().getResourceAsStream(file);
-		ResourceBundle r = new PropertyResourceBundle(fis);
-		fis.close();
-		return r;
-	}
-
-	private static final String getProperty(ResourceBundle properties, String key) {
-		String sysProp = System.getProperty(key);
-		if (sysProp != null && !"".equals(sysProp))
-			return sysProp;
-		return properties.getString(key);
+	private static String getProperty(Properties properties, String key) {
+		return AppPropertiesReader.getProperty(properties, key);
 	}
 	
 }

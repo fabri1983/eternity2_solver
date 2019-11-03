@@ -39,11 +39,13 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.SendMail;
-import org.fabri1983.eternity2.ui.EternityIIForMPJE;
+import org.fabri1983.eternity2.ui.EternityII;
+import org.fabri1983.eternity2.ui.ViewEternityFactory;
+import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
 
 public final class SolverFasterMPJE {
 	
-	private static EternityIIForMPJE tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
+	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
 	private static int POSICION_MULTI_PROCESSES = -1; // (99) posición del tablero en la que se usará comunicación multiprocesses
 	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); // número de procesos
@@ -65,8 +67,6 @@ public final class SolverFasterMPJE {
 	private final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int POS_FILA_P_CENTRAL = 8;
-	public final static int POS_COL_P_CENTRAL = 7;
 	public final static int INDICE_P_CENTRAL= 138; //es la ubicación de la pieza central en piezas[]
 	private final static int ANTE_POSICION_CENTRAL= 134; //la posicion inmediatamente anterior a la posicion central
 	private final static int SOBRE_POSICION_CENTRAL= 119; //la posicion arriba de la posicion central
@@ -188,9 +188,11 @@ public final class SolverFasterMPJE {
 		if (usar_multiples_boards)
 			procMultipleBoards = THIS_PROCESS;
 		
-		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards)
-			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, 
-					THIS_PROCESS, totalProcesses);
+		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards) {
+			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(LADO, cell_pixels_lado, 
+					MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, totalProcesses);
+			tableboardE2 = new EternityII(viewFactory);
+		}
 
 		createDirs();
 	}
@@ -573,7 +575,7 @@ public final class SolverFasterMPJE {
 		Pieza piezaCentral = piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		tablero[POSICION_CENTRAL]= piezaCentral.numero;
+		tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
 		
 		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
