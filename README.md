@@ -23,9 +23,9 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 **Some stats:**
 
 - Environment Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
-Placing approx **62 million tiles per second** running with a fork-join pool **with 8 threads**.  
-Placing approx **68 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing approx **40 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
+Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
 
 - Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
 Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
@@ -83,11 +83,11 @@ Generate the jar artifact:
 ```sh
 mvn clean package
 ```
-It generates the jar file with **default profile java7** and copy the external dependencies under target folder.  
+It generates the jar file with **default profile java8** and copy the external dependencies under target folder.  
 Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java7`, `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
+- `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
@@ -129,7 +129,7 @@ E.g.:
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java7*, *java8*, and *java12*.  
+Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java8*, and *java12*.  
 Use `run_jrockit.bat/sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
 Use `run_mpje_[multicore|cluster].bat/sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
 Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *java12benchmark*.  

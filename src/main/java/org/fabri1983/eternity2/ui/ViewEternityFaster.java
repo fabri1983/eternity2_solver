@@ -22,39 +22,48 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.mpje_solver.SolverFasterMPJE;
+import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
+import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 
-public class ViewEternityForMPJE extends ViewEternity {
+public class ViewEternityFaster extends ViewEternity {
 
 	private static final long serialVersionUID = 1L;
 	
-	public ViewEternityForMPJE(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
+	private ExploracionAction action;
+
+	public ViewEternityFaster(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours,
+			ExploracionAction _action) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
+		action = _action;
 	}
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasForMPJE(rows, cols, SolverFasterMPJE.POSICION_CENTRAL);
+		return new CanvasFaster(rows, cols, SolverFaster.POSICION_CENTRAL, action);
 	}
 
 	@Override
 	protected long getAccum() {
-		return SolverFasterMPJE.count_cycles;
+		long accum = 0;
+		for (int i = 0, c = SolverFaster.count_cycles.length; i < c; ++i) {
+			accum += SolverFaster.count_cycles[i]; // SolverFaster.count_cycles son acumuladores de piezas procesadas
+		}
+		return accum;
 	}
 
 	@Override
 	protected int getCursorTablero() {
-		return SolverFasterMPJE.cursor;
+		return action.cursor;
 	}
 
 	@Override
 	protected int getCursorMasBajo() {
-		return SolverFasterMPJE.mas_bajo;
+		return action.mas_bajo;
 	}
 
 	@Override
 	protected int getCursorMasLejano() {
-		return SolverFasterMPJE.mas_lejano_parcial_max;
+		return action.mas_lejano_parcial_max;
 	}
 
 }

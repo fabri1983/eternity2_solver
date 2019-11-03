@@ -20,24 +20,29 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.core.tilesreader;
+package org.fabri1983.eternity2.ui;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.mpje_solver.SolverFasterMPJE;
 
-public class FileReaderForTilesFile implements ReaderForTilesFile {
+public class CanvasForMPJE extends CanvasAbstract {
+    
+    public CanvasForMPJE(int columns, int rows, int posCentral) {
+    	super(columns, rows, posCentral);
+    }
 
-	@Override
-	public BufferedReader getReader(String file) {
-		try {
-			return new BufferedReader(
-					new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+    @Override
+	protected Pieza getPiezaFromTablero(int cursorTablero) {
+    	short index = SolverFasterMPJE.tablero[cursorTablero];
+    	if (index == -1) {
 			return null;
 		}
-	}
-	
+		return SolverFasterMPJE.piezas[index];
+    }
+    
+    @Override
+	protected Pieza getPiezaCentral() {
+    	return SolverFasterMPJE.piezas[SolverFasterMPJE.INDICE_P_CENTRAL];
+    }
+    
 }

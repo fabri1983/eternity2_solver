@@ -22,11 +22,11 @@
 
 package org.fabri1983.eternity2.forkjoin_solver;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.fabri1983.eternity2.core.tilesreader.ClassLoaderReaderForTilesFile;
+import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
+import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
 
 public final class MainFaster
 {
@@ -35,10 +35,11 @@ public final class MainFaster
 	 */
 	public static void main (String[] args)
 	{
-		printBanner();
+		BannerPrinterForFaster.printBanner();
         
 		try{
-			Properties properties = readProperties();
+			Properties properties = AppPropertiesReader.readProperties();
+			
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
 					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
@@ -68,40 +69,16 @@ public final class MainFaster
 				solver.atacar(0);
 			}
 		}
-		catch(Exception e){
+		catch(Exception e) {
+			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
-		System.out.println("\nPrograma terminado.");
+		System.out.println(System.lineSeparator() + "Programa terminado.");
 	}
 
-	private static void printBanner() {
-		StringBuilder msgBuilder = new StringBuilder(64*9);
-		String lineSeparator = System.lineSeparator();
-		msgBuilder.append("############################################################").append(lineSeparator);
-		msgBuilder.append("##- Uso de fork-join para distribución de tareas.        -##").append(lineSeparator);
-		msgBuilder.append("##- Version con Estructura 4-dimensional, Smart-Podas y  -##").append(lineSeparator);
-		msgBuilder.append("##- Contornos de colores pre calculados.                 -##").append(lineSeparator);
-		msgBuilder.append("##- Micro optimizaciones.                                -##").append(lineSeparator);
-		msgBuilder.append("############################################################").append(lineSeparator);
-		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
-		msgBuilder.append(" Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)  ").append(lineSeparator);
-		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
-		msgBuilder.append(lineSeparator);
-		System.out.println(msgBuilder.toString());
+	private static String getProperty(Properties properties, String key) {
+		return AppPropertiesReader.getProperty(properties, key);
 	}
 	
-	private static final Properties readProperties() throws IOException {
-		Properties properties = new Properties();
-		String file = "application.properties";
-		properties.load(MainFaster.class.getClassLoader().getResourceAsStream(file));
-		return properties;
-	}
-
-	private static final String getProperty(Properties properties, String key) {
-		String sysProp = System.getProperty(key);
-		if (sysProp != null && !"".equals(sysProp))
-			return sysProp;
-		return properties.getProperty(key);
-	}
 }

@@ -41,7 +41,7 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.tilesreader.ReaderForTilesFile;
+import org.fabri1983.eternity2.core.resourcereader.ReaderForTilesFile;
 
 public final class SolverFaster {
 	
@@ -60,8 +60,6 @@ public final class SolverFaster {
 	protected final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int POS_FILA_P_CENTRAL = 8;
-	public final static int POS_COL_P_CENTRAL = 7;
 	public final static int INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
 	protected final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
 	protected final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
@@ -420,23 +418,13 @@ public final class SolverFaster {
 		BufferedReader reader = null;
 		
 		try{
-			//verifico si no se han cargado ya las piezas en cargarEstado()
-			boolean cargadas = true;
-			for (int i=0; (i < MAX_PIEZAS) && cargadas; ++i){
-				if (action.piezas[i] == null)
-					cargadas = false;
-			}
-			
-			if (cargadas)
-				return;
-			
 			reader = readerForTilesFile.getReader(NAME_FILE_PIEZAS);
 			String linea= reader.readLine();
 			short num=0;
 			while (linea != null){
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				action.piezas[num]= PiezaFactory.from(linea, num); 
+				action.piezas[num]= PiezaFactory.from(linea, num);
 				linea= reader.readLine();
 				++num;
 			}
@@ -446,12 +434,14 @@ public final class SolverFaster {
 		}
 		catch (Exception exc){
 			System.out.println(exc.getMessage());
+			throw new RuntimeException(exc);
 		}
 		finally {
-			if (reader != null)
+			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {}
+			}
 		}
 	}
 	
@@ -465,7 +455,7 @@ public final class SolverFaster {
 		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		action.tablero[POSICION_CENTRAL]= piezaCentral.numero;
+		action.tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
 		
 		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -507,7 +497,7 @@ public final class SolverFaster {
 				linea= reader.readLine();
 				action.mas_lejano_parcial_max= Integer.parseInt(linea);
 				
-				// contiene la posici�n del cursor en el momento de guardar estado
+				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
 				action.cursor= Integer.parseInt(linea);
 				
@@ -609,8 +599,10 @@ public final class SolverFaster {
 				++n_esq;
 		}
 		
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes)))) {
 			System.out.println(action.id + " >>> ERROR. Existe una o varias piezas incorrectas.");
+			throw new RuntimeException("ERROR. Existe una o varias piezas incorrectas.");
+		}
 	}
 
 	/**

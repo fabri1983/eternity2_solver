@@ -39,11 +39,13 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.SendMail;
-import org.fabri1983.eternity2.ui.EternityIIForMPJE;
+import org.fabri1983.eternity2.ui.EternityII;
+import org.fabri1983.eternity2.ui.ViewEternityFactory;
+import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
 
 public final class SolverFasterMPJE {
 	
-	private static EternityIIForMPJE tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
+	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
 	private static int POSICION_MULTI_PROCESSES = -1; // (99) posición del tablero en la que se usará comunicación multiprocesses
 	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); // número de procesos
@@ -65,8 +67,6 @@ public final class SolverFasterMPJE {
 	private final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int POS_FILA_P_CENTRAL = 8;
-	public final static int POS_COL_P_CENTRAL = 7;
 	public final static int INDICE_P_CENTRAL= 138; //es la ubicación de la pieza central en piezas[]
 	private final static int ANTE_POSICION_CENTRAL= 134; //la posicion inmediatamente anterior a la posicion central
 	private final static int SOBRE_POSICION_CENTRAL= 119; //la posicion arriba de la posicion central
@@ -188,9 +188,11 @@ public final class SolverFasterMPJE {
 		if (usar_multiples_boards)
 			procMultipleBoards = THIS_PROCESS;
 		
-		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards)
-			tableboardE2 = new EternityIIForMPJE(LADO, cell_pixels_lado, MAX_COLORES, (long)p_refresh_millis, 
-					THIS_PROCESS, totalProcesses);
+		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards) {
+			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(LADO, cell_pixels_lado, 
+					MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, totalProcesses);
+			tableboardE2 = new EternityII(viewFactory);
+		}
 
 		createDirs();
 	}
@@ -210,20 +212,6 @@ public final class SolverFasterMPJE {
 	 */
 	public final void setupInicial () {
 		
-		count_cycles=0;
-		
-		cleanTablero();
-		
-		// Pruebo cargar el primer status_saved
-		cargarEstado(NAME_FILE_STATUS);
-	
-		//la carga de la copia tmb falló entonces cargo desde cero
-		if (!status_cargado) 
-			cargarEnLimpio();
-		
-		//hago una verificacion de las piezas cargadas
-		verificarTiposDePieza();
-		
 		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
@@ -236,12 +224,30 @@ public final class SolverFasterMPJE {
 		// cargar mapa de indice -> size de arreglos para NodoPosibles
 		MapaArraySizePerIndex.getInstance().load();
 		
-		//cargo las posiciones fijas
-		cargarPiezasFijas(); //OJO! antes debo cargar matrix_zonas[]
+		cleanTablero();
+		
+		cargarPiezas();
+		
+		//hago una verificacion de las piezas cargadas
+		verificarTiposDePieza();
 		
 		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
 		cargarSuperEstructura();
-	
+		
+		// Pruebo cargar el primer status_saved
+		status_cargado = cargarEstado(NAME_FILE_STATUS);
+		if (!status_cargado) {
+			cursor=0;
+			mas_bajo= 0; //este valor se setea empiricamente
+			mas_alto= 0;
+			mas_lejano_parcial_max= 0;
+			status_cargado=false;
+			sincronizar = true;
+		}
+		
+		//cargo las posiciones fijas
+		cargarPiezasFijas();
+		
 		//seteo como usados los contornos ya existentes en tablero
 		ContornoForMPJE.inicializarContornos();
 		
@@ -531,16 +537,6 @@ public final class SolverFasterMPJE {
 		BufferedReader reader = null;
 		
 		try {
-			//verifico si no se han cargado ya las piezas en cargarEstado()
-			boolean cargadas = true;
-			for (int i=0; (i < MAX_PIEZAS) && cargadas; ++i){
-				if (piezas[i] == null)
-					cargadas = false;
-			}
-			
-			if (cargadas)
-				return;
-			
 			// reader= new BufferedReader(new FileReader(NAME_FILE_PIEZAS));
 			reader = new BufferedReader(new InputStreamReader(SolverFasterMPJE.class.getClassLoader().getResourceAsStream(NAME_FILE_PIEZAS)));
 			String linea= reader.readLine();
@@ -558,12 +554,14 @@ public final class SolverFasterMPJE {
 		}
 		catch (Exception exc){
 			System.out.println(exc.getMessage());
+			throw new RuntimeException(exc);
 		}
 		finally {
-			if (reader != null)
+			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {}
+			}
 		}
 	}
 	
@@ -577,7 +575,7 @@ public final class SolverFasterMPJE {
 		Pieza piezaCentral = piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		tablero[POSICION_CENTRAL]= piezaCentral.numero;
+		tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
 		
 		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -587,9 +585,10 @@ public final class SolverFasterMPJE {
 	 * inicializa estructuras y variables para que la exploracion comienze 
 	 * desde cero.
 	 */
-	private final static void cargarEstado (String n_file)
+	private final static boolean cargarEstado (String n_file)
 	{
 		BufferedReader reader = null;
+		boolean status_cargado = false;
 		
 		try{
 			// first ask if file exists
@@ -597,6 +596,7 @@ public final class SolverFasterMPJE {
 			if (!f.isFile()) {
 				System.out.println("Rank " + THIS_PROCESS + " >>> estado de exploracion no existe.");
 				System.out.flush();
+				return status_cargado;
 			}
 			
 			reader= new BufferedReader(new FileReader(f));
@@ -685,7 +685,7 @@ public final class SolverFasterMPJE {
 					
 				status_cargado=true;
 				sincronizar = false;
-				System.out.print("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
+				System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
 				System.out.flush();
 			}
 		}
@@ -699,6 +699,8 @@ public final class SolverFasterMPJE {
 					reader.close();
 				} catch (IOException e) {}
 		}
+		
+		return status_cargado;
 	}
 
 	/**
@@ -738,16 +740,6 @@ public final class SolverFasterMPJE {
 			if (retroceder)
 				desde_saved[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 		}
-	}
-	
-	private final static void cargarEnLimpio () { 
-		cargarPiezas();
-		cursor=0;
-		mas_bajo= 0; //este valor se setea empiricamente
-		mas_alto= 0;
-		mas_lejano_parcial_max= 0;
-		status_cargado=false;
-		sincronizar = true;
 	}
 	
 	/**
@@ -1385,8 +1377,10 @@ public final class SolverFasterMPJE {
 			else if (pzx.feature == 2)
 				++n_esq;
 		}
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes))))
+		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes)))) {
 			System.out.println("ERROR. Existe una o varias piezas incorrectas.");
+			throw new RuntimeException("ERROR. Existe una o varias piezas incorrectas.");
+		}
 	}
 	
 	

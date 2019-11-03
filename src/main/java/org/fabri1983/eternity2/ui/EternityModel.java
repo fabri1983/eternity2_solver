@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,42 +29,51 @@ import org.fabri1983.eternity2.core.Pieza;
 
 public class EternityModel implements TableModel {
 
-    private EternityCanvas canvas;
+    private Canvas canvas;
 
-    public EternityModel(EternityCanvas canvas) {
+    public EternityModel(Canvas canvas) {
         this.canvas = canvas;
     }
 
+    @Override
     public int getRowCount() {
         return canvas.getRows();
     }
 
+    @Override
     public int getColumnCount() {
         return canvas.getColumns();
     }
 
+    @Override
     public String getColumnName(int columnIndex) {
         return null;
     }
 
+    @Override
     public Class<Pieza> getColumnClass(int columnIndex) {
         return Pieza.class;
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return canvas.getViewBox( columnIndex, rowIndex);
+        return canvas.getPieza(rowIndex, columnIndex);
     }
 
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     }
 
+    @Override
     public void addTableModelListener(TableModelListener l) {
     }
 
+    @Override
     public void removeTableModelListener(TableModelListener l) {
     }
 

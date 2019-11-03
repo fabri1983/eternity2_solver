@@ -23,6 +23,8 @@
 package org.fabri1983.eternity2.forkjoin_solver;
 
 import org.fabri1983.eternity2.ui.EternityII;
+import org.fabri1983.eternity2.ui.ViewEternityFactory;
+import org.fabri1983.eternity2.ui.ViewEternityFasterFactory;
 
 public final class SolverFasterWithUI {
 	
@@ -45,8 +47,9 @@ public final class SolverFasterWithUI {
 		solver.setupInicial();
 		
 		// solo dibujar el board de la primer action: SolverFaster.actions[0]
-		EternityII tableboardE2 = new EternityII(SolverFaster.LADO, SolverFaster.cellPixelsLado, 
-				SolverFaster.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]); 
+		ViewEternityFactory viewFactory = new ViewEternityFasterFactory(SolverFaster.LADO, SolverFaster.cellPixelsLado, 
+				SolverFaster.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]);
+		EternityII tableboardE2 = new EternityII(viewFactory); 
 		tableboardE2.startPainting();
 	}
 	

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Fabricio Lettieri fabri1983@gmail.com
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,32 +23,30 @@
 package org.fabri1983.eternity2.ui;
 
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
+import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
 
-public class EternityCanvas {
+public class CanvasFaster extends CanvasAbstract {
 
-	public Pieza[][] viewPieces; // esta se usa para dibujar las piezas
-    private int columns;
-    private int rows;
+	private ExploracionAction action;
 
-    public EternityCanvas(int column, int rows) {
-        this.columns = column;
-        this.rows = rows;
-        
-        viewPieces = new Pieza[column][rows];
-    }
+	public CanvasFaster(int columns, int rows, int posCentral, ExploracionAction action) {
+		super(columns, rows, posCentral);
+		this.action = action;
+	}
 
-    public Pieza getViewBox(int ax, int ay) {
-        if (viewPieces[ay][ax] != null)
-        	return viewPieces[ay][ax];
-        return null;
-    }
+	@Override
+	protected Pieza getPiezaFromTablero(int cursorTablero) {
+		short index = action.tablero[cursorTablero];
+		if (index == -1) {
+			return null;
+		}
+		return action.piezas[index];
+	}
 
-    public int getColumns() {
-        return columns;
-    }
-
-    public int getRows() {
-        return rows;
-    }
+	@Override
+	protected Pieza getPiezaCentral() {
+		return action.piezas[SolverFaster.INDICE_P_CENTRAL];
+	}
 
 }

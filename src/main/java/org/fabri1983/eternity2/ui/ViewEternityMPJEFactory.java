@@ -20,12 +20,40 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.core.tilesreader;
+package org.fabri1983.eternity2.ui;
 
-import java.io.BufferedReader;
-
-public interface ReaderForTilesFile {
-
-	BufferedReader getReader(String file);
+public class ViewEternityMPJEFactory implements ViewEternityFactory {
 	
+	private int lado;
+	private int cell_size_pixels;
+	private int num_colours;
+	private long refreshMillis;
+	private int proc;
+	private int totalProcs;
+	
+	public ViewEternityMPJEFactory(int lado, int cell_size_pixels, int num_colours, long refreshMillis,
+			int proc, int totalProcs) {
+		super();
+		this.lado = lado;
+		this.cell_size_pixels = cell_size_pixels;
+		this.num_colours = num_colours;
+		this.refreshMillis = refreshMillis;
+		this.proc = proc;
+		this.totalProcs = totalProcs;
+	}
+
+	@Override
+	public ViewEternity create() {
+		return new ViewEternityForMPJE(refreshMillis, lado, cell_size_pixels, num_colours);
+	}
+	
+	@Override
+	public int getProc() {
+		return proc;
+	}
+	
+	@Override
+	public int getTotalProcs() {
+		return totalProcs;
+	}
 }
