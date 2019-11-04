@@ -11,7 +11,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<source.dir>${basedir}/src/main/java</source.dir> <!-- overridden by junion profile -->
+		<source.dir>${basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
 		<jmh.version>1.21</jmh.version>
 	</properties>
@@ -45,14 +45,6 @@
 			<version>0.44</version>
 			<scope>system</scope>
 			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
-		</dependency>
-		<!-- Junion: Structs in Java -->
-		<dependency>
-			<groupId>com.github.tehleo</groupId>
-			<artifactId>junion</artifactId>
-			<version>1.2.2</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
 		</dependency>
 		<!-- JMH Java Microbenchmark Harness -->
 		<dependency>
@@ -184,157 +176,6 @@
 		        </dependency>
 			</dependencies>
 		</profile>
-		<profile>
-			<!-- This profile can only be activated for java 6, 7, 8, 9, 10, 11 only -->
-			<id>junion</id>
-			<properties>
-				<!-- junion outputs modified source so we have to put it in new location. -->
-				<!-- Additionally, this value will be used by tag <sourceDirectory> on <build> phase and maven compiler plugin -->
-				<source.dir>${basedir}/target/generated-sources</source.dir>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.github.tehleo</groupId>
-					<artifactId>junion</artifactId>
-					<version>1.2.2</version>
-					<scope>system</scope>
-					<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
-				</dependency>
-			</dependencies>
-			<build>
-				<plugins>
-					<!-- required by junion -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>build-classpath</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>build-classpath</goal>
-								</goals>
-								<configuration>
-									<outputProperty>classpath-string</outputProperty>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- required by junion -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.6.0</version>
-						<executions>
-							<execution>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<includePluginDependencies>true</includePluginDependencies>
-							<mainClass>theleo.jstruct.plugin.SourceCompiler</mainClass>
-							<sourceRoot>${basedir}/target/generated-sources</sourceRoot>
-							<arguments>
-								<argument>-noSystemExitOnSuccess</argument>
-								<argument>-classpath</argument>
-								<argument>${classpath-string}</argument>
-								<argument>-version</argument>
-								<argument>${compiler.version}</argument>
-								<argument>-sourcepath</argument>
-								<argument>${basedir}/src/main/java</argument>
-								<argument>-outputpath</argument>
-								<argument>${source.dir}</argument>
-							</arguments>
-						</configuration>
-						<dependencies>
-							<dependency>
-								<groupId>com.github.tehleo</groupId>
-								<artifactId>junion</artifactId>
-								<version>1.2.2</version>
-								<scope>system</scope>
-								<systemPath>${external.libs.dir}/junion/junion1.2.2.jar</systemPath>
-							</dependency>
-							<dependency>
-								<groupId>com.github.tehleo</groupId>
-								<artifactId>junionc</artifactId>
-								<version>1.2.2</version>
-								<scope>system</scope>
-								<systemPath>${external.libs.dir}/junion/junionc1.2.2.jar</systemPath>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
-							<dependency>
-								<groupId>org.eclipse.jdt</groupId>
-								<artifactId>org.eclipse.jdt.core</artifactId>
-								<version>3.13.102</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core.manipulation -->
-							<dependency>
-								<groupId>org.eclipse.jdt</groupId>
-								<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
-								<version>1.9.100</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.compiler.tool -->
-							<dependency>
-								<groupId>org.eclipse.jdt</groupId>
-								<artifactId>org.eclipse.jdt.compiler.tool</artifactId>
-								<version>1.2.101</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.contenttype -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.core.contenttype</artifactId>
-								<version>3.6.0</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.jobs -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.core.jobs</artifactId>
-								<version>3.9.3</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.resources -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.core.resources</artifactId>
-								<version>3.12.0</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.core.runtime -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.core.runtime</artifactId>
-								<version>3.13.0</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.equinox.common -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.equinox.common</artifactId>
-								<version>3.9.0</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.equinox.preferences -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.equinox.preferences</artifactId>
-								<version>3.7.0</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.osgi -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.osgi</artifactId>
-								<version>3.12.100</version>
-							</dependency>
-							<!-- https://mvnrepository.com/artifact/org.eclipse.platform/org.eclipse.text -->
-							<dependency>
-								<groupId>org.eclipse.platform</groupId>
-								<artifactId>org.eclipse.text</artifactId>
-								<version>3.6.100</version>
-							</dependency>
-						</dependencies>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 
 	<build>
@@ -359,7 +200,7 @@
 					<target>${compiler.version}</target>
 					<compilerArgs>
 						<!--arg>-O</arg-->
-						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
+						<!--arg>-g:none</arg--> <!-- doesn’t generate debugging information -->
 					</compilerArgs>
 				</configuration>
 			</plugin>

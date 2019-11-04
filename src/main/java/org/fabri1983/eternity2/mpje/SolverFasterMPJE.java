@@ -108,11 +108,11 @@ public final class SolverFasterMPJE {
 	 *   - total valid positions =   6954
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
-	private final static NodoPosibles super_matriz[] = new NodoPosibles[
-	  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
-			(MAX_COLORES * Math.pow(2, 5 * 1)) +
-			(MAX_COLORES * Math.pow(2, 5 * 2)) +
-			(MAX_COLORES * Math.pow(2, 5 * 3)))];
+	private final static NodoPosibles[] super_matriz = new NodoPosibles[
+		  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
+				(MAX_COLORES * Math.pow(2, 5 * 1)) +
+				(MAX_COLORES * Math.pow(2, 5 * 2)) +
+				(MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static short[] tablero = new short[MAX_PIEZAS];

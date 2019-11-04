@@ -52,10 +52,10 @@ public class ExploracionAction extends RecursiveAction {
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[
-	  (int) ((SolverFaster.MAX_COLORES * Math.pow(2, 5 * 0)) +
-			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 1)) +
-			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 2)) +
-			(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 3)))];
+  		  (int) ((SolverFaster.MAX_COLORES * Math.pow(2, 5 * 0)) +
+   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 1)) +
+   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 2)) +
+   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final short[] tablero = new short[SolverFaster.MAX_PIEZAS];

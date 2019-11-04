@@ -61,9 +61,6 @@ It is included in the project as a system dependency
 Is the java concurrent api for JVM 1.6 target builds.  
 This api provides fork/join concurrency functionality to run the program on the Oracle JRockit VM.  
 
-**Junion: structs in Java**. https://github.com/TehLeo/junion.  
-Delivers struct types to Java programming language to decrease memory usage and the possibility to allocate on off-heap area.  
-
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
 With this tool I could **decrease jar file size by 20%**. **Code execution is 50% faster** on Windows box using MPJe.  
@@ -91,8 +88,7 @@ Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to 
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
-- `java12benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`.**WIP**.
-- `junion`: additional profile which enables process of Junion annotations to pre-process sources for byte code manipulation. **WIP**.
+- `java12benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
 
 
 Execution

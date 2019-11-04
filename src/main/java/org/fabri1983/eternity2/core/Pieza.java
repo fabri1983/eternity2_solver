@@ -24,8 +24,6 @@ package org.fabri1983.eternity2.core;
 
 public class Pieza {
 	
-	final static byte MAX_ESTADOS_ROTACION = 4; // el número máximo de estados de rotación por pieza
-	
 	// NOTA: ubicación de datos en data
 	// Los bits 0..4 color top.
 	// Los bits 5..9 color right.
@@ -71,7 +69,7 @@ public class Pieza {
 		p.bottom= p.right;
 		p.right= p.top;
 		p.top= aux;
-		p.rotacion= (byte) ((p.rotacion + 1) & ~MAX_ESTADOS_ROTACION);
+		p.rotacion= (byte) ((p.rotacion + 1) & ~4); // 4 max rotations
 	}
 	
 	public final static void rotar180 (final Pieza p)
@@ -82,7 +80,7 @@ public class Pieza {
 		final byte aux2 = p.top;
 		p.top= p.bottom;
 		p.bottom= aux2;
-		p.rotacion= (byte) ((p.rotacion + 2) & ~MAX_ESTADOS_ROTACION);
+		p.rotacion= (byte) ((p.rotacion + 2) & ~4); // 4 max rotations
 	}
 	
 	public final static void rotar270 (final Pieza p)
@@ -92,7 +90,7 @@ public class Pieza {
 		p.top= p.right;
 		p.right= p.bottom;
 		p.bottom= aux;
-		p.rotacion= (byte) ((p.rotacion + 3) & ~MAX_ESTADOS_ROTACION);
+		p.rotacion= (byte) ((p.rotacion + 3) & ~4); // 4 max rotations
 	}
 
 	/**
