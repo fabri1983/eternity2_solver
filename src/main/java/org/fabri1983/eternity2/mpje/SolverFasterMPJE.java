@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.mpje_solver;
+package org.fabri1983.eternity2.mpje;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -98,20 +98,6 @@ public final class SolverFasterMPJE {
 	private static int sig_parcial, cur_destino;
 	public static long count_cycles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
-	public final static short[] tablero = new short[MAX_PIEZAS];
-	private final static short[] desde_saved = new short[MAX_PIEZAS];
-	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
-	
-	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
-	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
-	private final static int[] arr_color_rigth_explorado = new int[LADO];
-	
-	private static boolean status_cargado, retroceder, FairExperimentGif;
-	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
-	private static boolean send_mail = false;
-	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
-	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
 	/**
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
@@ -127,6 +113,21 @@ public final class SolverFasterMPJE {
 			(MAX_COLORES * Math.pow(2, 5 * 1)) +
 			(MAX_COLORES * Math.pow(2, 5 * 2)) +
 			(MAX_COLORES * Math.pow(2, 5 * 3)))];
+	
+	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
+	public final static short[] tablero = new short[MAX_PIEZAS];
+	private final static short[] desde_saved = new short[MAX_PIEZAS];
+	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
+	
+	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
+	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	private final static int[] arr_color_rigth_explorado = new int[LADO];
+	
+	private static boolean status_cargado, retroceder, FairExperimentGif;
+	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
+	private static boolean send_mail = false;
+	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
+	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved

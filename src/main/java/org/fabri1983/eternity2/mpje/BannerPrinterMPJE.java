@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.mpje_solver;
+package org.fabri1983.eternity2.mpje;
 
 import mpi.MPI;
 

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.mpje_solver;
+package org.fabri1983.eternity2.mpje;
 
 import java.io.IOException;
 import java.util.Properties;

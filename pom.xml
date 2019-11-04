@@ -78,6 +78,7 @@
 				<compiler.version>1.6</compiler.version>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>dummy/package/name</shade.exclusion.filter.3>
 				<pg.compiler.version>1.6</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
@@ -103,9 +104,10 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>dummy/package/name</shade.exclusion.filter.3>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.mpje_solver.MainFasterMPJE</manifest.main.class>
+				<manifest.main.class>org.fabri1983.eternity2.mpje.MainFasterMPJE</manifest.main.class>
 				<env.props.file>mpje.properties</env.props.file>
 			</properties>
 		</profile>
@@ -120,6 +122,7 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
@@ -134,6 +137,7 @@
 				<compiler.version>1.8</compiler.version>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.compiler.version>1.8</pg.compiler.version>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFasterNative</manifest.main.class>
@@ -149,6 +153,7 @@
 				<release>12</release>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.compiler.version>12</pg.compiler.version>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
@@ -164,6 +169,7 @@
 				<release>12</release>
 				<shade.exclusion.filter.1>dummy/package/name</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.compiler.version>12</pg.compiler.version>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.benchmark.MainFasterBenchmark</manifest.main.class>
@@ -398,6 +404,7 @@
 									<excludes>
 										<exclude>${shade.exclusion.filter.1}</exclude>
 										<exclude>${shade.exclusion.filter.2}</exclude>
+										<exclude>${shade.exclusion.filter.3}</exclude>
 									</excludes>
 								</filter>
 							</filters>

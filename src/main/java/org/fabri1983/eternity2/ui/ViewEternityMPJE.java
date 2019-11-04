@@ -22,7 +22,7 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.mpje_solver.SolverFasterMPJE;
+import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
 public class ViewEternityMPJE extends ViewEternityAbstract {
 
