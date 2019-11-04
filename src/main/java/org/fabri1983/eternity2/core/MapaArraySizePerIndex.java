@@ -57,7 +57,7 @@ public class MapaArraySizePerIndex {
 //	}
 	
 	public void load() {
-		map = new HashMap<>((int)(6954 / 0.75) + 1); // 6954 is the total number of keys I´m gonna need
+		map = new HashMap<>((int)(6954 / 0.75) + 1); // 6954 is the total number of keys I need
 		load1();
 		load2();
 		load3();
