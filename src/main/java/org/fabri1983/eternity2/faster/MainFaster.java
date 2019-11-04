@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.forkjoin_solver;
+package org.fabri1983.eternity2.faster;
 
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -35,7 +35,7 @@ public final class MainFaster
 	 */
 	public static void main (String[] args)
 	{
-		BannerPrinterForFaster.printBanner();
+		BannerPrinterFaster.printBanner();
         
 		try{
 			Properties properties = AppPropertiesReader.readProperties();

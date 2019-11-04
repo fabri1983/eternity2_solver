@@ -23,8 +23,8 @@
 package org.fabri1983.eternity2.ui;
 
 import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
-import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
+import org.fabri1983.eternity2.faster.ExploracionAction;
+import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class CanvasFaster extends CanvasAbstract {
 

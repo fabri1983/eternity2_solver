@@ -40,7 +40,7 @@ public final class MainFasterMPJE
 		
 		// imprimo una sola vez la portada
 		if (rank == 0) {
-			BannerPrinterForMPJE.printBanner();
+			BannerPrinterMPJE.printBanner();
 		}
 		
 		try {

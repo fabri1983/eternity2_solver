@@ -22,8 +22,8 @@
 
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
-import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
+import org.fabri1983.eternity2.faster.ExploracionAction;
+import org.fabri1983.eternity2.faster.SolverFaster;
 
 /**
  * Esta clase ayuda a saber si un determinado contorno (superior o inferior) está siendo usado o no.

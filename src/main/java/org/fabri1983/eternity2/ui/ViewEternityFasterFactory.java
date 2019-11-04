@@ -22,7 +22,7 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.forkjoin_solver.ExploracionAction;
+import org.fabri1983.eternity2.faster.ExploracionAction;
 
 public class ViewEternityFasterFactory implements ViewEternityFactory {
 	
@@ -45,7 +45,7 @@ public class ViewEternityFasterFactory implements ViewEternityFactory {
 	}
 
 	@Override
-	public ViewEternity create() {
+	public ViewEternityAbstract create() {
 		return new ViewEternityFaster(refreshMillis, lado, cell_size_pixels, num_colours, action);
 	}
 	

@@ -43,8 +43,8 @@ public class ViewEternityMPJEFactory implements ViewEternityFactory {
 	}
 
 	@Override
-	public ViewEternity create() {
-		return new ViewEternityForMPJE(refreshMillis, lado, cell_size_pixels, num_colours);
+	public ViewEternityAbstract create() {
+		return new ViewEternityMPJE(refreshMillis, lado, cell_size_pixels, num_colours);
 	}
 	
 	@Override

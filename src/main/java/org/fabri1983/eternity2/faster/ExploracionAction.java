@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.forkjoin_solver;
+package org.fabri1983.eternity2.faster;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RecursiveAction;

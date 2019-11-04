@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-public abstract class ViewEternity extends JFrame implements KeyListener {
+public abstract class ViewEternityAbstract extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -33,7 +33,7 @@ public abstract class ViewEternity extends JFrame implements KeyListener {
 
     private RefreshThread rt = null;
 
-	public ViewEternity(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
+	public ViewEternityAbstract(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
 		super();
 
 		refresh_milis = p_refresh_milis;
@@ -223,10 +223,10 @@ public abstract class ViewEternity extends JFrame implements KeyListener {
 	 */
     private class RefreshThread extends Thread {
         
-        private ViewEternity viewEternity;
+        private ViewEternityAbstract viewEternity;
         public long refresh_nanos;
         
-        RefreshThread(ViewEternity viewEternity, long p_refresh_milis) {
+        RefreshThread(ViewEternityAbstract viewEternity, long p_refresh_milis) {
             this.viewEternity = viewEternity;
             this.refresh_nanos = p_refresh_milis * 1000000;
         }

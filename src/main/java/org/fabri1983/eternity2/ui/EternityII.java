@@ -30,7 +30,7 @@ import javax.swing.UIManager;
 
 public class EternityII {
 
-	private ViewEternity frame; // es la ventanita
+	private ViewEternityAbstract frame; // es la ventanita
 
 	public EternityII(ViewEternityFactory viewFactory) {
 		// lo siguiente es solamente para el tablero gráfico

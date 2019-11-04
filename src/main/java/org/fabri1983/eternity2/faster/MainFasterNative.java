@@ -20,57 +20,23 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.forkjoin_solver.benchmark;
+package org.fabri1983.eternity2.faster;
 
-import java.io.IOException;
 import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
 import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
-import org.fabri1983.eternity2.forkjoin_solver.SolverFaster;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.Warmup;
 
-public class MainFasterBenchmark {
-
-	public static void main(String[] args) throws Exception {
-        org.openjdk.jmh.Main.main(args);
-    }
-	
-	@Benchmark
-	@BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Warmup(iterations = 3)
-    @Measurement(iterations = 2)
-	@Fork(value = 1)
-	public void init(MainFasterBenchmarkContextProvider context) {
-		context.solver.atacar(context.timeoutTaskInSecs);
-		context.solver.resetInternalStatus();
-	}
-	
-	@State(Scope.Benchmark)
-	public static class MainFasterBenchmarkContextProvider {
-
-		// use a timeout to finish all tasks since those provided by @Warmup and @Measurement don't work
-		public long timeoutTaskInSecs = 10;
-		// we are going to create and initialize the solver and only benchmark
-		public SolverFaster solver;
-		
-		@Setup(Level.Invocation)
-		public void setup() throws IOException {
-			
+public final class MainFasterNative
+{
+	/**
+	 * @param args
+	 */
+	public static void main (String[] args)
+	{
+		BannerPrinterFaster.printBanner();
+        
+		try {
 			Properties properties = AppPropertiesReader.readProperties();
 			
 			SolverFaster solver = SolverFaster.build(
@@ -86,26 +52,24 @@ public class MainFasterBenchmark {
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile(),
+					new ClassLoaderReaderForTilesFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
-			
-			properties = null;
-			ResourceBundle.clearCache();
-			
-			System.out.println(); // to get a clean output
-			
-			solver.setupInicial();
-		}
-		
-		private String getProperty(Properties properties, String key) {
-			return AppPropertiesReader.getProperty(properties, key);
-		}
 
-		@TearDown(Level.Invocation)
-		public void doTearDown() {
-			System.gc();
+			properties = null;
+
+			solver.setupInicial();
+			solver.atacar(0);
+		}
+		catch(Exception e) {
+			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 		
+		System.out.println(System.lineSeparator() + "Programa terminado.");
+	}
+
+	private static String getProperty(Properties properties, String key) {
+		return AppPropertiesReader.getProperty(properties, key);
 	}
 	
 }

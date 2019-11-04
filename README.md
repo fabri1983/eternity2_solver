@@ -241,7 +241,9 @@ We are going to build Graal VM for Windows platform.
 	```
 - Run your jar with Graal VM
 	```sh
-	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.forkjoin_solver.MainFasterWithUI
+	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.faster.MainFasterWithUI  <-- with UI support
+	or
+	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.faster.MainFaster        <-- no UI support
 	```
 - **Optional**: Using the Graal compiler with your JVMCI enabled JVM:
 Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
@@ -262,6 +264,8 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
+We are going to generate a native image to run our solver. No UI supported by the moment.
+
 - Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.2.0.1):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
@@ -323,7 +327,7 @@ This will help you to decide which iso you need to download:
 Running with Avian JVM
 ----------------------
 I'm trying to improve the performance of code execution using other JVM implementations.
-Currently I'm taking a look to Avian JVM, under a Windows environment.
+Currently I'm taking a look to Avian JVM, under Windows environment.
 
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 
