@@ -47,8 +47,9 @@ public class ExploracionAction extends RecursiveAction {
 	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
 	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
 	 * After getting some stats:
-	 *   - total empty positions = 771021
-	 *   - total valid positions =   6954
+	 *   - total positions created = 777975
+	 *   - total empty positions =   771021
+	 *   - total used positions =      6954
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[
