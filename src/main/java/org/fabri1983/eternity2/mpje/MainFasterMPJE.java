@@ -22,7 +22,6 @@
 
 package org.fabri1983.eternity2.mpje;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
