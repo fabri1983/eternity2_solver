@@ -22,19 +22,19 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.mpje_solver.SolverFasterMPJE;
+import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
-public class ViewEternityForMPJE extends ViewEternity {
+public class ViewEternityMPJE extends ViewEternityAbstract {
 
 	private static final long serialVersionUID = 1L;
 	
-	public ViewEternityForMPJE(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
+	public ViewEternityMPJE(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
 	}
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasForMPJE(rows, cols, SolverFasterMPJE.POSICION_CENTRAL);
+		return new CanvasMPJE(rows, cols, SolverFasterMPJE.POSICION_CENTRAL);
 	}
 
 	@Override

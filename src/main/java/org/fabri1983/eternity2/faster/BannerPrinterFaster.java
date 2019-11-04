@@ -1,6 +1,6 @@
-package org.fabri1983.eternity2.forkjoin_solver;
+package org.fabri1983.eternity2.faster;
 
-public class BannerPrinterForFaster {
+public class BannerPrinterFaster {
 
 	public static void printBanner() {
 		StringBuilder msgBuilder = new StringBuilder(64*9);

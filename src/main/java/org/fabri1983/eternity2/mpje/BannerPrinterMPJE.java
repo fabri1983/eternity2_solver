@@ -1,8 +1,8 @@
-package org.fabri1983.eternity2.mpje_solver;
+package org.fabri1983.eternity2.mpje;
 
 import mpi.MPI;
 
-public class BannerPrinterForMPJE {
+public class BannerPrinterMPJE {
 
 	public static void printBanner() {
 		StringBuilder msgBuilder = new StringBuilder(64*10);

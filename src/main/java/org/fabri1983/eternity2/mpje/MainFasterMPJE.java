@@ -20,27 +20,36 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.forkjoin_solver;
+package org.fabri1983.eternity2.mpje;
 
 import java.util.Properties;
 import java.util.ResourceBundle;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
-import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
 
-public final class MainFaster
+import mpi.MPI;
+
+public final class MainFasterMPJE
 {
-	/**
-	 * @param args
-	 */
-	public static void main (String[] args)
+	public static void main (String[] args) throws Exception
 	{
-		BannerPrinterForFaster.printBanner();
-        
-		try{
+		MPI.Init(args);
+		
+		int rank = MPI.COMM_WORLD.Rank();
+		
+		// imprimo una sola vez la portada
+		if (rank == 0) {
+			BannerPrinterMPJE.printBanner();
+		}
+		
+		try {
 			Properties properties = AppPropertiesReader.readProperties();
+
+			// NOTA:
+			//   para mpje multicore los primeros 3 parametros son para MPI
+			//   para mpje cluster los primeros 8 parametros son para MPI
 			
-			SolverFaster solver = SolverFaster.build(
+			SolverFasterMPJE sol = new SolverFasterMPJE(
 					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
 					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
 					Integer.parseInt(getProperty(properties,     "exploration.limit")),
@@ -53,28 +62,22 @@ public final class MainFaster
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile(),
-					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
+					MPI.COMM_WORLD.Size());
 
 			properties = null;
 			ResourceBundle.clearCache();
 
-			// vamos a usar tablero gráfico? 
-			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
-				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
-				solverWithUI.setupInicial();
-				solverWithUI.atacar(0);
-			} else {
-				solver.setupInicial();
-				solver.atacar(0);
-			}
-		}
-		catch(Exception e) {
-			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());
+			sol.setupInicial(); // ejecuto una inicializacion global
+			sol.atacar();
+			
+		} catch(Exception e){
+			System.out.println(System.lineSeparator() + "Rank " + rank + ": Error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
-		System.out.println(System.lineSeparator() + "Programa terminado.");
+		System.out.println(System.lineSeparator() + "Rank " + rank + ": Programa terminado.");
+		
+		MPI.Finalize();
 	}
 
 	private static String getProperty(Properties properties, String key) {

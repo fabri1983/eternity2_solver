@@ -2,7 +2,7 @@ package org.fabri1983.eternity2.ui;
 
 public interface ViewEternityFactory {
 
-	ViewEternity create();
+	ViewEternityAbstract create();
 
 	int getProc();
 

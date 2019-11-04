@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.mpje_solver;
+package org.fabri1983.eternity2.mpje;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -98,6 +98,22 @@ public final class SolverFasterMPJE {
 	private static int sig_parcial, cur_destino;
 	public static long count_cycles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
+	
+	/**
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * After getting some stats:
+	 *   - total empty positions = 771021
+	 *   - total valid positions =   6954
+	 * Ver archivo misc/super_matriz_indexes.txt
+	 */
+	private final static NodoPosibles[] super_matriz = new NodoPosibles[
+		  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
+				(MAX_COLORES * Math.pow(2, 5 * 1)) +
+				(MAX_COLORES * Math.pow(2, 5 * 2)) +
+				(MAX_COLORES * Math.pow(2, 5 * 3)))];
+	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static short[] tablero = new short[MAX_PIEZAS];
 	private final static short[] desde_saved = new short[MAX_PIEZAS];
@@ -112,21 +128,6 @@ public final class SolverFasterMPJE {
 	private static boolean send_mail = false;
 	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
-	
-	/**
-	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
-	 * After getting some stats:
-	 *   - total empty positions = 771021
-	 *   - total valid positions =   6954
-	 * Ver archivo misc/super_matriz_indexes.txt
-	 */
-	private final static NodoPosibles super_matriz[] = new NodoPosibles[
-	  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
-			(MAX_COLORES * Math.pow(2, 5 * 1)) +
-			(MAX_COLORES * Math.pow(2, 5 * 2)) +
-			(MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
@@ -544,7 +545,8 @@ public final class SolverFasterMPJE {
 			while (linea != null){
 				if (num >= MAX_PIEZAS) 
 					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= PiezaFactory.from(linea, num); 
+				piezas[num]= PiezaFactory.from(linea, num);
+                //PiezaFactory.setFromStringWithNum(linea, num, piezas[num]);
 				linea= reader.readLine();
 				++num;
 			}
