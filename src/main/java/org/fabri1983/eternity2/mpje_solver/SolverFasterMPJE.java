@@ -544,7 +544,8 @@ public final class SolverFasterMPJE {
 			while (linea != null){
 				if (num >= MAX_PIEZAS) 
 					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= PiezaFactory.from(linea, num); 
+				piezas[num]= PiezaFactory.from(linea, num);
+                //PiezaFactory.setFromStringWithNum(linea, num, piezas[num]);
 				linea= reader.readLine();
 				++num;
 			}

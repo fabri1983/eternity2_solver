@@ -425,6 +425,7 @@ public final class SolverFaster {
 				if (num >= MAX_PIEZAS)
 					throw new Exception(action.id + " >>> ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
 				action.piezas[num]= PiezaFactory.from(linea, num);
+                //PiezaFactory.setFromStringWithNum(linea, num, action.piezas[num]);
 				linea= reader.readLine();
 				++num;
 			}
@@ -550,7 +551,7 @@ public final class SolverFaster {
 				linea= reader.readLine(); //info de la primer pieza
 				while ((linea != null) && (pos < MAX_PIEZAS)){
 					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
-					Pieza.llevarARotacion(action.piezas[pos],Byte.parseByte(splitted[0]));
+					Pieza.llevarARotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
 					action.piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
