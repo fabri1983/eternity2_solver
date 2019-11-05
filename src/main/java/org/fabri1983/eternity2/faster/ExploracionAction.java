@@ -44,8 +44,15 @@ public class ExploracionAction extends RecursiveAction {
 	
 	/**
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left.
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas que cumplen con esos colores.
+	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left. Cada color se codifica con 5 bits.
+	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
+				(MAX_COLORES * Math.pow(2, 5 * 1)) +
+				(MAX_COLORES * Math.pow(2, 5 * 2)) +
+				(MAX_COLORES * Math.pow(2, 5 * 3)))
+	 * 
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezasy rotaciones 
+	 * que cumplen con esos colores.
+	 * 
 	 * After getting some stats:
 	 *   - total positions created = 777975
 	 *   - total empty positions =   771021

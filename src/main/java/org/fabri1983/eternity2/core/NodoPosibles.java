@@ -38,12 +38,6 @@ public final class NodoPosibles
 		return np;
 	}
 	
-	private static void setSizesByKey(NodoPosibles np, int key) {
-		int size = MapaArraySizePerIndex.getInstance().getSizeForKey(key);
-		np.referencias = new Pieza[size];
-		np.rots = new byte[size];
-	}
-
 	/**
 	 * Agrega la pieza y la rotación a los arrays de NodoPosibles.
 	 * 
@@ -65,6 +59,12 @@ public final class NodoPosibles
 	public static final void addAddress (final byte top, final byte right, final byte bottom, final byte left, 
 			int[] address_array, int address)
 	{
+		// NOTA: si address_array fuera de tipo bytes[] entonces tendría q usar << así:
+		//  para top: (byte) (address >> 24)
+		//  para right: (byte) (address >> 16)
+		//  para bottom: (byte) (address >> 8)
+		//  para left: (byte) (address >> 0)
+		
 		address_array[top] = address & 0xFF000000; // me quedo con los bits 31..24
 		address_array[right] = address & 0xFF0000; // me quedo con los bits 23..16
 		address_array[bottom] = address & 0xFF00;  // me quedo con los bits 15..8
@@ -78,6 +78,12 @@ public final class NodoPosibles
 				return i;
 		}
 		return 0;
+	}
+
+	private static void setSizesByKey(NodoPosibles np, int key) {
+		int size = MapaArraySizePerIndex.getInstance().getSizeForKey(key);
+		np.referencias = new Pieza[size];
+		np.rots = new byte[size];
 	}
 
 	private static int getNextFreeIndex(final NodoPosibles np) {
