@@ -1,7 +1,7 @@
 eternity2_solver
 ================
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
-Game finished in 2010 without anyone claiming the solution. Prize for any valid solution was 2 million usd.  
+Game finished in 2010 with no single person claiming the solution. Prize for any valid solution was 2 million usd.  
 
 | Linux | Windows |
 | ----- | ------- |
