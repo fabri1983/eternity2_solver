@@ -37,11 +37,7 @@ public class CanvasFaster extends CanvasAbstract {
 
 	@Override
 	protected Pieza getPiezaFromTablero(int cursorTablero) {
-		short index = action.tablero[cursorTablero];
-		if (index == -1) {
-			return null;
-		}
-		return action.piezas[index];
+		return action.tablero[cursorTablero];
 	}
 
 	@Override

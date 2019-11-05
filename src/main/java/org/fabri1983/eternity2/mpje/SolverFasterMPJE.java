@@ -33,7 +33,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
-import org.fabri1983.eternity2.core.MapaKeys;
+import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
@@ -116,7 +116,7 @@ public final class SolverFasterMPJE {
 				(MAX_COLORES * Math.pow(2, 5 * 3)))];
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
-	public final static short[] tablero = new short[MAX_PIEZAS];
+	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
 	private final static short[] desde_saved = new short[MAX_PIEZAS];
 	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
 	
@@ -226,8 +226,6 @@ public final class SolverFasterMPJE {
 		// cargar mapa de indice -> size de arreglos para NodoPosibles
 		MapaArraySizePerIndex.getInstance().load();
 		
-		cleanTablero();
-		
 		cargarPiezas();
 		
 		//hago una verificacion de las piezas cargadas
@@ -263,12 +261,6 @@ public final class SolverFasterMPJE {
 		System.gc();
 	}
 
-	private final static void cleanTablero() {
-		for (int k=0, c=tablero.length; k < c; ++k) {
-			tablero[k] = -1;
-		}
-	}
-	
 	/**
 	 * Este arreglo representa las zonas del tablero: las 4 esquinas, los 4 bordes
 	 * y la zona interior.
@@ -439,69 +431,69 @@ public final class SolverFasterMPJE {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				int key1 = NodoPosiblesKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (super_matriz[key1] == null)
 					super_matriz[key1] = NodoPosibles.newForKey(key1);
 				NodoPosibles.addReferencia(super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
-				int key2 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
+				int key2 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right,pz.bottom,pz.left);
 				if (super_matriz[key2] == null)
 					super_matriz[key2] = NodoPosibles.newForKey(key2);
 				NodoPosibles.addReferencia(super_matriz[key2], pz, rot);
-				int key3 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
+				int key3 = NodoPosiblesKeys.getKey(pz.top,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key3] == null)
 					super_matriz[key3] = NodoPosibles.newForKey(key3);
 				NodoPosibles.addReferencia(super_matriz[key3], pz, rot);
-				int key4 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
+				int key4 = NodoPosiblesKeys.getKey(pz.top,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key4] == null)
 					super_matriz[key4] = NodoPosibles.newForKey(key4);
 				NodoPosibles.addReferencia(super_matriz[key4], pz, rot);
-				int key5 = MapaKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
+				int key5 = NodoPosiblesKeys.getKey(pz.top,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key5] == null)
 					super_matriz[key5] = NodoPosibles.newForKey(key5);
 				NodoPosibles.addReferencia(super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				int key6 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
+				int key6 = NodoPosiblesKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,pz.left);
 				if (super_matriz[key6] == null)
 					super_matriz[key6] = NodoPosibles.newForKey(key6);
 				NodoPosibles.addReferencia(super_matriz[key6], pz, rot);
-				int key7 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
+				int key7 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,pz.left);
 				if (super_matriz[key7] == null)
 					super_matriz[key7] = NodoPosibles.newForKey(key7);
 				NodoPosibles.addReferencia(super_matriz[key7], pz, rot);
-				int key8 = MapaKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
+				int key8 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right,pz.bottom,MAX_COLORES);
 				if (super_matriz[key8] == null)
 					super_matriz[key8] = NodoPosibles.newForKey(key8);
 				NodoPosibles.addReferencia(super_matriz[key8], pz, rot);
-				int key9 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
+				int key9 = NodoPosiblesKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key9] == null)
 					super_matriz[key9] = NodoPosibles.newForKey(key9);
 				NodoPosibles.addReferencia(super_matriz[key9], pz, rot);
-				int key10 = MapaKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
+				int key10 = NodoPosiblesKeys.getKey(pz.top,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key10] == null)
 					super_matriz[key10] = NodoPosibles.newForKey(key10);
 				NodoPosibles.addReferencia(super_matriz[key10], pz, rot);
-				int key11 = MapaKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
+				int key11 = NodoPosiblesKeys.getKey(pz.top,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key11] == null)
 					super_matriz[key11] = NodoPosibles.newForKey(key11);
 				NodoPosibles.addReferencia(super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
-				int key12 = MapaKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
+				int key12 = NodoPosiblesKeys.getKey(pz.top,MAX_COLORES,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key12] == null)
 					super_matriz[key12] = NodoPosibles.newForKey(key12);
 				NodoPosibles.addReferencia(super_matriz[key12], pz, rot);
-				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
+				int key13 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right,MAX_COLORES,MAX_COLORES);
 				if (super_matriz[key13] == null)
 					super_matriz[key13] = NodoPosibles.newForKey(key13);
 				NodoPosibles.addReferencia(super_matriz[key13], pz, rot);
-				int key14 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
+				int key14 = NodoPosiblesKeys.getKey(MAX_COLORES,MAX_COLORES,pz.bottom,MAX_COLORES);
 				if (super_matriz[key14] == null)
 					super_matriz[key14] = NodoPosibles.newForKey(key14);
 				NodoPosibles.addReferencia(super_matriz[key14], pz, rot);
-				int key15 = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
+				int key15 = NodoPosiblesKeys.getKey(MAX_COLORES,MAX_COLORES,MAX_COLORES,pz.left);
 				if (super_matriz[key15] == null)
 					super_matriz[key15] = NodoPosibles.newForKey(key15);
 				NodoPosibles.addReferencia(super_matriz[key15], pz, rot);
@@ -578,7 +570,7 @@ public final class SolverFasterMPJE {
 		Pieza piezaCentral = piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
+		tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
 		
 		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -634,7 +626,7 @@ public final class SolverFasterMPJE {
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					tablero[k]= numPieza;
+					tablero[k]= numPieza == -1 ? null : piezas[numPieza];
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -729,10 +721,10 @@ public final class SolverFasterMPJE {
 			if (cursor < 0)
 				break; //obliga a salir del while
 			if (cursor != POSICION_CENTRAL){
-				Pieza pzz= piezas[tablero[cursor]];
+				Pieza pzz= tablero[cursor];
 				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
-				tablero[cursor]= -1;
+				tablero[cursor]= null;
 			}
 			//si retrocedió hasta el cursor destino, entonces no retrocedo mas
 			if ((cursor+1) <= cur_destino){
@@ -787,10 +779,10 @@ public final class SolverFasterMPJE {
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
-					Pieza p = piezas[tablero[cursor]];
+					Pieza p = tablero[cursor];
 					p.usada= false;
 					//p.pos= -1;
-					tablero[cursor]= -1;
+					tablero[cursor]= null;
 				}
 				
 				//si retrocedí hasta el cursor destino, entonces no retrocedo mas
@@ -1122,7 +1114,7 @@ public final class SolverFasterMPJE {
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
-			tablero[cursor] = p.numero; // en la posicion "cursor" del tablero pongo la pieza
+			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza
 			p.usada = true; // en este punto la pieza va a ser usada
 			Pieza.llevarARotacion(p, rot);
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
@@ -1139,7 +1131,7 @@ public final class SolverFasterMPJE {
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
 			if (FairExperimentGif){
 				if (flag_zona == F_INTERIOR || flag_zona == F_BORDE_TOP)
-					if (p.bottom == piezas[tablero[cursor-1]].bottom){
+					if (p.bottom == tablero[cursor-1].bottom){
 						p.usada = false; //la pieza ahora no es usada
 						//p.pos= -1;
 						continue;
@@ -1175,7 +1167,7 @@ public final class SolverFasterMPJE {
 		
 
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
-		tablero[cursor] = -1; //dejo esta posicion de tablero libre
+		tablero[cursor] = null; //dejo esta posicion de tablero libre
 
 		NUM_PROCESSES = num_processes_orig[cursor];
 		--pos_multi_process_offset;
@@ -1201,38 +1193,38 @@ public final class SolverFasterMPJE {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-						MAX_COLORES, piezas[INDICE_P_CENTRAL].top, piezas[tablero[_cursor-1]].right)];
+				return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+						MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[_cursor-1].right)];
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-						piezas[INDICE_P_CENTRAL].left, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+				return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+						piezas[INDICE_P_CENTRAL].left, MAX_COLORES, tablero[_cursor-1].right)];
 		}
 		
 		final int flag_m = matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-					MAX_COLORES, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+			return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+					MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-							GRIS, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+							GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+					return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
 							MAX_COLORES, MAX_COLORES,GRIS)];
 				// borde top
 				case F_BORDE_TOP:
-					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[NodoPosiblesKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor-1].right)];
 				//borde bottom
 				default:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-							MAX_COLORES, GRIS, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+							MAX_COLORES, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1240,18 +1232,18 @@ public final class SolverFasterMPJE {
 			switch (flag_m) {
 				//esquina top-left
 				case F_ESQ_TOP_LEFT:
-					return super_matriz[MapaKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, GRIS)];
+					return super_matriz[NodoPosiblesKeys.getKey(GRIS, MAX_COLORES, MAX_COLORES, GRIS)];
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return super_matriz[MapaKeys.getKey(GRIS, GRIS, MAX_COLORES, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[NodoPosiblesKeys.getKey(GRIS, GRIS, MAX_COLORES, tablero[_cursor-1].right)];
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
+					return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
 							MAX_COLORES, GRIS, GRIS)];
 					//esquina bottom-right
 				default:
-					return super_matriz[MapaKeys.getKey(piezas[tablero[_cursor-LADO]].bottom, 
-							GRIS, GRIS, piezas[tablero[_cursor-1]].right)];
+					return super_matriz[NodoPosiblesKeys.getKey(tablero[_cursor-LADO].bottom, 
+							GRIS, GRIS, tablero[_cursor-1].right)];
 			}
 		}
 	}
@@ -1270,19 +1262,19 @@ public final class SolverFasterMPJE {
 		//obtengo las claves de acceso
 		switch (ContornoForMPJE.MAX_COLS) {
 			case 2: {
-				int index_sup = ContornoForMPJE.getIndex(piezas[tablero[_cursor-1]].left, piezas[tablero[_cursor-1]].top, piezas[tablero[_cursor]].top);
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
 					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
 				return index_sup; // meter el index_inf con << y mask
 				}
 			case 3: {
-				int index_sup = ContornoForMPJE.getIndex(piezas[tablero[_cursor-2]].left, piezas[tablero[_cursor-2]].top, piezas[tablero[_cursor-1]].top, piezas[tablero[_cursor]].top);
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
 					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
 				return index_sup; // meter el index_inf con << y mask
 				}
 			case 4: {
-				int index_sup = ContornoForMPJE.getIndex(piezas[tablero[_cursor-3]].left, piezas[tablero[_cursor-3]].top, piezas[tablero[_cursor-2]].top, piezas[tablero[_cursor-1]].top, piezas[tablero[_cursor]].top);
+				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
 					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
 				return index_sup; // meter el index_inf con << y mask
@@ -1319,15 +1311,15 @@ public final class SolverFasterMPJE {
 		int cursor_at_top = _cursor-LADO;
 		switch (ContornoForMPJE.MAX_COLS){
 			case 2: {
-				int auxi = ContornoForMPJE.getIndex(piezas[tablero[_cursor-1]].right, piezas[tablero[cursor_at_top]].bottom, piezas[tablero[cursor_at_top + 1]].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			case 3: {
-				int auxi = ContornoForMPJE.getIndex(piezas[tablero[_cursor-1]].right, piezas[tablero[cursor_at_top]].bottom, piezas[tablero[cursor_at_top + 1]].bottom, piezas[tablero[cursor_at_top + 2]].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			case 4: {
-				int auxi = ContornoForMPJE.getIndex(piezas[tablero[_cursor-1]].right, piezas[tablero[cursor_at_top]].bottom, piezas[tablero[cursor_at_top + 1]].bottom, piezas[tablero[cursor_at_top + 2]].bottom, piezas[tablero[cursor_at_top + 3]].bottom);
+				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
 				return ContornoForMPJE.contornos_used[auxi];
 			}
 			default: return false;
@@ -1428,13 +1420,13 @@ public final class SolverFasterMPJE {
 			
 			for (int b=0; b<MAX_PIEZAS; ++b){
 				int pos= b+1;
-				if (tablero[b] == -1){
+				Pieza p= tablero[b];
+				if (p == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else {
-					Pieza p= piezas[tablero[b]];
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
 						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
@@ -1533,7 +1525,7 @@ public final class SolverFasterMPJE {
 			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
 			
 			for (int b=0; b<MAX_PIEZAS; ++b){
-				Pieza p= piezas[tablero[b]];
+				Pieza p= tablero[b];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
 				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
@@ -1587,10 +1579,16 @@ public final class SolverFasterMPJE {
 			//guardo los indices de tablero[]
 			for (int n=0; n < MAX_PIEZAS; ++n) {
 				if (n==(MAX_PIEZAS-1)){
-					writerBuffer.append((tablero[n])).append("\n");
+					if (tablero[n] == null)
+						writerBuffer.append("-1").append("\n");
+					else
+						writerBuffer.append(tablero[n].numero).append("\n");
 				}
 				else {
-					writerBuffer.append((tablero[n])).append(SECCIONES_SEPARATOR_EN_FILE);
+					if (tablero[n] == null)
+						writerBuffer.append("-1").append("\n");
+					else
+						writerBuffer.append((tablero[n])).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -1604,7 +1602,7 @@ public final class SolverFasterMPJE {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor]);
+				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)

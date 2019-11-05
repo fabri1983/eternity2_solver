@@ -29,9 +29,9 @@ package org.fabri1983.eternity2.core;
  * 
  * @author Fabricio Lettieri
  */
-public final class MapaKeys {
+public final class NodoPosiblesKeys {
 	
-	private MapaKeys () {
+	private NodoPosiblesKeys () {
 	}
 	
 	/**

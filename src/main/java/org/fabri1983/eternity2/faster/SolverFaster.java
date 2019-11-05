@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
-import org.fabri1983.eternity2.core.MapaKeys;
+import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
@@ -319,69 +319,69 @@ public final class SolverFaster {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				int key1 = MapaKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				int key1 = NodoPosiblesKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (action.super_matriz[key1] == null)
 					action.super_matriz[key1] = NodoPosibles.newForKey(key1);
 				NodoPosibles.addReferencia(action.super_matriz[key1], pz, rot);
 				
 				//tengo tres colores y uno faltante
-				int key2 = MapaKeys.getKey(MAX_COLORES, pz.right, pz.bottom, pz.left);
+				int key2 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, pz.bottom, pz.left);
 				if (action.super_matriz[key2] == null)
 					action.super_matriz[key2] = NodoPosibles.newForKey(key2);
 				NodoPosibles.addReferencia(action.super_matriz[key2], pz, rot);
-				int key3 = MapaKeys.getKey(pz.top, MAX_COLORES, pz.bottom, pz.left);
+				int key3 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, pz.bottom, pz.left);
 				if (action.super_matriz[key3] == null)
 					action.super_matriz[key3] = NodoPosibles.newForKey(key3);
 				NodoPosibles.addReferencia(action.super_matriz[key3], pz, rot);
-				int key4 = MapaKeys.getKey(pz.top, pz.right, MAX_COLORES, pz.left);
+				int key4 = NodoPosiblesKeys.getKey(pz.top, pz.right, MAX_COLORES, pz.left);
 				if (action.super_matriz[key4] == null)
 					action.super_matriz[key4] = NodoPosibles.newForKey(key4);
 				NodoPosibles.addReferencia(action.super_matriz[key4], pz, rot);
-				int key5 = MapaKeys.getKey(pz.top ,pz.right, pz.bottom, MAX_COLORES);
+				int key5 = NodoPosiblesKeys.getKey(pz.top ,pz.right, pz.bottom, MAX_COLORES);
 				if (action.super_matriz[key5] == null)
 					action.super_matriz[key5] = NodoPosibles.newForKey(key5);
 				NodoPosibles.addReferencia(action.super_matriz[key5], pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				int key6 = MapaKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
+				int key6 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
 				if (action.super_matriz[key6] == null)
 					action.super_matriz[key6] = NodoPosibles.newForKey(key6);
 				NodoPosibles.addReferencia(action.super_matriz[key6], pz, rot);
-				int key7 = MapaKeys.getKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
+				int key7 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
 				if (action.super_matriz[key7] == null)
 					action.super_matriz[key7] = NodoPosibles.newForKey(key7);
 				NodoPosibles.addReferencia(action.super_matriz[key7], pz, rot);
-				int key8 = MapaKeys.getKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
+				int key8 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
 				if (action.super_matriz[key8] == null)
 					action.super_matriz[key8] = NodoPosibles.newForKey(key8);
 				NodoPosibles.addReferencia(action.super_matriz[key8], pz, rot);
-				int key9 = MapaKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
+				int key9 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
 				if (action.super_matriz[key9] == null)
 					action.super_matriz[key9] = NodoPosibles.newForKey(key9);
 				NodoPosibles.addReferencia(action.super_matriz[key9], pz, rot);
-				int key10 = MapaKeys.getKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
+				int key10 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
 				if (action.super_matriz[key10] == null)
 					action.super_matriz[key10] = NodoPosibles.newForKey(key10);
 				NodoPosibles.addReferencia(action.super_matriz[key10], pz, rot);
-				int key11 = MapaKeys.getKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
+				int key11 = NodoPosiblesKeys.getKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
 				if (action.super_matriz[key11] == null)
 					action.super_matriz[key11] = NodoPosibles.newForKey(key11);
 				NodoPosibles.addReferencia(action.super_matriz[key11], pz, rot);
 
 				//tengo un color y tres faltantes
-				int key12 = MapaKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
+				int key12 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
 				if (action.super_matriz[key12] == null)
 					action.super_matriz[key12] = NodoPosibles.newForKey(key12);
 				NodoPosibles.addReferencia(action.super_matriz[key12], pz, rot);
-				int key13 = MapaKeys.getKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				int key13 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
 				if (action.super_matriz[key13] == null)
 					action.super_matriz[key13] = NodoPosibles.newForKey(key13);
 				NodoPosibles.addReferencia(action.super_matriz[key13], pz, rot);
-				int key14 = MapaKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
+				int key14 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
 				if (action.super_matriz[key14] == null)
 					action.super_matriz[key14] = NodoPosibles.newForKey(key14);
 				NodoPosibles.addReferencia(action.super_matriz[key14], pz, rot);
-				int key15 = MapaKeys.getKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
+				int key15 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
 				if (action.super_matriz[key15] == null)
 					action.super_matriz[key15] = NodoPosibles.newForKey(key15);
 				NodoPosibles.addReferencia(action.super_matriz[key15], pz, rot);
@@ -456,7 +456,7 @@ public final class SolverFaster {
 		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
-		action.tablero[POSICION_CENTRAL]= piezaCentral.numero; // same value than INDICE_P_CENTRAL
+		action.tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
 		
 		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
 	}	
@@ -502,7 +502,7 @@ public final class SolverFaster {
 				linea= reader.readLine();
 				action.cursor= Integer.parseInt(linea);
 				
-				// recorro los indices de las piezas que estaban en tablero
+				// recorro los numeros de piezas que estaban en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
 				for (int k=0; k < MAX_PIEZAS; ++k){
@@ -511,7 +511,7 @@ public final class SolverFaster {
 					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
 					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-					action.tablero[k]= numPieza;
+					action.tablero[k]= numPieza == -1 ? null : action.piezas[numPieza];
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -633,10 +633,10 @@ public final class SolverFaster {
 				break; //obliga a salir del while
 			
 			if (action.cursor != POSICION_CENTRAL){
-				Pieza pzz = action.piezas[action.tablero[action.cursor]];
+				Pieza pzz = action.tablero[action.cursor];
 				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				//pzz.pos= -1;
-				action.tablero[action.cursor]= -1;
+				action.tablero[action.cursor]= null;
 			}
 			
 			//si retrocedá hasta el cursor destino, entonces no retrocedo mas
@@ -692,13 +692,13 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b) {
 				int pos= b+1;
-				if (action.tablero[b] == -1){
+				Pieza p = action.tablero[b];
+				if (p == null){
 					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else {
-					Pieza p = action.piezas[action.tablero[b]];
 					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
 					if (max)
 						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
@@ -800,7 +800,7 @@ public final class SolverFaster {
 			
 			for (int b=0; b < MAX_PIEZAS; ++b)
 			{
-				Pieza p= action.piezas[action.tablero[b]];
+				Pieza p= action.tablero[b];
 				int pos= b+1;
 				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
 				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
@@ -855,11 +855,17 @@ public final class SolverFaster {
 			
 			//guardo los indices de tablero[]
 			for (int n=0; n < MAX_PIEZAS; ++n) {
-				if (n==(MAX_PIEZAS - 1)){
-					writerBuffer.append((action.tablero[n])).append("\n");
+				if (n==(MAX_PIEZAS - 1)) {
+					if (action.tablero[n] == null)
+						writerBuffer.append("-1").append("\n");
+					else
+						writerBuffer.append(action.tablero[n].numero).append("\n");
 				}
 				else {
-					writerBuffer.append(action.tablero[n]).append(SECCIONES_SEPARATOR_EN_FILE);
+					if (action.tablero[n] == null)
+						writerBuffer.append("-1").append("\n");
+					else
+						writerBuffer.append(action.tablero[n].numero).append(SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -874,7 +880,7 @@ public final class SolverFaster {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor), action.tablero[_cursor]);
+				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor), action.tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)

@@ -33,11 +33,7 @@ public class CanvasMPJE extends CanvasAbstract {
 
     @Override
 	protected Pieza getPiezaFromTablero(int cursorTablero) {
-    	short index = SolverFasterMPJE.tablero[cursorTablero];
-    	if (index == -1) {
-			return null;
-		}
-		return SolverFasterMPJE.piezas[index];
+    	return SolverFasterMPJE.tablero[cursorTablero];
     }
     
     @Override
