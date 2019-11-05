@@ -26,8 +26,6 @@ package org.fabri1983.eternity2.core;
  * Esta clase me encapsula un mapa de claves el cual servirá como acceso a las filas guardadas de las distintas
  * combinaciones de colores. Utilizado para obtener claves del tipo top-right-bottom-left, o cualq tipo de clave que se
  * defina externamente.
- * 
- * @author Fabricio Lettieri
  */
 public final class NodoPosiblesKeys {
 	
@@ -40,6 +38,18 @@ public final class NodoPosiblesKeys {
 	public static final int getKey (final byte top, final byte right, final byte bottom, final byte left)
 	{
 		return (top << 15) | (right << 10) | (bottom << 5) | left;
+	}
+	
+	/**
+	 * Devuelve el address de 32 bits guardado en address_array para esa combinación de colores.
+	 */
+	public static final int getAddress (final byte top, final byte right, final byte bottom, final byte left, 
+			int[] address_array)
+	{
+		return address_array[top]       // address bits 31..24
+				| address_array[right]  // address bits 23..16
+				| address_array[bottom] // address bits 15..8
+				| address_array[left];  // address bits  7..0
 	}
 	
 }

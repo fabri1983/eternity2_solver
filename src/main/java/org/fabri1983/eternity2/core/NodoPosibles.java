@@ -45,21 +45,30 @@ public final class NodoPosibles
 	}
 
 	/**
-	 * Agrega la pieza a la lista auxiliar.
+	 * Agrega la pieza y la rotación a los arrays de NodoPosibles.
 	 * 
 	 * @param rot 
 	 */
 	public static final void addReferencia (final NodoPosibles np, final Pieza p_referencia, byte rot)
 	{
 		// get next position with no data
-		int nextIndex = 0;
-		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
-			if (np.referencias[nextIndex] == null)
-				break;
-		}
+		int nextIndex = getNextFreeIndex(np);
 		
 		np.referencias[nextIndex] = p_referencia;
 		np.rots[nextIndex] = rot;
+	}
+
+	/**
+	 * Guarda la direccion de 32 bits address dividida en 4 partes de 8 bits en address_array en las diferentes 
+	 * posiciones dadas por top, right, bottom, y left.
+	 */
+	public static final void addAddress (final byte top, final byte right, final byte bottom, final byte left, 
+			int[] address_array, int address)
+	{
+		address_array[top] = address & 0xFF000000; // me quedo con los bits 31..24
+		address_array[right] = address & 0xFF0000; // me quedo con los bits 23..16
+		address_array[bottom] = address & 0xFF00;  // me quedo con los bits 15..8
+		address_array[left] = address & 0xFF;      // me quedo con los bits  7..0
 	}
 	
 	public static final short getUbicPieza(final NodoPosibles np, short numero)
@@ -69,6 +78,15 @@ public final class NodoPosibles
 				return i;
 		}
 		return 0;
+	}
+
+	private static int getNextFreeIndex(final NodoPosibles np) {
+		int nextIndex = 0;
+		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
+			if (np.referencias[nextIndex] == null)
+				break;
+		}
+		return nextIndex;
 	}
 	
 }
