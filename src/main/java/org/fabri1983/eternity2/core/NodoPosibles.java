@@ -24,8 +24,6 @@ package org.fabri1983.eternity2.core;
 
 /**
  * Contiene una lista de referencias de piezas.
- * 
- * @author Fabricio Lettieri
  */
 public final class NodoPosibles
 {

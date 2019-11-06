@@ -32,9 +32,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
+import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
-import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
+import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
@@ -125,6 +126,7 @@ public final class SolverFasterMPJE {
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
 	private final static short[] desde_saved = new short[MAX_PIEZAS];
+	private final static Contorno contorno = new Contorno();
 	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
@@ -256,7 +258,7 @@ public final class SolverFasterMPJE {
 		cargarPiezasFijas();
 		
 		//seteo como usados los contornos ya existentes en tablero
-		ContornoForMPJE.inicializarContornos();
+		Contorno.inicializarContornos(contorno, tablero, MAX_PIEZAS);
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
@@ -329,7 +331,7 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no llegue ni sobrepase el borde right
-			if ((k + (ContornoForMPJE.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
+			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
 				zona_read_contorno[k] = true;
 		}
 	}
@@ -357,13 +359,13 @@ public final class SolverFasterMPJE {
 			//Hasta aqui estoy en el interior del tablero
 			
 			//me aseguro que no esté cerca del borde left
-			if (((k - ContornoForMPJE.MAX_COLS) / LADO) != fila_actual)
+			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
 			zona_proc_contorno[k] = true;
 		}
 		
-		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + ContornoForMPJE.MAX_COLS + " columnas.");
+		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
 		System.out.flush();
 	}
 	
@@ -1258,6 +1260,7 @@ public final class SolverFasterMPJE {
 	/**
 	 * Usado para obtener los indices de los contornos que voy a setear como usados o como libres.
 	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
+	 * 
 	 * @return
 	 */
 	private final static int getIndexDeContornoYaPuesto(int _cursor){
@@ -1267,23 +1270,23 @@ public final class SolverFasterMPJE {
 		}
 
 		//obtengo las claves de acceso
-		switch (ContornoForMPJE.MAX_COLS) {
+		switch (Contorno.MAX_COLS) {
 			case 2: {
-				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
+				int index_sup = Contorno.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
+					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
 				return index_sup; // meter el index_inf con << y mask
 				}
 			case 3: {
-				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				int index_sup = Contorno.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
+					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
 				return index_sup; // meter el index_inf con << y mask
 				}
 			case 4: {
-				int index_sup = ContornoForMPJE.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
+				int index_sup = Contorno.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
 				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = ContornoForMPJE.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
+					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
 				return index_sup; // meter el index_inf con << y mask
 				}
 			default: return -1;
@@ -1294,18 +1297,18 @@ public final class SolverFasterMPJE {
 	{
 		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
 		if (index_both != -1)
-			ContornoForMPJE.contornos_used[index_both] = true;
+			contorno.contornos_used[index_both] = true;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
-			ContornoForMPJE.contornos_used[index_inf] = true;*/
+			contorno.contornos_used[index_inf] = true;*/
 	}
 	
 	private final static void setContornoLibre(int index_both)
 	{
 		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
 		if (index_both != -1)
-			ContornoForMPJE.contornos_used[index_both] = false;
+			contorno.contornos_used[index_both] = false;
 		/*@CONTORNO_INFERIORif (index_inf != -1)
-			ContornoForMPJE.contornos_used[index_inf] = false;*/
+			contorno.contornos_used[index_inf] = false;*/
 	}
 
 	private final static boolean esContornoSuperiorUsado(int _cursor)
@@ -1316,18 +1319,20 @@ public final class SolverFasterMPJE {
 		
 		//obtengo la clave del contorno superior
 		int cursor_at_top = _cursor-LADO;
-		switch (ContornoForMPJE.MAX_COLS){
+		switch (Contorno.MAX_COLS){
 			case 2: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			case 3: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, 
+						tablero[cursor_at_top + 2].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			case 4: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, 
+						tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			default: return false;
 		}
@@ -1344,18 +1349,20 @@ public final class SolverFasterMPJE {
 			return false;
 		
 		//obtengo la clave del contorno inferior
-		switch (ContornoForMPJE.MAX_COLS){
+		switch (Contorno.MAX_COLS){
 			case 2: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			case 3: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
+				tablero[_cursor-2].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			case 4: {
-				int auxi = ContornoForMPJE.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
-				return ContornoForMPJE.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
+				tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			default: return false;
 		}

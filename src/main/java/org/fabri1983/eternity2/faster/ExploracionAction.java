@@ -27,8 +27,8 @@ import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.NodoPosibles;
+import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.Pieza;
 
 /**
@@ -141,7 +141,7 @@ public class ExploracionAction extends RecursiveAction {
 		SolverFaster.cargarPiezasFijas(this);
 		
 		// seteo como usados los contornos ya existentes en tablero
-		contorno.inicializarContornos(this);
+		Contorno.inicializarContornos(contorno, tablero, SolverFaster.MAX_PIEZAS);
 	}
 
 	public void resetForAtaque(int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
@@ -169,7 +169,7 @@ public class ExploracionAction extends RecursiveAction {
 		
 		SolverFaster.cargarPiezasFijas(this);
 		
-		contorno.resetContornos();
+		Contorno.resetContornos(contorno);
 	}
 
 	private void cleanTablero() {
@@ -350,7 +350,8 @@ public class ExploracionAction extends RecursiveAction {
 		 */
 		//#############################################################################################
 		
-		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya est� debidamente colocada
+		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
+		// Se supone que la pieza fija ya está debidamente colocada
 		if (cursor == SolverFaster.POSICION_CENTRAL) {
 			
 			//seteo los contornos como usados
@@ -755,15 +756,17 @@ public class ExploracionAction extends RecursiveAction {
 		switch (Contorno.MAX_COLS){
 			case 2: {
 				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
-				return Contorno.contornos_used[auxi];
+				return contorno.contornos_used[auxi];
 			}
 			case 3: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom);
-				return Contorno.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
+				tablero[_cursor-2].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			case 4: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
-				return Contorno.contornos_used[auxi];
+				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
+				tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
+				return contorno.contornos_used[auxi];
 			}
 			default: return false;
 		}

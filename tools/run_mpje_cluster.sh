@@ -8,8 +8,8 @@ export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target
 
-# 40m max usage for 8 local process instances.
-mem_alloc="40m"
+# 35m max usage for 8 local process instances.
+mem_alloc="35m"
 
 # set the amount of total threads in the cluster. It has to be an homogeneous cluster
 TOTAL_THREADS_IN_CLUSTER=8

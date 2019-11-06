@@ -8,8 +8,8 @@ set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 40m max usage for 8 local process instances.
-set mem_alloc=40m
+:: 35m max usage for 8 local process instances.
+set mem_alloc=35m
 
 :: edit mpjrun.bat to select the desired JVM
 %MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% e2solver_mpje.jar
