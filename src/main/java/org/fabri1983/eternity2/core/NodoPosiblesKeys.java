@@ -41,8 +41,9 @@ public final class NodoPosiblesKeys {
 	}
 	
 	/**
-	 * Devuelve el address de 32 bits guardado en address_array[] para esa combinación de colores.
-	 * Si el address es 0 significa que no se ha guardado address en esa combinación de colores.
+	 * Devuelve el address de 32 bits (int) guardado en address_array[] para esa combinación de colores.
+	 * 
+	 * @return 0 si no se ha guardado address en esa combinación de colores.
 	 */
 	public static final int getAddress (final byte top, final byte right, final byte bottom, final byte left, 
 			int[] address_array)
@@ -52,11 +53,13 @@ public final class NodoPosiblesKeys {
 		//  address_array[right] << 16
 		//  address_array[bottom] << 8
 		//  address_array[left] << 0
+		//  No haría falta aplicar & porque el << me completa deja 0s a la derecha
 		
 		int address = address_array[top] // address bits 31..24
 				| address_array[right]   // address bits 23..16
 				| address_array[bottom]  // address bits 15..8
 				| address_array[left];   // address bits  7..0
+									     // Nota: no uso << ni & porque los bits ya estan en su lugar correcto en el contexto de 32 bits.
 		return address;
 	}
 	
