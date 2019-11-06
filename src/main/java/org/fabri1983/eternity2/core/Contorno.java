@@ -22,9 +22,6 @@
 
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.faster.ExploracionAction;
-import org.fabri1983.eternity2.faster.SolverFaster;
-
 /**
  * Esta clase ayuda a saber si un determinado contorno (superior o inferior) está siendo usado o no.
  * La teoria a la que concluí es: si un contorno aparece como usado, luego no existe combinacion de 
@@ -36,32 +33,49 @@ public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
-	private final static byte MAX_COLORES = 23;
 		
 	/**
-	 * Arreglo para saber si un contorno ha sido usado o no. La capacidad del arreglo se calcula con 2 niveles
-	 * de sumatoria desglosados. Se usan 3 porque es el mejor número de columnas (un left y dos tops).
-	 * Con 5 bits represento los 23 colores.
-	 */
-	public final boolean contornos_used[] = new boolean[
-	   (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
+	 * Arreglo para saber si un contorno ha sido usado o no. 
+	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
+	 * Por lo tanto voy a usar un arreglo de size:
+	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
 			   (MAX_COLORES * Math.pow(2, 5 * 1)) +
-			   (MAX_COLORES * Math.pow(2, 5 * 2)))];
+			   (MAX_COLORES * Math.pow(2, 5 * 2)))
+	 *  donde MAX_COLORES = 23, y con 5 bits represento los 23 colores.
+	 * Si fuera a usar 4 niveles de desglosamiento tengo q agregar una suma mas: (MAX_COLORES * Math.pow(2, 5 * 3))
+	 * Si fuera a usar 5 niveles de desglosamiento tengo q agregar una suma mas: (MAX_COLORES * Math.pow(2, 5 * 4))
+	 * Entonces:
+	 *   con 3 niveles (MAX_COLS=2): size es 24311
+	 *   con 4 niveles (MAX_COLS=3): size es 777975
+	 *   con 5 niveles (MAX_COLS=4): size es 24895223
+	 *   
+	 * Improvement en array size: solo es valido cuando manejo colores con valores 0..22: 
+	 *   22 en binario es 10110, y como voy usar 5 bits shifteados a derecha 0, 5, y 10 veces (y 15 si uso 4 niveles 
+	 *   de desglosamiento, y 20 si suso 5 niveles), entonces el num maximo de combinación sería:
+	 *     para 3 niveles (MAX_COLS=2): 10110 10110 10110 = 23254 y el size calculado era 24334.
+	 *     	 => me ahorro 1080 indices
+	 *     para 4 niveles (MAX_COLS=3): 10110 10110 10110 10110 = 744150 y el size calculado era 777975.
+	 *     	 => me ahorro 33825 indices
+	 *     para 5 niveles (MAX_COLS=4): 10110 10110 10110 10110 10110 = 23812822 y el size calculado era 24895223.
+	 *     	=> me ahorro 1082401 indices
+	 *     
+	 * Some stats:
+	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
+	 */
+	public final boolean contornos_used[] = new boolean[23254 + 1]; // le sumo uno pues 23254 es el último indice válido en 0-based
 	
 	/**
-	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero
+	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
 	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public final void inicializarContornos (ExploracionAction action)
+	public static final void inicializarContornos (Contorno contorno, Pieza[] tablero, int maxPiezas)
 	{
-		short[] tablero = action.tablero;
-		
 		// el limite inicial y el final me evitan los bordes sup e inf
-		for (int k=16; k < (SolverFaster.MAX_PIEZAS - 16); ++k)
+		for (int k=16; k < (maxPiezas - 16); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
-			if (tablero[k] == -1)
+			if (tablero[k] == null)
 				return;
 			
 			//borde izquierdo
@@ -74,7 +88,7 @@ public final class Contorno
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
 			for (int a=1; a < MAX_COLS; ++a) {
-				if (tablero[k+a] == -1)
+				if (tablero[k+a] == null)
 					return;
 			}
 			
@@ -86,29 +100,29 @@ public final class Contorno
 			switch (MAX_COLS)
 			{
 			case 2: {
-					int indexSup = getIndex(action.piezas[tablero[k]].left, action.piezas[tablero[k]].top, action.piezas[tablero[k+1]].top);
-					contornos_used[indexSup] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
+					contorno.contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(action.piezas[tablero[k+1-16]].right, action.piezas[tablero[k+1]].top, action.piezas[tablero[k]].top);
-						contornos_used[indexInf] = true;
+						int indexInf = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
+						contorno.contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 3: {
-					int indexSup = getIndex(action.piezas[tablero[k]].left, action.piezas[tablero[k]].top, action.piezas[tablero[k+1]].top, action.piezas[tablero[k+2]].top);
-					contornos_used[indexSup] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
+					contorno.contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(action.piezas[tablero[k+2-LADO]].right, action.piezas[tablero[k+2]].top, action.piezas[tablero[k+1]].top, action.piezas[tablero[k]].top);
-						contornos_used[indexInf] = true;
+						int indexInf = getIndex(tablero[k+2-LADO].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contorno.contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
 			case 4: {
-					int indexSup = getIndex(action.piezas[tablero[k]].left, action.piezas[tablero[k]].top, action.piezas[tablero[k+1]].top, action.piezas[tablero[k+2]].top, action.piezas[tablero[k+3]].top);
-					contornos_used[indexSup] = true;
+					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
+					contorno.contornos_used[indexSup] = true;
 					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(action.piezas[tablero[k+3-LADO]].right, action.piezas[tablero[k+3]].top, action.piezas[tablero[k+2]].top, action.piezas[tablero[k+1]].top, action.piezas[tablero[k]].top);
-						contornos_used[indexInf] = true;
+						int indexInf = getIndex(tablero[k+3-LADO].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
+						contorno.contornos_used[indexInf] = true;
 					}*/
 				}
 				break;
@@ -117,9 +131,9 @@ public final class Contorno
 		}
 	}
 	
-	public void resetContornos() {
-		for (int k=0; k < contornos_used.length; ++k) {
-			contornos_used[k] = false;
+	public static final void resetContornos(Contorno contorno) {
+		for (int k=0; k < contorno.contornos_used.length; ++k) {
+			contorno.contornos_used[k] = false;
 		}
 	}
 
@@ -146,4 +160,5 @@ public final class Contorno
 	{
 		return (pleft << 20) | (top1 << 15) | (top2 << 10) | (top3 << 5) | top4;
 	}
+	
 }
