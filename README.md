@@ -1,6 +1,6 @@
 eternity2_solver
 ==
-Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
+Java implementation of a backtracker solver for the Eternity II puzzle game released in August 2007.  
 Game finished in 2010 with no single person claiming the solution. Prize for any valid solution was 2 million usd.  
 
 | Linux | Windows |
@@ -60,8 +60,8 @@ Erik D. Demaine, Martin L. Demaine.
 MIT Computer Science and Artificial Intelligence Laboratory.
 
 - Optimizing Hash-Array Mapped Tries for Fast and Lean Immutable JVM Collections (2017). [link](https://michael.steindorfer.name/publications/oopsla15.pdf)  
-Michael J. Steindorfer - Centrum Wiskunde & Informatica, The Netherlands - Michael.Steindorfer@cwi.nl  
-Jurgen J. Vinju - Centrum Wiskunde & Informatica, The Netherlands - Jurgen.Vinju@cwi.nl  
+Michael J. Steindorfer - Centrum Wiskunde & Informatica, The Netherlands  
+Jurgen J. Vinju - Centrum Wiskunde & Informatica, The Netherlands  
 
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
