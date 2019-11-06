@@ -9,25 +9,33 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
-This project is managed with Maven 3.x. It provides several jar artifacts for java 6 to 12. Additionally, a maven profile and scripting instructions to compile a native image using Graal's SubstrateVM.  
+- The project is managed with **Maven 3.6.x**. If you don´t want to download and install Maven then use local `mvnw` alternative.  
+- It provides several jar artifacts from **Java 6 to 12**.  
+- Additionally, a maven profile and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
 
-The backtracker uses smart prunes, clever data structures for quickly accessing data, primitive and object arrays, and lot of micro optimizations.  
-There are two versions of the same solver: one using fork-join pool and other using MPI (for distributed execution).  
+The backtracker efficiency is backed by:
+- smart prunes
+- clever data structures for quickly accessing data
+- primitive arrays whenever possible to reduce memory usage
+- bitwise operations
+- micro optimizations
+
+There are two versions of the same solver: one using a **fork-join pool** and other using **MPI (for distributed execution)**.  
 The placement of tiles follows a row-scan schema from top-left to bottom-right.  
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:
+The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:  
 - *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board after it passes a series of filters. 
 Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
 - *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
   
 **Some stats:**
 
-- Environment Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
 Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
 Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
 
-- Environment Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
+- Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
 Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
 Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
