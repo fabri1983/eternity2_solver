@@ -51,23 +51,11 @@ public final class NodoPosibles
 	}
 
 	/**
-	 * Guarda la direccion address de 32 bits (int) dividida en 4 partes de 8 bits each en address_array 
-	 * en las diferentes posiciones dadas por top, right, bottom, y left.
+	 * Devuelve la clave asociada a esa combinación de 4 colores.
 	 */
-	public static final void addAddress (final byte top, final byte right, final byte bottom, final byte left, 
-			int[] address_array, int address)
+	public static final int getKey (final byte top, final byte right, final byte bottom, final byte left)
 	{
-		// NOTA: si address_array fuera de tipo bytes[] entonces tendría q usar >> así:
-		//  para top: (byte) (address >> 24)
-		//  para right: (byte) (address >> 16)
-		//  para bottom: (byte) (address >> 8)
-		//  para left: (byte) (address >> 0)
-		//  No haría falta aplicar & porque el casting a byte me toma 8 bits
-		
-		address_array[top] = address & 0xFF000000; // me quedo con los bits 31..24
-		address_array[right] = address & 0xFF0000; // me quedo con los bits 23..16
-		address_array[bottom] = address & 0xFF00;  // me quedo con los bits 15..8
-		address_array[left] = address & 0xFF;      // me quedo con los bits  7..0
+		return (top << 15) | (right << 10) | (bottom << 5) | left;
 	}
 	
 	public static final short getUbicPieza(final NodoPosibles np, short numero)
