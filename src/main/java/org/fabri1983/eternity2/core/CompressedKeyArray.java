@@ -2,8 +2,15 @@ package org.fabri1983.eternity2.core;
 
 public final class CompressedKeyArray {
 
-	public static final NodoPosibles[] setupCompressedkeyArray() {
-		NodoPosibles[] compressedKeyArray = new NodoPosibles[6954 + 1]; // +1 because I start mapping from 1 instead of 0
+	/**
+	 * Creates an array of ints where each position corresponds to a valid color between 0..maxColores.
+	 * Value of maxColores is also considered so the array is created with length = maxColores + 1.
+	 * Each position will store a byte (as an int) of an address (int) sliced in 4 bytes.
+	 * 
+	 * @return
+	 */
+	public static final int[] setupCompressedkeyArray(int maxColores) {
+		int[] compressedKeyArray = new int[maxColores + 1]; // +1 because I start mapping from 1 instead of 0
 		
 		return compressedKeyArray;
 	}
