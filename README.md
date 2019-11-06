@@ -1,5 +1,5 @@
 eternity2_solver
-================
+==
 Java implementation of a backtracker solver for the Eternity II board game released in August 2007.  
 Game finished in 2010 with no single person claiming the solution. Prize for any valid solution was 2 million usd.  
 
@@ -37,8 +37,8 @@ In the past, experiments showed that execution was faster using the JRockit JVM 
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.  
 
 
-Papers from where I took some ideas
------------------------------------
+Papers that have influenced algorithms and hacks used in the solver
+--
 
 - How many edges can be shared by N square tiles on a board? [link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
 Thierry Benoist, e-lab Research Report - April 2008.
@@ -51,9 +51,16 @@ Eric Bourreau, LIRMM, Montpellier.
 Erik D. Demaine, Martin L. Demaine.  
 MIT Computer Science and Artificial Intelligence Laboratory.
 
+- Optimizing Hash-Array Mapped Tries for Fast and Lean Immutable JVM Collections (2017). [link](https://michael.steindorfer.name/publications/oopsla15.pdf)  
+Michael J. Steindorfer - Centrum Wiskunde & Informatica, The Netherlands - Michael.Steindorfer@cwi.nl  
+Jurgen J. Vinju - Centrum Wiskunde & Informatica, The Netherlands - Jurgen.Vinju@cwi.nl  
+
+- Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
+Henry S. Warren, Jr.  
+
 
 Third party APIs
-----------------
+--
 **MPJ Express**. http://mpj-express.org/.  
 It is included in the project as a system dependency  
 
@@ -72,7 +79,7 @@ Helpful links:
 
 
 Generate Artifact
------------------
+--
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
 *Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` and `jsse.jar`, *comment* `jmods`.    
 
@@ -92,7 +99,7 @@ Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to 
 
 
 Execution
----------
+--
 First generate the artifact (previous section).  
 Go under tools folder and use one of the runXXX commands.  
 E.g.:
@@ -132,7 +139,7 @@ Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package gene
 
 
 Known issues
-------------
+--
 *Affects some JVM 8 builds:*  
 I'm having an exception when using the jpanel:  
 `java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
@@ -141,7 +148,7 @@ Work around for this issue if you are using OpenJDK 8 version prior to 112: *-Ds
 
 
 Using jdeps on generated jar to build custom JRE (Java 9+)
-----------------------------------------------------------
+--
 Use `jdeps` to know which java modules the final application needs to run.  
 Note that we are using `--multi-release=12`.  
 Then you can build a custom and smaller JRE.  
@@ -193,7 +200,7 @@ The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use i
 
 
 Build a Graal VM on Windows and run your jar
---------------------------------------------
+--
 We are going to build Graal VM for Windows platform.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
@@ -259,7 +266,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 
 Build a native image using Graal's SubstrateVM on Windows
----------------------------------------------------------
+--
 We are going to generate a native image to run our solver. No UI supported by the moment.
 
 - Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.2.0.1):
@@ -321,7 +328,7 @@ This will help you to decide which iso you need to download:
 
 
 Running with Avian JVM
-----------------------
+--
 I'm trying to improve the performance of code execution using other JVM implementations.
 Currently I'm taking a look to Avian JVM, under Windows environment.
 
@@ -374,3 +381,5 @@ Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 			- make full-platform=${platform} example
 		- exe file are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
 		- You can omit example target to let other targets be built: example, graphics, and paint
+
+
