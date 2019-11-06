@@ -48,22 +48,21 @@ public class ExploracionAction extends RecursiveAction {
 	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
 				(MAX_COLORES * Math.pow(2, 5 * 1)) +
 				(MAX_COLORES * Math.pow(2, 5 * 2)) +
-				(MAX_COLORES * Math.pow(2, 5 * 3)))
+				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
+	 *  donde MAX_COLORES = 23, y con 5 bits represento los 23 colores.
 	 * 
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezasy rotaciones 
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas y rotaciones 
 	 * que cumplen con esos colores.
 	 * 
 	 * After getting some stats:
-	 *   - total positions created = 777975
-	 *   - total empty positions =   771021
-	 *   - total used positions =      6954
+	 *   - array length          = 777975
+	 *   - total empty indexes   = 771021
+	 *   - total used indexes    =   6954
+	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
+	 *   - last used index: 777974
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
-	protected final NodoPosibles[] super_matriz = new NodoPosibles[
-  		  (int) ((SolverFaster.MAX_COLORES * Math.pow(2, 5 * 0)) +
-   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 1)) +
-   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 2)) +
-   				(SolverFaster.MAX_COLORES * Math.pow(2, 5 * 3)))];
+	protected final NodoPosibles[] super_matriz = new NodoPosibles[777975];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
