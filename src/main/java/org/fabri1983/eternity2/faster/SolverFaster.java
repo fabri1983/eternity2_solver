@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
 import org.fabri1983.eternity2.core.NodoPosibles;
-import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
@@ -319,69 +318,69 @@ public final class SolverFaster {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				int key1 = NodoPosiblesKeys.getKey(pz.top, pz.right, pz.bottom, pz.left);
+				int key1 = NodoPosibles.getKey(pz.top, pz.right, pz.bottom, pz.left);
 				if (get(action.super_matriz, key1) == null)
 					setNew(action.super_matriz, key1);
 				NodoPosibles.addReferencia(get(action.super_matriz, key1), pz, rot);
 				
 				//tengo tres colores y uno faltante
-				int key2 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, pz.bottom, pz.left);
+				int key2 = NodoPosibles.getKey(MAX_COLORES, pz.right, pz.bottom, pz.left);
 				if (get(action.super_matriz, key2) == null)
 					setNew(action.super_matriz, key2);
 				NodoPosibles.addReferencia(get(action.super_matriz, key2), pz, rot);
-				int key3 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, pz.bottom, pz.left);
+				int key3 = NodoPosibles.getKey(pz.top, MAX_COLORES, pz.bottom, pz.left);
 				if (get(action.super_matriz, key3) == null)
 					setNew(action.super_matriz, key3);
 				NodoPosibles.addReferencia(get(action.super_matriz, key3), pz, rot);
-				int key4 = NodoPosiblesKeys.getKey(pz.top, pz.right, MAX_COLORES, pz.left);
+				int key4 = NodoPosibles.getKey(pz.top, pz.right, MAX_COLORES, pz.left);
 				if (get(action.super_matriz, key4) == null)
 					setNew(action.super_matriz, key4);
 				NodoPosibles.addReferencia(get(action.super_matriz, key4), pz, rot);
-				int key5 = NodoPosiblesKeys.getKey(pz.top ,pz.right, pz.bottom, MAX_COLORES);
+				int key5 = NodoPosibles.getKey(pz.top ,pz.right, pz.bottom, MAX_COLORES);
 				if (get(action.super_matriz, key5) == null)
 					setNew(action.super_matriz, key5);
 				NodoPosibles.addReferencia(get(action.super_matriz, key5), pz, rot);
 				
 				//tengo dos colores y dos faltantes
-				int key6 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
+				int key6 = NodoPosibles.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
 				if (get(action.super_matriz, key6) == null)
 					setNew(action.super_matriz, key6);
 				NodoPosibles.addReferencia(get(action.super_matriz, key6), pz, rot);
-				int key7 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
+				int key7 = NodoPosibles.getKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
 				if (get(action.super_matriz, key7) == null)
 					setNew(action.super_matriz, key7);
 				NodoPosibles.addReferencia(get(action.super_matriz, key7), pz, rot);
-				int key8 = NodoPosiblesKeys.getKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
+				int key8 = NodoPosibles.getKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
 				if (get(action.super_matriz, key8) == null)
 					setNew(action.super_matriz, key8);
 				NodoPosibles.addReferencia(get(action.super_matriz, key8), pz, rot);
-				int key9 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
+				int key9 = NodoPosibles.getKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
 				if (get(action.super_matriz, key9) == null)
 					setNew(action.super_matriz, key9);
 				NodoPosibles.addReferencia(get(action.super_matriz, key9), pz, rot);
-				int key10 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
+				int key10 = NodoPosibles.getKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
 				if (get(action.super_matriz, key10) == null)
 					setNew(action.super_matriz, key10);
 				NodoPosibles.addReferencia(get(action.super_matriz, key10), pz, rot);
-				int key11 = NodoPosiblesKeys.getKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
+				int key11 = NodoPosibles.getKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
 				if (get(action.super_matriz, key11) == null)
 					setNew(action.super_matriz, key11);
 				NodoPosibles.addReferencia(get(action.super_matriz, key11), pz, rot);
 
 				//tengo un color y tres faltantes
-				int key12 = NodoPosiblesKeys.getKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
+				int key12 = NodoPosibles.getKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
 				if (get(action.super_matriz, key12) == null)
 					setNew(action.super_matriz, key12);
 				NodoPosibles.addReferencia(get(action.super_matriz, key12), pz, rot);
-				int key13 = NodoPosiblesKeys.getKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				int key13 = NodoPosibles.getKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
 				if (get(action.super_matriz, key13) == null)
 					setNew(action.super_matriz, key13);
 				NodoPosibles.addReferencia(get(action.super_matriz, key13), pz, rot);
-				int key14 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
+				int key14 = NodoPosibles.getKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
 				if (get(action.super_matriz, key14) == null)
 					setNew(action.super_matriz, key14);
 				NodoPosibles.addReferencia(get(action.super_matriz, key14), pz, rot);
-				int key15 = NodoPosiblesKeys.getKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
+				int key15 = NodoPosibles.getKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
 				if (get(action.super_matriz, key15) == null)
 					setNew(action.super_matriz, key15);
 				NodoPosibles.addReferencia(get(action.super_matriz, key15), pz, rot);

@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.NodoPosibles;
-import org.fabri1983.eternity2.core.NodoPosiblesKeys;
 import org.fabri1983.eternity2.core.Pieza;
 
 /**
@@ -597,12 +596,12 @@ public class ExploracionAction extends RecursiveAction {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
+				return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
 						SolverFaster.MAX_COLORES, piezas[SolverFaster.INDICE_P_CENTRAL].top, 
 						tablero[_cursor - 1].right));
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
+				return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
 						piezas[SolverFaster.INDICE_P_CENTRAL].left,
 						SolverFaster.MAX_COLORES,tablero[_cursor - 1].right));
 		}
@@ -611,26 +610,26 @@ public class ExploracionAction extends RecursiveAction {
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
+			return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
 					SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
+					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
 							SolverFaster.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
-					return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
+					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
 							SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, SolverFaster.GRIS));
 				// borde top
 				case SolverFaster.F_BORDE_TOP:
-					return get(NodoPosiblesKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
+					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
 							SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
 				//borde bottom
 				default:
-					return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
+					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
 							SolverFaster.MAX_COLORES, SolverFaster.GRIS, tablero[_cursor - 1].right));
 			}
 		}
@@ -639,19 +638,19 @@ public class ExploracionAction extends RecursiveAction {
 			switch (flag_m) {
 				//esquina top-left
 				case SolverFaster.F_ESQ_TOP_LEFT:
-					return get(NodoPosiblesKeys.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
+					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
 							SolverFaster.MAX_COLORES, SolverFaster.GRIS));
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return get(NodoPosiblesKeys.getKey(SolverFaster.GRIS, SolverFaster.GRIS, 
+					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.GRIS, 
 							SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-					return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
+					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
 							SolverFaster.MAX_COLORES, SolverFaster.GRIS, SolverFaster.GRIS));
 					//esquina bottom-right
 				default:
-					return get(NodoPosiblesKeys.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
+					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
 							SolverFaster.GRIS, SolverFaster.GRIS, tablero[_cursor - 1].right));
 			}
 		}
