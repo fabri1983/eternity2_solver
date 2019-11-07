@@ -58,6 +58,22 @@ public final class NodoPosibles
 		return (top << 15) | (right << 10) | (bottom << 5) | left;
 	}
 	
+	public static final byte getTop(final int key) {
+		return (byte) (key >> 15);
+	}
+	
+	public static final byte getRight(final int key) {
+		return (byte) (key >> 10);
+	}
+	
+	public static final byte getBottom(final int key) {
+		return (byte) (key >> 5);
+	}
+	
+	public static final byte getLeft(final int key) {
+		return (byte) (key);
+	}
+	
 	public static final short getUbicPieza(final NodoPosibles np, short numero)
 	{
 		for (short i=0, c=(short)np.referencias.length; i < c; ++i) {

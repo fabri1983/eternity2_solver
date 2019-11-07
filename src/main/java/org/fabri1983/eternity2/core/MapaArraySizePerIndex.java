@@ -62,6 +62,7 @@ public class MapaArraySizePerIndex {
 	}
 	
 	private void load1() {
+		// NOTE: keys with value 1 were removed to save mem and load time
 		map.put(777974, 50);
 		map.put(777973, 50);
 		map.put(777972, 50);
@@ -879,6 +880,7 @@ public class MapaArraySizePerIndex {
 	}
 	
 	private void load2() {
+		// NOTE: keys with value 1 were removed to save mem and load time
 		map.put(758391, 4);
 		map.put(758359, 2);
 		map.put(758295, 3);
@@ -1335,6 +1337,7 @@ public class MapaArraySizePerIndex {
 	}
 	
 	private void load3() {
+		// NOTE: keys with value 1 were removed to save mem and load time
 		map.put(529143, 3);
 		map.put(528119, 3);
 		map.put(527095, 2);
@@ -1726,6 +1729,7 @@ public class MapaArraySizePerIndex {
 	}
 	
 	private void load4() {
+		// NOTE: keys with value 1 were removed to save mem and load time
 		map.put(252951, 4);
 		map.put(252663, 2);
 		map.put(251639, 4);
