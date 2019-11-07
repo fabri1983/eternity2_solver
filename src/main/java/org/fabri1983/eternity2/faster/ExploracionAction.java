@@ -42,23 +42,23 @@ public class ExploracionAction extends RecursiveAction {
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
-	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left. Cada color se codifica con 5 bits.
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo contempla colores top,right,bottom,left.
+	 * Cantidad de combinaciones:
 	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
 				(MAX_COLORES * Math.pow(2, 5 * 1)) +
 				(MAX_COLORES * Math.pow(2, 5 * 2)) +
 				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
-	 *  donde MAX_COLORES = 23, y con 5 bits represento los 23 colores.
+	 *  donde MAX_COLORES = 23, y usando 5 bits para representar los 23 colores.
 	 * 
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas y rotaciones 
-	 * que cumplen con esos colores.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene instancia de NodoPosibles 
+	 * la cual brinda arrays de piezas y rotaciones que cumplen con esa combinación particular de colores.
 	 * 
 	 * After getting some stats:
-	 *   - array length          = 777975
+	 *   - array length          = 777975  (last used index is 777974)
 	 *   - total empty indexes   = 771021
 	 *   - total used indexes    =   6954
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
-	 *   - last used index: 777974
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 */
 	protected final NodoPosibles[] super_matriz = new NodoPosibles[777975];
