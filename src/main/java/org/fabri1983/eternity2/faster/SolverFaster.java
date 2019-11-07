@@ -44,48 +44,48 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForTilesFile;
 
 public final class SolverFaster {
 	
-	protected static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
-	protected static int NUM_PROCESSES = 1;
-	protected static ExploracionAction actions[];
-	protected static CountDownLatch startSignal;
-    protected static CountDownLatch doneSignal;
+	static int POSICION_START_FORK_JOIN = -1; //(99) posición del tablero en la que se aplica fork/join
+	static int NUM_PROCESSES = 1;
+	static ExploracionAction actions[];
+	static CountDownLatch startSignal;
+    static CountDownLatch doneSignal;
     
-	protected static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
-	protected static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
-	protected static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
-	protected static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
+	static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
+	static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
+	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
+	static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
 	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
-	protected final static int LADO= 16;
-	protected final static int LADO_SHIFT_AS_DIVISION = 4;
+	final static int LADO= 16;
+	final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
 	public final static int INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
-	protected final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
-	protected final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
-	protected final static byte F_ESQ_TOP_LEFT= 11;
-	protected final static byte F_ESQ_TOP_RIGHT= 22;
-	protected final static byte F_ESQ_BOTTOM_RIGHT= 33;
-	protected final static byte F_ESQ_BOTTOM_LEFT= 44;
-	protected final static byte F_INTERIOR= 55;
-	protected final static byte F_BORDE_TOP= 66;
-	protected final static byte F_BORDE_RIGHT= 77;
-	protected final static byte F_BORDE_BOTTOM= 88;
-	protected final static byte F_BORDE_LEFT= 99;
-	protected final static byte GRIS=0;
-	protected final static byte MAX_ESTADOS_ROTACION= 4;
-	protected final static int CURSOR_INVALIDO= -5;
-	protected final static byte MAX_COLORES= 23;
-	protected final static String SECCIONES_SEPARATOR_EN_FILE= " ";
-	protected final static String FILE_EXT = ".txt";
-	protected final static String NAME_FILE_PIEZAS = "e2pieces" + FILE_EXT;
-	protected final static String NAME_FILE_SOLUCION = "solution/soluciones";
-	protected final static String NAME_FILE_DISPOSICION = "solution/disposiciones";
-	protected final static String NAME_FILE_STATUS = "status/status_saved";
-	protected final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX";
-	protected final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
-	protected final static String NAME_FILE_PARCIAL = "status/parcial";
-	protected final static String NAME_FILE_LIBRES_MAX = "status/libresMAX";
-	protected static int LIMITE_RESULTADO_PARCIAL = 211; // por defecto
+	final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
+	final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
+	final static byte F_ESQ_TOP_LEFT= 11;
+	final static byte F_ESQ_TOP_RIGHT= 22;
+	final static byte F_ESQ_BOTTOM_RIGHT= 33;
+	final static byte F_ESQ_BOTTOM_LEFT= 44;
+	final static byte F_INTERIOR= 55;
+	final static byte F_BORDE_TOP= 66;
+	final static byte F_BORDE_RIGHT= 77;
+	final static byte F_BORDE_BOTTOM= 88;
+	final static byte F_BORDE_LEFT= 99;
+	final static byte GRIS=0;
+	final static byte MAX_ESTADOS_ROTACION= 4;
+	final static int CURSOR_INVALIDO= -5;
+	final static byte MAX_COLORES= 23;
+	final static String SECCIONES_SEPARATOR_EN_FILE= " ";
+	final static String FILE_EXT = ".txt";
+	final static String NAME_FILE_PIEZAS = "e2pieces" + FILE_EXT;
+	final static String NAME_FILE_SOLUCION = "solution/soluciones";
+	final static String NAME_FILE_DISPOSICION = "solution/disposiciones";
+	final static String NAME_FILE_STATUS = "status/status_saved";
+	final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX";
+	final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
+	final static String NAME_FILE_PARCIAL = "status/parcial";
+	final static String NAME_FILE_LIBRES_MAX = "status/libresMAX";
+	static int LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
@@ -93,13 +93,13 @@ public final class SolverFaster {
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
 	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
-	protected final static AtomicIntegerArray arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
+	final static AtomicIntegerArray arr_color_rigth_explorado = new AtomicIntegerArray(LADO);
 	
-	protected static boolean retroceder, FairExperimentGif, usarTableroGrafico;
-	protected static int cellPixelsLado, tableboardRefreshMillis;
-	protected static boolean flag_retroceder_externo, usar_poda_color_explorado;
-	protected final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
-	protected final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
+	static boolean retroceder, FairExperimentGif, usarTableroGrafico;
+	static int cellPixelsLado, tableboardRefreshMillis;
+	static boolean flag_retroceder_externo, usar_poda_color_explorado;
+	final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
+	final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
 	
 	private static ReaderForTilesFile readerForTilesFile;
 	

@@ -55,23 +55,25 @@ public final class NodoPosibles
 	 */
 	public static final int getKey (final byte top, final byte right, final byte bottom, final byte left)
 	{
+		// here we don't apply & since we assume that the color value is clean (has no 
+		// leading 1s due to any previous shifting operation)
 		return (top << 15) | (right << 10) | (bottom << 5) | left;
 	}
 	
 	public static final byte getTop(final int key) {
-		return (byte) (key >> 15);
+		return (byte) ((key >> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
 	}
 	
 	public static final byte getRight(final int key) {
-		return (byte) (key >> 10);
+		return (byte) ((key >> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
 	}
 	
 	public static final byte getBottom(final int key) {
-		return (byte) (key >> 5);
+		return (byte) ((key >> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
 	}
 	
 	public static final byte getLeft(final int key) {
-		return (byte) (key);
+		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
 	}
 	
 	public static final short getUbicPieza(final NodoPosibles np, short numero)
