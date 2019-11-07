@@ -33,7 +33,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
+import org.fabri1983.eternity2.core.NodoPosiblesMapSizePerIndex;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
@@ -231,7 +231,7 @@ public final class SolverFasterMPJE {
 		inicializarZonaProcContornos();
 		
 		// cargar mapa de indice -> size de arreglos para NodoPosibles
-		MapaArraySizePerIndex.getInstance().load();
+		NodoPosiblesMapSizePerIndex.getInstance().load();
 		
 		cargarPiezas();
 		
@@ -262,7 +262,7 @@ public final class SolverFasterMPJE {
 			tableboardE2.startPainting();
 		
 		// limpiar mapa de indices -> size de arreglos para NodoPosibles
-		MapaArraySizePerIndex.getInstance().clean();
+		NodoPosiblesMapSizePerIndex.getInstance().clean();
 		
 		// this call avoids a OutOfHeapMemory error
 		System.gc();

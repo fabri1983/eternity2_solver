@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.MapaArraySizePerIndex;
+import org.fabri1983.eternity2.core.NodoPosiblesMapSizePerIndex;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
@@ -956,7 +956,7 @@ public final class SolverFaster {
 		inicializarZonaProcesoContornos();
 		
 		// cargar mapa de indice -> size de arreglos para NodoPosibles
-		MapaArraySizePerIndex.getInstance().load();
+		NodoPosiblesMapSizePerIndex.getInstance().load();
 		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];
@@ -977,7 +977,7 @@ public final class SolverFaster {
 		}
 		
 		// limpiar mapa de indices -> size de arreglos para NodoPosibles
-		MapaArraySizePerIndex.getInstance().clean();
+		NodoPosiblesMapSizePerIndex.getInstance().clean();
 		
 		// this call avoids a OutOfHeapMemory error
 		System.gc();

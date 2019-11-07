@@ -84,7 +84,7 @@ public final class NodoPosibles
 	}
 
 	private static void setSizesByKey(NodoPosibles np, int key) {
-		int size = MapaArraySizePerIndex.getInstance().getSizeForKey(key);
+		int size = NodoPosiblesMapSizePerIndex.getInstance().getSizeForKey(key);
 		np.referencias = new Pieza[size];
 		np.rots = new byte[size];
 	}
