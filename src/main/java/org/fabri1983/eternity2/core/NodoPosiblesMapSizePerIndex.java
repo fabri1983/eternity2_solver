@@ -32,19 +32,14 @@ import java.util.Map;
  * Given the fact that all possible keys are known, then we can remove those entries which have a value of 1, 
  * and so return 1 when the key is missing. This decrease the size of methods and the size of the map as well.
  */
-public class MapaArraySizePerIndex {
+public class NodoPosiblesMapSizePerIndex {
 
-	private static MapaArraySizePerIndex instance = new MapaArraySizePerIndex();
+	private static NodoPosiblesMapSizePerIndex instance = new NodoPosiblesMapSizePerIndex();
 	
 	private Map<Integer, Integer> map;
 	
-	public static MapaArraySizePerIndex getInstance() {
+	public static NodoPosiblesMapSizePerIndex getInstance() {
 		return instance;
-	}
-	
-	public void clean() {
-		map.clear();
-		map = null;
 	}
 	
 	public int getSizeForKey(int key) {
@@ -55,13 +50,8 @@ public class MapaArraySizePerIndex {
 	
 	public void load() {
 		map = new HashMap<>((int)(2018 / 0.75) + 1); // 2018 = 6954 - 4936(keys with array size = 1)
-		load1();
-		load2();
-		load3();
-		load4();
-	}
-	
-	private void load1() {
+
+		// NOTE: keys with value 1 were removed to save mem and load time
 		map.put(777974, 50);
 		map.put(777973, 50);
 		map.put(777972, 50);
@@ -876,9 +866,6 @@ public class MapaArraySizePerIndex {
 		map.put(758496, 4);
 		map.put(758487, 5);
 		map.put(758455, 3);
-	}
-	
-	private void load2() {
 		map.put(758391, 4);
 		map.put(758359, 2);
 		map.put(758295, 3);
@@ -1332,9 +1319,6 @@ public class MapaArraySizePerIndex {
 		map.put(537335, 2);
 		map.put(535287, 5);
 		map.put(531191, 5);
-	}
-	
-	private void load3() {
 		map.put(529143, 3);
 		map.put(528119, 3);
 		map.put(527095, 2);
@@ -1723,9 +1707,6 @@ public class MapaArraySizePerIndex {
 		map.put(253047, 4);
 		map.put(253046, 2);
 		map.put(253015, 2);
-	}
-	
-	private void load4() {
 		map.put(252951, 4);
 		map.put(252663, 2);
 		map.put(251639, 4);
@@ -2089,6 +2070,11 @@ public class MapaArraySizePerIndex {
 		map.put(759, 4);
 		map.put(753, 2);
 		map.put(55, 2);
+	}
+
+	public void clean() {
+		map.clear();
+		map = null;
 	}
 	
 }

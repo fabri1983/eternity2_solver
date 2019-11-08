@@ -42,26 +42,31 @@ public class ExploracionAction extends RecursiveAction {
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
-	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la recursividad de 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo usa top,right,bottom,left. Cada color se codifica con 5 bits.
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo contempla colores top,right,bottom,left.
+	 * Cantidad de combinaciones:
 	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
 				(MAX_COLORES * Math.pow(2, 5 * 1)) +
 				(MAX_COLORES * Math.pow(2, 5 * 2)) +
 				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
-	 *  donde MAX_COLORES = 23, y con 5 bits represento los 23 colores.
+	 *  donde MAX_COLORES = 23, y usando 5 bits para representar los 23 colores.
 	 * 
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene array de piezas y rotaciones 
-	 * que cumplen con esos colores.
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene instancia de NodoPosibles 
+	 * la cual brinda arrays de piezas y rotaciones que cumplen con esa combinación particular de colores.
 	 * 
 	 * After getting some stats:
-	 *   - array length          = 777975
+	 *   - array length          = 777975  (last used index is 777974)
 	 *   - total empty indexes   = 771021
 	 *   - total used indexes    =   6954
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
-	 *   - last used index: 777974
 	 * Ver archivo misc/super_matriz_indexes.txt
+	 * 
+	 * IMPROVEMENT FINAL: 
+	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975,
+	 * and it uses less memory and the access times is the same than the previous big array.
 	 */
-	protected final NodoPosibles[] super_matriz = new NodoPosibles[777975];
+	protected final NodoPosibles[][][][] super_matriz = new NodoPosibles
+			[SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
@@ -593,44 +598,40 @@ public class ExploracionAction extends RecursiveAction {
 	 */
 	final NodoPosibles obtenerPosiblesPiezas(int _cursor)
 	{
+        final int lado = SolverFaster.LADO;
+        final byte maxColores = SolverFaster.MAX_COLORES;
+        final byte gris = SolverFaster.GRIS;
+        final int indicePcentral = SolverFaster.INDICE_P_CENTRAL;
+        
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
-						SolverFaster.MAX_COLORES, piezas[SolverFaster.INDICE_P_CENTRAL].top, 
-						tablero[_cursor - 1].right));
+				return super_matriz[tablero[_cursor - lado].bottom][maxColores][piezas[indicePcentral].top][tablero[_cursor - 1].right];
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
-						piezas[SolverFaster.INDICE_P_CENTRAL].left,
-						SolverFaster.MAX_COLORES,tablero[_cursor - 1].right));
+				return super_matriz[tablero[_cursor - lado].bottom][piezas[indicePcentral].left][maxColores][tablero[_cursor - 1].right];
 		}
 		
 		final int flag_m = SolverFaster.matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
-					SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
+			return super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][tablero[_cursor - 1].right];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
-							SolverFaster.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
+					return super_matriz[tablero[_cursor - lado].bottom][gris][maxColores][tablero[_cursor - 1].right];
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
-					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
-							SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, SolverFaster.GRIS));
+					return super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][gris];
 				// borde top
 				case SolverFaster.F_BORDE_TOP:
-					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
-							SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
+					return super_matriz[gris][maxColores][maxColores][tablero[_cursor - 1].right];
 				//borde bottom
 				default:
-					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
-							SolverFaster.MAX_COLORES, SolverFaster.GRIS, tablero[_cursor - 1].right));
+					return super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][tablero[_cursor - 1].right];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -638,26 +639,18 @@ public class ExploracionAction extends RecursiveAction {
 			switch (flag_m) {
 				//esquina top-left
 				case SolverFaster.F_ESQ_TOP_LEFT:
-					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.MAX_COLORES,
-							SolverFaster.MAX_COLORES, SolverFaster.GRIS));
+					return super_matriz[gris][maxColores][maxColores][gris];
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return get(NodoPosibles.getKey(SolverFaster.GRIS, SolverFaster.GRIS, 
-							SolverFaster.MAX_COLORES, tablero[_cursor - 1].right));
+					return super_matriz[gris][gris][maxColores][tablero[_cursor - 1].right];
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom,
-							SolverFaster.MAX_COLORES, SolverFaster.GRIS, SolverFaster.GRIS));
+					return super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][gris];
 					//esquina bottom-right
 				default:
-					return get(NodoPosibles.getKey(tablero[_cursor - SolverFaster.LADO].bottom, 
-							SolverFaster.GRIS, SolverFaster.GRIS, tablero[_cursor - 1].right));
+					return super_matriz[tablero[_cursor - lado].bottom][gris][gris][tablero[_cursor - 1].right];
 			}
 		}
-	}
-
-	private final NodoPosibles get(int key) {
-		return super_matriz[key];
 	}
 	
 	/**

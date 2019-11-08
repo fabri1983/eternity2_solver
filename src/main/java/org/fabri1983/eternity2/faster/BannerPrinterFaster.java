@@ -14,7 +14,6 @@ public class BannerPrinterFaster {
 		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
 		msgBuilder.append(" Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)  ").append(lineSeparator);
 		msgBuilder.append("------------------------------------------------------------").append(lineSeparator);
-		msgBuilder.append(lineSeparator);
 		System.out.println(msgBuilder.toString());
 	}
 	

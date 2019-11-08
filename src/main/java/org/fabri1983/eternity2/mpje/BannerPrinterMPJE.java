@@ -17,8 +17,7 @@ public class BannerPrinterMPJE {
 		msgBuilder.append("    Copyright(c) 2019 Fabricio Lettieri (fabri1983@gmail.com)     ").append(lineSeparator);
 		msgBuilder.append("------------------------------------------------------------------").append(lineSeparator);
 		msgBuilder.append(lineSeparator);
-		msgBuilder.append("Total procs: " + MPI.COMM_WORLD.Size());
-		msgBuilder.append(lineSeparator);
+		msgBuilder.append("Total procs: " + MPI.COMM_WORLD.Size()).append(lineSeparator);
 		System.out.println(msgBuilder.toString());
 	}
 	

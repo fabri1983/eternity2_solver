@@ -40,6 +40,12 @@ hs_err_pid*
 .settings/
 .project
 
+##########################
+# eternity2_solver project
+##########################
+status/
+solution/
+
 #########
 # Others
 #########
