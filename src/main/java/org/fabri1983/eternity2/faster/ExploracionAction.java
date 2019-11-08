@@ -38,7 +38,7 @@ public class ExploracionAction extends RecursiveAction {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected String statusFileName, parcialFileName, parcialMaxFileName, 
+	String statusFileName, parcialFileName, parcialMaxFileName, 
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
 	/**
@@ -65,19 +65,19 @@ public class ExploracionAction extends RecursiveAction {
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975,
 	 * and it uses less memory and the access times is the same than the previous big array.
 	 */
-	protected final NodoPosibles[][][][] super_matriz = new NodoPosibles
+	final NodoPosibles[][][][] super_matriz = new NodoPosibles
 			[SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1];
 	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
 	
 	public int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	protected final short[] desde_saved = new short[SolverFaster.MAX_PIEZAS];
+	final short[] desde_saved = new short[SolverFaster.MAX_PIEZAS];
 	private final Contorno contorno = new Contorno();
-	protected boolean retroceder; // indica si debo volver estados de backtracking
+	boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
-	protected boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
-	protected int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
+	boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
+	int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
 	
 	private long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 	private long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
