@@ -138,6 +138,22 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>java11</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<source.version>1.8</source.version>
+				<compiler.version>11</compiler.version>
+				<release>11</release>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
+				<pg.compiler.version>11</pg.compiler.version>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
+				<env.props.file>forkjoin.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<id>java12</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
