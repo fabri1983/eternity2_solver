@@ -99,7 +99,7 @@ It generates the jar file with **default profile java8** and copy the external d
 Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java8`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
+- `java8`, `java11`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
