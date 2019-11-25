@@ -170,16 +170,16 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>java12benchmark</id>
+			<id>benchmark</id>
 			<properties>
 				<final.jar.name>e2solver_benchmark</final.jar.name>
 				<source.version>1.8</source.version>
-				<compiler.version>12</compiler.version>
-				<release>12</release>
+				<compiler.version>11</compiler.version>
+				<release>11</release>
 				<shade.exclusion.filter.1>dummy/package/name</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
-				<pg.compiler.version>12</pg.compiler.version>
+				<pg.compiler.version>11</pg.compiler.version>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.benchmark.MainFasterBenchmark</manifest.main.class>
 				<env.props.file>forkjoin.properties</env.props.file>
