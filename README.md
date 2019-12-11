@@ -270,7 +270,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
     	
     We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
 
-    In order to use the AOT compiled (native) Graal compiler when loading the JVM Hotspot, use the following options:  
+    In order to use the AOT compiled (native) GraalVM JIT compiler when loading the JVM Hotspot, use the following options:  
 -XX:+UseJVMCICompiler -XX:+UseJVMCINativeLibrary
 
 - See also https://github.com/neomatrix369/awesome-graal/tree/master/build/x86_64/linux_macos
