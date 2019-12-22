@@ -99,10 +99,10 @@ It generates the jar file with **default profile java8** and copy the external d
 Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
 
 **Profiles (use -P)**
-- `java8`, `java11`, `java12`: for execution with either JVM. Creates `e2solver.jar`.
+- `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
-- `java8native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
+- `java8native`, `java11native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
 
 
@@ -140,10 +140,10 @@ E.g.:
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java8*, and *java12*.  
+Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
 Use `run_jrockit.bat/sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
 Use `run_mpje_[multicore|cluster].bat/sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
-Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *java12benchmark*.  
+Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
 Known issues
@@ -164,25 +164,25 @@ Then you can build a custom and smaller JRE.
 - *NOTE*: depending on the maven profile you use to geenrate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje`, `e2solver_jrockit`. 
 
 - Windows:
-```bash
+```sh
 jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps ^
   -cp target\libs\*;target\libs\javamail-1.4.5\lib\*;target\libs\mpj-v0_44\lib\* target\e2solver.jar
 ```
 
 - Linux:
-```bash
+```sh
 jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps \
   -cp target/libs/*:target/libs/javamail-1.4.5/lib/*:target/libs/mpj-v0_44/lib/* target/e2solver.jar
 ```
 
 - Example Output:
-```bash
+```sh
 java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
 ```
 
 - Use ouput modules to build a smaller JRE:
 	- Windows:
-	```bash
+	```sh
 	jlink ^
 	     --module-path %JAVA_HOME%\jmods ^
 	     --compress=2 ^
@@ -194,7 +194,7 @@ java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
 	```
 
 	- Linux:
-	```bash
+	```sh
 	jlink \
 	     --module-path ${JAVA_HOME}/jmods \
 	     --compress=2 \
@@ -208,14 +208,15 @@ The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use i
 
 
 Build a Graal VM on Windows and run your jar
---
-We are going to build Graal VM for Windows platform.
-- Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win (in this example I downloaded the one with OpenJ9).
-- Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later) This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
+--------------------------------------------
+We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.2.0.1 so far**.
+- Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
+- Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
-- Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.2.0.1):
+- Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
+	- https://github.com/graalvm/labs-openjdk-11
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (I use the java8 version)
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -244,7 +245,7 @@ We are going to build Graal VM for Windows platform.
 	- you will need python2.7 to be in your PATH.
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\openjdk-11.0.2+9_openj9-0.12.1
+	SET JAVA_HOME=c:\java\openjdk-11.0.5+10
 	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-19.2.0.1
 	cd compiler
 	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
@@ -252,34 +253,39 @@ We are going to build Graal VM for Windows platform.
 	```
 - Run your jar with Graal VM
 	```sh
-	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.faster.MainFasterWithUI  <-- with UI support
-	or
-	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.faster.MainFaster        <-- no UI support
+	mx -v vm -cp e2solver.jar org.fabri1983.eternity2.faster.MainFasterNative     <-- no UI support
 	```
 - **Optional**: Using the Graal compiler with your JVMCI enabled JVM:
-Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.
+Now we’re going to use the Graal that we just built as our JIT-compiler in our Java 11 JVM. We need to add some more complicated flags here.  
     
-    --module-path=... and --upgrade-module-path=... add Graal to the module path. 
-    Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like the classpath for our purposes here.
+    --module-path=... and --upgrade-module-path=... add Graal to the module path.  
+    Remember that the module path is new in Java 9 as part of the Jigsaw module system, and you can think of it as being like 
+    the classpath for our purposes here.  
     
-    We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.
+    We need -XX:+UnlockExperimentalVMOptions because JVMCI (the interface that Graal uses) is just experimental at this stage.  
     
-    We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use it and to install a new JIT compiler.
-    By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation). 
-    To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line. To disable use of Graal altogether, use -XX:-EnableJVMCI.
+    We then use -XX:+EnableJVMCI to say that we want to use JVMCI, and -XX:+UseJVMCICompiler to say that we actually want to use 
+    it and to install a new JIT compiler.  
+    By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation).  
+    To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line.  
+    To disable use of Graal altogether, use -XX:-EnableJVMCI.  
     	
-    We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, rather than using C1 and then the JVMCI compiler in tiered compilation.
+    We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, 
+    rather than using C1 and then the JVMCI compiler in tiered compilation.  
+
+    In order to use the AOT compiled (native) GraalVM JIT compiler when loading the JVM Hotspot, use the following options:  
+	-XX:+UseJVMCICompiler -XX:+UseJVMCINativeLibrary
 
 - See also https://github.com/neomatrix369/awesome-graal/tree/master/build/x86_64/linux_macos
 
 
 Build a native image using Graal's SubstrateVM on Windows
---
-We are going to generate a native image to run our solver. No UI supported by the moment.
-
-- Install a Open JDK 1.8 or Windows GraalVM Early Adopter based on JDK 1.8 with support for JVMCI (currently 19.2.0.1):
+---------------------------------------------------------
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM 19.2.0.1 so far**.
+- Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://www.oracle.com/technetwork/graalvm/downloads/index.html
+	- https://github.com/graalvm/labs-openjdk-11
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (I use the java8 version)
 - You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
 This will help you to decide which iso you need to download:
 	- GRMSDK_EN_DVD.iso is a version for x86 environment.
@@ -306,14 +312,16 @@ This will help you to decide which iso you need to download:
 	HelloWorld
 	```
 - Building a native image for eternity 2 solver:
-	- Build the project with the native profile:
-	```bash
+	- Build the project with the native profile (select the one according your installed version of GraalVM):
+	```sh
 	mvn clean package -P java8native
+	or
+	mvn clean package -P java11native
 	```
 	- Build the static image
-	```shjava8native
+	```
 	cd target
-	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces -J-Xms1400m -J-Xmx1400m -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces -J-Xms1700m -J-Xmx1700m -H:InitialCollectionPolicy="com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime" -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
@@ -331,12 +339,13 @@ This will help you to decide which iso you need to download:
 	- Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
 	- Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
 	- Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
-	- See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692.
+	- See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
 	- See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
-
+	- To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with -H:-UseServiceLoaderFeature. That's where this is triggered from. You can also use -H:+TraceServiceLoaderFeature to see all the classes processed by this feature.
+	- 
 
 Running with Avian JVM
---
+----------------------
 I'm trying to improve the performance of code execution using other JVM implementations.
 Currently I'm taking a look to Avian JVM, under Windows environment.
 
