@@ -323,7 +323,7 @@ This will help you to decide which iso you need to download:
 	- Build the static image
 	```
 	cd target
-	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces -J-Xms1700m -J-Xmx1700m -H:InitialCollectionPolicy="com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime" -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:Optimize=2 -H:CPUFeatures=HT,MMX,SSE,SSE2,SSE3,SSSE3,SSE4_1,SSE4_2,AES,AVX -H:+ReportExceptionStackTraces -J-Xms1700m -J-Xmx1700m -H:InitialCollectionPolicy="com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime" -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
