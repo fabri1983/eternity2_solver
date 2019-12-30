@@ -120,8 +120,8 @@ public final class SolverFasterMPJE {
 	 * Ver archivo misc/super_matriz_indexes.txt
 	 * 
 	 * IMPROVEMENT FINAL: 
-	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975,
-	 * and it uses less memory and the access times is the same than the previous big array.
+	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
+	 * It uses less memory and the access time is the same than the previous big array.
 	 */
 	private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 			[MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
