@@ -218,7 +218,7 @@ We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.0.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11
-	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (I use the java8 version)
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (choose either java8 or java11 version)
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -248,7 +248,7 @@ We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.0.
 	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\openjdk-11.0.5+10
-	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-19.3.0.2
+	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-19.3.0.2  or  c:\java\graalvm-ee-java11-19.3.0.2
 	cd compiler
 	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
 	mx vm -version
@@ -287,25 +287,31 @@ We are going to generate a native image to run our solver. No UI supported by th
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11
-	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (I use the java8 version)
-- You will need Python 2.7 (https://www.python.org/downloads/release/python-2715/) and Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442).
+	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (choose either java8 or java11 versions)
+- You need Python 2.7 (https://www.python.org/downloads/release/python-2715/).
+- You need Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442) for building against GraalVM Java8.
 This will help you to decide which iso you need to download:
 	- GRMSDK_EN_DVD.iso is a version for x86 environment.
 	- GRMSDKIAI_EN_DVD.iso is a version for Itanium environment.
 	- GRMSDKX_EN_DVD.iso is a version for x64 environment. (This one is for an AMD64 architecture)
-- Install Windows SDK for Windows 7 from the download ISO.
+- Install Windows SDK for Windows 7 from the downloaded ISO.
 	- If setup shows a warning message saying missing NET 4.x Framework tools then ignore it, and once installed install this:
 		https://www.microsoft.com/en-us/download/details.aspx?id=4422
 	- See this link for troubleshooting installation issues:
 		https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
+- You need Build Tools for Visual Studio 2017 (https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads) for building against GraalVM Java11.
+- Install Build Tolls for Visual Studio 2017.
 - Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
 	Open a console:
-		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
-		or
-		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=C:\java\graalvm-ee-java8-19.3.0.2
+		For Java8 targets
+			open the **Windows SDK 7.1 Command Prompt** going to Start -> Programs -> Microsoft Windows SDK v7.1
+			(or open a cmd console and run: call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd")
+		For Java11 targets:
+			open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
+			(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall x64)
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-19.3.0.2  or  C:\java\graalvm-ee-java11-19.3.0.2
 	cd substratevm
 	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
