@@ -32,7 +32,7 @@ public final class NodoPosibles
 	
 	public static NodoPosibles newForKey(int key) {
 		NodoPosibles np = new NodoPosibles();
-		setSizesByKey(np, key);
+		setSizeByKey(np, key);
 		return np;
 	}
 	
@@ -78,22 +78,27 @@ public final class NodoPosibles
 	
 	public static final short getUbicPieza(final NodoPosibles np, short numero)
 	{
-		for (short i=0, c=(short)np.referencias.length; i < c; ++i) {
+		for (int i=0, c=np.referencias.length; i < c; ++i) {
 			if (np.referencias[i].numero == numero)
-				return i;
+				return (short)i;
 		}
 		return 0;
 	}
 
-	private static void setSizesByKey(NodoPosibles np, int key) {
+	private static void setSizeByKey(NodoPosibles np, int key) {
 		int size = NodoPosiblesMapSizePerIndex.getInstance().getSizeForKey(key);
 		np.referencias = new Pieza[size];
 		np.rots = new byte[size];
+		// initialize referencias with -1
+//		for (int i=0; i < size; ++i) {
+//			np.referencias[i] = -1;
+//		}
 	}
 
 	private static int getNextFreeIndex(final NodoPosibles np) {
 		int nextIndex = 0;
 		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
+//			if (np.referencias[nextIndex] == -1)
 			if (np.referencias[nextIndex] == null)
 				break;
 		}
@@ -101,29 +106,29 @@ public final class NodoPosibles
 	}
 	
 	/**
-	 * Converts an integer to a 32-bit binary string.
+	 * Converts an integer to a 32-bit binary string with the desired number of bits.
 	 * 
 	 * <pre>
 	 * Eg:
-	 * number = 5463, n = 32
+	 * number = 5463, b = 32
 	 * output = 00000000000000000001010101010111
 	 * 
-	 * Eg
-	 * number = 5463, n = 16
+	 * Eg:
+	 * number = 5463, b = 16
 	 * output = 0001010101010111
 	 * </pre>
 	 * 
 	 * @param number The number to convert
-	 * @param n      bits The number of bits from lower to highest position to generate
+	 * @param b      bits The number of bits from lower to highest position to generate
 	 * @return The 32-bit long bit string
 	 */
-	public static String intToString(int number, int n) {
+	public static String intToString(int number, int b) {
 		StringBuilder result = new StringBuilder(32);
 		for (int i = 31; i >= 0; i--) {
 			int mask = 1 << i;
 			result.append((number & mask) != 0 ? "1" : "0");
 		}
-		return result.substring(result.length() - Math.min(n, 32), result.length());
+		return result.substring(result.length() - Math.min(b, 32), result.length());
 	}
 	
 }
