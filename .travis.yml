@@ -1,20 +1,24 @@
+sudo: false
 language: java
 
 jdk:
   - openjdk11
 
-# whitelist branches
 branches:
   only:
     - master
     - dev
-      
-# overrides travis 'install' step
-# this installs dependencies. Using default profile
+
+cache:
+  directories:
+    - $HOME/.m2
+
+# Overrides travis 'install' step.
+# This installs dependencies using default profile.
 install:
   - java -version
   - mvn --version
-  - mvn --batch-mode clean install -DskipTests=true
+  - mvn --batch-mode clean compile
 
 # overrides travis 'script' step
 script:
@@ -23,4 +27,6 @@ script:
   - mvn --batch-mode clean package -Pjava11
 
 notifications:
-  email: false
+  email:
+    on_success: never
+    on_failure: always

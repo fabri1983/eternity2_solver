@@ -15,7 +15,7 @@ environment:
   MAVEN_VERSION: 3.6.0
   matrix:
     #- JAVA_HOME: C:\Program Files\Java\jdk1.8.0
-    - JAVA_HOME: C:\Program Files\Java\jdk12
+    - JAVA_HOME: C:\Program Files\Java\jdk11
 
 platform:
   - x64
@@ -34,19 +34,19 @@ install:
   - cmd: SET M2_HOME=C:\maven\apache-maven-%MAVEN_VERSION%
   # Prepend Java entry, remove Ruby entry (C:\Ruby193\bin;) from PATH
   - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
-  - cmd: SET MAVEN_OPTS=-Xmx512m
-  - cmd: SET JAVA_OPTS=-Xmx512m
+  - cmd: SET MAVEN_OPTS=-Xmx256m
+  - cmd: SET JAVA_OPTS=-Xmx256m
   - cmd: mvn --version
   - cmd: java -version
 
 # this installs dependencies. Using default profile
 build_script:
-  - mvn --batch-mode clean install -DskipTests=true
+  - mvn --batch-mode clean package -DskipTests=true
 
 test_script:
   - mvn --batch-mode clean package -Pjava8
   - mvn --batch-mode clean package -Pmpje
-  - mvn --batch-mode clean package -Pjava12
+  - mvn --batch-mode clean package -Pjava11
 
 cache:
   - C:\maven\

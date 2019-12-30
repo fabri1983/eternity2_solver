@@ -100,4 +100,30 @@ public final class NodoPosibles
 		return nextIndex;
 	}
 	
+	/**
+	 * Converts an integer to a 32-bit binary string.
+	 * 
+	 * <pre>
+	 * Eg:
+	 * number = 5463, n = 32
+	 * output = 00000000000000000001010101010111
+	 * 
+	 * Eg
+	 * number = 5463, n = 16
+	 * output = 0001010101010111
+	 * </pre>
+	 * 
+	 * @param number The number to convert
+	 * @param n      bits The number of bits from lower to highest position to generate
+	 * @return The 32-bit long bit string
+	 */
+	public static String intToString(int number, int n) {
+		StringBuilder result = new StringBuilder(32);
+		for (int i = 31; i >= 0; i--) {
+			int mask = 1 << i;
+			result.append((number & mask) != 0 ? "1" : "0");
+		}
+		return result.substring(result.length() - Math.min(n, 32), result.length());
+	}
+	
 }
