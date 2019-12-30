@@ -35,7 +35,7 @@ Some stats
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
 Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
 Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.2.0.1**, **with 8 threads**.  
+Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.0.2**, **with 8 threads**.  
 
 - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
 Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
@@ -211,7 +211,7 @@ The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use i
 
 Build a Graal VM on Windows and run your jar
 --------------------------------------------
-We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.2.0.1 so far**.
+We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.0.2 so far**.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
@@ -248,7 +248,7 @@ We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.2.0.
 	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\openjdk-11.0.5+10
-	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-19.2.0.1
+	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-19.3.0.2
 	cd compiler
 	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
 	mx vm -version
@@ -283,7 +283,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
-We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM 19.2.0.1 so far**.
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM 19.3.0.2 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11
@@ -305,7 +305,7 @@ This will help you to decide which iso you need to download:
 		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		or
 		open a cmd console and run "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-	SET JAVA_HOME=C:\java\graalvm-ee-19.2.0.1
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-19.3.0.2
 	cd substratevm
 	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
@@ -323,7 +323,9 @@ This will help you to decide which iso you need to download:
 	- Build the static image
 	```
 	cd target
-	mx native-image --static --no-fallback --report-unsupported-elements-at-runtime -H:Optimize=2 -H:CPUFeatures=HT,MMX,SSE,SSE2,SSE3,SSSE3,SSE4_1,SSE4_2,AES,AVX -H:+ReportExceptionStackTraces -J-Xms1700m -J-Xmx1700m -H:InitialCollectionPolicy="com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime" -H:IncludeResources=".*application.properties|.*e2pieces.txt" -jar e2solver.jar
+	mx native-image --verbose -jar e2solver.jar
+	(using --verbose we can see if it picked up our META-INF/native-image/org.fabri1983.eternity2/native-image.properties file)
+	mx native-image --server-shutdown
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
@@ -400,5 +402,4 @@ Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 			- make full-platform=${platform} example
 		- exe file are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
 		- You can omit example target to let other targets be built: example, graphics, and paint
-
 
