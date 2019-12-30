@@ -28,7 +28,9 @@ The project is under continuous development, mostly on spare time. Every time I 
 Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
 - *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
   
-**Some stats:**
+
+Some stats
+----------
 
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
 Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
@@ -39,14 +41,14 @@ Placing approx **40.0 million tiles per second** running the native image genera
 Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
 Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
-I still have to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data locality and data time span.  
+I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
-In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% of speed up.  
-However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM parameters tuning.  
+In the past, experiments showed me that execution was faster using the JRockit JVM from Oracle. I saw a 25% speed up.  
+However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM flags tuning.  
 
 
 Papers that have influenced algorithms and hacks used in the solver
---
+-------------------------------------------------------------------
 
 - How many edges can be shared by N square tiles on a board? [link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
 Thierry Benoist, e-lab Research Report - April 2008.
@@ -68,7 +70,7 @@ Henry S. Warren, Jr.
 
 
 Third party APIs
---
+----------------
 **MPJ Express**. http://mpj-express.org/.  
 It is included in the project as a system dependency  
 
@@ -87,7 +89,7 @@ Helpful links:
 
 
 Generate Artifact
---
+-----------------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
 *Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` and `jsse.jar`, *comment* `jmods`.    
 
@@ -107,7 +109,7 @@ Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to 
 
 
 Execution
---
+---------
 First generate the artifact (previous section).  
 Go under tools folder and use one of the runXXX commands.  
 E.g.:
@@ -147,7 +149,7 @@ Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package gene
 
 
 Known issues
---
+------------
 *Affects some JVM 8 builds:*  
 I'm having an exception when using the jpanel:  
 `java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
@@ -156,7 +158,7 @@ Work around for this issue if you are using OpenJDK 8 version prior to 112: *-Ds
 
 
 Using jdeps on generated jar to build custom JRE (Java 9+)
---
+----------------------------------------------------------
 Use `jdeps` to know which java modules the final application needs to run.  
 Note that we are using `--multi-release=12`.  
 Then you can build a custom and smaller JRE.  
