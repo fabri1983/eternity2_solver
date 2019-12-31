@@ -330,8 +330,9 @@ This will help you to decide which iso you need to download:
 	```
 	cd target
 	mx native-image --verbose -jar e2solver.jar
-	(using --verbose we can see if it picked up our META-INF/native-image/org.fabri1983.eternity2/native-image.properties file)
-	mx native-image --server-shutdown
+		(using --verbose we can see if it picked up our META-INF/native-image/org.fabri1983.eternity2/native-image.properties file)
+		(If in Linux then add option --no-server)
+		(If in Linux then call: mx native-image --server-shutdown)
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
 	Times for position 215 and 4 processes:
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
