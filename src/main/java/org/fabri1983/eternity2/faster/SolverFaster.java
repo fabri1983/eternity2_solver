@@ -89,7 +89,34 @@ public final class SolverFaster {
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
-	protected final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
+	/**
+	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
+	 * Son 4 niveles porque la matriz de colores solo contempla colores top,right,bottom,left.
+	 * Cantidad de combinaciones:
+	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
+				(MAX_COLORES * Math.pow(2, 5 * 1)) +
+				(MAX_COLORES * Math.pow(2, 5 * 2)) +
+				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
+	 *  donde MAX_COLORES = 23, y usando 5 bits para representar los 23 colores.
+	 * 
+	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene instancia de NodoPosibles 
+	 * la cual brinda arrays de piezas y rotaciones que cumplen con esa combinación particular de colores.
+	 * 
+	 * After getting some stats:
+	 *   - array length          = 777975  (last used index is 777974)
+	 *   - total empty indexes   = 771021
+	 *   - total used indexes    =   6954
+	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
+	 * Ver archivo misc/super_matriz_indexes.txt
+	 * 
+	 * IMPROVEMENT FINAL: 
+	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
+	 * It uses less memory and the access time is the same than the previous big array.
+	 */
+	final static NodoPosibles[][][][] super_matriz = new NodoPosibles
+			[SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1];
+	
+	final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
 	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
 	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
@@ -299,7 +326,7 @@ public final class SolverFaster {
 	private static final void llenarSuperEstructura (ExploracionAction action)
 	{
 		// itero sobre el arreglo de piezas
-		for (int k = 0; k < MAX_PIEZAS; ++k) {
+		for (short k = 0; k < MAX_PIEZAS; ++k) {
 			
 			if (k == INDICE_P_CENTRAL)
 				continue;
@@ -318,68 +345,68 @@ public final class SolverFaster {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				if (get(action.super_matriz, pz.top, pz.right, pz.bottom, pz.left) == null)
-					setNew(action.super_matriz, pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, pz.right, pz.bottom, pz.left), pz, rot);
+				if (get(pz.top, pz.right, pz.bottom, pz.left) == null)
+					setNew(pz.top, pz.right, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), k, rot);
 				
 				//tengo tres colores y uno faltante
-				if (get(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
-					setNew(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, pz.left), pz, rot);
+				if (get(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
+					setNew(MAX_COLORES, pz.right, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
 				
-				if (get(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNew(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				if (get(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
+					setNew(pz.top, MAX_COLORES, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (get(action.super_matriz, pz.top, pz.right, MAX_COLORES, pz.left) == null)
-					setNew(action.super_matriz, pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, pz.right, MAX_COLORES, pz.left), pz, rot);
+				if (get(pz.top, pz.right, MAX_COLORES, pz.left) == null)
+					setNew(pz.top, pz.right, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(action.super_matriz, pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
-					setNew(action.super_matriz, pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top ,pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				if (get(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
+					setNew(pz.top ,pz.right, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				//tengo dos colores y dos faltantes
-				if (get(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNew(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
+					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (get(action.super_matriz, MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
-					setNew(action.super_matriz, MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, pz.right, MAX_COLORES, pz.left), pz, rot);
+				if (get(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
+					setNew(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
-					setNew(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				if (get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
+					setNew(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNew(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				if (get(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
+					setNew(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNew(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				if (get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+					setNew(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(action.super_matriz, pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNew(action.super_matriz, pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				if (get(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNew(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 
 				//tengo un color y tres faltantes
-				if (get(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
-					setNew(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), pz, rot);
+				if (get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
+					setNew(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (get(action.super_matriz, MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNew(action.super_matriz, MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				if (get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNew(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (get(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNew(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(action.super_matriz, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNew(action.super_matriz, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(action.super_matriz, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				if (get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
+					setNew(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 			}
 			
 			//restauro la rotación
@@ -387,17 +414,15 @@ public final class SolverFaster {
 		}
 	}
 
-	private final static NodoPosibles get(NodoPosibles[][][][] superMatriz, 
-			final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles get(final byte top, final byte right, final byte bottom, final byte left)
 	{
-		return superMatriz[top][right][bottom][left];
+		return super_matriz[top][right][bottom][left];
 	}
 	
-	private final static void setNew(NodoPosibles[][][][] superMatriz, 
-			final byte top, final byte right, final byte bottom, final byte left)
+	private final static void setNew(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		superMatriz[top][right][bottom][left] = NodoPosibles.newForKey(key);
+		super_matriz[top][right][bottom][left] = NodoPosibles.newForKey(key);
 	}
 	
 	/**
@@ -977,6 +1002,9 @@ public final class SolverFaster {
 			actions[proc] = exploracionAction;
 		}
 		
+		// cargar la super estructura 4-dimensional (solo basta obtener las piezas de un exploracionAction)
+		cargarSuperEstructura(actions[0]);
+				
 		// limpiar mapa de indices -> size de arreglos para NodoPosibles
 		NodoPosiblesMapSizePerIndex.getInstance().clean();
 		

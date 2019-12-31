@@ -33,7 +33,9 @@ public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
-		
+	private final static int MAX_COLORES = 23;
+	private final static int LADO = 16;
+	
 	/**
 	 * Arreglo para saber si un contorno ha sido usado o no. 
 	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
@@ -61,8 +63,14 @@ public final class Contorno
 	 *     
 	 * Some stats:
 	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
+	 * 
+	 * IMPROVEMENT FINAL: 
+	 * Para 3 niveles (MAX_COLS=2): just using a 3 dimensional array I end up with MAX_COLORES(23)^3 = 12167 indexes which is the 52% of 23254.
+	 * It uses less memory and the access time is the same than the previous big array.
+	 * Para 4 niveles (MAX_COLS=3): idem but bigger array.
+	 * Para 5 niveles (MAX_COLS=4): idem but bigger array.
 	 */
-	public final boolean contornos_used[] = new boolean[23254 + 1]; // le sumo uno pues 23254 es el último indice válido en 0-based
+	public final boolean[][][] contornos_used = new boolean[MAX_COLORES][MAX_COLORES][MAX_COLORES];
 	
 	/**
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
@@ -71,7 +79,7 @@ public final class Contorno
 	public static final void inicializarContornos (Contorno contorno, Pieza[] tablero, int maxPiezas)
 	{
 		// el limite inicial y el final me evitan los bordes sup e inf
-		for (int k=16; k < (maxPiezas - 16); ++k)
+		for (int k=LADO; k < (maxPiezas - LADO); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
@@ -79,12 +87,12 @@ public final class Contorno
 				return;
 			
 			//borde izquierdo
-			if ((k % 16) == 0) continue;
+			if ((k % LADO) == 0) continue;
 			//borde derecho
-			if (((k+1) % 16) == 0) continue;
+			if (((k+1) % LADO) == 0) continue;
 			//(k + MAX_COLS) no debe llegar ni sobrepasar borde right
-			int fila_actual = k / 16;
-			if (((k + MAX_COLS) / 16) != fila_actual)
+			int fila_actual = k / LADO;
+			if (((k + MAX_COLS) / LADO) != fila_actual)
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
 			for (int a=1; a < MAX_COLS; ++a) {
@@ -95,70 +103,20 @@ public final class Contorno
 			//Ahora k está en el interior del tablero
 			
 			//Saco el contorno superior e inferior y los seteo como usado.
-			//El contorno inferior lo empiezo a contemplar a partir de la fila 2 porque necesito que 
+			//El contorno inferior lo empiezo a contemplar a partir de fila_actual >= 2 porque necesito que 
 			//existan piezas colocadas indicando que se ha formado el contorno inferior.
-			switch (MAX_COLS)
-			{
-			case 2: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top);
-					contorno.contornos_used[indexSup] = true;
-					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(tablero[k+1-16].right, tablero[k+1].top, tablero[k].top);
-						contorno.contornos_used[indexInf] = true;
-					}*/
-				}
-				break;
-			case 3: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top);
-					contorno.contornos_used[indexSup] = true;
-					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(tablero[k+2-LADO].right, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contorno.contornos_used[indexInf] = true;
-					}*/
-				}
-				break;
-			case 4: {
-					int indexSup = getIndex(tablero[k].left, tablero[k].top, tablero[k+1].top, tablero[k+2].top, tablero[k+3].top);
-					contorno.contornos_used[indexSup] = true;
-					/*@CONTORNO_INFERIORif (fila_actual >= 2){
-						int indexInf = getIndex(tablero[k+3-LADO].right, tablero[k+3].top, tablero[k+2].top, tablero[k+1].top, tablero[k].top);
-						contorno.contornos_used[indexInf] = true;
-					}*/
-				}
-				break;
-			default: break;
-			}
+			contorno.contornos_used[tablero[k].left][tablero[k].top][tablero[k+1].top] = true;
 		}
 	}
 	
 	public static final void resetContornos(Contorno contorno) {
-		for (int k=0; k < contorno.contornos_used.length; ++k) {
-			contorno.contornos_used[k] = false;
+		for (int i=0; i < MAX_COLORES; ++i) {
+			for (int j=0; j < MAX_COLORES; ++j) {
+				for (int k=0; k < MAX_COLORES; ++k) {
+					contorno.contornos_used[i][j][k] = false;
+				}
+			}
 		}
 	}
 
-	/**
-	 * Devuelve el indice de contorno asociado a la clave de 3 colores.
-	 */
-	public static final int getIndex (final byte pleft, final byte top1, final byte top2)
-	{
-		return (pleft << 10) | (top1 << 5) | top2;
-	}
-	
-	/**
-	 * Devuelve el indice de cntorno asociado a la clave de 4 colores.
-	 */
-	public static final int getIndex (final byte pleft, final byte top1, final byte top2, final byte top3)
-	{
-		return (pleft << 15) | (top1 << 10) | (top2 << 5) | top3;
-	}
-	
-	/**
-	 * Devuelve el indice de contorno asociado a la clave de 5 colores.
-	 */
-	public static final int getIndex (final byte pleft, final byte top1, final byte top2, final byte top3, final byte top4)
-	{
-		return (pleft << 20) | (top1 << 15) | (top2 << 10) | (top3 << 5) | top4;
-	}
-	
 }

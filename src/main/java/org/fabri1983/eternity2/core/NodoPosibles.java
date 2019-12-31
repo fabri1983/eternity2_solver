@@ -27,7 +27,7 @@ package org.fabri1983.eternity2.core;
  */
 public final class NodoPosibles
 {
-	public Pieza[] referencias;
+	public short[] referencias;
 	public byte[] rots;
 	
 	public static NodoPosibles newForKey(int key) {
@@ -41,12 +41,12 @@ public final class NodoPosibles
 	 * 
 	 * @param rot 
 	 */
-	public static final void addReferencia (final NodoPosibles np, final Pieza p_referencia, byte rot)
+	public static final void addReferencia (final NodoPosibles np, final short p_index, byte rot)
 	{
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		
-		np.referencias[nextIndex] = p_referencia;
+		np.referencias[nextIndex] = p_index;
 		np.rots[nextIndex] = rot;
 	}
 
@@ -76,10 +76,10 @@ public final class NodoPosibles
 		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
 	}
 	
-	public static final short getUbicPieza(final NodoPosibles np, short numero)
+	public static final short getUbicPieza(final NodoPosibles np, short index)
 	{
 		for (int i=0, c=np.referencias.length; i < c; ++i) {
-			if (np.referencias[i].numero == numero)
+			if (np.referencias[i] == index)
 				return (short)i;
 		}
 		return 0;
@@ -87,19 +87,19 @@ public final class NodoPosibles
 
 	private static void setSizeByKey(NodoPosibles np, int key) {
 		int size = NodoPosiblesMapSizePerIndex.getInstance().getSizeForKey(key);
-		np.referencias = new Pieza[size];
+		np.referencias = new short[size];
 		np.rots = new byte[size];
 		// initialize referencias with -1
-//		for (int i=0; i < size; ++i) {
-//			np.referencias[i] = -1;
-//		}
+		for (int i=0; i < size; ++i) {
+			np.referencias[i] = -1;
+		}
 	}
 
 	private static int getNextFreeIndex(final NodoPosibles np) {
 		int nextIndex = 0;
 		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
-//			if (np.referencias[nextIndex] == -1)
-			if (np.referencias[nextIndex] == null)
+//			if (np.referencias[nextIndex] == null)
+			if (np.referencias[nextIndex] == -1)
 				break;
 		}
 		return nextIndex;

@@ -425,7 +425,7 @@ public final class SolverFasterMPJE {
 	private static final void llenarSuperEstructura ()
 	{
 		// itero sobre el arreglo de piezas
-		for (int k = 0; k < MAX_PIEZAS; ++k) {
+		for (short k = 0; k < MAX_PIEZAS; ++k) {
 			
 			if (k == INDICE_P_CENTRAL)
 				continue;
@@ -446,66 +446,66 @@ public final class SolverFasterMPJE {
 				//este caso es cuando tengo los 4 colores
 				if (get(pz.top, pz.right, pz.bottom, pz.left) == null)
 					setNew(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), k, rot);
 				
 				//tengo tres colores y uno faltante
 				if (get(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
 					setNew(MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNew(pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
 				if (get(pz.top, pz.right, MAX_COLORES, pz.left) == null)
 					setNew(pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
 					setNew(pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				//tengo dos colores y dos faltantes
 				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
 				if (get(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
 					setNew(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
 					setNew(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNew(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNew(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNew(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 
 				//tengo un color y tres faltantes
 				if (get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
 					setNew(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNew(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNew(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 			}
 			
 			//restauro la rotación
@@ -793,9 +793,8 @@ public final class SolverFasterMPJE {
 				if (cursor < 0)
 					break; //obliga a salir del while
 				
-				//seteo los contornos como libres
-				int index_both = getIndexDeContornoYaPuesto(cursor);
-				setContornoLibre(index_both);
+				//seteo los contornos como libres si no están usados
+				setContornoLibre(cursor);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != POSICION_CENTRAL){
@@ -928,13 +927,12 @@ public final class SolverFasterMPJE {
 		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya está debidamente colocada
 		if (cursor == POSICION_CENTRAL){
 			//seteo los contornos como usados
-			int index_both = getIndexDeContornoYaPuesto(cursor);
-			setContornoUsado(index_both);
+			setContornoUsado(cursor);
 			++cursor;
 			explorar();
 			--cursor;
 			//seteo los contornoscomo libres
-			setContornoLibre(index_both);
+			setContornoLibre(cursor);
 			/*if (cursor <= cur_destino){
 				retroceder= false;
 				cur_destino=CURSOR_INVALIDO;
@@ -1073,7 +1071,7 @@ public final class SolverFasterMPJE {
 		
 		for (; desde < length_posibles; ++desde) {
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			Pieza p = nodoPosibles.referencias[desde];
+			Pieza p = piezas[nodoPosibles.referencias[desde]];
 			byte rot = nodoPosibles.rots[desde];
 			
 			// pregunto si la pieza candidata está siendo usada
@@ -1159,8 +1157,7 @@ public final class SolverFasterMPJE {
 			}
 
 			// seteo los contornos como usados
-			int index_both = getIndexDeContornoYaPuesto(cursor);
-			setContornoUsado(index_both);
+			setContornoUsado(cursor);
 				
 			//##########################
 			// Llamo una nueva instancia
@@ -1170,7 +1167,7 @@ public final class SolverFasterMPJE {
 			//##########################
 				
 			// seteo los contornos como libres
-			setContornoLibre(index_both);
+			setContornoLibre(cursor);
 			
 			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
@@ -1260,116 +1257,30 @@ public final class SolverFasterMPJE {
 		}
 	}
 	
-	/**
-	 * Usado para obtener los indices de los contornos que voy a setear como usados o como libres.
-	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
-	 * 
-	 * @return
-	 */
-	private final static int getIndexDeContornoYaPuesto(int _cursor){
-		//primero me fijo si estoy en posición válida
-		if (zona_proc_contorno[_cursor] == false){
-			return -1;
-		}
-
-		//obtengo las claves de acceso
-		switch (Contorno.MAX_COLS) {
-			case 2: {
-				int index_sup = Contorno.getIndex(tablero[_cursor-1].left, tablero[_cursor-1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
-				return index_sup; // meter el index_inf con << y mask
-				}
-			case 3: {
-				int index_sup = Contorno.getIndex(tablero[_cursor-2].left, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
-				return index_sup; // meter el index_inf con << y mask
-				}
-			case 4: {
-				int index_sup = Contorno.getIndex(tablero[_cursor-3].left, tablero[_cursor-3].top, tablero[_cursor-2].top, tablero[_cursor-1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
-				return index_sup; // meter el index_inf con << y mask
-				}
-			default: return -1;
+	private final static void setContornoUsado(int _cursor)
+	{
+		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if (zona_proc_contorno[_cursor] == true) {
+			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
 		}
 	}
 	
-	private final static void setContornoUsado(int index_both)
+	private final static void setContornoLibre(int _cursor)
 	{
-		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
-		if (index_both != -1)
-			contorno.contornos_used[index_both] = true;
-		/*@CONTORNO_INFERIORif (index_inf != -1)
-			contorno.contornos_used[index_inf] = true;*/
-	}
-	
-	private final static void setContornoLibre(int index_both)
-	{
-		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
-		if (index_both != -1)
-			contorno.contornos_used[index_both] = false;
-		/*@CONTORNO_INFERIORif (index_inf != -1)
-			contorno.contornos_used[index_inf] = false;*/
+		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if (zona_proc_contorno[_cursor] == true) {
+			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
+		}
 	}
 
 	private final static boolean esContornoSuperiorUsado(int _cursor)
 	{
-		//primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_read_contorno[_cursor] == false)
-			return false;
-		
-		//obtengo la clave del contorno superior
-		int cursor_at_top = _cursor-LADO;
-		switch (Contorno.MAX_COLS){
-			case 2: {
-				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 3: {
-				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, 
-						tablero[cursor_at_top + 2].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 4: {
-				int auxi = Contorno.getIndex(tablero[_cursor-1].right, tablero[cursor_at_top].bottom, tablero[cursor_at_top + 1].bottom, 
-						tablero[cursor_at_top + 2].bottom, tablero[cursor_at_top + 3].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			default: return false;
+		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if (zona_read_contorno[_cursor] == true) {
+			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor-LADO].bottom][tablero[_cursor-LADO + 1].bottom];
 		}
+		return false;
 	}
-	
-	/*@CONTORNO_INFERIOR
-	private final static boolean esContornoInferiorUsado(int _cursor)
-	{
-		//primero me fijo si estoy en la posición correcta para preguntar por contorno inferior usado
-		if (zona_proc_contorno[_cursor] == false)
-			return false;
-		//debo estar entre filas [2,13]
-		if (_cursor < 33 || _cursor > 238)
-			return false;
-		
-		//obtengo la clave del contorno inferior
-		switch (Contorno.MAX_COLS){
-			case 2: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 3: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
-				tablero[_cursor-2].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 4: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
-				tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			default: return false;
-		}
-	}*/
 	
 	/**
 	 * Veririfica que no exista pieza extraña o que falte alguna pieza. 
