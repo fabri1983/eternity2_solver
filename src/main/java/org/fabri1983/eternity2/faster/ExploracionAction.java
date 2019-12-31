@@ -41,33 +41,6 @@ public class ExploracionAction extends RecursiveAction {
 	String statusFileName, parcialFileName, parcialMaxFileName, 
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
-	/**
-	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo contempla colores top,right,bottom,left.
-	 * Cantidad de combinaciones:
-	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
-				(MAX_COLORES * Math.pow(2, 5 * 1)) +
-				(MAX_COLORES * Math.pow(2, 5 * 2)) +
-				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
-	 *  donde MAX_COLORES = 23, y usando 5 bits para representar los 23 colores.
-	 * 
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene instancia de NodoPosibles 
-	 * la cual brinda arrays de piezas y rotaciones que cumplen con esa combinación particular de colores.
-	 * 
-	 * After getting some stats:
-	 *   - array length          = 777975  (last used index is 777974)
-	 *   - total empty indexes   = 771021
-	 *   - total used indexes    =   6954
-	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
-	 * Ver archivo misc/super_matriz_indexes.txt
-	 * 
-	 * IMPROVEMENT FINAL: 
-	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
-	 * It uses less memory and the access time is the same than the previous big array.
-	 */
-	final NodoPosibles[][][][] super_matriz = new NodoPosibles
-			[SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1][SolverFaster.MAX_COLORES+1];
-	
 	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
 	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
 	
@@ -133,9 +106,6 @@ public class ExploracionAction extends RecursiveAction {
 		
 		// hago una verificacion de las piezas cargadas
 		SolverFaster.verificarTiposDePieza(this);
-		
-		// cargar la super estructura 4-dimensional
-		SolverFaster.cargarSuperEstructura(this);
 		
 		// Pruebo cargar el primer status_saved
 		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
@@ -456,7 +426,7 @@ public class ExploracionAction extends RecursiveAction {
 		for (; desde < length_posibles; ++desde)
 		{
 			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			Pieza p = nodoPosibles.referencias[desde];
+			Pieza p = piezas[nodoPosibles.referencias[desde]];
 			byte rot = nodoPosibles.rots[desde];
 			
 			// pregunto si la pieza candidata está siendo usada
@@ -606,32 +576,32 @@ public class ExploracionAction extends RecursiveAction {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return super_matriz[tablero[_cursor - lado].bottom][maxColores][piezas[indicePcentral].top][tablero[_cursor - 1].right];
+				return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][piezas[indicePcentral].top][tablero[_cursor - 1].right];
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return super_matriz[tablero[_cursor - lado].bottom][piezas[indicePcentral].left][maxColores][tablero[_cursor - 1].right];
+				return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][piezas[indicePcentral].left][maxColores][tablero[_cursor - 1].right];
 		}
 		
 		final int flag_m = SolverFaster.matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][tablero[_cursor - 1].right];
+			return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][tablero[_cursor - 1].right];
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return super_matriz[tablero[_cursor - lado].bottom][gris][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][gris][maxColores][tablero[_cursor - 1].right];
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
-					return super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][gris];
+					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][gris];
 				// borde top
 				case SolverFaster.F_BORDE_TOP:
-					return super_matriz[gris][maxColores][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.super_matriz[gris][maxColores][maxColores][tablero[_cursor - 1].right];
 				//borde bottom
 				default:
-					return super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][tablero[_cursor - 1].right];
+					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][tablero[_cursor - 1].right];
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -639,16 +609,16 @@ public class ExploracionAction extends RecursiveAction {
 			switch (flag_m) {
 				//esquina top-left
 				case SolverFaster.F_ESQ_TOP_LEFT:
-					return super_matriz[gris][maxColores][maxColores][gris];
+					return SolverFaster.super_matriz[gris][maxColores][maxColores][gris];
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return super_matriz[gris][gris][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.super_matriz[gris][gris][maxColores][tablero[_cursor - 1].right];
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][gris];
+					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][gris];
 					//esquina bottom-right
 				default:
-					return super_matriz[tablero[_cursor - lado].bottom][gris][gris][tablero[_cursor - 1].right];
+					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][gris][gris][tablero[_cursor - 1].right];
 			}
 		}
 	}

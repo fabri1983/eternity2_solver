@@ -6,8 +6,8 @@ all_args=$@
 orig_dir=$(pwd)
 cd ../target
 
-# 22m max usage for 8 threads. Times 5 because we warm up 3 iterations and measure 2 iterations
-mem_alloc="110m"
+# 6m max usage for 8 threads. Times 5 because we warm up 3 iterations and measure 2 iterations
+mem_alloc="48m"
 
 # Options to reduce mem usage and number of threads:
 #  -XX:+UseCompressedClassPointers 

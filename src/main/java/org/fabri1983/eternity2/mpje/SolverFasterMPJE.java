@@ -425,7 +425,7 @@ public final class SolverFasterMPJE {
 	private static final void llenarSuperEstructura ()
 	{
 		// itero sobre el arreglo de piezas
-		for (int k = 0; k < MAX_PIEZAS; ++k) {
+		for (short k = 0; k < MAX_PIEZAS; ++k) {
 			
 			if (k == INDICE_P_CENTRAL)
 				continue;
@@ -446,66 +446,66 @@ public final class SolverFasterMPJE {
 				//este caso es cuando tengo los 4 colores
 				if (get(pz.top, pz.right, pz.bottom, pz.left) == null)
 					setNew(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), k, rot);
 				
 				//tengo tres colores y uno faltante
 				if (get(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
 					setNew(MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNew(pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
 				if (get(pz.top, pz.right, MAX_COLORES, pz.left) == null)
 					setNew(pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
 					setNew(pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				//tengo dos colores y dos faltantes
 				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
 				if (get(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
 					setNew(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
 					setNew(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNew(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 				
 				if (get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNew(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNew(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 
 				//tengo un color y tres faltantes
 				if (get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
 					setNew(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNew(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
 				if (get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNew(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), pz, rot);
+				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 			}
 			
 			//restauro la rotación
@@ -1073,7 +1073,7 @@ public final class SolverFasterMPJE {
 		
 		for (; desde < length_posibles; ++desde) {
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			Pieza p = nodoPosibles.referencias[desde];
+			Pieza p = piezas[nodoPosibles.referencias[desde]];
 			byte rot = nodoPosibles.rots[desde];
 			
 			// pregunto si la pieza candidata está siendo usada

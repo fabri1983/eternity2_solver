@@ -9,8 +9,8 @@ cd ../target
 java="/usr/local/java/jrockit-jdk1.6.0_45-R28.2.7-4.1.0/bin/java"
 jsr166="lib/jsr166.jar"
 
-# 22m max usage for 8 threads
-mem_alloc="22m"
+# 6m max usage for 8 threads
+mem_alloc="6m"
 
 # Options to reduce mem usage and number of threads:
 #  -XX:+UseCompressedClassPointers 

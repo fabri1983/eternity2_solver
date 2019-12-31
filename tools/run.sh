@@ -6,8 +6,8 @@ all_args=$@
 orig_dir=$(pwd)
 cd ../target
 
-# 25m max usage for 8 threads
-mem_alloc="22m"
+# 6m max usage for 8 threads
+mem_alloc="6m"
 
 # Options to reduce mem usage and number of threads:
 #  -XX:+UseCompressedClassPointers 
