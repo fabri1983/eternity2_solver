@@ -199,8 +199,7 @@ public class ExploracionAction extends RecursiveAction {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres
-				int index_both = getIndexDeContornoYaPuesto(cursor);
-				setContornoLibre(index_both);
+				setContornoLibre(cursor);
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != SolverFaster.POSICION_CENTRAL) {
@@ -328,15 +327,14 @@ public class ExploracionAction extends RecursiveAction {
 		if (cursor == SolverFaster.POSICION_CENTRAL) {
 			
 			//seteo los contornos como usados
-			int index_both = getIndexDeContornoYaPuesto(cursor);
-			setContornoUsado(index_both);
+			setContornoUsado(cursor);
 			
 			++cursor;
 			explorar();
 			--cursor;
 			
 			//seteo los contornoscomo libres
-			setContornoLibre(index_both);
+			setContornoLibre(cursor);
 			/*@RETROCEDER
 			if (cursor <= cur_destino){
 				retroceder= false;
@@ -517,8 +515,7 @@ public class ExploracionAction extends RecursiveAction {
 			}
 	
 			//seteo los contornos como usados
-			int index_both = getIndexDeContornoYaPuesto(cursor);
-			setContornoUsado(index_both);
+			setContornoUsado(cursor);
 				
 			//##########################
 			//Llamo una nueva instancia
@@ -528,7 +525,7 @@ public class ExploracionAction extends RecursiveAction {
 			//##########################
 				
 			//seteo los contornos como libres
-			setContornoLibre(index_both);
+			setContornoLibre(cursor);
 			
 			p.usada = false; //la pieza ahora no es usada
 			//p.pos= -1;
@@ -622,119 +619,30 @@ public class ExploracionAction extends RecursiveAction {
 			}
 		}
 	}
-	
-	/**
-	 * Usado para obtener los indices de los contornos que voy a setear como usados o como libres.
-	 * NOTA: index_sup sirve para contorno superior e index_inf para contorno inferior.
-	 * @return
-	 */
-	private final int getIndexDeContornoYaPuesto(int _cursor) {
-		// primero me fijo si estoy en posición válida
-		if (SolverFaster.zona_proc_contorno[_cursor] == false) {
-			return -1;
-		}
-	
-		//obtengo las claves de acceso
-		switch (Contorno.MAX_COLS){
-			case 2: {
-				int index_sup = Contorno.getIndex(tablero[_cursor - 1].left, tablero[_cursor - 1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top);*/
-				return index_sup; // meter el index_inf con << y mask
-			}
-			case 3: {
-				int index_sup = Contorno.getIndex(tablero[_cursor - 2].left, tablero[_cursor - 2].top,
-						tablero[_cursor - 1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top);*/
-				return index_sup; // meter el index_inf con << y mask
-			}
-			case 4: {
-				int index_sup = Contorno.getIndex(tablero[_cursor - 3].left, tablero[_cursor - 3].top,
-						tablero[_cursor - 2].top, tablero[_cursor - 1].top, tablero[_cursor].top);
-				/*@CONTORNO_INFERIORif (_cursor >= 33 && _cursor <= 238)
-					int index_inf = Contorno.getIndex(tablero[_cursor-LADO].right, tablero[_cursor].top, tablero[_cursor-1].top, tablero[_cursor-2].top, tablero[_cursor-3].top);*/
-				return index_sup; // meter el index_inf con << y mask
-			}
-			default: return -1;
+
+	private final void setContornoUsado(int _cursor)
+	{
+		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if (SolverFaster.zona_proc_contorno[_cursor] == true) {
+			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
 		}
 	}
-
-	private final void setContornoUsado(int index_both)
+	
+	private final void setContornoLibre(int _cursor)
 	{
-		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
-		if (index_both != -1)
-			contorno.contornos_used[index_both] = true;
-		/*@CONTORNO_INFERIORif (index_inf != -1)
-			contorno.contornos_used[index_inf] = true;*/
-	}
-
-	private final void setContornoLibre(int index_both)
-	{
-		// @CONTORNO_INFERIOR cuando use contorno inferior tengo q desglosar en index_sup e index_inf usando >> y mask
-		if (index_both != -1)
-			contorno.contornos_used[index_both] = false;
-		/*@CONTORNO_INFERIORif (index_inf != -1)
-			contorno.contornos_used[index_inf] = false;*/
+		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+			if (SolverFaster.zona_proc_contorno[_cursor] == true) {
+				contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
+			}
 	}
 
 	private final boolean esContornoSuperiorUsado(int _cursor)
 	{
 		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (SolverFaster.zona_read_contorno[_cursor] == false)
-			return false;
-		
-		// obtengo la clave del contorno superior
-		int cursor_at_top = _cursor - SolverFaster.LADO;
-		switch (Contorno.MAX_COLS) {
-			case 2: {
-				int auxi = Contorno.getIndex(tablero[_cursor - 1].right, tablero[cursor_at_top].bottom,
-						tablero[cursor_at_top + 1].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 3: {
-				int auxi = Contorno.getIndex(tablero[_cursor - 1].right, tablero[cursor_at_top].bottom,
-						tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 4: {
-				int auxi = Contorno.getIndex(tablero[_cursor - 1].right, tablero[cursor_at_top].bottom,
-						tablero[cursor_at_top + 1].bottom, tablero[cursor_at_top + 2].bottom, 
-						tablero[cursor_at_top + 3].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			default: return false;
+		if (SolverFaster.zona_read_contorno[_cursor] == true) {
+			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor - SolverFaster.LADO].bottom][tablero[_cursor - SolverFaster.LADO + 1].bottom];
 		}
+		return false;
 	}
-
-	/*@CONTORNO_INFERIOR
-	private final boolean esContornoInferiorUsado(int _cursor)
-	{
-		//primero me fijo si estoy en la posición correcta para preguntar por contorno inferior usado
-		if (SolverFaster.zona_proc_contorno[_cursor] == false)
-			return false;
-		//debo estar entre filas [2,13]
-		if (_cursor < 33 || _cursor > 238)
-			return false;
-		
-		//obtengo la clave del contorno inferior
-		switch (Contorno.MAX_COLS){
-			case 2: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 3: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
-				tablero[_cursor-2].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			case 4: {
-				int auxi = Contorno.getIndex(tablero[_cursor].right, tablero[_cursor].bottom, tablero[_cursor-1].bottom, 
-				tablero[_cursor-2].bottom, tablero[_cursor-3].bottom);
-				return contorno.contornos_used[auxi];
-			}
-			default: return false;
-		}
-	}*/
 	
 }
