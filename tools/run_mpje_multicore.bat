@@ -8,8 +8,8 @@ set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 22m max usage for 8 local process instances.
-set mem_alloc=22m
+:: 25m max usage for 8 local process instances.
+set mem_alloc=25m
 
 :: Options to reduce mem usage and number of threads:
 ::  -XX:+UseCompressedClassPointers 
