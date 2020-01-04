@@ -30,6 +30,4 @@ set mem_alloc=25m
 set e2_jvm_opts=-XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
 
 :: edit mpjrun.bat to select the desired JVM
-%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% e2solver_mpje.jar
-
-chdir /d %ORIG_DIR%
+%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% e2solver_mpje.jar & chdir /d %ORIG_DIR%

@@ -27,4 +27,4 @@ mem_alloc="6m"
 #  -XX:HeapBaseMinAddress=0
 e2_jvm_opts="-XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
 
-java $e2_jvm_opts -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver.jar
+java $e2_jvm_opts -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver.jar ; cd $orig_dir

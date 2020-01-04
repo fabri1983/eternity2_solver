@@ -30,6 +30,4 @@ set mem_alloc=6m
 ::  -XX:HeapBaseMinAddress=0
 set e2_jvm_opts=-XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
 
-%java% %e2_jvm_opts% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% -jar e2solver_jrockit.jar
-
-chdir /d %ORIG_DIR%
+%java% %e2_jvm_opts% -Xbootclasspath/p:%jsr166% -server -Xms%mem_alloc% -Xmx%mem_alloc% %ALL_ARGS% -jar e2solver_jrockit.jar & chdir /d %ORIG_DIR%

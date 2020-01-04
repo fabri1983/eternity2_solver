@@ -30,4 +30,4 @@ mem_alloc="25m"
 e2_jvm_opts="-XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
 
 # edit mpjrun.sh to select the desired JVM
-$MPJ_HOME/bin/mpjrun.sh -np $(nproc) $e2_jvm_opts -Xms$mem_alloc -Xmx$mem_alloc $all_args e2solver_mpje.jar
+$MPJ_HOME/bin/mpjrun.sh -np $(nproc) $e2_jvm_opts -Xms$mem_alloc -Xmx$mem_alloc $all_args e2solver_mpje.jar ; cd $orig_dir
