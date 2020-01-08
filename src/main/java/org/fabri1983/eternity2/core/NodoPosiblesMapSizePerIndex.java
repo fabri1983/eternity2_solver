@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * This class loads a Map which contains the size of array per key needed by {@link NodoPosibles}.
  * This way we have the exact array size and we can avoid resize any temporal array nor list.
- * See file misc/super_matriz_indexes.txt.
+ * See file misc/super_matriz_sizes_by_index.txt.
  * Given the fact that all possible keys are known, then we can remove those entries which have a value of 1, 
  * and so return 1 when the key is missing. This decrease the size of methods and the size of the map as well.
  */

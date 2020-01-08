@@ -117,7 +117,7 @@ public final class SolverFasterMPJE {
 	 *   - total empty indexes   = 771021
 	 *   - total used indexes    =   6954
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
-	 * Ver archivo misc/super_matriz_indexes.txt
+	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
 	 * IMPROVEMENT FINAL: 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.

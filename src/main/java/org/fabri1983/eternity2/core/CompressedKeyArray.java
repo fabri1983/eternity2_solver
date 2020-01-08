@@ -6,7 +6,7 @@ public final class CompressedKeyArray {
 	 * Creates an int[] array where each position corresponds to a valid color.
 	 * Each position will store a byte (as an int) of an address (int) sliced in 4 bytes. 
 	 * 
-	 * Then it loads all the keys as in file misc/super_matriz_indexes.txt.
+	 * Then it loads all the keys as in file misc/super_matriz_sizes_by_index.txt.
 	 * Each index will point to a position in NodoPosibles[6954], so from index 0 to index 6953.
 	 * 
 	 * @return the int[] array with the compressed keys pointing already to indexes of an array of <Object or primitive>[6954]
@@ -14,7 +14,7 @@ public final class CompressedKeyArray {
 	public static final int[] setupRootIndexer(int size) {
 		int[] rootIndexer = new int[size];
 		
-		// itero sobre todos las keys de misc/super_matriz_indexes.txt y por cada una de ellas revierto a su forma 
+		// itero sobre todos las keys de misc/super_matriz_sizes_by_index.txt y por cada una de ellas revierto a su forma 
 		// [top, right, bottom, left] para luego generar el compressed address.
 		int[] keys = loadKeys();
 		for (int i = 0, c = keys.length; i < c; ++i) {
