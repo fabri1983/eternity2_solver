@@ -8,8 +8,9 @@ export PATH=$PATH:$MPJ_HOME/bin
 orig_dir=$(pwd)
 cd ../target
 
-# 25m max usage for 8 local process instances.
-mem_alloc="25m"
+# 20m max usage for 8 threads with NO UI.
+# 25m max usage for 8 threads with UI.
+mem_alloc="20m"
 
 # Options to reduce mem usage and number of threads:
 #  -XX:+UseCompressedClassPointers 

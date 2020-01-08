@@ -6,8 +6,9 @@ set ALL_ARGS=%*
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 6m max usage for 8 threads
-set mem_alloc=6m
+:: 4m max usage for 8 threads with NO UI.
+:: 7m max usage for 8 threads with UI.
+set mem_alloc=4m
 
 :: Options to reduce mem usage and number of threads:
 ::  -XX:+UseCompressedClassPointers 

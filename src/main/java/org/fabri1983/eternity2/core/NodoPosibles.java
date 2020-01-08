@@ -86,7 +86,7 @@ public final class NodoPosibles
 	}
 
 	private static void setSizeByKey(NodoPosibles np, int key) {
-		int size = NodoPosiblesMapSizePerIndex.getInstance().getSizeForKey(key);
+		int size = NodoPosiblesMapSizePerIndex.getSizeForKey(key);
 		np.referencias = new short[size];
 		np.rots = new byte[size];
 		// initialize referencias with -1

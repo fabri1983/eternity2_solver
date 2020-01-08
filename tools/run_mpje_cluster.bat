@@ -8,8 +8,9 @@ set PATH=%PATH%;%MPJ_HOME%/bin
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 25m max usage for 8 local process instances.
-set mem_alloc=25m
+:: 20m max usage for 8 threads with NO UI.
+:: 25m max usage for 8 threads with UI.
+set mem_alloc=20m
 
 :: set the amount of total threads in the cluster. It has to be an homogeneous cluster type
 set TOTAL_THREADS_IN_CLUSTER=8

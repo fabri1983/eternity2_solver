@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.NodoPosibles;
-import org.fabri1983.eternity2.core.NodoPosiblesMapSizePerIndex;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
@@ -981,9 +980,6 @@ public final class SolverFaster {
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcesoContornos();
 		
-		// cargar mapa de indice -> size de arreglos para NodoPosibles
-		NodoPosiblesMapSizePerIndex.getInstance().load();
-		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];
 		// a start signal that prevents any ExplorationAction from proceeding until the orchestrator (this thread) is ready for them to proceed
@@ -1004,9 +1000,6 @@ public final class SolverFaster {
 		
 		// cargar la super estructura 4-dimensional (solo basta obtener las piezas de un exploracionAction)
 		cargarSuperEstructura(actions[0]);
-				
-		// limpiar mapa de indices -> size de arreglos para NodoPosibles
-		NodoPosiblesMapSizePerIndex.getInstance().clean();
 		
 		// this call avoids a OutOfHeapMemory error
 		System.gc();
