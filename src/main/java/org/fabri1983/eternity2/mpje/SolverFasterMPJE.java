@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.NodoPosibles;
-import org.fabri1983.eternity2.core.NodoPosiblesMapSizePerIndex;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
@@ -117,7 +116,7 @@ public final class SolverFasterMPJE {
 	 *   - total empty indexes   = 771021
 	 *   - total used indexes    =   6954
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
-	 * Ver archivo misc/super_matriz_indexes.txt
+	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
 	 * IMPROVEMENT FINAL: 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
@@ -235,9 +234,6 @@ public final class SolverFasterMPJE {
 		//seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcContornos();
 		
-		// cargar mapa de indice -> size de arreglos para NodoPosibles
-		NodoPosiblesMapSizePerIndex.getInstance().load();
-		
 		cargarPiezas();
 		
 		//hago una verificacion de las piezas cargadas
@@ -265,9 +261,6 @@ public final class SolverFasterMPJE {
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
-		
-		// limpiar mapa de indices -> size de arreglos para NodoPosibles
-		NodoPosiblesMapSizePerIndex.getInstance().clean();
 		
 		// this call avoids a OutOfHeapMemory error
 		System.gc();
