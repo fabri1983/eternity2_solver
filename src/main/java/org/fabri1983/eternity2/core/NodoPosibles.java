@@ -100,7 +100,7 @@ public final class NodoPosibles
 		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
 //			if (np.referencias[nextIndex] == null)
 			if (np.referencias[nextIndex] == -1)
-				break;
+				return nextIndex;
 		}
 		return nextIndex;
 	}
@@ -114,8 +114,8 @@ public final class NodoPosibles
 	 * output = 00000000000000000001010101010111
 	 * 
 	 * Eg:
-	 * number = 5463, b = 16
-	 * output = 0001010101010111
+	 * number = 5463, b = 13
+	 * output = 1010101010111
 	 * </pre>
 	 * 
 	 * @param number The number to convert
