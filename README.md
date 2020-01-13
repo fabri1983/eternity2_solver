@@ -63,7 +63,12 @@ MIT Computer Science and Artificial Intelligence Laboratory.
 
 - Optimizing Hash-Array Mapped Tries for Fast and Lean Immutable JVM Collections (2017). [link](https://michael.steindorfer.name/publications/oopsla15.pdf)  
 Michael J. Steindorfer - Centrum Wiskunde & Informatica, The Netherlands  
-Jurgen J. Vinju - Centrum Wiskunde & Informatica, The Netherlands  
+Jurgen J. Vinju - Centrum Wiskunde & Informatica, The Netherlands.
+
+- An Optimal Algorithm For Generating Minimal Perfect Hashing Functions. [link](http://http://cmph.sourceforge.net/papers/chm92.pdf)  
+George Havas and Bohdan S. Majewski.  
+Key Centre for Software Technology Department of Computer Science.  
+University of Queensland, Australia.
 
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
