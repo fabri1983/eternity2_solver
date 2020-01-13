@@ -213,9 +213,9 @@ CMPH - C Minimal Perfect Hashing Library
 ----------------------------------------
 http://cmph.sourceforge.net/  
 *Used when you have large set of keys.*  
-This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the super_matriz[24][24][24][24], 
-which is a structure to rapidly access candidate pieces.  
-**With this function we can save up to 99.1% of space**.  
+This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
+which is a structure to rapidly access candidate pieces with a total size of 331776‬ indexes.  
+Using the **Minimal Perfect Hash function** produced by the algorithm we can **save up to 99.1% of space** (even more if it were Huffman encoded).  
 Java implementation: `CMPH` to Java: https://github.com/thomasmueller/minperf  
 
 **Test CMPH with Docker**  
@@ -244,19 +244,23 @@ exit
 gperf - GNU perf
 ----------------
 https://www.gnu.org/software/gperf/  
-Generates a perfect hash function from a key set. Produces C and C++ files.  
+Generates a perfect hash function from a keys set. Produces C and C++ files.  
 *Used when you have small set of keys.*  
 See:
 - https://linux.die.net/man/1/gperf
 - https://developer.ibm.com/tutorials/l-gperf/
 - https://www.lrde.epita.fr/~tiger/doc/gnuprog2/Simple-Uses-of-Gperf.html
 
+**Test gperf with Docker**
+```sh
 docker run -it --rm alpine:latest /bin/ash
 apk update
 apk upgrade
 apk add --no-cache gperf wget ca-certificates
 rm -rf /tmp/*.apk /var/cache/apk/*
 ... complete this ...
+exit
+```
 
 
 perfect - Minimal Perfect Hashing tool
