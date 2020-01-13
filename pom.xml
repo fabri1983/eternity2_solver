@@ -256,6 +256,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+            				<createDependencyReducedPom>true</createDependencyReducedPom>
 							<minimizeJar>true</minimizeJar>
 							<filters>
 								<filter>
