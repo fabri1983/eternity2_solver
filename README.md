@@ -70,6 +70,9 @@ George Havas and Bohdan S. Majewski.
 Key Centre for Software Technology Department of Computer Science.  
 University of Queensland, Australia.
 
+- RecSplit [link](https://github.com/thomasmueller/minperf/blob/master/src/test/java/org/minperf/simple/recsplit.md)  
+A faster algorithm for Minimal Perfect Hash Function  
+
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
 
@@ -233,6 +236,7 @@ rm -rf /tmp/*.apk /var/cache/apk/*
 cmph -h
 wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file
 cmph -v -g keys_file
+  it generates a file named keys_file.mph
 cmph -v -m keys_file.mph keys_file
 37 -> 0
 49 -> 1
