@@ -65,7 +65,7 @@ public final class Contorno
 	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
 	 * 
 	 * IMPROVEMENT FINAL: 
-	 * Para 3 niveles (MAX_COLS=2): just using a 3 dimensional array I end up with MAX_COLORES(23)^3 = 12167 indexes which is the 52% of 23254.
+	 * Para 3 niveles (MAX_COLS=2): just using a 3 dimensional array I ended up with MAX_COLORES^3 = 12167 indexes which is the 52% of 23254.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * Para 4 niveles (MAX_COLS=3): idem but bigger array.
 	 * Para 5 niveles (MAX_COLS=4): idem but bigger array.

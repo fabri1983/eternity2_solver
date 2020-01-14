@@ -252,8 +252,34 @@ exit
 
 perfect - Minimal Perfect Hashing tool
 --------------------------------------
+Athor: Bob Jenkins  
 https://burtleburtle.net/bob/hash/perfect.html  
-It produces C files.  
+It produces C files with the final hash function.  
+
+**Let's use MinGW in Windows to compile the project**
+- Create a folder named `perfect` and locate into it.
+- Download all project files from the link above. And then:
+  - Rename `makeperf.txt` to `Makefile`.
+  - Rename `makeptst.txt` `MakefileSanity`.
+  - Edit both files and add `CC=gcc`.
+- Download MinGW from http://www.mingw.org/. *Note that this is the outdated version. For new version download from http://mingw-w64.org/*.
+- Run setup program and when the installation manager appears select from Baisc Setup:
+  - mingw-developer-toolkit-bin
+  - mingw32-base-bin
+  - mingw32-gcc-g++-bin
+  - msys-base 
+- Open cmd console:
+```bat
+set PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%
+make
+perfect -nm < samperf.txt
+make -f MakefileSanity
+foo -nm < samperf.txt
+curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
+perfect -dps < keys_file
+  options: d = decimal keys, p = perfect hash, s = slow method
+foo -dps < keys_file
+```
 
 **Let's build a Docker image to compile the project**  
 - Create a folder named `perfect` and locate into it.
@@ -288,30 +314,6 @@ docker container run --rm -it perfect
 ```
 - Once you exit the console the container is removed due to `--rm` flag.
 
-**Let's use MinGW in Windows to compile the project**
-- Create a folder named `perfect` and locate into it.
-- Download all project files from the link above. And then:
-  - Rename `makeperf.txt` to `Makefile`.
-  - Rename `makeptst.txt` `MakefileSanity`.
-  - Edit both files and add `CC=gcc`.
-- Download MinGW64 from http://www.mingw.org/. *Note that this is the outdated version. For new version download from http://mingw-w64.org/*.
-- Run setup program and when the installation manager appears select from Baisc Setup:
-  - mingw-developer-toolkit-bin
-  - mingw32-base-bin
-  - mingw32-gcc-g++-bin
-  - msys-base 
-- Open cmd console:
-```bat
-set PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%
-make
-perfect -nm < samperf.txt
-make -f MakefileSanity
-foo -nm < samperf.txt
-curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
-perfect -dps < keys_file
-foo -dps < keys_file
-```
-
 
 gperf - GNU perf
 ----------------
@@ -330,7 +332,7 @@ apk update
 apk upgrade
 apk add --no-cache gperf wget
 rm -rf /tmp/*.apk /var/cache/apk/*
-... complete this ...
+... COMPLETE THIS ...
 exit
 ```
 

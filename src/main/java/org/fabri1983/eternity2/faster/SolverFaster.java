@@ -421,7 +421,8 @@ public final class SolverFaster {
 	private final static void setNew(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		super_matriz[top][right][bottom][left] = NodoPosibles.newForKey(key);
+		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
+		super_matriz[top][right][bottom][left] = nodoPosibles;
 	}
 	
 	/**
