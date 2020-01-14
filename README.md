@@ -231,7 +231,7 @@ Java implementation: `CMPH` to Java: https://github.com/thomasmueller/minperf
 docker run -it --rm alpine:latest /bin/ash
 apk update
 apk upgrade
-apk add --no-cache cmph wget ca-certificates
+apk add --no-cache cmph wget
 rm -rf /tmp/*.apk /var/cache/apk/*
 cmph -h
 wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file
@@ -250,6 +250,69 @@ exit
 ```
 
 
+perfect - Minimal Perfect Hashing tool
+--------------------------------------
+https://burtleburtle.net/bob/hash/perfect.html  
+It produces C files.  
+
+**Let's build a Docker image to compile the project**  
+- Create a folder named `perfect` and locate into it.
+- Download all project files from the link above. And then:
+  - Rename `makeperf.txt` to `Makefile`.
+  - Rename `makeptst.txt` `MakefileSanity`.
+  - Edit both files and add `CC=gcc`.
+- Create a Dokckerfile with next content:
+```sh
+FROM ubuntu:20.04
+WORKDIR /perfect
+COPY . ./
+RUN apt-get update -y && apt-get install -y gcc make wget \
+    && rm -rf /var/lib/apt/lists/*
+RUN make -f Makefile \
+    && ./perfect -nm < samperf.txt \
+    && make -f MakefileSanity \
+	&& ./foo -nm < samperf.txt \
+    && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file \
+    && ./perfect -dps < keys_file
+    && ./foo -dps < keys_file
+CMD /bin/sh
+```
+- Create the image:
+```sh
+docker image build -t perfect .
+```
+- Fire a container and interact with it:
+```sh
+docker container run --rm -it perfect
+  it will prompt you a sh terminal located at /perfect folder
+```
+- Once you exit the console the container is removed due to `--rm` flag.
+
+**Let's use MinGW in Windows to compile the project**
+- Create a folder named `perfect` and locate into it.
+- Download all project files from the link above. And then:
+  - Rename `makeperf.txt` to `Makefile`.
+  - Rename `makeptst.txt` `MakefileSanity`.
+  - Edit both files and add `CC=gcc`.
+- Download MinGW64 from http://www.mingw.org/. *Note that this is the outdated version. For new version download from http://mingw-w64.org/*.
+- Run setup program and when the installation manager appears select from Baisc Setup:
+  - mingw-developer-toolkit-bin
+  - mingw32-base-bin
+  - mingw32-gcc-g++-bin
+  - msys-base 
+- Open cmd console:
+```bat
+set PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%
+make
+perfect -nm < samperf.txt
+make -f MakefileSanity
+foo -nm < samperf.txt
+curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
+perfect -dps < keys_file
+foo -dps < keys_file
+```
+
+
 gperf - GNU perf
 ----------------
 https://www.gnu.org/software/gperf/  
@@ -265,18 +328,11 @@ See:
 docker run -it --rm alpine:latest /bin/ash
 apk update
 apk upgrade
-apk add --no-cache gperf wget ca-certificates
+apk add --no-cache gperf wget
 rm -rf /tmp/*.apk /var/cache/apk/*
 ... complete this ...
 exit
 ```
-
-
-perfect - Minimal Perfect Hashing tool
---------------------------------------
-https://burtleburtle.net/bob/hash/perfect.html  
-Produces C files.  
-... I need to take a look into this ...
 
 
 Build a Graal VM on Windows and run your jar
