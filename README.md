@@ -277,8 +277,10 @@ perfect -nm < samperf.txt
 make -f MakefileSanity
 foo -nm < samperf.txt
 curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
-perfect -dps < keys_file
-  options: d = decimal keys, p = perfect hash, s = slow method
+perfect -dpf < keys_file
+  options: d = decimal keys, p = perfect hash, f = fast method
+  option f produces bigger tab[] but faster phash function
+  option s (slow, in exchange of f) produces smaller tab[] but slower phash function 
 foo -dps < keys_file
 ```
 
@@ -300,8 +302,8 @@ RUN make -f Makefile \
     && make -f MakefileSanity \
 	&& ./foo -nm < samperf.txt \
     && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file \
-    && ./perfect -dps < keys_file
-    && ./foo -dps < keys_file
+    && ./perfect -dpf < keys_file
+    && ./foo -dpf < keys_file
 CMD /bin/sh
 ```
 - Create the image:
