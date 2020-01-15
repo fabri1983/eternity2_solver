@@ -1,40 +1,40 @@
 package org.fabri1983.eternity2.core.mph;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 public class PerfectHashFunctionTest {
 
-	private static int[] buckets = new int[8192];
+	private static int[] super_matriz = new int[8192];
 
-	public static void main(String[] args) {
-		testBucketUniqueness();
-	}
-	
-	private static void testBucketUniqueness() {
+	@Test
+	public void testIndexUniqueness() {
 		for (int key : loadSuperMatrizKeys()) {
 			int index = PerfectHashFunction.hash(key);
-			System.out.println(String.format("%s %s", padRight(index+"", 8), key));
-			if (buckets[index] != 0) {
-				System.out.print("Duplicated bucket!");
+//			System.out.println(String.format("%s %s", padRight(index+"", 8), key));
+			if (super_matriz[index] != 0) {
+				Assert.fail(String.format("Duplicated index %s for key %s", index, key));
 				System.exit(0);
 			} else {
-				buckets[index] = 1;
+				super_matriz[index] = 1;
 			}
 		}
 	}
 	
-	public static String padRight(String inputString, int length) {
-	    if (inputString.length() >= length) {
-	        return inputString;
-	    }
-	    StringBuilder sb = new StringBuilder(inputString.length() + length);
-	    sb.append(inputString);
-	    while (sb.length() < length) {
-	        sb.append(' ');
-	    }
-	 
-	    return sb.toString();
-	}
+//	private static String padRight(String inputString, int length) {
+//	    if (inputString.length() >= length) {
+//	        return inputString;
+//	    }
+//	    StringBuilder sb = new StringBuilder(inputString.length() + length);
+//	    sb.append(inputString);
+//	    while (sb.length() < length) {
+//	        sb.append(' ');
+//	    }
+//	 
+//	    return sb.toString();
+//	}
 	
-	public static int[] loadSuperMatrizKeys() {
+	private static int[] loadSuperMatrizKeys() {
 		// array length is 6954
 		int[] keys = new int[] { 37, 49, 55, 305, 311, 553, 567, 741, 745, 753, 759, 1089, 1111, 1184, 1207, 1217, 1229,
 				1239, 1253, 1271, 1285, 1293, 1303, 1353, 1367, 1393, 1399, 1513, 1527, 1568, 1591, 1701, 1719, 1760,

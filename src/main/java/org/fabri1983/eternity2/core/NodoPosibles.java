@@ -122,7 +122,7 @@ public final class NodoPosibles
 	 * @param b      bits The number of bits from lower to highest position to generate
 	 * @return The 32-bit long bit string
 	 */
-	public static String intToString(int number, int b) {
+	public static String intToBinaryString(int number, int b) {
 		StringBuilder result = new StringBuilder(32);
 		for (int i = 31; i >= 0; i--) {
 			int mask = 1 << i;
