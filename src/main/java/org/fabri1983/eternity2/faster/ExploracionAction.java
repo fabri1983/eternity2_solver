@@ -573,32 +573,32 @@ public class ExploracionAction extends RecursiveAction {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][piezas[indicePcentral].top][tablero[_cursor - 1].right];
+				return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, maxColores, piezas[indicePcentral].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][piezas[indicePcentral].left][maxColores][tablero[_cursor - 1].right];
+				return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, piezas[indicePcentral].left, maxColores, tablero[_cursor - 1].right);
 		}
 		
 		final int flag_m = SolverFaster.matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == SolverFaster.F_INTERIOR) 
-			return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][tablero[_cursor - 1].right];
+			return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, maxColores, maxColores, tablero[_cursor - 1].right);
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > SolverFaster.F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case SolverFaster.F_BORDE_RIGHT:
-					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][gris][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, gris, maxColores, tablero[_cursor - 1].right);
 				//borde left
 				case SolverFaster.F_BORDE_LEFT:
-					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][maxColores][gris];
+					return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, maxColores, maxColores, gris);
 				// borde top
 				case SolverFaster.F_BORDE_TOP:
-					return SolverFaster.super_matriz[gris][maxColores][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.getNodoP(gris, maxColores, maxColores, tablero[_cursor - 1].right);
 				//borde bottom
 				default:
-					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][tablero[_cursor - 1].right];
+					return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, maxColores, gris, tablero[_cursor - 1].right);
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -606,16 +606,16 @@ public class ExploracionAction extends RecursiveAction {
 			switch (flag_m) {
 				//esquina top-left
 				case SolverFaster.F_ESQ_TOP_LEFT:
-					return SolverFaster.super_matriz[gris][maxColores][maxColores][gris];
+					return SolverFaster.getNodoP(gris, maxColores, maxColores, gris);
 				//esquina top-right
 				case SolverFaster.F_ESQ_TOP_RIGHT:
-					return SolverFaster.super_matriz[gris][gris][maxColores][tablero[_cursor - 1].right];
+					return SolverFaster.getNodoP(gris, gris, maxColores, tablero[_cursor - 1].right);
 				//esquina bottom-left
 				case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][maxColores][gris][gris];
+					return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, maxColores, gris, gris);
 					//esquina bottom-right
 				default:
-					return SolverFaster.super_matriz[tablero[_cursor - lado].bottom][gris][gris][tablero[_cursor - 1].right];
+					return SolverFaster.getNodoP(tablero[_cursor - lado].bottom, gris, gris, tablero[_cursor - 1].right);
 			}
 		}
 	}

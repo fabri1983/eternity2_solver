@@ -118,12 +118,17 @@ public final class SolverFasterMPJE {
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
-	 * IMPROVEMENT FINAL: 
+	 * IMPROVEMENT FINAL (CURRENT): 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
+	 * 
+	 * IMPROVEMENT FINAL (50% less memory but too slow):
+	 * Using a pre calculated Perfect Hash Function I ended up with an array size of 8192 which is the next power of 2
+	 * bigger than 6594.
 	 */
-	private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
-			[MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
+    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
+            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
+//	private final static NodoPosibles[] super_matriz = new NodoPosibles[6594];
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -437,68 +442,68 @@ public final class SolverFasterMPJE {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				if (get(pz.top, pz.right, pz.bottom, pz.left) == null)
-					setNew(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, pz.bottom, pz.left), k, rot);
+				if (getNodoP(pz.top, pz.right, pz.bottom, pz.left) == null)
+					setNewNodoP(pz.top, pz.right, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, pz.bottom, pz.left), k, rot);
 				
 				//tengo tres colores y uno faltante
-				if (get(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
-					setNew(MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
+				if (getNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
+					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
 				
-				if (get(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNew(pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				if (getNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
+					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (get(pz.top, pz.right, MAX_COLORES, pz.left) == null)
-					setNew(pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
+				if (getNodoP(pz.top, pz.right, MAX_COLORES, pz.left) == null)
+					setNewNodoP(pz.top, pz.right, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
-					setNew(pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
+					setNewNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				//tengo dos colores y dos faltantes
-				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (get(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
-					setNew(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
+				if (getNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
+					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
-					setNew(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
+					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNew(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				if (getNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
+					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 				
-				if (get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNew(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNew(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNewNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 
 				//tengo un color y tres faltantes
-				if (get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
-					setNew(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
+					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNew(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNewNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNew(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNew(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(get(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				if (getNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
+				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 			}
 			
 			//restauro la rotación
@@ -506,15 +511,19 @@ public final class SolverFasterMPJE {
 		}
 	}
 
-	private final static NodoPosibles get(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
-		return super_matriz[top][right][bottom][left];
+        return super_matriz[top][right][bottom][left];
+//		int key = NodoPosibles.getKey(top, right, bottom, left);
+//		return super_matriz[PerfectHashFunction.hash(key)];
 	}
 	
-	private final static void setNew(final byte top, final byte right, final byte bottom, final byte left)
+	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		super_matriz[top][right][bottom][left] = NodoPosibles.newForKey(key);
+		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
+		super_matriz[top][right][bottom][left] = nodoPosibles;
+//		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
 	}
 	
 	/**
@@ -1203,32 +1212,32 @@ public final class SolverFasterMPJE {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return super_matriz[tablero[_cursor - LADO].bottom][MAX_COLORES][piezas[INDICE_P_CENTRAL].top][tablero[_cursor - 1].right];
+				return getNodoP(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return super_matriz[tablero[_cursor - LADO].bottom][piezas[INDICE_P_CENTRAL].left][MAX_COLORES][tablero[_cursor - 1].right];
+				return getNodoP(tablero[_cursor - LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
 		}
 		
 		final int flag_m = matrix_zonas[_cursor];
 		
 		// estoy en interior de tablero?
 		if (flag_m == F_INTERIOR) 
-			return super_matriz[tablero[_cursor - LADO].bottom][MAX_COLORES][MAX_COLORES][tablero[_cursor - 1].right];
+			return getNodoP(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
 		// mayor a F_INTERIOR significa que estoy en borde
 		else if (flag_m > F_INTERIOR) {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return super_matriz[tablero[_cursor - LADO].bottom][GRIS][MAX_COLORES][tablero[_cursor - 1].right];
+					return getNodoP(tablero[_cursor - LADO].bottom, GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 				//borde left
 				case F_BORDE_LEFT:
-					return super_matriz[tablero[_cursor - LADO].bottom][MAX_COLORES][MAX_COLORES][GRIS];
+					return getNodoP(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, GRIS);
 				// borde top
 				case F_BORDE_TOP:
-					return super_matriz[GRIS][MAX_COLORES][MAX_COLORES][tablero[_cursor - 1].right];
+					return getNodoP(GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
 				//borde bottom
 				default:
-					return super_matriz[tablero[_cursor - LADO].bottom][MAX_COLORES][GRIS][tablero[_cursor - 1].right];
+					return getNodoP(tablero[_cursor - LADO].bottom, MAX_COLORES, GRIS, tablero[_cursor - 1].right);
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1236,16 +1245,16 @@ public final class SolverFasterMPJE {
 			switch (flag_m) {
 				//esquina top-left
 				case F_ESQ_TOP_LEFT:
-					return super_matriz[GRIS][MAX_COLORES][MAX_COLORES][GRIS];
+					return getNodoP(GRIS, MAX_COLORES, MAX_COLORES, GRIS);
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return super_matriz[GRIS][GRIS][MAX_COLORES][tablero[_cursor - 1].right];
+					return getNodoP(GRIS, GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return super_matriz[tablero[_cursor - LADO].bottom][MAX_COLORES][GRIS][GRIS];
+					return getNodoP(tablero[_cursor - LADO].bottom, MAX_COLORES, GRIS, GRIS);
 					//esquina bottom-right
 				default:
-					return super_matriz[tablero[_cursor - LADO].bottom][GRIS][GRIS][tablero[_cursor - 1].right];
+					return getNodoP(tablero[_cursor - LADO].bottom, GRIS, GRIS, tablero[_cursor - 1].right);
 			}
 		}
 	}
