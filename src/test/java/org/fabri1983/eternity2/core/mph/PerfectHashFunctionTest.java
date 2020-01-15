@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class PerfectHashFunctionTest {
 
-	private static int[] super_matriz = new int[8192];
+	private static int[] super_matriz = new int[PerfectHashFunction.PHASHRANGE];
 
 	@Test
 	public void testIndexUniqueness() {

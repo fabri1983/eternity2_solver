@@ -113,12 +113,11 @@ public final class SolverFaster {
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
 	 * IMPROVEMENT FINAL (50% less memory but too slow):
-	 * Using a pre calculated Perfect Hash Function I ended up with an array size of 8192 which is the next power of 2
-	 * bigger than 6594.
+	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
     final static NodoPosibles[][][][] super_matriz = new NodoPosibles
             [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-//	final static NodoPosibles[] super_matriz = new NodoPosibles[8192];
+//	final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
 	
 	final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	

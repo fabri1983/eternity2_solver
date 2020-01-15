@@ -9,6 +9,8 @@ package org.fabri1983.eternity2.core.mph;
  */
 public class PerfectHashFunction {
 
+	public static final int PHASHRANGE = 8192;
+	
 	// PHASHLEN 0x400 = 1024
 	private static short tab[] = { 7425, 2987, 6669, 322, 7733, 5355, 6669, 1905, 6159, 2534, 7585, 2572, 992, 3380,
 			7084, 2798, 1516, 3950, 6967, 6383, 608, 6528, 1819, 4351, 2478, 359, 3204, 7795, 5389, 992, 131, 6557,
@@ -69,6 +71,8 @@ public class PerfectHashFunction {
 			3822, 2987, 5512, 3155, 3879, 4262 };
 
 	public static int hash(int val) {
+		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign
+		
 		val += 0x6902a4cc; // PHASHSALT 0x6902a4cc = 1761780940
 		val ^= (val >>> 16);
 		val += (val << 8);
