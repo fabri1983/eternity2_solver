@@ -255,10 +255,11 @@ perfect - Minimal Perfect Hashing tool
 Athor: Bob Jenkins  
 https://burtleburtle.net/bob/hash/perfect.html  
 It produces C files with the final hash function.  
+A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.    
 
 **Let's use MinGW in Windows to compile the project**
 - Create a folder named `perfect` and locate into it.
-- Download all project files from the link above. And then:
+- Download all project files from the link above (original version). And then:
   - Rename `makeperf.txt` to `Makefile`.
   - Rename `makeptst.txt` `MakefileSanity`.
   - Edit both files and add `CC=gcc`.

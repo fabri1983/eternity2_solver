@@ -1,8 +1,8 @@
 package org.fabri1983.eternity2.core.mph;
 
 /**
- * This class generated manually from the output phash.c by the Bob Jenkins' 
- * Minimal Perfect Hash function algorithm.
+ * This class generated manually from the output algorithm in phash.c produced by the 
+ * Bob Jenkins' Minimal Perfect Hash function algorithm, taking as input the misc/super_matriz_decimal.txt file.
  * See README.md file on how to generate that function.
  * 
  * The hash range is 8192 (for the 6954 keys).
@@ -10,7 +10,7 @@ package org.fabri1983.eternity2.core.mph;
 public class PerfectHashFunction {
 
 	// length is 0x400 = 1024
-	private static int tab[] = { 7425, 2987, 6669, 322, 7733, 5355, 6669, 1905, 6159, 2534, 7585, 2572, 992, 3380,
+	private static short tab[] = { 7425, 2987, 6669, 322, 7733, 5355, 6669, 1905, 6159, 2534, 7585, 2572, 992, 3380,
 			7084, 2798, 1516, 3950, 6967, 6383, 608, 6528, 1819, 4351, 2478, 359, 3204, 7795, 5389, 992, 131, 6557,
 			7622, 5628, 7745, 4055, 6601, 7798, 5985, 5743, 7535, 3056, 1060, 5151, 3822, 6255, 684, 941, 844, 7646,
 			4262, 1057, 4703, 2616, 7017, 5522, 3561, 3155, 0, 8056, 183, 6863, 414, 1810, 6299, 2918, 1533, 6849, 6576,
@@ -69,11 +69,11 @@ public class PerfectHashFunction {
 			3822, 2987, 5512, 3155, 3879, 4262 };
 
 	public static int hash(int val) {
-		val += 0x6902a4cc; // 1761780940
+		val += 0x6902a4cc; // 0x6902a4cc = 1761780940 this is the phashsalt
 		val ^= (val >>> 16);
 		val += (val << 8);
 		val ^= (val >>> 4);
-		int b = (val >>> 8) & 0x3ff; // 1023
+		int b = (val >>> 8) & 0x3ff; // 0x3ff = 1023 => & 0x3ff is the fastest way of doing % 1024
 		int a = (val + (val << 1)) >>> 19;
 		int rsl = (a ^ tab[b]);
 		return rsl;
