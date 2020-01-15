@@ -39,6 +39,7 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForTilesFile;
 
 public final class SolverFaster {
@@ -113,12 +114,11 @@ public final class SolverFaster {
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
 	 * IMPROVEMENT FINAL (50% less memory but too slow):
-	 * Using a pre calculated Perfect Hash Function I ended up with an array size of 8192 which is the next power of 2
-	 * bigger than 6594.
+	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
-    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
-            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-//	final static NodoPosibles[] super_matriz = new NodoPosibles[8192];
+//    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
+//            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
+	final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
 	
 	final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
@@ -420,17 +420,17 @@ public final class SolverFaster {
 
 	final static NodoPosibles getNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
-        return super_matriz[top][right][bottom][left];
-//		int key = NodoPosibles.getKey(top, right, bottom, left);
-//		return super_matriz[PerfectHashFunction.hash(key)];
+//		return super_matriz[top][right][bottom][left];
+		int key = NodoPosibles.getKey(top, right, bottom, left);
+		return super_matriz[PerfectHashFunction.hash(key)];
 	}
 	
 	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
-		super_matriz[top][right][bottom][left] = nodoPosibles;
-//		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
+//		super_matriz[top][right][bottom][left] = nodoPosibles;
+		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
 	}
 	
 	/**
@@ -499,7 +499,7 @@ public final class SolverFaster {
 		//piezaCentral.pos= POSICION_CENTRAL;
 		action.tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
 		
-		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
+		System.out.println(action.id + " >>> Pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada en tablero");
 	}	
 
 	/**

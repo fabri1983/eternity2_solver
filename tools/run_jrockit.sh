@@ -33,4 +33,4 @@ mem_alloc="4m"
 #  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
 e2_jvm_opts="-XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
 
-java $e2_jvm_opts -Xbootclasspath/p:$jsr166 -server -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver_jrockit.jar ; cd $orig_dir
+java $e2_jvm_opts -Xbootclasspath/p:$jsr166 -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver_jrockit.jar ; cd $orig_dir

@@ -56,7 +56,7 @@ set e2_jvm_opts=-XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBas
 set java=C:/java/jrockit-jdk1.6.0_45-R28.2.7-4.1.0/bin/java
 set jsr166=lib/jsr166.jar
 
-%java% -Xbootclasspath/p:%jsr166% -server ^
+%java% -Xbootclasspath/p:%jsr166% ^
   %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %jvm_args% -jar e2solver_jrockit.jar %main_args% ^
   & chdir /d %ORIG_DIR%
 

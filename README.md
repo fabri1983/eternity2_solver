@@ -255,10 +255,11 @@ perfect - Minimal Perfect Hashing tool
 Athor: Bob Jenkins  
 https://burtleburtle.net/bob/hash/perfect.html  
 It produces C files with the final hash function.  
+A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.    
 
 **Let's use MinGW in Windows to compile the project**
 - Create a folder named `perfect` and locate into it.
-- Download all project files from the link above. And then:
+- Download all project files from the link above (original version). And then:
   - Rename `makeperf.txt` to `Makefile`.
   - Rename `makeptst.txt` `MakefileSanity`.
   - Edit both files and add `CC=gcc`.
@@ -276,8 +277,10 @@ perfect -nm < samperf.txt
 make -f MakefileSanity
 foo -nm < samperf.txt
 curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
-perfect -dps < keys_file
-  options: d = decimal keys, p = perfect hash, s = slow method
+perfect -dpf < keys_file
+  options: d = decimal keys, p = perfect hash, f = fast method
+  option f produces bigger tab[] but faster phash function
+  option s (slow, in exchange of f) produces smaller tab[] but slower phash function 
 foo -dps < keys_file
 ```
 
@@ -299,8 +302,8 @@ RUN make -f Makefile \
     && make -f MakefileSanity \
 	&& ./foo -nm < samperf.txt \
     && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file \
-    && ./perfect -dps < keys_file
-    && ./foo -dps < keys_file
+    && ./perfect -dpf < keys_file
+    && ./foo -dpf < keys_file
 CMD /bin/sh
 ```
 - Create the image:

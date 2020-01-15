@@ -39,14 +39,17 @@ Optimizaciones:
 ---------------
 - Modulo operation X % Y.
 The clever optimization is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
-It requires that your modulo divisor is a power of 2 but if your code can support this then here is the method:
+It requires that your modulo divisor is a power of 2 and dividend is positive, but if your code can support this then here is the method:
 
 	public final static int fastModulo(int dividend, int divisor)
 	{
 	   return dividend & (divisor - 1);
 	}
 
-- Usar java.nio buffers puede agilizar el acceso. No se a partir de que version de JVM.
+Another modulo reduciton to bitwise operations: http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
+Fast alternative to modulo reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+
+- Usar java.nio buffers puede agilizar el acceso. No sé a partir de que version de JVM.
 We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays (http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/).
 De donde saqué la idea: http://stackoverflow.com/questions/10784951/do-any-jvms-jit-compilers-generate-code-that-uses-vectorized-floating-point-ins
 Example: http://www.java-gaming.org/index.php?PHPSESSID=2ftumjcjo00el2q4vs28louqj5&topic=12346.msg98913#msg98913
