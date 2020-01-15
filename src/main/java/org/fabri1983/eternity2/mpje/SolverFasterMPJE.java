@@ -38,6 +38,7 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.SendMail;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
 import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
@@ -125,9 +126,9 @@ public final class SolverFasterMPJE {
 	 * IMPROVEMENT FINAL (50% less memory but too slow):
 	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
-    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
-            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-//	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
+//    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
+//            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
+	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -512,17 +513,17 @@ public final class SolverFasterMPJE {
 
 	private final static NodoPosibles getNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
-        return super_matriz[top][right][bottom][left];
-//		int key = NodoPosibles.getKey(top, right, bottom, left);
-//		return super_matriz[PerfectHashFunction.hash(key)];
+//		return super_matriz[top][right][bottom][left];
+		int key = NodoPosibles.getKey(top, right, bottom, left);
+		return super_matriz[PerfectHashFunction.hash(key)];
 	}
 	
 	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
-		super_matriz[top][right][bottom][left] = nodoPosibles;
-//		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
+//		super_matriz[top][right][bottom][left] = nodoPosibles;
+		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
 	}
 	
 	/**
@@ -593,7 +594,7 @@ public final class SolverFasterMPJE {
 		//piezaCentral.pos= POSICION_CENTRAL;
 		tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
 		
-		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada!");
+		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada en tablero");
 	}	
 
 	/**
@@ -1038,9 +1039,9 @@ public final class SolverFasterMPJE {
 		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos.
 		if (cursor == POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc
-			// para los calculos siguientes
-			int this_proc_absolute = THIS_PROCESS % NUM_PROCESSES;
+			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
+			// Using fast reduction trick to calculate: THIS_PROCESS % NUM_PROCESSES
+			int this_proc_absolute = THIS_PROCESS % NUM_PROCESSES;//(THIS_PROCESS * NUM_PROCESSES) >> 32;
 
 			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
 			if (NUM_PROCESSES == length_posibles) {
@@ -1104,7 +1105,7 @@ public final class SolverFasterMPJE {
 			{
 				final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 			
-				// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+				// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
 				// old was: ((cursor+2) % LADO) == 0
 				final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
 

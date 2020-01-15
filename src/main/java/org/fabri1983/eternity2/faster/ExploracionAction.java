@@ -386,9 +386,9 @@ public class ExploracionAction extends RecursiveAction {
 		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos.
 		if (cursor == POSICION_START_FORK_JOIN + pos_multi_process_offset) {
-			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc
-			// para los calculos siguientes
-			int this_proc_absolute = id % num_processes;
+			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
+			// Using fast reduction trick to calculate: id % num_processes
+			int this_proc_absolute = id % num_processes;//(id * num_processes) >> 32;
 
 			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
 			if (num_processes == length_posibles) {
@@ -458,7 +458,7 @@ public class ExploracionAction extends RecursiveAction {
 			{
 				final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 				
-				// For modulo try this for better performance only if divisor is power of 2: dividend & (divisor - 1)
+				// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
 				// old was: ((cursor+2) % LADO) == 0
 				final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
 				
