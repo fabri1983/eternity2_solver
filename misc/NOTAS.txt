@@ -6,6 +6,11 @@ TODO
 - Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el perfil su path.
 
 ---------------------------------------------------------------------------------------
+Java GC
+https://plumbr.io/handbook/what-is-garbage-collection
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 Fork/Join approach
 ------------------
 Uso de un ForkJoinPool executor que ejecuta instancias de RecursiveAction (RecursiveAction no retorna valor).
@@ -46,15 +51,20 @@ It requires that your modulo divisor is a power of 2 and dividend is positive, b
 	   return dividend & (divisor - 1);
 	}
 
-Another modulo reduction to bitwise operations: http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
+Another modulo reduction to bitwise operations:
+http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
 
-Fast alternative to modulo reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+Fast alternative to modulo reduction:
+https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 (IT DIDN'T WORK IN MY ALGORITHM)
 
 	public static int reduce(int dividend, int divisor) {
         return (int) (((dividend & 0xffffffffL) * divisor) >>> 32);
     }
-    
+
+New Reduction method:
+https://www.nayuki.io/page/barrett-reduction-algorithm
+
 - Usar java.nio buffers puede agilizar el acceso. No sé a partir de que version de JVM.
 We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays (http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/).
 De donde saqué la idea: http://stackoverflow.com/questions/10784951/do-any-jvms-jit-compilers-generate-code-that-uses-vectorized-floating-point-ins
