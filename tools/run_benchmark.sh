@@ -6,8 +6,8 @@ all_args=$@
 orig_dir=$(pwd)
 cd ../target
 
-# 2m max usage for 8 threads. Times 5 because we warm up 3 iterations and measure 2 iterations
-mem_alloc="10m"
+# 2m max usage for 8 threads. However the whole benchmark needs 4m
+mem_alloc="4m"
 
 # Options to reduce mem usage and number of threads:
 #  -Xss180k   Thread Stack Size

@@ -60,21 +60,21 @@ public final class NodoPosibles
 		return (top << 15) | (right << 10) | (bottom << 5) | left;
 	}
 	
-	public static final byte getTop(final int key) {
-		return (byte) ((key >> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
-	}
-	
-	public static final byte getRight(final int key) {
-		return (byte) ((key >> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
-	}
-	
-	public static final byte getBottom(final int key) {
-		return (byte) ((key >> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
-	}
-	
-	public static final byte getLeft(final int key) {
-		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
-	}
+//	public static final byte getTop(final int key) {
+//		return (byte) ((key >> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//	}
+//	
+//	public static final byte getRight(final int key) {
+//		return (byte) ((key >> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//	}
+//	
+//	public static final byte getBottom(final int key) {
+//		return (byte) ((key >> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//	}
+//	
+//	public static final byte getLeft(final int key) {
+//		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//	}
 	
 	public static final short getUbicPieza(final NodoPosibles np, short index)
 	{
@@ -90,7 +90,11 @@ public final class NodoPosibles
 		np.referencias = new short[size];
 		np.rots = new byte[size];
 		// initialize referencias with -1
-		for (int i=0; i < size; ++i) {
+		resetReferencias(np);
+	}
+
+	public static void resetReferencias(NodoPosibles np) {
+		for (int i=0, c=np.referencias.length; i < c; ++i) {
 			np.referencias[i] = -1;
 		}
 	}
@@ -104,7 +108,7 @@ public final class NodoPosibles
 		}
 		return nextIndex;
 	}
-	
+
 	/**
 	 * Converts an integer to a 32-bit binary string with the desired number of bits.
 	 * 

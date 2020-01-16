@@ -225,7 +225,7 @@
 					<target>${compiler.version}</target>
 					<compilerArgs>
 						<!--arg>-O</arg-->
-						<arg>-g:none</arg> <!-- doesn’t generate debugging information -->
+						<arg>-g:none</arg> <!-- skip generation of debugging information -->
 					</compilerArgs>
 				</configuration>
 			</plugin>

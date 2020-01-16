@@ -268,7 +268,7 @@ public final class SolverFasterMPJE {
 			tableboardE2.startPainting();
 		
 		// this call avoids a OutOfHeapMemory error
-		System.gc();
+//		System.gc();
 	}
 
 	/**
