@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.mph;
+package org.fabri1983.eternity2.core.misc;
 
 /** 
  * Barrett reduction algorithm (Java int/long).
