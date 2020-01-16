@@ -28,14 +28,14 @@ for %%a in (%*) do (
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 3m max usage for 8 threads. Times 5 because we warm up 3 iterations and measure 2 iterations
-set mem_alloc=15m
+:: 2m max usage for 8 threads. Times 5 because we warm up 3 iterations and measure 2 iterations
+set mem_alloc=10m
 
 :: Options to reduce mem usage and number of threads:
 ::  -Xss180k   Thread Stack Size
-::  -XX:+UseCompressedClassPointers 
-::  -XX:ObjectAlignmentInBytes=n
-::  -XX:+UseCompressedOops   Enables the use of compressed pointers (object references represented as 32 bit offsets instead of 64-bit pointers) for optimized 64-bit performance with Java heap sizes less than 32gb.
+::  -XX:+UseCompressedClassPointers   (NOT VALID since JVM 11.0.6) 
+::  -XX:ObjectAlignmentInBytes=n   (NOT VALID since JVM 11.0.6)
+::  -XX:+UseCompressedOops   (NOT VALID since JVM 11.0.6) Enables the use of compressed pointers (object references represented as 32 bit offsets instead of 64-bit pointers) for optimized 64-bit performance with Java heap sizes less than 32gb.
 ::  -Dsun.rmi.transport.tcp.maxConnectionThreads=0   Removes the creation of 4 threads, however no CPU profiling is available.
 ::  -XX:+UseSerialGC   Disables Parallel or Concurrent GC.
 ::  -XX:CICompilerCount=2   Reduces JIT compiler threads (but you can set 1 is adding before -XX:-TieredCompilation).
@@ -50,7 +50,7 @@ set mem_alloc=15m
 ::  -XX:HeapBaseMinAddress=0
 ::  -XX:FreqInlineSize=600   Using 600 bytes as the threshold for "too big for inline" which corresponds to method exploracionStandard() with a size of 595 bytes
 ::  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
-set e2_jvm_opts=-Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
+set e2_jvm_opts=-Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
 
 java %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %jvm_args% ^
   -jar e2solver_benchmark.jar %main_args% ^
