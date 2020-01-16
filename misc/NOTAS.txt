@@ -46,9 +46,14 @@ It requires that your modulo divisor is a power of 2 and dividend is positive, b
 	   return dividend & (divisor - 1);
 	}
 
-Another modulo reduciton to bitwise operations: http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
+Another modulo reduction to bitwise operations: http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
+
 Fast alternative to modulo reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 
+	public static int reduce(int dividend, int divisor) {
+        return (int) (((dividend & 0xffffffffL) * divisor) >>> 32);
+    }
+    
 - Usar java.nio buffers puede agilizar el acceso. No sé a partir de que version de JVM.
 We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays (http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/).
 De donde saqué la idea: http://stackoverflow.com/questions/10784951/do-any-jvms-jit-compilers-generate-code-that-uses-vectorized-floating-point-ins

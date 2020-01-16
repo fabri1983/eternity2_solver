@@ -47,8 +47,8 @@ In the past, experiments showed me that execution was faster using the JRockit J
 However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM flags tuning.  
 
 
-Papers that have influenced algorithms and hacks used in the solver
--------------------------------------------------------------------
+Papers and lectures that have influenced algorithms and hacks used in the solver
+--------------------------------------------------------------------------------
 
 - How many edges can be shared by N square tiles on a board? [link](http://tbenoist.pagesperso-orange.fr/papers/HowManyEdges.pdf) *link's dead :(*  
 Thierry Benoist, e-lab Research Report - April 2008.
@@ -75,6 +75,10 @@ A faster algorithm for Minimal Perfect Hash Function
 
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
+
+- VM Options Explorer
+https://chriswhocodes.com  
+This is just a website which points to JVM options and differences between the many JVMs.
 
 
 Third party APIs
@@ -465,7 +469,7 @@ This will help you to decide which iso you need to download:
 		(If in Linux then add option --no-server)
 		(If in Linux then call: mx native-image --server-shutdown)
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
-	Times for position 215 and 4 processes:
+	Times for position 215 and 4 processes (now outdated):
 		1 >>> 3232154 ms, cursor 215  (53.8 mins)
 		0 >>> 3272859 ms, cursor 215  (54.5 mins)
 	```
@@ -483,7 +487,7 @@ This will help you to decide which iso you need to download:
 	- Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
 	- See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
 	- See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
-	- To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with -H:-UseServiceLoaderFeature. That's where this is triggered from. You can also use -H:+TraceServiceLoaderFeature to see all the classes processed by this feature.
+	- To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
 	- 
 
 Running with Avian JVM

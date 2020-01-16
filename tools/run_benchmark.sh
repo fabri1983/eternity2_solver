@@ -10,7 +10,7 @@ cd ../target
 mem_alloc="15m"
 
 # Options to reduce mem usage and number of threads:
-#  -XXss180k   Thread Stack Size
+#  -Xss180k   Thread Stack Size
 #  -XX:+UseCompressedClassPointers 
 #  -XX:ObjectAlignmentInBytes=n
 #  -XX:+UseCompressedOops   Enables the use of compressed pointers (object references represented as 32 bit offsets instead of 64-bit pointers) for optimized 64-bit performance with Java heap sizes less than 32gb.
@@ -28,6 +28,6 @@ mem_alloc="15m"
 #  -XX:HeapBaseMinAddress=0
 #  -XX:FreqInlineSize=600   Using 600 bytes as the threshold for "too big for inline" which corresponds to method exploracionStandard() with a size of 595 bytes
 #  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
-e2_jvm_opts="-XXss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
+e2_jvm_opts="-Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:ObjectAlignmentInBytes=8 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:AllocatePrefetchStyle=2 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:+UseSerialGC -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
 
 java $e2_jvm_opts -Xms$mem_alloc -Xmx$mem_alloc $all_args -jar e2solver_benchmark.jar ; cd $orig_dir
