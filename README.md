@@ -10,8 +10,8 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
 - The project is managed with **Maven 3.6.x**. If you don´t want to download and install Maven then use local `mvnw` alternative.  
-- It provides several jar artifacts from **Java 6 to 12**.  
-- Additionally, a maven profile and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
+- It provides several jar artifacts from **Java 6 to 11**, a benchmark with JMH.  
+- Additionally, there are maven profiles and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
 
 The backtracker efficiency is backed by:
 - smart prunes
