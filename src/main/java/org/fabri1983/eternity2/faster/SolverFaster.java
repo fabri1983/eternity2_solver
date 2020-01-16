@@ -1011,7 +1011,7 @@ public final class SolverFaster {
 		cargarSuperEstructura(actions[0]);
 		
 		// this call avoids a OutOfHeapMemory error
-		System.gc();
+//		System.gc();
 	}
 	
 	/**
@@ -1100,6 +1100,11 @@ public final class SolverFaster {
 		
 		startSignal = new CountDownLatch(1);
 		doneSignal = new CountDownLatch(NUM_PROCESSES);
+		
+		for (int i=0; i < super_matriz.length; ++i) {
+			if (super_matriz[i] != null)
+				NodoPosibles.resetReferencias(super_matriz[i]);
+		}
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 			ExploracionAction exploracionAction = actions[proc];

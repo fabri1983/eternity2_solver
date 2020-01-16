@@ -50,14 +50,13 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.AverageTime)
+	@BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 3)
-    @Measurement(iterations = 2)
+    @Measurement(iterations = 3)
 	@Fork(value = 1)
-	public void init(MainFasterBenchmarkContextProvider context) {
+	public void atacar(MainFasterBenchmarkContextProvider context) {
 		context.solver.atacar(context.timeoutTaskInSecs);
-		context.solver.resetInternalStatus();
 	}
 	
 	@State(Scope.Benchmark)
@@ -68,12 +67,12 @@ public class MainFasterBenchmark {
 		// we are going to create and initialize the solver and only benchmark
 		public SolverFaster solver;
 		
-		@Setup(Level.Invocation)
+		@Setup(Level.Iteration)
 		public void setup() throws IOException {
 			
 			Properties properties = AppPropertiesReader.readProperties();
 			
-			SolverFaster solver = SolverFaster.build(
+			solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
 					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
 					Integer.parseInt(getProperty(properties,     "exploration.limit")),
@@ -101,9 +100,9 @@ public class MainFasterBenchmark {
 			return AppPropertiesReader.getProperty(properties, key);
 		}
 
-		@TearDown(Level.Invocation)
+		@TearDown(Level.Iteration)
 		public void doTearDown() {
-			System.gc();
+			solver.resetInternalStatus();
 		}
 		
 	}
