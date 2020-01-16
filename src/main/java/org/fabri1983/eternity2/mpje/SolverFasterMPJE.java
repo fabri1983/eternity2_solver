@@ -1040,8 +1040,7 @@ public final class SolverFasterMPJE {
 		// En este paso solo inicializo algunas variables para futuros cálculos.
 		if (cursor == POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
-			// Using fast reduction trick to calculate: THIS_PROCESS % NUM_PROCESSES
-			int this_proc_absolute = (int) (((THIS_PROCESS & 0xffffffffL) * NUM_PROCESSES) >>> 32);//(THIS_PROCESS * NUM_PROCESSES) >> 32;
+			int this_proc_absolute = THIS_PROCESS % NUM_PROCESSES;
 
 			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
 			if (NUM_PROCESSES == length_posibles) {

@@ -387,8 +387,7 @@ public class ExploracionAction extends RecursiveAction {
 		// En este paso solo inicializo algunas variables para futuros cálculos.
 		if (cursor == POSICION_START_FORK_JOIN + pos_multi_process_offset) {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
-			// Using fast reduction trick to calculate: id % num_processes
-			int this_proc_absolute = (int) (((id & 0xffffffffL) * num_processes) >>> 32);//(id * num_processes) >> 32;
+			int this_proc_absolute = id % num_processes;
 
 			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
 			if (num_processes == length_posibles) {
