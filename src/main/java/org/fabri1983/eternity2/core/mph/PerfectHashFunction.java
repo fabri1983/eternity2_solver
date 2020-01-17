@@ -5,7 +5,7 @@ package org.fabri1983.eternity2.core.mph;
  * Bob Jenkins' Minimal Perfect Hash function algorithm, taking as input the misc/super_matriz_decimal.txt file.
  * See README.md file on how to generate that function.
  * 
- * PHASHRANGE 16384 is the greatest value produced by phash(), for the 6954 keys, which means super_matriz[] size must be 16384.
+ * PHASHRANGE - 1 is the greatest value produced by phash(), for the 6954 keys, which means super_matriz[] size must be 16384.
  */
 public class PerfectHashFunction {
 
@@ -100,7 +100,7 @@ public class PerfectHashFunction {
 		int b = val & 0x7ff; // 0x7ff = 2043 => & 0x7ff is the fastest way of doing % 0x800 (PHASHLEN 2048)
 		int a = val >> 6; // before was ((val << 12 ) >>> 18)
 		int rsl = (a ^ tab[b]);
-		return rsl;
+		return rsl; // from 0 up to PHASHRANGE - 1
 	}
 	
 }
