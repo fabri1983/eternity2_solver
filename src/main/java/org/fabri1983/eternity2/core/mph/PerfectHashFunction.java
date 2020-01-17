@@ -5,14 +5,14 @@ package org.fabri1983.eternity2.core.mph;
  * Bob Jenkins' Minimal Perfect Hash function algorithm, taking as input the misc/super_matriz_decimal.txt file.
  * See README.md file on how to generate that function.
  * 
- * PHASHRANGE 16384, for the 6954 keys, which means super_matriz[] size must be 16384. 
+ * PHASHRANGE 16384 is the greatest value produced by phash(), for the 6954 keys, which means super_matriz[] size must be 16384.
  */
 public class PerfectHashFunction {
 
 	public static final int PHASHRANGE = 16384;
 	
 	// PHASHLEN 0x800 = 2048
-	private static short tab[] = { 0, 6522, 0, 0, 0, 0, 0, 0, 0, 1712, 0, 0, 0, 0, 0, 0, 0, 7247, 0, 0, 0, 0, 0, 13128,
+	static int tab[] = { 0, 6522, 0, 0, 0, 0, 0, 0, 0, 1712, 0, 0, 0, 0, 0, 0, 0, 7247, 0, 0, 0, 0, 0, 13128,
 			0, 0, 0, 0, 0, 0, 0, 0, 9095, 0, 15478, 0, 0, 46, 6674, 4972, 14629, 0, 9095, 11895, 0, 0, 0, 15919, 0,
 			2228, 0, 0, 0, 6599, 0, 13513, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13128, 6674, 0, 6674, 0, 6522, 0, 0, 9648,
 			1712, 0, 6522, 7247, 0, 0, 6674, 0, 999, 6674, 6522, 14571, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7247, 14629, 9095,
@@ -91,14 +91,14 @@ public class PerfectHashFunction {
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
 
-
-	public static int hash(int val) {
-		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign
+	public static int phash(int val) {
+		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign, if you work long numbers
 		
 		int b = val & 0x7ff; // 0x7ff = 2043 => & 0x7ff is the fastest way of doing % 0x800 (PHASHLEN 2048)
-		int a =((val << 12 ) >>> 18);
+		int a = val >> 6; // before was ((val << 12 ) >>> 18)
 		int rsl = (a ^ tab[b]);
 		return rsl;
 	}

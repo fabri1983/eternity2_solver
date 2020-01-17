@@ -109,7 +109,7 @@ public final class SolverFaster {
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
-	 * IMPROVEMENT FINAL (CURRENT): 
+	 * IMPROVEMENT FINAL (faster but more memory consumption): 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
@@ -422,7 +422,7 @@ public final class SolverFaster {
 	{
 //		return super_matriz[top][right][bottom][left];
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		return super_matriz[PerfectHashFunction.hash(key)];
+		return super_matriz[PerfectHashFunction.phash(key)];
 	}
 	
 	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
@@ -430,7 +430,7 @@ public final class SolverFaster {
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
-		super_matriz[PerfectHashFunction.hash(key)] = nodoPosibles;
+		super_matriz[PerfectHashFunction.phash(key)] = nodoPosibles;
 	}
 	
 	/**
