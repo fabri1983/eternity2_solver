@@ -185,6 +185,7 @@ public final class SolverFaster {
 		}
 		
 		usar_poda_color_explorado = p_poda_color_explorado; //indica si se usará la poda de colores right explorados en borde left
+		
 		MAX_NUM_PARCIAL = max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
 		ESQUINA_TOP_RIGHT = LADO - 1;
 		ESQUINA_BOTTOM_RIGHT = MAX_PIEZAS - 1;
