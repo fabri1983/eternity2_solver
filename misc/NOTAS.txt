@@ -55,15 +55,15 @@ Another modulo reduction to bitwise operations:
 http://homepage.cs.uiowa.edu/~jones/bcd/mod.shtml
 
 Fast alternative to modulo reduction:
-https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-(IT DIDN'T WORK IN MY ALGORITHM)
+	https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 
+	(IT DIDN'T WORK IN MY ALGORITHM)
 	public static int reduce(int dividend, int divisor) {
         return (int) (((dividend & 0xffffffffL) * divisor) >>> 32);
     }
 
 New Reduction method:
-https://www.nayuki.io/page/barrett-reduction-algorithm
+	https://www.nayuki.io/page/barrett-reduction-algorithm
 
 - Usar java.nio buffers puede agilizar el acceso. No sé a partir de que version de JVM.
 We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays (http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/).
@@ -81,7 +81,7 @@ Ej:
 	x= a ^ b ^ x; //where x is equal to either a or b
 
 - Cada vez que se crea un arreglo este se inicializa en tiempo de ejecución. Entonces cada vez
-que se invoca un metodo que crea un arreglo local se estó perdiendo tiempo en incializacion. 
+que se invoca un metodo que crea un arreglo local se está perdiendo tiempo en incializacion. 
 Lo mejor es crearlo como static.
 
 - Usar variables int en vez de short o byte. Java está optimizado para int.

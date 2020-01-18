@@ -38,37 +38,16 @@ public final class Contorno
 	
 	/**
 	 * Arreglo para saber si un contorno ha sido usado o no. 
+	 * 
+	 * Para 3 niveles (MAX_COLS=2): just using a 3-dimensional array I ended up with MAX_COLORES^3 = 12167 indexes which is the 52% of 23254.
+	 * It uses less memory and the access time is the same than the previous big array.
+	 * Para 4 niveles (MAX_COLS=3): idem but 4-dimensional array: MAX_COLORES^4
+	 * Para 5 niveles (MAX_COLS=4): idem but 5-dimensional array: MAX_COLORES^5
+	 * 
 	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
-	 * Por lo tanto voy a usar un arreglo de size:
-	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
-			   (MAX_COLORES * Math.pow(2, 5 * 1)) +
-			   (MAX_COLORES * Math.pow(2, 5 * 2)))
-	 *  donde MAX_COLORES = 23, y con 5 bits represento los 23 colores.
-	 * Si fuera a usar 4 niveles de desglosamiento tengo q agregar una suma mas: (MAX_COLORES * Math.pow(2, 5 * 3))
-	 * Si fuera a usar 5 niveles de desglosamiento tengo q agregar una suma mas: (MAX_COLORES * Math.pow(2, 5 * 4))
-	 * Entonces:
-	 *   con 3 niveles (MAX_COLS=2): size es 24311
-	 *   con 4 niveles (MAX_COLS=3): size es 777975
-	 *   con 5 niveles (MAX_COLS=4): size es 24895223
-	 *   
-	 * Improvement en array size: solo es valido cuando manejo colores con valores 0..22: 
-	 *   22 en binario es 10110, y como voy usar 5 bits shifteados a derecha 0, 5, y 10 veces (y 15 si uso 4 niveles 
-	 *   de desglosamiento, y 20 si suso 5 niveles), entonces el num maximo de combinación sería:
-	 *     para 3 niveles (MAX_COLS=2): 10110 10110 10110 = 23254 y el size calculado era 24334.
-	 *     	 => me ahorro 1080 indices
-	 *     para 4 niveles (MAX_COLS=3): 10110 10110 10110 10110 = 744150 y el size calculado era 777975.
-	 *     	 => me ahorro 33825 indices
-	 *     para 5 niveles (MAX_COLS=4): 10110 10110 10110 10110 10110 = 23812822 y el size calculado era 24895223.
-	 *     	=> me ahorro 1082401 indices
 	 *     
 	 * Some stats:
 	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
-	 * 
-	 * IMPROVEMENT FINAL: 
-	 * Para 3 niveles (MAX_COLS=2): just using a 3 dimensional array I ended up with MAX_COLORES^3 = 12167 indexes which is the 52% of 23254.
-	 * It uses less memory and the access time is the same than the previous big array.
-	 * Para 4 niveles (MAX_COLS=3): idem but bigger array.
-	 * Para 5 niveles (MAX_COLS=4): idem but bigger array.
 	 */
 	public final boolean[][][] contornos_used = new boolean[MAX_COLORES][MAX_COLORES][MAX_COLORES];
 	

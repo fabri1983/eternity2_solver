@@ -75,7 +75,7 @@ public class ExploracionAction extends RecursiveAction {
 	private CountDownLatch doneSignal;
 	
 	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, int limite_resultado_parcial, 
-			boolean _usar_poda_color_explorado, boolean _FairExperimentGif, boolean _usarTableroGrafico, 
+			boolean _FairExperimentGif, boolean _usar_poda_color_explorado, boolean _usarTableroGrafico, 
 			CountDownLatch startSignal, CountDownLatch doneSignal) {
 		
 		id = _id;
@@ -83,8 +83,8 @@ public class ExploracionAction extends RecursiveAction {
 		num_processes = _num_processes;
 		POSICION_START_FORK_JOIN = _pos_start_fork_join;
 		LIMITE_RESULTADO_PARCIAL = limite_resultado_parcial;
-		usar_poda_color_explorado = _usar_poda_color_explorado;
 		FairExperimentGif = _FairExperimentGif;
+		usar_poda_color_explorado = _usar_poda_color_explorado;
 		usarTableroGrafico = _usarTableroGrafico;
 		
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
@@ -435,8 +435,7 @@ public class ExploracionAction extends RecursiveAction {
 				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
-			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito empiezo con
-			// la más común que es interior
+			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
 			if (flag_zona == SolverFaster.F_INTERIOR ) {
 				// si pieza actual no es interior
 				if (p.feature != 0) continue;
@@ -453,36 +452,9 @@ public class ExploracionAction extends RecursiveAction {
 			}
 				
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (usar_poda_color_explorado)
-			{
-				final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-				
-				// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
-				// old was: ((cursor+2) % LADO) == 0
-				final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
-				
-				// si estoy antes del borde right limpio el arreglo de colores right usados
-				if (flag_antes_borde_right)
-					SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual + 1, 0);
-				
-				if (flag_zona == SolverFaster.F_BORDE_LEFT)
-				{
-					final int mask = 1 << p.right;
-					
-					// pregunto si el color right de la pieza de borde left actual ya está explorado
-					if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
-						p.usada = false; //la pieza ahora no es usada
-						//p.pos= -1;
-						continue; // sigo con otra pieza de borde
-					}
-					// si no es así entonces lo seteo como explorado
-					else {
-						// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
-						SolverFaster.arr_color_rigth_explorado.addAndGet(fila_actual, mask);
-						// int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
-						// SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual, value);
-					}
-				}
+			if (usar_poda_color_explorado) {
+				if (testPodaColorRightExplorado(flag_zona, p))
+					continue;
 			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
@@ -502,15 +474,9 @@ public class ExploracionAction extends RecursiveAction {
 			}*/
 			
 			//FairExperiment.gif: color bottom repetido en sentido horizontal
-			if (FairExperimentGif)
-			{
-				if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP)
-					if (p.bottom == tablero[cursor-1].bottom)
-					{
-						p.usada = false; //la pieza ahora no es usada
-						//p.pos= -1;
-						continue;
-					}
+			if (FairExperimentGif) {
+				if (testFairExperimentGif(flag_zona, p))
+					continue;
 			}
 	
 			//seteo los contornos como usados
@@ -543,10 +509,56 @@ public class ExploracionAction extends RecursiveAction {
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre
 
+		// restore multi process variables
 		num_processes = num_processes_orig[cursor];
 		--pos_multi_process_offset;
 		if (pos_multi_process_offset < 0)
 			pos_multi_process_offset = 0;
+	}
+
+	private final boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
+		
+		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		
+		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
+		// old was: ((cursor+2) % LADO) == 0
+		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
+		
+		// si estoy antes del borde right limpio el arreglo de colores right usados
+		if (flag_antes_borde_right)
+			SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual + 1, 0);
+		
+		if (flag_zona == SolverFaster.F_BORDE_LEFT)
+		{
+			final int mask = 1 << p.right;
+			
+			// pregunto si el color right de la pieza de borde left actual ya está explorado
+			if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
+				p.usada = false; //la pieza ahora no es usada
+				//p.pos= -1;
+				return true; // sigo con otra pieza de borde
+			}
+			// si no es así entonces lo seteo como explorado
+			else {
+				// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
+				SolverFaster.arr_color_rigth_explorado.addAndGet(fila_actual, mask);
+				// int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
+				// SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual, value);
+			}
+		}
+		
+		return false;
+	}
+
+	private final boolean testFairExperimentGif(final byte flag_zona, Pieza p) {
+		if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP) {
+			if (p.bottom == tablero[cursor-1].bottom) {
+				p.usada = false; //la pieza ahora no es usada
+				//p.pos= -1;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//##########################################################################//

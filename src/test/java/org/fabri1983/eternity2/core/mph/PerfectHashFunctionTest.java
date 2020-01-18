@@ -8,14 +8,14 @@ import org.junit.Test;
 
 public class PerfectHashFunctionTest {
 
-	private static int[] super_matriz = new int[PerfectHashFunction.PHASHRANGE];
-
 	@Test
 	public void testIndexUniqueness() {
-		boolean doPrint = false;
-		for (int key : loadSuperMatrizKeys()) {
+		int[] keys = loadSuperMatrizKeys();
+		int[] super_matriz = new int[PerfectHashFunction.PHASHRANGE];
+		boolean doPrintAll = false;
+		for (int key : keys) {
 			int index = PerfectHashFunction.phash(key);
-			if (doPrint) {
+			if (doPrintAll) {
 				System.out.println(String.format("%s %s", padRight(index+"", 8), key));
 			}
 			if (super_matriz[index] != 0) {
@@ -59,6 +59,28 @@ public class PerfectHashFunctionTest {
 		}
 	}
 	
+	@Test
+	public void testMinAndMaxIntegers() {
+		boolean doPrint = false;
+		
+		int min = IntStream.of(PerfectHashFunction.tab)
+			.boxed()
+			.filter( i -> i != 0 )
+			.min( Integer::compare )
+			.orElseThrow(); // 46
+		
+		if (doPrint)
+			System.out.println(String.format("Min number in tab[] (not zero): %s", min));
+		
+		int max = IntStream.of(PerfectHashFunction.tab)
+			.boxed()
+			.max( Integer::compare )
+			.orElseThrow(); // 16121
+		
+		if (doPrint)
+			System.out.println(String.format("Max number in tab[]: %s", max));
+	}
+
 	@Test
 	@Ignore
 	public void testDivisionReduction() {
@@ -134,22 +156,6 @@ public class PerfectHashFunctionTest {
 		 * 
 		 * ... continue this ...
 		 */
-	}
-	
-	@Test
-	public void testMinAndMaxIntegers() {
-		int min = IntStream.of(PerfectHashFunction.tab)
-			.boxed()
-			.filter( i -> i != 0 )
-			.min( Integer::compare )
-			.orElseThrow();
-		System.out.println(String.format("Min number in tab[] (not zero): %s", min));
-		
-		int max = IntStream.of(PerfectHashFunction.tab)
-			.boxed()
-			.max( Integer::compare )
-			.orElseThrow();
-		System.out.println(String.format("Max number in tab[]: %s", max));
 	}
 	
 	private static String padRight(String inputString, int length) {
