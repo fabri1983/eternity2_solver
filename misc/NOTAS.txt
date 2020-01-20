@@ -42,6 +42,9 @@ For including the jsr166 implementation jar, add next line to the VM arguments.
 ---------------------------------------------------------------------------------------
 Optimizaciones:
 ---------------
+- Lot of Bitwise tricks
+https://medium.com/@shashankmohabia/bitwise-operators-facts-and-hacks-903ca516f28c
+
 - Modulo operation X % Y.
 The clever optimization is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
 It requires that your modulo divisor is a power of 2 and dividend is positive, but if your code can support this then here is the method:
