@@ -23,9 +23,14 @@
 package org.fabri1983.eternity2.core.resourcereader;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-public interface ReaderForTilesFile {
+public class ClassLoaderReaderForFile implements ReaderForFile {
 
-	BufferedReader getReader(String file);
+	@Override
+	public BufferedReader getReader(String file) {
+		return new BufferedReader(
+				new InputStreamReader(ClassLoaderReaderForFile.class.getClassLoader().getResourceAsStream(file)));
+	}
 	
 }

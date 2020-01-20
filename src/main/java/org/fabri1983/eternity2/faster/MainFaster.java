@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
-import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
+import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
 
 public final class MainFaster
 {
@@ -53,7 +53,7 @@ public final class MainFaster
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile(),
+					new ClassLoaderReaderForFile(),
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 
 			properties = null;
