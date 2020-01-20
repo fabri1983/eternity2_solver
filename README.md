@@ -9,24 +9,29 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
-- The project is managed with **Maven 3.6.x**. If you don´t want to download and install Maven then use local `mvnw` alternative.  
+- The project is managed with **Maven 3.6.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
 - It provides several jar artifacts from **Java 6 to 11**, a benchmark with JMH.  
 - Additionally, there are maven profiles and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
 
 The backtracker efficiency is backed by:
-- smart prunes
-- clever data structures for quickly accessing data
-- primitive arrays whenever possible to reduce memory usage
-- bitwise operations
-- micro optimizations
+- smart prunes: parity check and patterns of placed tiles which don't allow to generate the same pattern again.
+- clever data structures for quickly accessing data: matrix of neighbour tiles, mask matrices.
+- primitive arrays whenever possible to reduce memory usage.
+- bitwise operations and micro optimizations.
+- minimal perfect hash function to quickly access neighbour tiles.
 
-There are two versions of the same solver: one using a **fork-join pool** and other using **MPI (for distributed execution)**.  
+There are two versions of the same solver: 
+ - one using a **fork-join pool**.
+ - other using **MPI (for distributed execution)**.
+  
 The placement of tiles follows a row-scan schema from top-left to bottom-right.  
 
-The project is under continuous development, mostly on spare time. Every time I come up with an idea, improvement, or code re-factor is for performance gain purposes. I focus on 2 main strategies:  
+The project is under continuous development, mostly on spare time. 
+Every time I come up with an idea, improvement, or code refactor is for performance gain purpose. 
+I focus on 2 main strategies:  
 - *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board after it passes a series of filters. 
 Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
-- *Time needed to reach a given position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
+- *Time needed to reach a given board position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
   
 
 Some stats
