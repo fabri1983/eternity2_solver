@@ -19,6 +19,7 @@ The backtracker efficiency is backed by:
 - primitive arrays whenever possible to reduce memory usage.
 - bitwise operations and micro optimizations.
 - minimal perfect hash function to quickly access neighbour tiles.
+- Lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
  - one using a **fork-join pool**.
@@ -37,7 +38,7 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 Some stats
 ----------
 
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 Dual Channel. OpenJDK 12. Results:  
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz Dual Channel. OpenJDK 11. Results:  
 Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
 Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.0.2**, **with 8 threads**.  
@@ -48,8 +49,8 @@ Placing approx **107 million tiles per second** using MPJ Express framework as m
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
-In the past, experiments showed me that execution was faster using the JRockit JVM from Oracle. I saw a 25% speed up.  
-However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution as historical and no more JVM flags tuning.  
+In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% speed up.  
+However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution profile as historical.  
 
 
 Papers and lectures that have influenced algorithms and hacks used in the solver
