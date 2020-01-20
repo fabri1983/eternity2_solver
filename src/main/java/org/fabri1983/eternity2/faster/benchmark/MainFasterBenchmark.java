@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
-import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForTilesFile;
+import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
 import org.fabri1983.eternity2.faster.SolverFaster;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -85,7 +85,7 @@ public class MainFasterBenchmark {
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForTilesFile(),
+					new ClassLoaderReaderForFile(),
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 			
 			properties = null;

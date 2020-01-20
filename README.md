@@ -71,7 +71,11 @@ Key Centre for Software Technology Department of Computer Science.
 University of Queensland, Australia.
 
 - RecSplit [link](https://github.com/thomasmueller/minperf/blob/master/src/test/java/org/minperf/simple/recsplit.md)  
-A faster algorithm for Minimal Perfect Hash Function  
+A faster algorithm for Minimal Perfect Hash Function.  
+
+- Minimal Perfect Hashing by Bob Jenkins [link](https://burtleburtle.net/bob/hash/perfect.html)  
+Minimal Perfect Hashing tool for C code generation.  
+Updated version compatible with MSVC compilers [here](https://github.com/driedfruit/jenkins-minimal-perfect-hash).  
 
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
@@ -258,8 +262,8 @@ perfect - Minimal Perfect Hashing tool
 --------------------------------------
 Athor: Bob Jenkins  
 https://burtleburtle.net/bob/hash/perfect.html  
-It produces C files with the final hash function.  
-A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.    
+It produces C files with the final hash function. **This is the solution I'm using actually**.  
+A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.  
 
 **Let's use MinGW in Windows to compile the project**
 - Create a folder named `perfect` and locate into it.
