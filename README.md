@@ -19,7 +19,7 @@ The backtracker efficiency is backed by:
 - primitive arrays whenever possible to reduce memory usage.
 - bitwise operations and micro optimizations.
 - minimal perfect hash function to quickly access neighbour tiles.
-- Lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
+- lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
  - one using a **fork-join pool**.
@@ -110,19 +110,19 @@ Helpful links:
  - http://proguard.sourceforge.net/manual/examples.html
 
 
-Generate Artifact
------------------
+Generate an Artifact
+--------------------
 *Note: if you don't have local Maven installation then use provided* `mvnw`.  
-*Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` and `jsse.jar`, *comment* `jmods`.    
+*Note: if you are using a JVM version 8 or smaller then you need to apply next changes in* `proguard.conf`: *uncomment* `rt.jar` *and* `jsse.jar`, *comment* `jmods`.    
 
 Generate the jar artifact:  
 ```sh
 mvn clean package
 ```
-It generates the jar file with **default profile java8** and copy the external dependencies under target folder.  
-Also by default it uses ProGuard code processing. Add `-Dproguard.skip=true` to generate simple java jar.    
+It creates a jar file with **default profile java8** and copy the external dependencies under target folder.  
+Also by default it uses `Proguard` code processing. Add `-Dproguard.skip=true` avoid Proguard processing.  
 
-**Profiles (use -P)**
+**Profiles (use -P <name>)**
 - `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
 - `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
