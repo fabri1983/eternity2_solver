@@ -23,7 +23,7 @@ The backtracker efficiency is backed by:
 - lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
- - one using a **fork-join pool**.
+ - one using a **thread pool**.
  - other using **MPI (for distributed execution)**.
   
 The placement of tiles follows a row-scan schema from top-left to bottom-right.  
@@ -40,18 +40,15 @@ Some stats
 ----------
 
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz Dual Channel. OpenJDK 11. Results:  
-Placing approx **66.8 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **66.8 million tiles per second** running with a thread pool **with 8 threads**.  
 Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.0.2**, **with 8 threads**.  
 
 - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
-Placing approx **97 million tiles per second** running with a fork-join pool **with 8 threads**.  
+Placing approx **97 million tiles per second** running with a thread pool **with 8 threads**.  
 Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
-
-In the past, experiments showed that execution was faster using the JRockit JVM from Oracle. I saw a 25% speed up.  
-However new JVMs since 1.7 brought a gain in performance which made me leave the JRockit execution profile as historical.  
 
 
 Papers and lectures that have influenced algorithms and hacks used in the solver
@@ -103,10 +100,6 @@ Third party APIs
 **MPJ Express**. http://mpj-express.org/.  
 It is included in the project as a system dependency  
 
-**jsr166**. https://www.jcp.org/en/jsr/detail?id=166.  
-Is the java concurrent api for JVM 1.6 target builds.  
-This api provides fork/join concurrency functionality to run the program on the Oracle JRockit VM.  
-
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
 With this tool I could **decrease jar file size by 20%**. **Code execution is 50% faster** on Windows box using MPJe.  
@@ -131,7 +124,6 @@ Also by default it uses `Proguard` code processing. Add `-Dproguard.skip=true` a
 
 **Profiles (use -P <name>)**
 - `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
-- `jrockit`: intended for running on Oracle's JRockit JVM (the one that is java 1.6 version only). Creates `e2solver_jrockit.jar`.
 - `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`, `java11native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
@@ -171,10 +163,9 @@ E.g.:
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.bat/sh` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
-Use `run_jrockit.bat/sh` for running the `e2solver_jrockit.jar` package generated with profile *jrockit*.  
-Use `run_mpje_[multicore|cluster].bat/sh` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
-Use `run_benchmark.bat/sh` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
+Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
+Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
+Use `run_benchmark.[bat|sh]` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
 Known issues
@@ -192,7 +183,7 @@ Use `jdeps` to know which java modules the final application needs to run.
 Note that we are using `--multi-release=12`.  
 Then you can build a custom and smaller JRE.  
 
-- *NOTE*: depending on the maven profile you use to geenrate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje`, `e2solver_jrockit`. 
+- *NOTE*: depending on the maven profile you use to geenrate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje`. 
 
 - Windows:
 ```sh
