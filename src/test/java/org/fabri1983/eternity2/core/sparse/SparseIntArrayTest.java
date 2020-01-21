@@ -1,31 +1,32 @@
-package org.fabri1983.eternity2.core.mph.recsplit;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
+package org.fabri1983.eternity2.core.sparse;
 
 import org.fabri1983.eternity2.core.testutil.Blackhole;
 import org.fabri1983.eternity2.core.testutil.KeysLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * This unit test loads an existing mphf file produced from project minperf (https://github.com/thomasmueller/minperf) 
- * with manual modifications to use an IntHash function.
- */
-public class IntRecSplitEvaluatorTest {
+public class SparseIntArrayTest {
 
 	@Test
-	public void testIntRecSplitEvaluatorLoad() throws IOException, URISyntaxException {
+	public void testSparseIntArray() {
 		
-		System.out.print("loading mphf file... ");
-		IntRecSplitEvaluator eval = IntRecSplitLoad.load();
-		System.out.println("done.");
+		int[] keys = KeysLoader.loadSuperMatrizKeys();
+		
+		System.out.print("generating SparseIntArray... ");
+		SparseIntArray sparseIntArray = new SparseIntArray(keys.length);
+		// Note: append(k, v) used only when keys are traversed in ascendent order
+		int i = 0;
+		for (int k : keys) {
+			sparseIntArray.append(k, i);
+			++i;
+		}
+		System.out.println(String.format("done. Mappings=%s, Keys array length=%s, Values array length=%s", 
+				sparseIntArray.numberOfMappings(), sparseIntArray.lengthOfKeysArray(), sparseIntArray.lengthOfValuesArrays()));
 		
 		System.out.print("evaluating... ");
-		int[] keys = KeysLoader.loadSuperMatrizKeys();
         int[] set = new int[keys.length];
 		for (int k : keys) {
-			int bucket = eval.evaluate(k);
+			int bucket = sparseIntArray.get(k);
 			if (set[bucket] != 0) {
 				Assert.fail(String.format("Duplicated value %s for key %s", bucket, k));
 			} else {
@@ -39,14 +40,14 @@ public class IntRecSplitEvaluatorTest {
 		int loops=5, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int k : keys) {
-				int bucket = eval.evaluate(k);
+				int bucket = sparseIntArray.get(k);
 				blackhole.consume(bucket);
 			}
 		}
 		long timeEval = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int k : keys) {
-				int bucket = eval.evaluate(k);
+				int bucket = sparseIntArray.get(k);
 				blackhole.consume(bucket);
 			}
 		}

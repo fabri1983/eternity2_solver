@@ -30,7 +30,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
@@ -109,11 +108,11 @@ public final class SolverFaster {
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
-	 * IMPROVEMENT FINAL (faster but more memory consumption): 
+	 * IMPROVEMENT (faster but more memory consumption): 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
-	 * IMPROVEMENT FINAL (50% less memory but too slow):
+	 * IMPROVEMENT FINAL (50% less memory but slower than an array access):
 	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
 //    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
@@ -401,8 +400,8 @@ public final class SolverFaster {
 					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
 				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNewNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				if (getNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES);
 				NodoPosibles.addReferencia(getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
@@ -1048,18 +1047,20 @@ public final class SolverFaster {
 //    }
 	
 	/**
-	 * Invoca al pool de fork-join con varias instancias de RecursiveAction: ExploracionAction.
+	 * Invoca al pool de threads con varias instancias de RecursiveAction: ExploracionAction.
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
 	public final void atacar(long timeoutTaskInSecs) {
 		
-		ForkJoinPool fjpool = new ForkJoinPool(NUM_PROCESSES, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, false);
+		Thread[] pool = new Thread[NUM_PROCESSES];
 		
-		// submit all fork join tasks
+		// submit all threads tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
 			System.out.println("ExploracionAction " + i + " submitted");
-			fjpool.submit(actions[i]);
+			Thread thread = new Thread(actions[i]);
+			pool[i] = thread;
+			thread.start();
 		}
 		
 		// let all tasks proceed
@@ -1076,25 +1077,12 @@ public final class SolverFaster {
 			System.out.println(e.getMessage());
 		} finally {
 			System.out.println("Interrupting tasks...");
-			fjpool.shutdownNow();
+			for (Thread t : pool) {
+				t.interrupt();
+				t.stop();
+			}
 			System.out.println("Tasks interrupted.");
 		}
-
-		/*fjpool.invoke(new RecursiveAction() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void compute () {
-				// Since there is no task division inside any ExploracionAction then we don't need to use join() to await for results.
-				// So let's fork all actions so they are allocated inside the pool
-				for (int i=0, c=actions.length; i < c; ++i) {
-					if (i == (c-1))
-						actions[i].compute(); // direct invoke so this thread is also used for computation
-					else
-						actions[i].fork();
-				}
-			}
-		});*/
 	}
 	
 	public void resetInternalStatus() {
@@ -1109,7 +1097,6 @@ public final class SolverFaster {
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 			ExploracionAction exploracionAction = actions[proc];
-			exploracionAction.reinitialize();
 			exploracionAction.resetForAtaque(NUM_PROCESSES, startSignal, doneSignal);
 		}
 	}

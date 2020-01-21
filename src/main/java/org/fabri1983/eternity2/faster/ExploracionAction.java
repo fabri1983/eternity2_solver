@@ -23,21 +23,14 @@
 package org.fabri1983.eternity2.faster;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 
-/**
- * This action doesn't create sub actions (it doesn't fork/join)
- * Extends from RecursiveAction (do not yield a return value).
- */
-public class ExploracionAction extends RecursiveAction {
+public class ExploracionAction implements Runnable {
 
-	private static final long serialVersionUID = 1L;
-	
 	String statusFileName, parcialFileName, parcialMaxFileName, 
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
@@ -152,7 +145,7 @@ public class ExploracionAction extends RecursiveAction {
 	}
 
 	@Override
-	public void compute() {
+	public void run() {
 		try {
 			// await for starting signal
 			startSignal.await();

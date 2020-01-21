@@ -72,32 +72,6 @@
 
 	<profiles>
 		<profile>
-			<id>jrockit</id>
-			<properties>
-				<final.jar.name>e2solver_jrockit</final.jar.name>
-				<source.version>1.6</source.version>
-				<compiler.version>1.6</compiler.version>
-				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
-				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
-				<shade.exclusion.filter.3>dummy/package/name</shade.exclusion.filter.3>
-				<pg.compiler.version>1.6</pg.compiler.version>
-				<pg.injar.filter></pg.injar.filter>
-				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
-			</properties>
-			<dependencies>
-				<!-- The jsr166 dependency is only used when compiling for java 1.6 and 
-				executed under Oracle's Jrockit JVM -->
-				<dependency>
-					<groupId>jsr</groupId>
-					<artifactId>jsr166</artifactId>
-					<version>1.0</version>
-					<scope>system</scope>
-					<systemPath>${external.libs.dir}/jsr166.jar</systemPath>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
 			<id>mpje</id>
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
@@ -210,10 +184,13 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
+				<excludes>
+					<exclude>profiles/*</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<filters>
-			<filter>src/main/resources/${env.props.file}</filter>
+			<filter>src/main/resources/profiles/${env.props.file}</filter>
 		</filters>
 		<plugins>
 			<plugin>

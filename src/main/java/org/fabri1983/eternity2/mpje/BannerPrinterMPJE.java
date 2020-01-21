@@ -9,7 +9,7 @@ public class BannerPrinterMPJE {
 		String lineSeparator = System.lineSeparator();
 		msgBuilder.append("##################################################################").append(lineSeparator);
 		msgBuilder.append("##- Uso de MPJ Express en modo híbrido (multicore y cluster).  -##").append(lineSeparator);
-		msgBuilder.append("##- Version con Estructura 4-dimensional, Smart-Podas y        -##").append(lineSeparator);
+		msgBuilder.append("##- Version con array MPHF 1-dimensional, Smart-Podas y        -##").append(lineSeparator);
 		msgBuilder.append("##- Contornos de colores pre calculados.                       -##").append(lineSeparator);
 		msgBuilder.append("##- Micro optimizaciones.                                      -##").append(lineSeparator);
 		msgBuilder.append("##################################################################").append(lineSeparator);
