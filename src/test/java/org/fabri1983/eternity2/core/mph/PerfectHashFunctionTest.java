@@ -3,8 +3,8 @@ package org.fabri1983.eternity2.core.mph;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fabri1983.eternity2.core.testutil.Blackhole;
-import org.fabri1983.eternity2.core.testutil.KeysLoader;
+import org.fabri1983.eternity2.core.util.Blackhole;
+import org.fabri1983.eternity2.core.util.KeysLoader;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

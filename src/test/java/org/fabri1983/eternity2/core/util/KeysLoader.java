@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.testutil;
+package org.fabri1983.eternity2.core.util;
 
 public class KeysLoader {
 

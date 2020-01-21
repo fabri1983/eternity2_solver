@@ -433,7 +433,7 @@ public final class SolverFasterMPJE {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, (byte)0);
+			Pieza.llevarARotacion(pz, 0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
@@ -1163,7 +1163,7 @@ public final class SolverFasterMPJE {
 	}
 
 
-	protected final static boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
+	private final static boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
 		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 
 		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
