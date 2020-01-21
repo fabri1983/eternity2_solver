@@ -23,7 +23,7 @@
 package org.fabri1983.eternity2.core;
 
 /**
- * Contiene una lista de referencias de piezas.
+ * Contiene arreglos de referencias de piezas y sus rotaciones.
  */
 public final class NodoPosibles
 {
@@ -41,12 +41,12 @@ public final class NodoPosibles
 	 * 
 	 * @param rot 
 	 */
-	public static final void addReferencia (final NodoPosibles np, final short p_index, byte rot)
+	public static final void addReferencia (final NodoPosibles np, final short piezaIndex, byte rot)
 	{
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		
-		np.referencias[nextIndex] = p_index;
+		np.referencias[nextIndex] = piezaIndex;
 		np.rots[nextIndex] = rot;
 	}
 

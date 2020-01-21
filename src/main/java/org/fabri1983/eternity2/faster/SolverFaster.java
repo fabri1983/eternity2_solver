@@ -340,7 +340,7 @@ public final class SolverFaster {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, (byte)0);
+			Pieza.llevarARotacion(pz, 0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
@@ -1051,6 +1051,7 @@ public final class SolverFaster {
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
+	@SuppressWarnings("deprecation")
 	public final void atacar(long timeoutTaskInSecs) {
 		
 		Thread[] pool = new Thread[NUM_PROCESSES];
@@ -1079,7 +1080,7 @@ public final class SolverFaster {
 			System.out.println("Interrupting tasks...");
 			for (Thread t : pool) {
 				t.interrupt();
-				t.stop();
+				t.stop(); // if thread isn't stop then its runnable task continues running
 			}
 			System.out.println("Tasks interrupted.");
 		}
