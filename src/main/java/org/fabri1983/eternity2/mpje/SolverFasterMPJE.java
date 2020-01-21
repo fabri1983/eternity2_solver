@@ -119,11 +119,11 @@ public final class SolverFasterMPJE {
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
-	 * IMPROVEMENT FINAL (faster but more memory consumption): 
+	 * IMPROVEMENT (faster but more memory consumption): 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
-	 * IMPROVEMENT FINAL (50% less memory but too slow):
+	 * IMPROVEMENT FINAL (50% less memory but slower than an array access):
 	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
 //    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
@@ -493,8 +493,8 @@ public final class SolverFasterMPJE {
 					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
 				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNewNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES);
+				if (getNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES) == null)
+					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES);
 				NodoPosibles.addReferencia(getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
 				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)

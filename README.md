@@ -18,7 +18,8 @@ The backtracker efficiency is backed by:
 - clever data structures for quickly accessing data: matrix of neighbour tiles, mask matrices.
 - primitive arrays whenever possible to reduce memory usage.
 - bitwise operations and micro optimizations.
-- minimal perfect hash function to quickly access neighbour tiles.
+- *minimal perfect hash function* to quickly access neighbour tiles.
+- *Elias-Fano* compression schema, a technique for compressing arrays of monotonically increasing integers.
 - lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
@@ -82,6 +83,12 @@ A faster algorithm for Minimal Perfect Hash Function.
 - Minimal Perfect Hashing by Bob Jenkins [link](https://burtleburtle.net/bob/hash/perfect.html)  
 Minimal Perfect Hashing tool for C code generation.  
 Updated version compatible with MSVC compilers [here](https://github.com/driedfruit/jenkins-minimal-perfect-hash).  
+
+- Quasi-Succinct Indices or *The Revenge of Elias and Fano* [link](https://shonan.nii.ac.jp/archives/seminar/029/wp-content/uploads/sites/12/2013/07/Sebastiano_Shonan.pdf)  
+Sebastiano Vigna. 2013. Quasi-succinct indices.  
+In Proceedings of the sixth ACM international conference on Web search and data mining (WSDM '13).  
+ACM, New York, NY, USA, 83-92.  
+Simple Java implementation: https://github.com/catenamatteo/eliasfano  
 
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
@@ -349,7 +356,7 @@ apk update
 apk upgrade
 apk add --no-cache gperf wget
 rm -rf /tmp/*.apk /var/cache/apk/*
-... COMPLETE THIS ...
+... gperf ONLY READS KEYWORDS AS STRINGS :( ...
 exit
 ```
 
