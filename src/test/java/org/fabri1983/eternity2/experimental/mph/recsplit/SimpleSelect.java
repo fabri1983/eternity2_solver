@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.fabri1983.eternity2.core.mph.recsplit;
+package org.fabri1983.eternity2.experimental.mph.recsplit;
 
 import java.util.BitSet;
 

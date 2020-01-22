@@ -1,4 +1,6 @@
-package org.fabri1983.eternity2.core.misc;
+package org.fabri1983.eternity2.experimental.misc;
+
+import java.util.Random;
 
 /** 
  * Barrett reduction algorithm (Java int/long).
@@ -8,9 +10,6 @@ package org.fabri1983.eternity2.core.misc;
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/barrett-reduction-algorithm
  */
-
-import java.util.Random;
-
 public final class SmallBarrettReducer {
 
 	/* Demo program */

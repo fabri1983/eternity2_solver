@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.util;
+package org.fabri1983.eternity2.util;
 
 import java.util.Random;
 

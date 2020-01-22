@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.sparse;
+package org.fabri1983.eternity2.experimental.sparse;
 
 /*
  * Copyright (C) 2006 The Android Open Source Project

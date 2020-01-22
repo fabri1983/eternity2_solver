@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.mph.recsplit;
+package org.fabri1983.eternity2.experimental.mph.recsplit;
 
 /**
  * A simple implementation of the BDZ algorithm as documented in

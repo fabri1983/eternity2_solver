@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.mph.recsplit;
+package org.fabri1983.eternity2.experimental.mph.recsplit;
 
 /**
  * A builder to generate a MPHF description, or to get an evaluator of a description.

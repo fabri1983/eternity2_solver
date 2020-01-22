@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.eliasfano;
+package org.fabri1983.eternity2.experimental.eliasfano;
 
 /*
  * Copyright 2016-2018 Matteo Catena
@@ -233,7 +233,6 @@ public final class EliasFano {
 			final long lowBitsOffset, final int startOffset) {
 		
 		final int h = val >>> l;
-		
 		int offset = startOffset;
 		int prev1Bits = 0;
 		int _0Bits = 0;
@@ -247,7 +246,9 @@ public final class EliasFano {
 		}
 		
 		offset = Math.max(offset - 1, startOffset); //conditional rollback
-
+		// IMPROVEMENT: at this point the variable offset can be used for a next call to select() or select2() 
+		// as startOffset if we know argument val is going to be bigger than the one in previous method call.
+		
 		int low = Bits.readBinary(in, lowBitsOffset + (l * prev1Bits), l);
 		int delta = ((offset - startOffset) * Byte.SIZE) - prev1Bits; // delta
 		int readFrom = offset * Byte.SIZE;

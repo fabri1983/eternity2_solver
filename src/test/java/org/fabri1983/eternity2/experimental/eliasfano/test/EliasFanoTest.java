@@ -1,7 +1,8 @@
-package org.fabri1983.eternity2.core.eliasfano;
+package org.fabri1983.eternity2.experimental.eliasfano.test;
 
-import org.fabri1983.eternity2.core.util.Blackhole;
-import org.fabri1983.eternity2.core.util.KeysLoader;
+import org.fabri1983.eternity2.experimental.eliasfano.EliasFano;
+import org.fabri1983.eternity2.util.Blackhole;
+import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.eliasfano;
+package org.fabri1983.eternity2.experimental.eliasfano;
 
 /*
  * Copyright 2016-2018 Matteo Catena

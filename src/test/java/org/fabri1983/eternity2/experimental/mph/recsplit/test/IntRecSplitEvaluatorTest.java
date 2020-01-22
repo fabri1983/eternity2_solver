@@ -1,12 +1,12 @@
-package org.fabri1983.eternity2.core.mph.recsplit.test;
+package org.fabri1983.eternity2.experimental.mph.recsplit.test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.fabri1983.eternity2.core.mph.recsplit.IntRecSplitEvaluator;
-import org.fabri1983.eternity2.core.mph.recsplit.IntRecSplitLoad;
-import org.fabri1983.eternity2.core.util.Blackhole;
-import org.fabri1983.eternity2.core.util.KeysLoader;
+import org.fabri1983.eternity2.experimental.mph.recsplit.IntRecSplitEvaluator;
+import org.fabri1983.eternity2.experimental.mph.recsplit.IntRecSplitLoad;
+import org.fabri1983.eternity2.util.Blackhole;
+import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
