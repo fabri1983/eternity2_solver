@@ -1,0 +1,26 @@
+# Dockerfile for Java 8 platform
+
+######################################################################################################
+FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u232-b09
+ARG E2_JAR
+
+# JAVA_HOME needs to be set:
+#   adoptopenjdk: /opt/java/openjdk
+#   zulu: /usr/lib/jvm/zulu-8
+
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="$PATH:$JAVA_HOME/bin"
+
+RUN mkdir -p /app/target
+
+COPY ${E2_JAR} /app/target/
+COPY libs /app/target/libs
+COPY tools /app/tools
+
+RUN chmod -R 755 /app/tools/*.sh \
+    && chmod -R 755 /app/target/libs/mpj-v0_44/bin/*
+
+WORKDIR /app/tools
+
+# Using CMD so it can be overwritten from outside
+CMD ./run.sh -Dui.show=false -Djava.awt.headless=true -Dsun.java2d.xrender=false
