@@ -1,0 +1,22 @@
+# This dockerfile intended to run the Signaling Server under GraalVM with an agentlib for 
+# produce native image configuration files for later usage on a native image build.
+# Produced json files must be located at src/main/resources/META-INF/native-image/org.fabri1983.eternity2 folder in your project. 
+ 
+######################################################################################################
+FROM oracle/graalvm-ce:19.3.1-java11 AS STAGING-WAR
+ARG E2_JAR
+
+ENV ENV_E2_JAR=${E2_JAR}
+
+RUN gu install native-image \
+    && mkdir native-config \
+    $$ mkdir -p /app
+
+COPY ${E2_JAR} /app/
+
+WORKDIR /app
+
+# Entry with exec so jvm flags are correctly gathered
+ENTRYPOINT exec java -agentlib:native-image-agent=config-output-dir=/native-config/ \
+  -Dui.show=false -Djava.awt.headless=true -Dsun.java2d.xrender=false \
+  -jar ${ENV_E2_JAR}

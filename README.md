@@ -172,9 +172,10 @@ Known issues
 ------------
 *Affects some JVM 8 builds:*  
 I'm having an exception when using the jpanel:  
-`java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
+  `java.lang.ClassCastException: sun.awt.image.BufImgSurfaceData cannot be cast to sun.java2d.xr.XRSurfaceData`  
 It seems to be a known issue: https://netbeans.org/bugzilla/show_bug.cgi?id=248774  
-Work around for this issue if you are using OpenJDK 8 version prior to 112: *-Dsun.java2d.xrender=false*
+Work around for this issue if you are using OpenJDK 8 version prior to 112: `-Dsun.java2d.xrender=false`.  
+Aditionally you can use `-Djava.awt.headless=true` to ignore graphics libraries.
 
 
 Using jdeps on generated jar to build custom JRE (Java 9+)

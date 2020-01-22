@@ -1,0 +1,25 @@
+# Ignore folders inside target folder to avoid sending them into Docker daemon
+antrun
+classes
+generated-sources
+generated-test-sources
+logs
+m2e-wtp
+maven-archiver
+maven-status
+original*.jar
+original*.war
+proguard_map.txt
+proguard_seed.txt
+*_proguard_base.*
+protoc-dependencies
+protoc-plugins
+site
+surefire-reports
+test-classes
+jacoco*
+
+# folders and files related to this project
+*.original
+solution
+status
