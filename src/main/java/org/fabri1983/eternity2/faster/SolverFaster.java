@@ -162,7 +162,7 @@ public final class SolverFaster {
 		MAX_CICLOS = m_ciclos;
 		
 		POSICION_START_FORK_JOIN = p_pos_fork_join;
-		NUM_PROCESSES = numProcesses;
+		NUM_PROCESSES = Math.min(Runtime.getRuntime().availableProcessors(), numProcesses);
 		// no tiene sentido usar varios threads si no se seteó correctamente la posición multi threading
 		if (POSICION_START_FORK_JOIN < 0)
 			NUM_PROCESSES = 1;
