@@ -181,20 +181,20 @@ Aditionally you can use `-Djava.awt.headless=true` to ignore graphics libraries.
 Using jdeps on generated jar to build custom JRE (Java 9+)
 ----------------------------------------------------------
 Use `jdeps` to know which java modules the final application needs to run.  
-Note that we are using `--multi-release=12`.  
+Note that we are using `--multi-release=11`.  
 Then you can build a custom and smaller JRE.  
 
-- *NOTE*: depending on the maven profile you use to geenrate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje`. 
+- *NOTE*: depending on the maven profile you use to generate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje.jar`, `e2solver_benchmark.jar`. 
 
 - Windows:
 ```sh
-jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps ^
+jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=11 --print-module-deps ^
   -cp target\libs\*;target\libs\javamail-1.4.5\lib\*;target\libs\mpj-v0_44\lib\* target\e2solver.jar
 ```
 
 - Linux:
 ```sh
-jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=12 --print-module-deps \
+jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=11 --print-module-deps \
   -cp target/libs/*:target/libs/javamail-1.4.5/lib/*:target/libs/mpj-v0_44/lib/* target/e2solver.jar
 ```
 
@@ -204,40 +204,37 @@ java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
 ```
 
 - Use ouput modules to build a smaller JRE:
-	- Windows:
-	```sh
-	jlink ^
-	     --module-path %JAVA_HOME%\jmods ^
-	     --compress=2 ^
-	     --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql ^
-	     --no-header-files ^
-	     --no-man-pages ^
-	     --strip-debug ^
-	     --output %JAVA_HOME%\customjre
-	```
+  - Windows:
+  ```sh
+  jlink ^
+   --module-path %JAVA_HOME%\jmods ^
+   --compress=2 ^
+   --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql ^
+   --no-header-files ^
+   --no-man-pages ^
+   --strip-debug ^
+   --output %JAVA_HOME%\customjre
+  ```
 
-	- Linux:
-	```sh
-	jlink \
-	     --module-path ${JAVA_HOME}/jmods \
-	     --compress=2 \
-	     --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql \
-	     --no-header-files \
-	     --no-man-pages \
-	     --strip-debug \
-	     --output ${JAVA_HOME}/customjre
-	```
-The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use it you have to update your `JAVA_HOME` environment variable and `PATH` too.
+  - Linux:
+  ```sh
+  jlink \
+   --module-path ${JAVA_HOME}/jmods \
+   --compress=2 \
+   --add-modules java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql \
+   --no-header-files \
+   --no-man-pages \
+   --strip-debug \
+   --output ${JAVA_HOME}/customjre
+  ```
+The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use it you have to update both `JAVA_HOME`and `PATH` environment variables.
 
 
 CMPH - C Minimal Perfect Hashing Library
 ----------------------------------------
 http://cmph.sourceforge.net/  
-*Used when you have large set of keys.*  
-This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
-which is a structure to rapidly access candidate pieces with a total size of 331776‬ indexes.  
-Using the **Minimal Perfect Hash function** produced by the algorithm we can **save up to 99.1% of space** (even more if it were Huffman encoded).  
-Java implementation: `CMPH` to Java: https://github.com/thomasmueller/minperf  
+*Used when you have large set of keys.*    
+Java implementation: https://github.com/thomasmueller/minperf.  
 
 **Test CMPH with Docker**  
 ```sh
@@ -267,10 +264,13 @@ perfect - Minimal Perfect Hashing tool
 --------------------------------------
 Athor: Bob Jenkins  
 https://burtleburtle.net/bob/hash/perfect.html  
-It produces C files with the final hash function. **This is the solution I'm using actually**.  
 A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.  
+It produces C files with the final hash function. **This is the solution I'm using actually**.  
+This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
+which is a structure to rapidly access candidate pieces, with a total size of 331776‬ indexes.  
+Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 99.1% of space** keeping the lookup time O(1) (but still slower than a direct array access).
 
-**Let's use MinGW in Windows to compile the project**
+**Let's use MinGW in Windows to compile the project and produce the C files**
 - Download MinGW from http://www.mingw.org/.
 - Run setup program and when the installation manager appears select from Baisc Setup:
   - mingw-developer-toolkit-bin
@@ -296,7 +296,7 @@ cat perf_hash.h
 cat perf_hash.c
 ```
 
-**Let's build a Docker image to compile the project**  
+**Let's build a Docker image to compile the project and produce the C files**  
 - Create a file named `Dockerfile` with next content:
 ```sh
 FROM alpine:3.10.3
@@ -329,7 +329,7 @@ cat perf_hash.c
 gperf - GNU perf
 ----------------
 https://www.gnu.org/software/gperf/  
-Generates a perfect hash function from a keys set. Produces C and C++ files.  
+Generates a perfect hash function from a string keys set. Produces C and C++ files.  
 *Used when you have small set of keys.*  
 See:
 - https://linux.die.net/man/1/gperf
