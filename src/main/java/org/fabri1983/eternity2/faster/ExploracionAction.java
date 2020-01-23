@@ -171,7 +171,7 @@ public class ExploracionAction implements Runnable {
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
-			explorar();
+			explorar(0);
 		//se carga estado de exploración, debo proveer la posibilidad de volver estados anteriores de exploracion
 		else {
 			//ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
@@ -183,7 +183,7 @@ public class ExploracionAction implements Runnable {
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
-					explorar();
+					explorar(desde_saved[cursor]);
 				}
 				--cursor;
 				
@@ -202,14 +202,16 @@ public class ExploracionAction implements Runnable {
 					tablero[cursor]= null;
 				}
 				
-				// si retrocedó hasta el cursor destino, entonces no retrocedo mas
-				/*
-				 * @RETROCEDER if (cursor <= cur_destino){ retroceder= false; cur_destino= CURSOR_INVALIDO; }
-				 * 
-				 * //si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
-				 * if (retroceder) desde_saved[cursor]= 0; //la exploracion de posibles piezas para la posicion cursor
-				 * debe empezar desde la primer pieza
-				 */
+				// si retrocedí hasta el cursor destino, entonces no retrocedo mas
+				/*@RETROCEDER
+				if (cursor <= cur_destino){
+					retroceder = false;
+					cur_destino = CURSOR_INVALIDO;
+				}
+				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
+				if (retroceder)
+					desde_saved[cursor] = 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
+				*/
 			}
 		}
 		
@@ -223,8 +225,6 @@ public class ExploracionAction implements Runnable {
 //			t.start();
 //		}
 	}
-
-	
 	
 	
 	//##########################################################################//
@@ -235,8 +235,10 @@ public class ExploracionAction implements Runnable {
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
+	 * 
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
 	 */
-	private final void explorar()
+	private final void explorar(int desde)
 	{	
 		//#############################################################################################
 		/**
@@ -316,14 +318,14 @@ public class ExploracionAction implements Runnable {
 		//#############################################################################################
 		
 		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
-		// Se supone que la pieza fija ya está debidamente colocada
+		// Se supone que la pieza fija ya está debidamente colocada.
 		if (cursor == SolverFaster.POSICION_CENTRAL) {
 			
 			//seteo los contornos como usados
 			setContornoUsado(cursor);
 			
 			++cursor;
-			explorar();
+			explorar(0);
 			--cursor;
 			
 			//seteo los contornoscomo libres
@@ -354,7 +356,7 @@ public class ExploracionAction implements Runnable {
 		
 		//#############################################################################################
 		//ahora hago la exploracion
-		exploracionStandard();
+		exploracionStandard(desde);
 		//#############################################################################################
 	}
 	
@@ -362,15 +364,16 @@ public class ExploracionAction implements Runnable {
 	 * Realiza toda la exploracion standard: cicla sobre las posibles piezas para las
 	 * posicon actual de cursor, y cicla sobre las posibles rotaciones de cada pieza.
 	 * Aplica varias podas que solamente son validas en este nivel de exploracion.
+	 * 
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
 	 */
-	private final void exploracionStandard()
+	private final void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
 		NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
 		
@@ -478,7 +481,7 @@ public class ExploracionAction implements Runnable {
 			//##########################
 			//Llamo una nueva instancia
 			++cursor;
-			explorar();
+			explorar(0);
 			--cursor;
 			//##########################
 				

@@ -775,7 +775,7 @@ public final class SolverFasterMPJE {
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
-			explorar();
+			explorar(0);
 		//se carga estado de exploración, debo proveer la posibilidad de volver estados anteriores de exploracion
 		else{
 			//ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
@@ -787,7 +787,7 @@ public final class SolverFasterMPJE {
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
-					explorar();
+					explorar(desde_saved[cursor]);
 				}
 				--cursor;
 				
@@ -807,13 +807,15 @@ public final class SolverFasterMPJE {
 				}
 				
 				//si retrocedí hasta el cursor destino, entonces no retrocedo mas
-				/*if (cursor <= cur_destino){
-					retroceder= false;
-					cur_destino= CURSOR_INVALIDO;
+				/*@RETROCEDER
+				if (cursor <= cur_destino){
+					retroceder = false;
+					cur_destino = CURSOR_INVALIDO;
 				}
 				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 				if (retroceder)
-					desde_saved[cursor]= 0;*/ //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
+					desde_saved[cursor] = 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
+				*/
 			}
 		}
 		
@@ -837,8 +839,10 @@ public final class SolverFasterMPJE {
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
+	 * 
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
 	 */
-	private final static void explorar ()
+	private final static void explorar (int desde)
 	{
 		/*@FILAS_PRECALCULADASif (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
 			//genero el arreglo de combinaciones de filas
@@ -926,16 +930,21 @@ public final class SolverFasterMPJE {
 		 */
 		//#############################################################################################
 		
-		//si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". Se supone que la pieza fija ya está debidamente colocada
+		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
+		// Se supone que la pieza fija ya está debidamente colocada.
 		if (cursor == POSICION_CENTRAL){
+			
 			//seteo los contornos como usados
 			setContornoUsado(cursor);
+			
 			++cursor;
-			explorar();
+			explorar(0);
 			--cursor;
+			
 			//seteo los contornoscomo libres
 			setContornoLibre(cursor);
-			/*if (cursor <= cur_destino){
+			/*@RETROCEDER
+			if (cursor <= cur_destino){
 				retroceder= false;
 				cur_destino=CURSOR_INVALIDO;
 			}*/
@@ -972,7 +981,7 @@ public final class SolverFasterMPJE {
 		
 		//#############################################################################################
 		//ahora hago la exploracion
-		exploracionStandard();
+		exploracionStandard(desde);
 		//#############################################################################################
 	}
 	
@@ -1022,15 +1031,16 @@ public final class SolverFasterMPJE {
 	 * Realiza toda la exploración standard: cicla sobre las posibles piezas para las
 	 * posicon actual de cursor, y cicla sobre las posibles rotaciones de cada pieza.
 	 * Aplica varias podas que solamente son validas en este nivel de exploracion.
+	 * 
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
 	 */
-	private final static void exploracionStandard ()
+	private final static void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
 		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		int desde = desde_saved[cursor];
 		int length_posibles = nodoPosibles.referencias.length;
 		final byte flag_zona = matrix_zonas[cursor];
 		
@@ -1131,7 +1141,7 @@ public final class SolverFasterMPJE {
 			//##########################
 			// Llamo una nueva instancia
 			++cursor;
-			explorar();
+			explorar(0);
 			--cursor;
 			//##########################
 				
@@ -1150,7 +1160,6 @@ public final class SolverFasterMPJE {
 			if (retroceder)
 				break;*/
 		}
-		
 
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = null; //dejo esta posicion de tablero libre
