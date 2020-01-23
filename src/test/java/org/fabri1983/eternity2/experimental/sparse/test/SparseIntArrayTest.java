@@ -27,7 +27,7 @@ public class SparseIntArrayTest {
 		System.out.print("evaluating... ");
         int[] set = new int[keys.length];
 		for (int k : keys) {
-			int bucket = sparseIntArray.get(k);
+			int bucket = sparseIntArray.get(k, -1);
 			if (set[bucket] != 0) {
 				Assert.fail(String.format("Duplicated value %s for key %s", bucket, k));
 			} else {
@@ -41,7 +41,7 @@ public class SparseIntArrayTest {
 		int loops=5, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int k : keys) {
-				int bucket = sparseIntArray.get(k);
+				int bucket = sparseIntArray.get(k, -1);
 				blackhole.consume(bucket);
 			}
 		}
