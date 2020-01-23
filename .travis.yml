@@ -18,7 +18,7 @@ cache:
 install:
   - java -version
   - mvn --version
-  - mvn --batch-mode clean compile -Pjava8
+  - mvn --batch-mode clean compile -Pjava8 -DskipTests=true
 
 # overrides travis 'script' step
 script:
