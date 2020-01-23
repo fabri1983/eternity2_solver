@@ -41,7 +41,7 @@ install:
 
 # this installs dependencies. Using default profile
 build_script:
-  - mvn --batch-mode clean package -DskipTests=true
+  - mvn --batch-mode clean package -Pjava8 -DskipTests=true
 
 test_script:
   - mvn --batch-mode clean package -Pjava8
