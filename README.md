@@ -271,52 +271,45 @@ It produces C files with the final hash function. **This is the solution I'm usi
 A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.  
 
 **Let's use MinGW in Windows to compile the project**
-- Create a folder named `perfect` and locate into it.
-- Download all project files from the link above (original version). And then:
-  - Rename `makeperf.txt` to `Makefile`.
-  - Rename `makeptst.txt` `MakefileSanity`.
-  - Edit both files and add `CC=gcc`.
-- Download MinGW from http://www.mingw.org/. *Note that this is the outdated version. For new version download from http://mingw-w64.org/*.
+- Download MinGW from http://www.mingw.org/.
 - Run setup program and when the installation manager appears select from Baisc Setup:
   - mingw-developer-toolkit-bin
   - mingw32-base-bin
   - mingw32-gcc-g++-bin
-  - msys-base 
-- Open cmd console:
+  - msys-base-bin
+- Then open a cmd console:
 ```bat
+git clone https://github.com/driedfruit/jenkins-minimal-perfect-hash perfect-jenkins
+cd perfect-jenkins
+edit Makefile and add CC=gcc
+curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
 set PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%
 make
 perfect -nm < samperf.txt
-make -f MakefileSanity
-foo -nm < samperf.txt
-curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
+test -nm < samperf.txt
 perfect -dpf < keys_file
   options: d = decimal keys, p = perfect hash, f = fast method
   option f produces bigger tab[] but faster phash function
   option s (slow, in exchange of f) produces smaller tab[] but slower phash function 
-foo -dps < keys_file
+test -dps < keys_file
+cat perf_hash.h
+cat perf_hash.c
 ```
 
 **Let's build a Docker image to compile the project**  
-- Create a folder named `perfect` and locate into it.
-- Download all project files from the link above. And then:
-  - Rename `makeperf.txt` to `Makefile`.
-  - Rename `makeptst.txt` `MakefileSanity`.
-  - Edit both files and add `CC=gcc`.
-- Create a Dokckerfile with next content:
+- Create a file named `Dockerfile` with next content:
 ```sh
-FROM ubuntu:20.04
-WORKDIR /perfect
-COPY . ./
-RUN apt-get update -y && apt-get install -y gcc make wget \
-    && rm -rf /var/lib/apt/lists/*
-RUN make -f Makefile \
+FROM alpine:3.10.3
+WORKDIR perfect
+RUN apk update && apk add wget git gcc make build-base \
+    && rm -rf /var/cache/apk/* \
+    && git clone https://github.com/driedfruit/jenkins-minimal-perfect-hash . \
+    && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file
+RUN make \
     && ./perfect -nm < samperf.txt \
-    && make -f MakefileSanity \
-	&& ./foo -nm < samperf.txt \
-    && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file \
+	&& ./test -nm < samperf.txt \
     && ./perfect -dpf < keys_file
-    && ./foo -dpf < keys_file
+    && ./test -dpf < keys_file
 CMD /bin/sh
 ```
 - Create the image:
@@ -327,6 +320,8 @@ docker image build -t perfect .
 ```sh
 docker container run --rm -it perfect
   it will prompt you a sh terminal located at /perfect folder
+cat perf_hash.h
+cat perf_hash.c
 ```
 - Once you exit the console the container is removed due to `--rm` flag.
 
@@ -343,7 +338,7 @@ See:
 
 **Test gperf with Docker**
 ```sh
-docker run -it --rm alpine:latest /bin/ash
+docker run -it --rm alpine:3.10.3 /bin/ash
 apk update
 apk upgrade
 apk add --no-cache gperf wget
