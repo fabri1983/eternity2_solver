@@ -353,6 +353,7 @@
 							<target name="copy-external-libs">
 								<copy todir="${project.build.directory}/libs">
 									<fileset dir="${external.libs.dir}">
+										<include name="javamail-1.4.5/**/*" />
 										<include name="mpj-v0_44/**/*" />
 									</fileset>
 								</copy>

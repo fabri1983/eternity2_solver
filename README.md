@@ -182,27 +182,24 @@ Using jdeps on generated jar to build custom JRE (Java 9+)
 ----------------------------------------------------------
 Use `jdeps` to know which java modules the final application needs to run.  
 Note that we are using `--multi-release=11`.  
-Then you can build a custom and smaller JRE.  
+Then you can build a custom and smaller JRE which will have a smaller memory footprint.  
 
 - *NOTE*: depending on the maven profile you use to generate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje.jar`, `e2solver_benchmark.jar`. 
 
 - Windows:
 ```sh
-jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=11 --print-module-deps ^
-  -cp target\libs\*;target\libs\javamail-1.4.5\lib\*;target\libs\mpj-v0_44\lib\* target\e2solver.jar
+jdeps --add-modules=ALL-MODULE-PATH --multi-release=11 --print-module-deps ^
+  -cp "target\libs\javamail-1.4.5\lib\*";"target\libs\mpj-v0_44\lib\*" target\e2solver.jar
 ```
-
 - Linux:
 ```sh
-jdeps --add-modules=ALL-MODULE-PATH --ignore-missing-deps --multi-release=11 --print-module-deps \
-  -cp target/libs/*:target/libs/javamail-1.4.5/lib/*:target/libs/mpj-v0_44/lib/* target/e2solver.jar
+jdeps --add-modules=ALL-MODULE-PATH --multi-release=11 --print-module-deps \
+  -cp "target/libs/javamail-1.4.5/lib/*":"target/libs/mpj-v0_44/lib/*" target/e2solver.jar
 ```
-
 - Example Output:
 ```sh
 java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
 ```
-
 - Use ouput modules to build a smaller JRE:
   - Windows:
   ```sh
@@ -215,7 +212,6 @@ java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
    --strip-debug ^
    --output %JAVA_HOME%\customjre
   ```
-
   - Linux:
   ```sh
   jlink \
@@ -227,7 +223,9 @@ java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
    --strip-debug \
    --output ${JAVA_HOME}/customjre
   ```
-The custom JRE is now located at %JAVA_HOME%/customjre folder. In order to use it you have to update both `JAVA_HOME`and `PATH` environment variables.
+
+The custom JRE is now located at %JAVA_HOME%/customjre folder.  
+In order to use it you have to update both `JAVA_HOME`and `PATH` environment variables.
 
 
 CMPH - C Minimal Perfect Hashing Library
