@@ -266,7 +266,7 @@ A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-ha
 It produces C files with the final hash function. **This is the solution I'm using actually**.  
 This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
 which is a structure to rapidly access candidate pieces, with a total size of 331776‬ indexes.  
-Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 99.1% of space** keeping the lookup time O(1) (but still slower than a direct array access).
+Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 43.3% of space** keeping the lookup time O(1) (but still slower than a direct array access).
 
 **Let's use MinGW in Windows to compile the project and produce the C files**
 - Download MinGW from http://www.mingw.org/.
@@ -279,7 +279,7 @@ Using the **Minimal Perfect Hash function** produced by the algorithm there is a
 ```bat
 git clone https://github.com/driedfruit/jenkins-minimal-perfect-hash perfect-jenkins
 cd perfect-jenkins
-edit Makefile and add CC=gcc
+edit Makefile: add CC=gcc
 curl -LJ https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -o keys_file
 set PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%
 make
@@ -305,7 +305,7 @@ RUN apk update && apk add wget git gcc make build-base \
     && wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/super_matriz_decimal.txt -O keys_file
 RUN make \
     && ./perfect -nm < samperf.txt \
-	&& ./test -nm < samperf.txt \
+    && ./test -nm < samperf.txt \
     && ./perfect -dpf < keys_file
     && ./test -dpf < keys_file
 CMD /bin/sh
