@@ -12,20 +12,15 @@ import org.junit.Test;
 public class PerfectHashFunctionTest {
 
 	@Test
-	public void testIndexUniqueness() {
+	public void testIndexUniquenessForKeys() {
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		int[] set = new int[PerfectHashFunction.PHASHRANGE];
-		boolean doPrintAll = false;
 		
-		System.out.print("evaluating... ");
+		System.out.print("evaluating keys set ... ");
 		for (int key : keys) {
 			int index = PerfectHashFunction.phash(key);
-			if (doPrintAll) {
-				System.out.println(String.format("%s %s", padRight(index+"", 8), key));
-			}
 			if (set[index] != 0) {
 				Assert.fail(String.format("Duplicated index %s for key %s", index, key));
-				System.exit(0);
 			} else {
 				set[index] = 1;
 			}
@@ -188,19 +183,6 @@ public class PerfectHashFunctionTest {
 		 * 
 		 * ... continue this ...
 		 */
-	}
-	
-	private static String padRight(String inputString, int length) {
-	    if (inputString.length() >= length) {
-	        return inputString;
-	    }
-	    StringBuilder sb = new StringBuilder(inputString.length() + length);
-	    sb.append(inputString);
-	    while (sb.length() < length) {
-	        sb.append(' ');
-	    }
-	 
-	    return sb.toString();
 	}
 	
 }

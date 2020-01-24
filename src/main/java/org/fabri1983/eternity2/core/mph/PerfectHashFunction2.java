@@ -76,12 +76,20 @@ public class PerfectHashFunction2 {
 		
 		val += 0x6902a4cc; // PHASHSALT 0x6902a4cc = 1761780940 (31 bits!)
 		val ^= (val >> 16);
-		val += (val << 8); // this number now exceeds 31 bits, however is implicitly casted to int
+		
+		/**
+		 * IMPORTANT: val += (val << 8)
+		 *  val << 8   This exceeds 31 bits for some values of val, and I suspect is down casted to int losing higher 32+ bits (if no later on).
+		 *  val += ... This sum and assignment exceeds 31 bits as per before, and might be down casted twice: first at sum result and then at assignment step.
+		 * 
+		 * However this behavior works fine and produces correct results.
+		 */
+		val += (val << 8);
+		
 		val ^= (val >>> 4);
 		int b = (val >>> 8) & 0x3ff; // 0x3ff = 1023 => & 0x3ff is the fastest way of doing % 0x400 (PHASHLEN 1024)
 		int a = (val + (val << 1)) >>> 19;
 		int rsl = (a ^ tab[b]);
-		
 		return rsl; // from 1 up to PHASHRANGE - 1
 	}
 	

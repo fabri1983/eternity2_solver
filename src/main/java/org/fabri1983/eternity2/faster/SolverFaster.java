@@ -112,7 +112,7 @@ public final class SolverFaster {
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
-	 * IMPROVEMENT FINAL (50% less memory but slower than an array access):
+	 * IMPROVEMENT FINAL (much less memory but slower than an array access):
 	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
 	 */
 //    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
@@ -349,68 +349,68 @@ public final class SolverFaster {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				if (getNodoP(pz.top, pz.right, pz.bottom, pz.left) == null)
+				if (getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left) == null)
 					setNewNodoP(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, pz.bottom, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left), k, rot);
 				
 				//tengo tres colores y uno faltante
-				if (getNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
 					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
 				
-				if (getNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (getNodoP(pz.top, pz.right, MAX_COLORES, pz.left) == null)
+				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left) == null)
 					setNewNodoP(pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (getNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
 					setNewNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
 				//tengo dos colores y dos faltantes
-				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
 					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
 				
-				if (getNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
 					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
 				
-				if (getNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
 					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (getNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 				
-				if (getNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (getNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNewNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 
 				//tengo un color y tres faltantes
-				if (getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
 					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (getNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES) == null)
 					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
 				
-				if (getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
 					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
 				
-				if (getNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
 					setNewNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
 			}
 			
 			//restauro la rotación
@@ -418,10 +418,17 @@ public final class SolverFaster {
 		}
 	}
 
-	final static NodoPosibles getNodoP(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoFromOriginalKey(final byte top, final byte right, final byte bottom, final byte left)
 	{
 //		return super_matriz[top][right][bottom][left];
 		int key = NodoPosibles.getKey(top, right, bottom, left);
+		return super_matriz[PerfectHashFunction.phash(key)];
+	}
+	
+	final static NodoPosibles getNodoIfKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
+	{
+		int key = NodoPosibles.getKey(top, right, bottom, left);
+		// TODO check if key belongs to original keys set
 		return super_matriz[PerfectHashFunction.phash(key)];
 	}
 	
@@ -430,6 +437,7 @@ public final class SolverFaster {
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
+		// TODO set originalKey[key] = true
 		super_matriz[PerfectHashFunction.phash(key)] = nodoPosibles;
 	}
 	
