@@ -433,7 +433,7 @@ public final class SolverFasterMPJE {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, 0);
+			Pieza.llevarARotacion(pz, (byte)0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
