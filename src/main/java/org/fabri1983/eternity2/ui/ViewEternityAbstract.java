@@ -201,7 +201,7 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 			case KeyEvent.VK_ESCAPE: {
 				this.pauseAll = false;
 				this.running = false;
-				System.exit(0);
+				System.exit(0); // TODO change this by stopping all threads or by shutdown the MPJE cluster
 				break;
 			}
 			default: break;

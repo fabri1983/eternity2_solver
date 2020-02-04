@@ -36,15 +36,15 @@ public class PerfectHashFunctionTest {
 				blackhole.consume(bucket);
 			}
 		}
-		long timeEval = System.nanoTime();
+		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int key : keys) {
 				int bucket = PerfectHashFunction.phash(key);
 				blackhole.consume(bucket);
 			}
 		}
-		long nanos = System.nanoTime() - timeEval;
-		long nanosPerKey = (nanos/keys.length)/loops;
+		long nanosBench = System.nanoTime() - timeBench;
+		long nanosPerKey = (nanosBench/keys.length)/loops;
 		System.out.println("done. " + nanosPerKey + " nanos/key");
 	}
 	

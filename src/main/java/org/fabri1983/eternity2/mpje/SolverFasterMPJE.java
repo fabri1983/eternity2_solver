@@ -530,7 +530,7 @@ public final class SolverFasterMPJE {
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
-		// TODO set originalKey[key] = true
+		// TODO set key as a valid one
 		super_matriz[PerfectHashFunction.phash(key)] = nodoPosibles;
 	}
 	

@@ -87,6 +87,10 @@ In Proceedings of the sixth ACM international conference on Web search and data 
 ACM, New York, NY, USA, 83-92.  
 Simple Java implementation: https://github.com/catenamatteo/eliasfano  
 
+- Compressed BitMap alternatives other than java BitSet.  
+Java EWAH [link](https://github.com/lemire/javaewah)  
+Raoring Bitmap [link](https://github.com/RoaringBitmap/RoaringBitmap)  
+
 - Hacker’s Delight (2nd Edition) - 2013 [link](https://en.wikipedia.org/wiki/Hacker%27s_Delight)  
 Henry S. Warren, Jr.  
 
