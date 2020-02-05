@@ -38,7 +38,8 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction;
+import org.fabri1983.eternity2.core.bitset.SparseBitSet;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public final class SolverFaster {
@@ -113,11 +114,12 @@ public final class SolverFaster {
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
 	 * IMPROVEMENT FINAL (much less memory but slower than an array access):
-	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
+	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction2.PHASHRANGE.
 	 */
 //    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 //            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-	final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
+	final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction2.PHASHRANGE];
+	final static SparseBitSet sbs = new SparseBitSet(777974 + 1);
 	
 	final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	
@@ -340,7 +342,7 @@ public final class SolverFaster {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, 0);
+			Pieza.llevarARotacion(pz, (byte)0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
@@ -422,14 +424,16 @@ public final class SolverFaster {
 	{
 //		return super_matriz[top][right][bottom][left];
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		return super_matriz[PerfectHashFunction.phash(key)];
+		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
 	
 	final static NodoPosibles getNodoIfKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// TODO check if key belongs to original keys set
-		return super_matriz[PerfectHashFunction.phash(key)];
+		// check if key belongs to original keys set
+		if (!sbs.get(key))
+			return null;
+		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
 	
 	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
@@ -437,8 +441,9 @@ public final class SolverFaster {
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
-		// TODO set originalKey[key] = true
-		super_matriz[PerfectHashFunction.phash(key)] = nodoPosibles;
+		// set key as a valid one
+		sbs.set(key);
+		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
 	}
 	
 	/**
@@ -1059,8 +1064,37 @@ public final class SolverFaster {
 	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
 	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
 	 */
+	public final void atacar() {
+		
+		Thread[] pool = new Thread[NUM_PROCESSES];
+		
+		// submit all threads tasks
+		for (int i = 0, c = actions.length; i < c; ++i) {
+			System.out.println("ExploracionAction " + i + " submitted");
+			Thread thread = new Thread(actions[i]);
+			pool[i] = thread;
+			thread.start();
+		}
+		
+		// let all tasks proceed
+		startSignal.countDown();
+		
+		// wait for all to finish
+		try {
+			doneSignal.await();
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		} finally {
+			System.out.println("Interrupting tasks...");
+			for (Thread t : pool) {
+				t.interrupt();
+			}
+			System.out.println("Tasks interrupted.");
+		}
+	}
+	
 	@SuppressWarnings("deprecation")
-	public final void atacar(long timeoutTaskInSecs) {
+	public final void atacarForBenchmark(long timeoutTaskInSecs) {
 		
 		Thread[] pool = new Thread[NUM_PROCESSES];
 		

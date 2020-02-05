@@ -55,13 +55,6 @@ public class Pieza {
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
 //	private static int countIdUnico = 0;
 	
-	public static final boolean tieneColor (final Pieza p, int color)
-	{
-		if ((p.top==color) || (p.right==color) || (p.bottom==color) || (p.left==color))
-			return true;
-		return false;
-	}
-	
 	public final static void rotar90 (final Pieza p)
 	{
 		final byte aux= p.left;
@@ -69,7 +62,7 @@ public class Pieza {
 		p.bottom= p.right;
 		p.right= p.top;
 		p.top= aux;
-		p.rotacion= (byte) ((p.rotacion + 1) & ~4); // 4 max rotations
+		p.rotacion= (byte) ((p.rotacion + 1) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 4-1
 	}
 	
 	public final static void rotar180 (final Pieza p)
@@ -80,7 +73,7 @@ public class Pieza {
 		final byte aux2 = p.top;
 		p.top= p.bottom;
 		p.bottom= aux2;
-		p.rotacion= (byte) ((p.rotacion + 2) & ~4); // 4 max rotations
+		p.rotacion= (byte) ((p.rotacion + 2) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 4-1
 	}
 	
 	public final static void rotar270 (final Pieza p)
@@ -90,51 +83,47 @@ public class Pieza {
 		p.top= p.right;
 		p.right= p.bottom;
 		p.bottom= aux;
-		p.rotacion= (byte) ((p.rotacion + 3) & ~4); // 4 max rotations
+		p.rotacion= (byte) ((p.rotacion + 3) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 4-1
 	}
 
 	/**
 	 * Esta funcion lleva el estado actual de rotacion de la pieza
 	 * al estado indicado en el parametro rot.
 	 */
-	public static final void llevarARotacion (final Pieza p, int rot)
+	public static final void llevarARotacion (final Pieza p, byte rot)
 	{
 		switch (p.rotacion){
 			case 0: {
 				switch (rot){
-					case 0: break;
-					case 1: rotar90(p); break;
-					case 2: rotar180(p); break;
-					case 3: rotar270(p); break;
+					case 0: return;
+					case 1: rotar90(p); return;
+					case 2: rotar180(p); return;
+					case 3: rotar270(p); return;
 				}
-				return;
 			}
 			case 1: {
 				switch (rot){
-					case 0: rotar270(p); break;
-					case 1: break;
-					case 2: rotar90(p); break;
-					case 3: rotar180(p); break;
+					case 0: rotar270(p); return;
+					case 1: return;
+					case 2: rotar90(p); return;
+					case 3: rotar180(p); return;
 				}
-				return;
 			}
 			case 2: {
 				switch (rot){
-					case 0: rotar180(p); break;
-					case 1: rotar270(p); break;
-					case 2: break;
-					case 3: rotar90(p); break;
+					case 0: rotar180(p); return;
+					case 1: rotar270(p); return;
+					case 2: return;
+					case 3: rotar90(p); return;
 				}
-				return;
 			}
 			case 3: {
 				switch (rot){
-					case 0: rotar90(p); break;
-					case 1: rotar180(p); break;
-					case 2: rotar270(p); break;
-					case 3: break;
+					case 0: rotar90(p); return;
+					case 1: rotar180(p); return;
+					case 2: rotar270(p); return;
+					case 3: return;
 				}
-				return;
 			}
 		}
 	}
