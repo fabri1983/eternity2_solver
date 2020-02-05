@@ -1,5 +1,6 @@
-package org.fabri1983.eternity2.experimental.bitset.misc;
+package org.fabri1983.eternity2.core.bitset;
 
+import java.util.BitSet;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.util.ArrayShuffler;
@@ -7,16 +8,16 @@ import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Test;
 
-public class FastIshBitSetTest {
+public class BitSetTest {
 
 	@Test
 	public void testBitAssignmentAndQuery() {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a FastIsh BitSet from keys ... ");
+		System.out.print("creating a java BitSet from keys ... ");
 		long timeEval = System.nanoTime();
-		FastlshBitSet b = new FastlshBitSet(keys[keys.length - 1] + 1);
+		BitSet b = new BitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
 			b.set(key);
 		}
