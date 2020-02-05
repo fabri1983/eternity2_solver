@@ -120,7 +120,7 @@ public final class SolverFasterMPJE {
 	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
-	 * IMPROVEMENT (faster but more memory consumption): 
+	 * IMPROVEMENT (faster access but more memory consumption): 
 	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
@@ -317,8 +317,6 @@ public final class SolverFasterMPJE {
 	{	
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
-			//inicializo en false
-			zona_read_contorno[k] = false;
 			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
@@ -345,8 +343,6 @@ public final class SolverFasterMPJE {
 	{
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
-			//inicializo en false
-			zona_proc_contorno[k] = false;
 			int fila_actual = k / LADO;
 			
 			//si estoy en borde top o bottom continuo con la siguiente posición
@@ -1293,7 +1289,7 @@ public final class SolverFasterMPJE {
 	
 	private final static void setContornoUsado(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_proc_contorno[_cursor] == true) {
 			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
 		}
@@ -1301,7 +1297,7 @@ public final class SolverFasterMPJE {
 	
 	private final static void setContornoLibre(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_proc_contorno[_cursor] == true) {
 			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
 		}
@@ -1309,7 +1305,7 @@ public final class SolverFasterMPJE {
 
 	private final static boolean esContornoSuperiorUsado(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_read_contorno[_cursor] == true) {
 			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor-LADO].bottom][tablero[_cursor-LADO + 1].bottom];
 		}

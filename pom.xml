@@ -232,7 +232,7 @@
 				<version>3.8.1</version>
 				<configuration>
 					<compilerArgs>
-						<!--arg>-O</arg-->
+						<arg>-O</arg>
 						<arg>-g:none</arg> <!-- skip generation of debugging information -->
 					</compilerArgs>
 				</configuration>

@@ -33,7 +33,7 @@ public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
-	private final static int MAX_COLORES = 23;
+	private final static int MAX_COLORES_INVOLVED = 23;
 	private final static int LADO = 16;
 	
 	/**
@@ -41,15 +41,15 @@ public final class Contorno
 	 * 
 	 * Para 3 niveles (MAX_COLS=2): just using a 3-dimensional array I ended up with MAX_COLORES^3 = 12167 indexes which is the 52% of 23254.
 	 * It uses less memory and the access time is the same than the previous big array.
-	 * Para 4 niveles (MAX_COLS=3): idem but 4-dimensional array: MAX_COLORES^4
-	 * Para 5 niveles (MAX_COLS=4): idem but 5-dimensional array: MAX_COLORES^5
+	 * Para 4 niveles (MAX_COLS=3): idem but 4-dimensional array: MAX_COLORES_INVOLVED^4
+	 * Para 5 niveles (MAX_COLS=4): idem but 5-dimensional array: MAX_COLORES_INVOLVED^5
 	 * 
 	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
 	 *     
 	 * Some stats:
 	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
 	 */
-	public final boolean[][][] contornos_used = new boolean[MAX_COLORES][MAX_COLORES][MAX_COLORES];
+	public final boolean[][][] contornos_used = new boolean[MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED];
 	
 	/**
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
@@ -89,9 +89,9 @@ public final class Contorno
 	}
 	
 	public static final void resetContornos(Contorno contorno) {
-		for (int i=0; i < MAX_COLORES; ++i) {
-			for (int j=0; j < MAX_COLORES; ++j) {
-				for (int k=0; k < MAX_COLORES; ++k) {
+		for (int i=0; i < MAX_COLORES_INVOLVED; ++i) {
+			for (int j=0; j < MAX_COLORES_INVOLVED; ++j) {
+				for (int k=0; k < MAX_COLORES_INVOLVED; ++k) {
 					contorno.contornos_used[i][j][k] = false;
 				}
 			}

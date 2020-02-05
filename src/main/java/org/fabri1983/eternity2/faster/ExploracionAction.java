@@ -622,7 +622,7 @@ public class ExploracionAction implements Runnable {
 
 	private final void setContornoUsado(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (SolverFaster.zona_proc_contorno[_cursor] == true) {
 			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
 		}
@@ -630,15 +630,15 @@ public class ExploracionAction implements Runnable {
 	
 	private final void setContornoLibre(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
-			if (SolverFaster.zona_proc_contorno[_cursor] == true) {
-				contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
-			}
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if (SolverFaster.zona_proc_contorno[_cursor] == true) {
+			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
+		}
 	}
 
 	private final boolean esContornoSuperiorUsado(int _cursor)
 	{
-		// primero me fijo si estoy en la posición correcta para preguntar por contorno usado
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (SolverFaster.zona_read_contorno[_cursor] == true) {
 			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor - SolverFaster.LADO].bottom][tablero[_cursor - SolverFaster.LADO + 1].bottom];
 		}
