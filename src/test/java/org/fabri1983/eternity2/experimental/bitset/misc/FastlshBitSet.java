@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.experimental.bitset;
+package org.fabri1983.eternity2.experimental.bitset.misc;
 
 /**
  * A simplified and streamlined version of {@link java.util.BitSet}.

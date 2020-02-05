@@ -58,7 +58,7 @@ public final class MainFasterNative
 			properties = null;
 
 			solver.setupInicial();
-			solver.atacar(0);
+			solver.atacar();
 		}
 		catch(Exception e) {
 			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());

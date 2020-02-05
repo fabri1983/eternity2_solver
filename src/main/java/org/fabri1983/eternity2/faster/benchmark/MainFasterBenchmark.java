@@ -56,7 +56,7 @@ public class MainFasterBenchmark {
     @Measurement(iterations = 3)
 	@Fork(value = 1)
 	public void atacar(MainFasterBenchmarkContextProvider context) {
-		context.solver.atacar(context.timeoutTaskInSecs);
+		context.solver.atacarForBenchmark(context.timeoutTaskInSecs);
 	}
 	
 	@State(Scope.Benchmark)

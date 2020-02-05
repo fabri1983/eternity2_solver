@@ -63,10 +63,10 @@ public final class MainFaster
 			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
 				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
 				solverWithUI.setupInicial();
-				solverWithUI.atacar(0);
+				solverWithUI.atacar();
 			} else {
 				solver.setupInicial();
-				solver.atacar(0);
+				solver.atacar();
 			}
 		}
 		catch(Exception e) {

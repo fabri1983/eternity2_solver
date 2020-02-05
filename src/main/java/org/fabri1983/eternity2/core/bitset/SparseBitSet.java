@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.experimental.bitset;
+package org.fabri1983.eternity2.core.bitset;
 
 /**
  *  This class implements a set of bits that grows as needed. Each bit of the

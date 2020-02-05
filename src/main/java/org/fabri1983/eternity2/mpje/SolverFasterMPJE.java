@@ -38,7 +38,8 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.SendMail;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction;
+import org.fabri1983.eternity2.core.bitset.SparseBitSet;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
 import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
@@ -124,11 +125,12 @@ public final class SolverFasterMPJE {
 	 * It uses less memory and the access time is the same than the previous big array.
 	 * 
 	 * IMPROVEMENT FINAL (much less memory but slower than an array access):
-	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction.PHASHRANGE.
+	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction2.PHASHRANGE.
 	 */
 //    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 //            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction.PHASHRANGE];
+	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction2.PHASHRANGE];
+	private final static SparseBitSet sbs = new SparseBitSet(777974 + 1);
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -515,14 +517,16 @@ public final class SolverFasterMPJE {
 	{
 //		return super_matriz[top][right][bottom][left];
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		return super_matriz[PerfectHashFunction.phash(key)];
+		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
 	
 	private final static NodoPosibles getNodoIsKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// TODO check if key belongs to original keys set
-		return super_matriz[PerfectHashFunction.phash(key)];
+		// check if key belongs to original keys set
+		if (!sbs.get(key))
+			return null;
+		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
 	
 	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
@@ -530,8 +534,9 @@ public final class SolverFasterMPJE {
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
-		// TODO set key as a valid one
-		super_matriz[PerfectHashFunction.phash(key)] = nodoPosibles;
+		// set key as a valid one
+		sbs.set(key);
+		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
 	}
 	
 	/**

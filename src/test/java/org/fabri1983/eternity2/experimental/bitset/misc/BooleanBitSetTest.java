@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.experimental.bitset;
+package org.fabri1983.eternity2.experimental.bitset.misc;
 
 import java.util.concurrent.TimeUnit;
 
@@ -7,18 +7,18 @@ import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Test;
 
-public class FastIshBitSetTest {
+public class BooleanBitSetTest {
 
 	@Test
 	public void testBitAssignmentAndQuery() {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a FastIsh BitSet from keys ... ");
+		System.out.print("creating a java boolean[] from keys ... ");
 		long timeEval = System.nanoTime();
-		FastlshBitSet b = new FastlshBitSet(keys[keys.length - 1] + 1);
+		boolean[] b = new boolean[keys[keys.length - 1] + 1];
 		for (int key : keys) {
-			b.set(key);
+			b[key] = true;
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
 		System.out.println("done. " + microsEval + " micros");
@@ -29,14 +29,14 @@ public class FastIshBitSetTest {
 		int loops=5, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int key : keys) {
-				boolean isSet = b.get(key);
+				boolean isSet = b[key];
 				blackhole.consume(isSet);
 			}
 		}
 		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int key : keys) {
-				boolean isSet = b.get(key);
+				boolean isSet = b[key];
 				blackhole.consume(isSet);
 			}
 		}

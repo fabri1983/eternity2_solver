@@ -10,27 +10,27 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
 
 - The project is managed with **Maven 3.6.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
-- It provides several jar artifacts from **Java 8 to 11**, a benchmark with JMH.  
-- Additionally, there are maven profiles and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
+- It provides several jar artifacts from **Java 8 to 11**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
+- Additionally, there are other maven profiles and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
 
 The backtracker efficiency is backed by:
 - smart prunes: parity check and patterns of placed tiles which don't allow to generate the same pattern again.
-- clever data structures for quickly accessing data: matrix of neighbour tiles, mask matrices.
-- primitive arrays whenever possible to reduce memory usage.
-- bitwise operations and micro optimizations.
+- clever data structures for quickly accessing data: matrix of neighbour tiles and mask matrices.
+- primitive arrays whenever possible to reduce memory usage and better local data access.
+- *bitwise operations* and *micro optimizations*.
 - *minimal perfect hash function* to quickly access neighbour tiles.
-- *Elias-Fano* compression schema, a technique for compressing arrays of monotonically increasing integers.
-- lot of JVM flag tweaks to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
+- *sparse bit set* from [Brett Wooldridge](https://github.com/brettwooldridge/SparseBitSet) as a faster support for neighbour existence.
+- lot of *JVM flag tweaks* to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
- - one using a **thread pool**.
- - other using **MPI (for distributed execution)**.
+- one using a **thread pool** to spawn as task as logic cores the runtime platform provides (is configurable).
+- other using **MPI** *(for distributed execution)*.
   
-The placement of tiles follows a row-scan schema from top-left to bottom-right.  
+The placement of tiles follows a *row-scan schema* from *top-left* to *bottom-right*.  
 
 The project is under continuous development, mostly on spare time. 
 Every time I come up with an idea, improvement, or code refactor is for performance gain purpose. 
-I focus on 2 main strategies:  
+I'm focused on 2 main strategies:  
 - *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board after it passes a series of filters. 
 Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
 - *Time needed to reach a given board position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
@@ -38,15 +38,22 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 
 Some stats
 ----------
+- New stats include changes to use as low memory as possible:
+This stats show numbers lower than previous version of the solver which used much more memory. There is always a trade-off.
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:  
+    - Placing approx **43.41 million tiles per second** running with a thread pool **with 8 threads**.  
+    - Placing approx **40.83 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+    - Placing approx **30.36 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.  
+	
+- Old stats:
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:  
+    - Placing approx **66.8 million tiles per second** running with a thread pool **with 8 threads**.  
+    - Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+    - Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.  
 
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz Dual Channel. OpenJDK 11. Results:  
-Placing approx **66.8 million tiles per second** running with a thread pool **with 8 threads**.  
-Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.0.2**, **with 8 threads**.  
-
-- Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core). OpenJDK 13. Results:  
-Placing approx **97 million tiles per second** running with a thread pool **with 8 threads**.  
-Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+  - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13. Results:
+    - Placing approx **97 million tiles per second** running with a thread pool **with 8 threads**.  
+    - Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -352,7 +359,7 @@ exit
 
 Build a Graal VM on Windows and run your jar
 --------------------------------------------
-We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.0.2 so far**.
+We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.1 so far**.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
@@ -389,7 +396,7 @@ We are going to build Graal VM for Windows platform. **Only upto GraalVM 19.3.0.
 	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\openjdk-11.0.5+10
-	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-19.3.0.2  or  c:\java\graalvm-ee-java11-19.3.0.2
+	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-19.3.1  or  c:\java\graalvm-ee-java11-19.3.1
 	cd compiler
 	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
 	mx vm -version
@@ -424,7 +431,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using Graal's SubstrateVM on Windows
 ---------------------------------------------------------
-We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM 19.3.0.2 so far**.
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM 19.3.1 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11
@@ -452,7 +459,7 @@ This will help you to decide which iso you need to download:
 		For Java11 targets:
 			open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
 			(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall x64)
-	SET JAVA_HOME=C:\java\graalvm-ee-java8-19.3.0.2  or  C:\java\graalvm-ee-java11-19.3.0.2
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-19.3.1  or  C:\java\graalvm-ee-java11-19.3.1
 	cd substratevm
 	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
