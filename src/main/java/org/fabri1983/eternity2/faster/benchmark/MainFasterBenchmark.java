@@ -50,7 +50,7 @@ public class MainFasterBenchmark {
     }
 	
 	@Benchmark
-	@BenchmarkMode(Mode.Throughput)
+	@BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(iterations = 3)
     @Measurement(iterations = 3)
@@ -102,7 +102,8 @@ public class MainFasterBenchmark {
 
 		@TearDown(Level.Iteration)
 		public void doTearDown() {
-			solver.resetInternalStatus();
+			solver.resetForBenchmark();
+			System.gc();
 		}
 		
 	}

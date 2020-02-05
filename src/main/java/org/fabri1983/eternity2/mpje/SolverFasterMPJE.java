@@ -268,9 +268,6 @@ public final class SolverFasterMPJE {
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
-		
-		// this call avoids a OutOfHeapMemory error
-//		System.gc();
 	}
 
 	/**
@@ -382,7 +379,7 @@ public final class SolverFasterMPJE {
 		
 		llenarSuperEstructura();
 		
-		System.out.println("Rank " + THIS_PROCESS + ": carga de estructura 4-Dimensional finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " microsecs)");
+		System.out.println("Rank " + THIS_PROCESS + ": carga de super matriz finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " micros)");
 		
 		// combinación de 2 colores consecutivos con mayor número de coincidencias para piezas interiores y para todos los tipos a la vez.
 		/*int maxTotal = 0, maxInterior = 0, key = 0;

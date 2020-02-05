@@ -48,7 +48,6 @@ public final class SolverFaster {
 	static int NUM_PROCESSES = 1;
 	static ExploracionAction actions[];
 	static CountDownLatch startSignal;
-    static CountDownLatch doneSignal;
     
 	static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
@@ -315,12 +314,12 @@ public final class SolverFaster {
 	 */
 	final static void cargarSuperEstructura(ExploracionAction action)
 	{
-		System.out.print(action.id + " >>> Cargando Estructura 4-Dimensional... ");
+		System.out.print(action.id + " >>> Cargando super matriz... ");
 		long startingTime = System.nanoTime();
 		
 		llenarSuperEstructura(action);
 		
-		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " microsecs)");
+		System.out.println("cargada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime()-startingTime, TimeUnit.NANOSECONDS) + " micros)");
 	}
 
 	/**
@@ -1006,58 +1005,39 @@ public final class SolverFaster {
 		actions = new ExploracionAction[NUM_PROCESSES];
 		// a start signal that prevents any ExplorationAction from proceeding until the orchestrator (this thread) is ready for them to proceed
 		startSignal = new CountDownLatch(1);
-		// a completion signal that allows the driver orchestrator (this thread) to wait until all ExplorationAction have completed
-		doneSignal = new CountDownLatch(NUM_PROCESSES);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
 			ExploracionAction exploracionAction = new ExploracionAction(proc, NUM_PROCESSES, MAX_CICLOS, POSICION_START_FORK_JOIN, 
 					LIMITE_RESULTADO_PARCIAL, usar_poda_color_explorado, FairExperimentGif, usarTableroGrafico, 
-					startSignal, doneSignal);
+					startSignal);
 			
 			exploracionAction.setupInicial();
 			
 			actions[proc] = exploracionAction;
 		}
 		
-		// cargar la super estructura 4-dimensional (solo basta obtener las piezas de un exploracionAction)
+		// cargar la super matriz (solo basta obtener las piezas de un exploracionAction)
 		cargarSuperEstructura(actions[0]);
-		
-		// this call avoids a OutOfHeapMemory error
-//		System.gc();
 	}
 	
-	/**
-	 * This method has sun.misc.Signal* api usage, which are not present in java.lib (at least on Windows) 
-	 * so can not be used to native compilation.
-	 */
-//	public final void atacarWithSunMiscSignal() {
-//		// Register a signal handler for Ctrl-C that runs the shutdown hooks
-//		sun.misc.Signal.handle(new sun.misc.Signal("INT"), new sun.misc.SignalHandler() {
-//			@Override
-//			public void handle(Signal sig) {
-//				System.exit(0);
-//			}
-//		});
-//        
-//		// Add a shutdown hook
-//        Runtime.getRuntime().addShutdownHook(new Thread() {
-//			@Override
-//			public void run() {
-//				shutdown();
-//			}
-//        });
-//        
-//		atacar();
-//	}
-	
-//	private synchronized void shutdown() {
-//        for (int i = 0, c = NUM_PROCESSES; i < c; ++i) {
-//        	doneSignal.countDown();
-//			initialSetupSignal.countDown();
-//        }
-//        System.out.println("Shutdown called");
-//    }
+	private final Thread[] createPoolAndStart() {
+		
+		Thread[] pool = new Thread[NUM_PROCESSES];
+		
+		// submit all threads tasks
+		for (int i = 0, c = actions.length; i < c; ++i) {
+			System.out.println("ExploracionAction " + i + " submitted");
+			Thread thread = new Thread(actions[i]);
+			pool[i] = thread;
+			thread.start();
+		}
+
+		// let all tasks proceed
+		startSignal.countDown();
+		
+		return pool;
+	}
 	
 	/**
 	 * Invoca al pool de threads con varias instancias de RecursiveAction: ExploracionAction.
@@ -1066,72 +1046,43 @@ public final class SolverFaster {
 	 */
 	public final void atacar() {
 		
-		Thread[] pool = new Thread[NUM_PROCESSES];
+		Thread[] pool = createPoolAndStart();
 		
-		// submit all threads tasks
-		for (int i = 0, c = actions.length; i < c; ++i) {
-			System.out.println("ExploracionAction " + i + " submitted");
-			Thread thread = new Thread(actions[i]);
-			pool[i] = thread;
-			thread.start();
-		}
-		
-		// let all tasks proceed
-		startSignal.countDown();
-		
-		// wait for all to finish
-		try {
-			doneSignal.await();
-		} catch (InterruptedException e) {
-			System.out.println(e.getMessage());
-		} finally {
-			System.out.println("Interrupting tasks...");
-			for (Thread t : pool) {
-				t.interrupt();
+		// wait until all tasks are done
+		for (Thread t : pool) {
+			try {
+				t.join();
+			} catch (InterruptedException ex) {
+				System.out.println(ex.getMessage());
 			}
-			System.out.println("Tasks interrupted.");
 		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	public final void atacarForBenchmark(long timeoutTaskInSecs) {
 		
-		Thread[] pool = new Thread[NUM_PROCESSES];
+		Thread[] pool = createPoolAndStart();
 		
-		// submit all threads tasks
-		for (int i = 0, c = actions.length; i < c; ++i) {
-			System.out.println("ExploracionAction " + i + " submitted");
-			Thread thread = new Thread(actions[i]);
-			pool[i] = thread;
-			thread.start();
-		}
-		
-		// let all tasks proceed
-		startSignal.countDown();
-		
-		// wait for all to finish
 		try {
-			if (timeoutTaskInSecs > 0) {
-				doneSignal.await(timeoutTaskInSecs, TimeUnit.SECONDS);
-			} else {
-				doneSignal.await();
-			}
-		} catch (InterruptedException e) {
-			System.out.println(e.getMessage());
+			// wait only for the first thread
+			pool[0].join(timeoutTaskInSecs * 1000);
+		} catch (InterruptedException ex) {
+			// something caused this thread to be interrupted
 		} finally {
+			// interrupt all threads
 			System.out.println("Interrupting tasks...");
 			for (Thread t : pool) {
-				t.interrupt();
-				t.stop(); // if thread isn't stop then its runnable task continues running
+				try {
+					t.interrupt();
+					t.stop(); // if thread isn't stop then its runnable task continues running
+				} catch (Exception ex) {
+				}
 			}
 			System.out.println("Tasks interrupted.");
 		}
 	}
 	
-	public void resetInternalStatus() {
-		
-		startSignal = new CountDownLatch(1);
-		doneSignal = new CountDownLatch(NUM_PROCESSES);
+	public void resetForBenchmark() {
 		
 		for (int i=0; i < super_matriz.length; ++i) {
 			if (super_matriz[i] != null)
@@ -1140,7 +1091,7 @@ public final class SolverFaster {
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 			ExploracionAction exploracionAction = actions[proc];
-			exploracionAction.resetForAtaque(NUM_PROCESSES, startSignal, doneSignal);
+			exploracionAction.resetForBenchmark(NUM_PROCESSES, startSignal);
 		}
 	}
 }
