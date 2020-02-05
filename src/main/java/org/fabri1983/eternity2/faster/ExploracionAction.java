@@ -65,11 +65,10 @@ public class ExploracionAction implements Runnable {
 	private StringBuilder printBuffer = new StringBuilder(64);
 	
 	private CountDownLatch startSignal;
-	private CountDownLatch doneSignal;
 	
-	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, int limite_resultado_parcial, 
-			boolean _FairExperimentGif, boolean _usar_poda_color_explorado, boolean _usarTableroGrafico, 
-			CountDownLatch startSignal, CountDownLatch doneSignal) {
+	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, 
+			int limite_resultado_parcial, boolean _FairExperimentGif, boolean _usar_poda_color_explorado, 
+			boolean _usarTableroGrafico, CountDownLatch startSignal) {
 		
 		id = _id;
 		MAX_CICLOS = _max_ciclos;
@@ -89,7 +88,6 @@ public class ExploracionAction implements Runnable {
 		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + SolverFaster.FILE_EXT;
 
 		this.startSignal = startSignal;
-		this.doneSignal = doneSignal;
 	}
 
 	public void setupInicial() {
@@ -110,7 +108,7 @@ public class ExploracionAction implements Runnable {
 		Contorno.inicializarContornos(contorno, tablero, SolverFaster.MAX_PIEZAS);
 	}
 
-	public void resetForAtaque(int _num_processes, CountDownLatch startSignal, CountDownLatch doneSignal) {
+	public void resetForBenchmark(int _num_processes, CountDownLatch startSignal) {
 		
 		count_cycles = 0;
 		SolverFaster.count_cycles[id] = 0;
@@ -129,11 +127,8 @@ public class ExploracionAction implements Runnable {
 		}
 		
 		this.startSignal = startSignal;
-		this.doneSignal = doneSignal;
 
 		cleanTablero();
-		
-		SolverFaster.cargarPiezasFijas(this);
 		
 		Contorno.resetContornos(contorno);
 	}
@@ -153,8 +148,6 @@ public class ExploracionAction implements Runnable {
 			doWork();
 		} catch (InterruptedException e) {
 			System.out.println("ExplorationAction interrupted.");
-		} finally {
-			doneSignal.countDown();
 		}
 	}
 

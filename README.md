@@ -23,8 +23,8 @@ The backtracker efficiency is backed by:
 - lot of *JVM flag tweaks* to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
-- one using a **thread pool** to spawn as task as logic cores the runtime platform provides (is configurable).
-- other using **MPI** *(for distributed execution)*.
+- one using a **thread pool** to spawn as many tasks as logic cores the runtime platform provides (is configurable).
+- another using **MPI** *(for distributed execution)*.
   
 The placement of tiles follows a *row-scan schema* from *top-left* to *bottom-right*.  
 
@@ -38,22 +38,22 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 
 Some stats
 ----------
-- New stats include changes to use as low memory as possible:
-This stats show numbers lower than previous version of the solver which used much more memory. There is always a trade-off.
-  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:  
-    - Placing approx **43.41 million tiles per second** running with a thread pool **with 8 threads**.  
-    - Placing approx **40.83 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-    - Placing approx **30.36 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.  
+- **New stats** include changes to use as low memory as possible:  
+(These stats show numbers lower than previous version of the solver which used much more memory. There is always a trade-off)
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
+    - Placing approx **43.41 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **40.83 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **30.36 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
 	
-- Old stats:
-  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:  
-    - Placing approx **66.8 million tiles per second** running with a thread pool **with 8 threads**.  
-    - Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
-    - Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.  
+- **Old stats**:
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
+    - Placing approx **66.8 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
 
   - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13. Results:
-    - Placing approx **97 million tiles per second** running with a thread pool **with 8 threads**.  
-    - Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.  
+    - Placing approx **97 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -193,7 +193,7 @@ Using jdeps on generated jar to build custom JRE (Java 9+)
 ----------------------------------------------------------
 Use `jdeps` to know which java modules the final application needs to run.  
 Note that we are using `--multi-release=11`.  
-Then you can build a custom and smaller JRE which will have a smaller memory footprint.  
+Then you can build a *custom and smaller JRE* which will have a smaller memory footprint.  
 
 - *NOTE*: depending on the maven profile you use to generate the artifact the name may be one of: `e2solver.jar`, `e2solver_mpje.jar`, `e2solver_benchmark.jar`. 
 
@@ -235,7 +235,7 @@ java.base,java.desktop,java.management,java.naming,java.security.sasl,java.sql
    --output ${JAVA_HOME}/customjre
   ```
 
-The custom JRE is now located at %JAVA_HOME%/customjre folder.  
+The custom JRE is now located at `%JAVA_HOME%/customjre` folder.  
 In order to use it you have to update both `JAVA_HOME`and `PATH` environment variables.
 
 
