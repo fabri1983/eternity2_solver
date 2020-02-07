@@ -57,4 +57,9 @@ public class ViewEternityMPJE extends ViewEternityAbstract {
 		return SolverFasterMPJE.mas_lejano_parcial_max;
 	}
 
+	@Override
+	protected void shutdownSolver() {
+		System.exit(0);
+	}
+
 }

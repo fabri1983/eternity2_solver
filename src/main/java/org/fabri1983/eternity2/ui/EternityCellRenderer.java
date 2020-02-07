@@ -39,46 +39,45 @@ import org.fabri1983.eternity2.core.Pieza;
 public class EternityCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
+	
 	private Pieza p;
     private Image[] imageListTop, imageListRight, imageListBottom, imageListLeft;
-    private static int CELL_SIZE, NUM_COLOURS;
     
-    public EternityCellRenderer (int p_cell_size, int p_num_colours) {
-    	CELL_SIZE = p_cell_size;
+    public EternityCellRenderer (int cellSize, int numColors) {
 		// acoto el tamaño de celda
-    	if (CELL_SIZE < 15)
-    		CELL_SIZE = 15;
-    	if (CELL_SIZE > 40)
-    		CELL_SIZE = 40;
-    	NUM_COLOURS = p_num_colours;
-        imageListTop = new Image[NUM_COLOURS];
-        imageListRight = new Image[NUM_COLOURS];
-        imageListBottom = new Image[NUM_COLOURS];
-        imageListLeft = new Image[NUM_COLOURS];
+    	if (cellSize < 15)
+    		cellSize = 15;
+    	if (cellSize > 40)
+    		cellSize = 40;
+    	
+        imageListTop = new Image[numColors];
+        imageListRight = new Image[numColors];
+        imageListBottom = new Image[numColors];
+        imageListLeft = new Image[numColors];
         
 		// para cada imagen voy haciendo una copia rotada, de esta forma no tengo que rotarla al redibujar
-        for (int i=0; i < NUM_COLOURS; i++) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        for (int i=0; i < numColors; i++) {
             try {
-            	Image img = loadImage(i).getScaledInstance(CELL_SIZE, CELL_SIZE, 0);
+            	Image img = loadImage(i, classLoader).getScaledInstance(cellSize, cellSize, 0);
                 imageListTop[i] = img;
-                imageListRight[i] = rotarImg(img, 1);
-                imageListBottom[i] = rotarImg(img, 2);
-                imageListLeft[i] = rotarImg(img, 3);
+                imageListRight[i] = rotarImg(img, 1, cellSize);
+                imageListBottom[i] = rotarImg(img, 2, cellSize);
+                imageListLeft[i] = rotarImg(img, 3, cellSize);
             } catch (IOException e) {}
         }
     }
 
-    private Image loadImage (int index) throws IOException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private Image loadImage (int index, ClassLoader classLoader) throws IOException {
 		URL imageUrl = classLoader.getResource("imgs/i" + index + ".png");
         return ImageIO.read(imageUrl);  
     }
 
-    private Image rotarImg (Image img, int rotacion) {
+    private Image rotarImg (Image img, int rotacion, int cellSize) {
 		// creo el buffer que contendrá los pixeles de Img
-    	int buffer[] = new int[CELL_SIZE * CELL_SIZE];
+    	int buffer[] = new int[cellSize * cellSize];
 		// objeto que llenará a buffer[] con los pixeles de Img
-    	PixelGrabber grabber = new PixelGrabber(img, 0, 0, CELL_SIZE, CELL_SIZE, buffer, 0, CELL_SIZE);
+    	PixelGrabber grabber = new PixelGrabber(img, 0, 0, cellSize, cellSize, buffer, 0, cellSize);
     	//ejecuto el grabado en buffer[]
     	try {
             grabber.grabPixels();
@@ -87,10 +86,10 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
         }
         //voy rotando la imagen siempre 90 grados.
         for (int i=0; i < rotacion; i++) {
-            buffer = rotatePixels(buffer);
+            buffer = rotatePixels(buffer, cellSize);
         }
         //creo la imagen a partir de buffer[]
-        Image rotImg = createImage(new MemoryImageSource(CELL_SIZE, CELL_SIZE, buffer, 0, CELL_SIZE));
+        Image rotImg = createImage(new MemoryImageSource(cellSize, cellSize, buffer, 0, cellSize));
         
         return rotImg;
     }
@@ -100,11 +99,11 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
      * @param buffer
      * @return int[]
      */
-    private int[] rotatePixels (int[] buffer) {
-        int rotate[] = new int[CELL_SIZE * CELL_SIZE];
-        for(int x = 0; x < CELL_SIZE; x++) {
-            for(int y = 0; y < CELL_SIZE; y++) {
-                rotate[((CELL_SIZE-x-1)*CELL_SIZE)+y] = buffer[(y*CELL_SIZE)+x];
+    private int[] rotatePixels (int[] buffer, int cellSize) {
+        int rotate[] = new int[cellSize * cellSize];
+        for(int x = 0; x < cellSize; x++) {
+            for(int y = 0; y < cellSize; y++) {
+                rotate[((cellSize-x-1)*cellSize)+y] = buffer[(y*cellSize)+x];
             }
         }
         return rotate;
@@ -119,7 +118,7 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
         super.paint(g);
         g.setColor(Color.BLACK);
         
-        //tengo que preguntar constantemente si no es null porque sino arroja NullPointerException
+        //tengo que preguntar constantemente si no es null debido a que al estar corriendo en otro Thread la pieza puede haber sido quitada
     	if (p != null)
             paintImage(g, p.top, 0);
     	if (p != null)

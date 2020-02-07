@@ -108,7 +108,9 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 
 	protected abstract int getCursorMasLejano();
     
-    /**
+    protected abstract void shutdownSolver();
+
+	/**
      * Actualiza el tablero a dibujar en pantalla.
      */
     private void updateTablero () {
@@ -201,7 +203,7 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 			case KeyEvent.VK_ESCAPE: {
 				this.pauseAll = false;
 				this.running = false;
-				System.exit(0); // TODO change this by stopping all threads or by shutdown the MPJE cluster
+				shutdownSolver();
 				break;
 			}
 			default: break;
