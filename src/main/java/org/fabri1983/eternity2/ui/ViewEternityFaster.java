@@ -66,4 +66,9 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 		return action.mas_lejano_parcial_max;
 	}
 
+	@Override
+	protected void shutdownSolver() {
+		System.exit(0);
+	}
+
 }

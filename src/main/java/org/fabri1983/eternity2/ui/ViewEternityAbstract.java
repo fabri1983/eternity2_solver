@@ -15,8 +15,6 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 	private static final long serialVersionUID = 1L;
 	
 	private int lado, cell_size, num_colours;
-	private int last_superior;
-	private boolean primera_vez = true;
 	private boolean running = false;
 	private boolean pauseAll = false;
 	private boolean pauseGraphic = false;
@@ -95,9 +93,12 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
     	
     	updateTablero();
     	
-        eternityJTable.paintImmediately(eternityJTable.getBounds());
+    	if (pauseGraphic)
+    		return;
+    	
+//    	eternityJTable.paintImmediately(eternityJTable.getBounds());
         
-        repaint();
+    	repaint();
     }
     
     protected abstract long getAccum();
@@ -108,7 +109,9 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 
 	protected abstract int getCursorMasLejano();
     
-    /**
+    protected abstract void shutdownSolver();
+
+	/**
      * Actualiza el tablero a dibujar en pantalla.
      */
     private void updateTablero () {
@@ -133,38 +136,6 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 	    }
     	else
     		++periodStepping;
-
-    	// Actualizo el tablero si no se ha pausado
-    	if (pauseGraphic)
-    		return;
-    	
-    	int cursor = getCursorTablero() - 1;
-    	int inferior = primera_vez? getCursorMasBajo() : 0;
-    	int superior = Math.max(cursor, getCursorMasLejano());
-
-    	//seteo las piezas desde cursor hasta inferior
-    	for (int i=cursor; i >= inferior; --i){
-    		eternityJTable.canvas.setPiezaFromTablero(i);
-    	}
-    	
-    	//indico la posición de la pieza mas lejana
-    	if (primera_vez)
-    		last_superior = superior;
-    	eternityJTable.canvas.setPiezaEmpty(last_superior);
-    	eternityJTable.canvas.setPiezaGris(superior);
-    	
-    	//seteo null desde cursor hacia adelante hasta el primer null que encuentre
-    	for (int i=cursor+1; i < superior; ++i){
-    		if (eternityJTable.canvas.isEmpty(i))
-    			break;
-    		eternityJTable.canvas.setPiezaEmpty(i);
-    	}
-    	
-    	//seteo la pieza central
-    	eternityJTable.canvas.setPiezaCentralFromTablero();
-    	
-    	last_superior = superior;
-    	primera_vez = false;
     }
     
     @Override
@@ -201,7 +172,7 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
 			case KeyEvent.VK_ESCAPE: {
 				this.pauseAll = false;
 				this.running = false;
-				System.exit(0); // TODO change this by stopping all threads or by shutdown the MPJE cluster
+				shutdownSolver();
 				break;
 			}
 			default: break;
