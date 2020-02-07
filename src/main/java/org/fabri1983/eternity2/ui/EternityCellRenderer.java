@@ -114,23 +114,28 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
         return this;
     }
     
-    public void paint (java.awt.Graphics g) {
-        super.paint(g);
-        g.setColor(Color.BLACK);
-        
-        //tengo que preguntar constantemente si no es null debido a que al estar corriendo en otro Thread la pieza puede haber sido quitada
-    	if (p != null)
-            paintImage(g, p.top, 0);
-    	if (p != null)
-            paintImage(g, p.right, 1);
-    	if (p != null)
-            paintImage(g, p.bottom, 2);
-    	if (p != null)
-            paintImage(g, p.left, 3);
-    }
+	public void paint(java.awt.Graphics g) {
+		super.paint(g);
+		g.setColor(Color.BLACK);
+
+		// tengo que preguntar constantemente si no es null debido a que al estar
+		// corriendo en otro Thread la pieza puede haber sido quitada
+		if (p == null)
+			return;
+
+		int top = p.top;
+		int right = p.right;
+		int bottom = p.bottom;
+		int left = p.left;
+
+		paintImage(g, top, 0);
+		paintImage(g, right, 1);
+		paintImage(g, bottom, 2);
+		paintImage(g, left, 3);
+	}
     
     private void paintImage (java.awt.Graphics g, int imageIndex, int rot) {
-		// NOTA! debido a que la rotación de los pixeles es en sentido antihoraria el siguiente switch tiene
+		// NOTA! debido a que la rotación de los pixeles es antihoraria el siguiente switch tiene
 		// modificaciones para left y right
 		switch (rot){
     		case 0: g.drawImage(imageListTop[imageIndex], 0, 0, null); break;

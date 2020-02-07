@@ -62,7 +62,10 @@ public class EternityModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return canvas.getPieza(rowIndex, columnIndex);
+        Pieza pieza = canvas.getPieza(rowIndex, columnIndex);
+        if (pieza == null)
+        	return canvas.getPiezaGris();
+		return pieza;
     }
 
     @Override
