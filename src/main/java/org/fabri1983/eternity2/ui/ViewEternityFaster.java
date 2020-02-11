@@ -46,7 +46,7 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 	protected long getAccum() {
 		long accum = 0;
 		for (int i = 0, c = SolverFaster.count_cycles.length; i < c; ++i) {
-			accum += SolverFaster.count_cycles[i]; // SolverFaster.count_cycles son acumuladores de piezas procesadas
+			accum += SolverFaster.count_cycles[i];
 		}
 		return accum;
 	}

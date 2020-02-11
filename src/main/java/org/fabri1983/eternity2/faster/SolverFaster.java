@@ -70,7 +70,6 @@ public final class SolverFaster {
 	final static byte F_BORDE_RIGHT= 77;
 	final static byte F_BORDE_BOTTOM= 88;
 	final static byte F_BORDE_LEFT= 99;
-	final static byte GRIS=0;
 	final static byte MAX_ESTADOS_ROTACION= 4;
 	final static int CURSOR_INVALIDO= -5;
 	final static byte MAX_COLORES= 23;
@@ -743,7 +742,7 @@ public final class SolverFaster {
 				int pos= b+1;
 				Pieza p = action.tablero[b];
 				if (p == null){
-					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
+					parcialBuffer.append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}

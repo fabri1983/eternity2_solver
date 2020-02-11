@@ -24,7 +24,7 @@ package org.fabri1983.eternity2.core;
 
 public final class PiezaFactory {
 	
-	private static final byte GRIS = 0;
+	public static final byte GRIS = 22;
 	private static final String SECCIONES_SEPARATOR_EN_FILE= " ";
 	
 	public static Pieza dummy()
@@ -35,10 +35,10 @@ public final class PiezaFactory {
 	}
 
 	public static void setAsDummy(Pieza p) {
-		p.top=0;
-		p.right=0;
-		p.bottom=0;
-		p.left=0;
+		p.top=GRIS;
+		p.right=GRIS;
+		p.bottom=GRIS;
+		p.left=GRIS;
 		setFeature(p);
 		p.numero=0;
 		p.rotacion=0;

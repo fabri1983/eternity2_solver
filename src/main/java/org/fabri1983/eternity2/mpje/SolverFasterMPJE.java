@@ -80,7 +80,6 @@ public final class SolverFasterMPJE {
 	private final static byte F_BORDE_RIGHT= 77;
 	private final static byte F_BORDE_BOTTOM= 88;
 	private final static byte F_BORDE_LEFT= 99;
-	private final static byte GRIS=0;
 	private final static byte MAX_ESTADOS_ROTACION= 4;
 	private final static int CURSOR_INVALIDO= -5;
 	private final static byte MAX_COLORES= 23;
@@ -264,7 +263,7 @@ public final class SolverFasterMPJE {
 		cargarPiezasFijas();
 		
 		//seteo como usados los contornos ya existentes en tablero
-		Contorno.inicializarContornos(contorno, tablero, MAX_PIEZAS);
+		Contorno.inicializarContornos(contorno, tablero, MAX_PIEZAS, LADO);
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
@@ -1256,16 +1255,16 @@ public final class SolverFasterMPJE {
 			switch (flag_m) {
 				//borde right
 				case F_BORDE_RIGHT:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 				//borde left
 				case F_BORDE_LEFT:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, GRIS);
+					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
 				// borde top
 				case F_BORDE_TOP:
-					return getNodoIsKeyIsOriginal(GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
+					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
 				//borde bottom
 				default:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, GRIS, tablero[_cursor - 1].right);
+					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 			}
 		}
 		// menor a F_INTERIOR significa que estoy en esquina
@@ -1273,16 +1272,16 @@ public final class SolverFasterMPJE {
 			switch (flag_m) {
 				//esquina top-left
 				case F_ESQ_TOP_LEFT:
-					return getNodoIsKeyIsOriginal(GRIS, MAX_COLORES, MAX_COLORES, GRIS);
+					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
 				//esquina top-right
 				case F_ESQ_TOP_RIGHT:
-					return getNodoIsKeyIsOriginal(GRIS, GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 				//esquina bottom-left
 				case F_ESQ_BOTTOM_LEFT: 
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, GRIS, GRIS);
+					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
 					//esquina bottom-right
 				default:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, GRIS, GRIS, tablero[_cursor - 1].right);
+					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 			}
 		}
 	}
@@ -1380,7 +1379,7 @@ public final class SolverFasterMPJE {
 				int pos= b+1;
 				Pieza p= tablero[b];
 				if (p == null){
-					parcialBuffer.append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(GRIS).append("\n");
+					parcialBuffer.append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
