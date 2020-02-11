@@ -78,28 +78,6 @@ public class PerfectHashFunctionTest {
 			Assert.assertEquals("low numbers don't match.", low, lowInflated);
 		}
 	}
-	
-	@Test
-	public void testMinAndMaxIntegers() {
-		boolean doPrint = false;
-		
-		List<Short> list = toListShort(PerfectHashFunction.tab);
-		
-		int min = list.stream()
-			.filter( i -> i != 0 )
-			.min( Integer::compare )
-			.orElseThrow(); // 46
-		
-		if (doPrint)
-			System.out.println(String.format("Min number in tab[] (not zero): %s", min));
-		
-		int max = list.stream()
-			.max( Integer::compare )
-			.orElseThrow(); // 16121
-		
-		if (doPrint)
-			System.out.println(String.format("Max number in tab[]: %s", max));
-	}
 
 	private List<Short> toListShort(short[] tab) {
 		List<Short> list = new ArrayList<>(tab.length);

@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.PiezaFactory;
 
 public class ExploracionAction implements Runnable {
 
@@ -105,7 +106,7 @@ public class ExploracionAction implements Runnable {
 		SolverFaster.cargarPiezasFijas(this);
 		
 		// seteo como usados los contornos ya existentes en tablero
-		Contorno.inicializarContornos(contorno, tablero, SolverFaster.MAX_PIEZAS);
+		Contorno.inicializarContornos(contorno, tablero, SolverFaster.MAX_PIEZAS, SolverFaster.LADO);
 	}
 
 	public void resetForBenchmark(int _num_processes, CountDownLatch startSignal) {
@@ -567,7 +568,7 @@ public class ExploracionAction implements Runnable {
 	{
         final int lado = SolverFaster.LADO;
         final byte maxColores = SolverFaster.MAX_COLORES;
-        final byte gris = SolverFaster.GRIS;
+        final byte gris = PiezaFactory.GRIS;
         final int indicePcentral = SolverFaster.INDICE_P_CENTRAL;
         
 		switch (_cursor) {

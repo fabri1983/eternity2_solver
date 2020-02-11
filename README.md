@@ -298,9 +298,9 @@ perfect -nm < samperf.txt
 test -nm < samperf.txt
 perfect -dpf < keys_file
   options: d = decimal keys, p = perfect hash, f = fast method
-  option f produces bigger tab[] but faster phash function
-  option s (slow, in exchange of f) produces smaller tab[] but slower phash function 
-test -dps < keys_file
+  option f produces bigger tab[] but slighly faster phash function
+  option s (slow, in contrast with f) produces smaller tab[] but slower phash function 
+test -dpf < keys_file
 cat perf_hash.h
 cat perf_hash.c
 ```

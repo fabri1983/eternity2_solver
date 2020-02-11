@@ -33,21 +33,22 @@ public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static byte MAX_COLS = 2; // usar valor entre 2 y 4
-	private final static int MAX_COLORES_INVOLVED = 23;
-	private final static int LADO = 16;
+	private final static int MAX_COLORES_INVOLVED = 17; // 22 - 5 (corner/border) = 17
 	
 	/**
 	 * Arreglo para saber si un contorno ha sido usado o no. 
 	 * 
-	 * Para 3 niveles (MAX_COLS=2): just using a 3-dimensional array I ended up with MAX_COLORES^3 = 12167 indexes which is the 52% of 23254.
-	 * It uses less memory and the access time is the same than the previous big array.
-	 * Para 4 niveles (MAX_COLS=3): idem but 4-dimensional array: MAX_COLORES_INVOLVED^4
-	 * Para 5 niveles (MAX_COLS=4): idem but 5-dimensional array: MAX_COLORES_INVOLVED^5
+	 * Initial attempt: MAX_COLORES_INVOLVED = 23
+	 * Para 3 niveles (MAX_COLS=2): just using a 3-dimensional array I ended up with MAX_COLORES_INVOLVED^3 = 12167 indexes.
+	 * Para 4 niveles (MAX_COLS=3): idem but 4-dimensional array: MAX_COLORES_INVOLVED^4 = 279841 indexes.
+	 * Para 5 niveles (MAX_COLS=4): idem but 5-dimensional array: MAX_COLORES_INVOLVED^5 = 6436343 indexes.
 	 * 
 	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
-	 *     
-	 * Some stats:
-	 *   Para 3 niveles de desglosamiento: used slots = 3290 (got experimentally until position 211).
+	 * 
+	 * IMPROVEMENT FINAL:
+	 * Given the fact that the Contorno data structure holds only inner colors we can discard those 5 colors belonging to corners and borders.
+	 * So ending up with MAX_COLORES_INVOLVED = 22 - 5 = 17.
+	 * Para 3 niveles (MAX_COLS=2): MAX_COLORES_INVOLVED^3 = 4913.
 	 */
 	public final boolean[][][] contornos_used = new boolean[MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED];
 	
@@ -55,10 +56,10 @@ public final class Contorno
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
 	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public static final void inicializarContornos (Contorno contorno, Pieza[] tablero, int maxPiezas)
+	public static final void inicializarContornos (Contorno contorno, Pieza[] tablero, int maxPiezas, int lado)
 	{
 		// el limite inicial y el final me evitan los bordes sup e inf
-		for (int k=LADO; k < (maxPiezas - LADO); ++k)
+		for (int k=lado; k < (maxPiezas - lado); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
@@ -66,12 +67,12 @@ public final class Contorno
 				return;
 			
 			//borde izquierdo
-			if ((k % LADO) == 0) continue;
+			if ((k % lado) == 0) continue;
 			//borde derecho
-			if (((k+1) % LADO) == 0) continue;
+			if (((k+1) % lado) == 0) continue;
 			//(k + MAX_COLS) no debe llegar ni sobrepasar borde right
-			int fila_actual = k / LADO;
-			if (((k + MAX_COLS) / LADO) != fila_actual)
+			int fila_actual = k / lado;
+			if (((k + MAX_COLS) / lado) != fila_actual)
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
 			for (int a=1; a < MAX_COLS; ++a) {

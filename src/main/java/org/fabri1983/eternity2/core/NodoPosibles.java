@@ -41,13 +41,34 @@ public final class NodoPosibles
 	 * 
 	 * @param rot 
 	 */
-	public static final void addReferencia (final NodoPosibles np, final short piezaIndex, byte rot)
-	{
+	public static final void addReferencia (final NodoPosibles np, final short piezaIndex, byte rot) {
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
-		
 		np.referencias[nextIndex] = piezaIndex;
 		np.rots[nextIndex] = rot;
+	}
+
+	private static void setSizeByKey(NodoPosibles np, int key) {
+		int size = NodoPosiblesMapSizePerIndex.getSizeForKey(key);
+		np.referencias = new short[size];
+		np.rots = new byte[size];
+		resetReferencias(np);
+	}
+
+	private static int getNextFreeIndex(final NodoPosibles np) {
+		int nextIndex = 0;
+		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
+//			if (np.referencias[nextIndex] == null)
+			if (np.referencias[nextIndex] == -1)
+				return nextIndex;
+		}
+		return nextIndex;
+	}
+
+	public static void resetReferencias(NodoPosibles np) {
+		for (int i=0, c=np.referencias.length; i < c; ++i) {
+			np.referencias[i] = -1;
+		}
 	}
 
 	/**
@@ -83,30 +104,6 @@ public final class NodoPosibles
 				return (short)i;
 		}
 		return 0;
-	}
-
-	private static void setSizeByKey(NodoPosibles np, int key) {
-		int size = NodoPosiblesMapSizePerIndex.getSizeForKey(key);
-		np.referencias = new short[size];
-		np.rots = new byte[size];
-		// initialize referencias with -1
-		resetReferencias(np);
-	}
-
-	public static void resetReferencias(NodoPosibles np) {
-		for (int i=0, c=np.referencias.length; i < c; ++i) {
-			np.referencias[i] = -1;
-		}
-	}
-
-	private static int getNextFreeIndex(final NodoPosibles np) {
-		int nextIndex = 0;
-		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
-//			if (np.referencias[nextIndex] == null)
-			if (np.referencias[nextIndex] == -1)
-				return nextIndex;
-		}
-		return nextIndex;
 	}
 
 	/**

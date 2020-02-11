@@ -332,9 +332,24 @@ tripletas a ese contorno. Si el puntero es usado entonces puedo evitar que se fo
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
+Colors
+------
+According misc/colors_mapping_original.jpg
+Grey:  0
+Corner and border only colors:  1,  5,  9, 13, 17
+Inner colors: 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16, 18, 19, 20, 21, 22
+
+According misc/colors_mapping_rearranged.jpg
+Grey: 22
+Corner and border only colors: 17, 18, 19, 20, 21
+Inner colors: 0, 1, 2, 3, 4, 5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16
+
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 Supuestas piezas fijas:
 ----------------------
-Las filas y columnas NO son 0-based. La rotación es 0-based
+Las filas y columnas NO están en 0-based. La rotación es 0-based.
 
 (num)	(fila)	(col)	(rotacion)	(rot original del chabón) 
 208		3		3		1			(3)
