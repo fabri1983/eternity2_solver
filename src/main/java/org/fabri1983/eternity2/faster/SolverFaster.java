@@ -58,7 +58,7 @@ public final class SolverFaster {
 	final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
+	public final static short INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
 	final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
 	final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
 	final static byte F_ESQ_TOP_LEFT= 11;

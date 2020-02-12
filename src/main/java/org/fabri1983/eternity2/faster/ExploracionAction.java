@@ -562,7 +562,7 @@ public class ExploracionAction implements Runnable {
         final int lado = SolverFaster.LADO;
         final byte maxColores = SolverFaster.MAX_COLORES;
         final byte gris = PiezaFactory.GRIS;
-        final int indicePcentral = SolverFaster.INDICE_P_CENTRAL;
+        final short indicePcentral = SolverFaster.INDICE_P_CENTRAL;
         
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
