@@ -1,9 +1,12 @@
-﻿
+﻿- Most used slow methods:
+(multiple times due to recursion nature of the method call hierarchy)
+Pieza.llevarARotacion() takes: 93ms, 122ms, 171ms, 205ms, 344ms, 2851ms
+SolverFaster and SolverFasterMPJE getNodoIfKeyIsOriginal() takes: 92ms, 94ms, 96ms, 115ms, 244ms, 343ms, 406ms, 412ms
+
 ---------------------------------------------------------------------------------------
 TODO
 - Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se lee el archivo.
 - Guardar num_processes_orig[] en archivo status. Y setearlo cuando se lee el archivo. 
-- Para jrockit usar la lib rt.jar que viene con esa JVM. Definir en el perfil su path.
 
 ---------------------------------------------------------------------------------------
 Java GC

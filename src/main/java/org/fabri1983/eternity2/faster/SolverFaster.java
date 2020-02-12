@@ -441,21 +441,12 @@ public final class SolverFaster {
 	}
 	
 	/**
-	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar
-	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
-	 * ha finalizado su exploracion asignada.
+	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
 //	final static void operarSituacionLimiteAlcanzado(ExploracionAction action) {
 //		guardarEstado(action.statusFileName, action);
 //		
 //		System.out.println("El caso " + action.id + " ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
-//		
-//		if (send_mail){
-//			SendMail em= new SendMail();
-//			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
-//			Thread t= new Thread(em);
-//			t.start();
-//		}
 //	}
 	
 	/**
@@ -771,18 +762,6 @@ public final class SolverFaster {
 			// guardar los libres solo si es max instance
 			if (max)
 				guardarLibres(action);
-			
-			//solo para instancia max: enviar email
-			/*if (send_mail && max){
-				SendMail em1= new SendMail();
-				SendMail em2= new SendMail();
-				em1.setDatos(contenidoParcial.toString(),"ParcialMAX " + CASO);
-				em2.setDatos(contenidoDisp.toString(),"ParcialMAX Disp " + CASO);
-				Thread t1= new Thread(em1);
-				Thread t2= new Thread(em2);
-				t1.start();
-				t2.start();
-			}*/
 		}
 		catch(Exception ex) {
 			System.out.println("ERROR: No se pudieron generar los archivos de resultado parcial.");
@@ -815,13 +794,6 @@ public final class SolverFaster {
 			wLibres.append(sContent);
 			wLibres.flush();
 			wLibres.close();
-			
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(sContent,"LibresMax" + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
 		}
 		catch (Exception escp) {
 			System.out.println("ERROR: No se pudo generar el archivo " + action.libresMaxFileName);
@@ -865,15 +837,8 @@ public final class SolverFaster {
 			wDisp.flush();
 			wSol.close();
 			wDisp.close();
-			
-			//Sentencias para enviar email solucion
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(contenidoDisp.toString(),"Solucion caso" + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
-		}catch(Exception ex)
+		}
+		catch(Exception ex)
 		{
 			System.out.println("ERROR: No se pudo guardar la solucion!! QUE MACANA!!! (guardarSolucion())");
 			System.out.println(ex);
@@ -967,14 +932,6 @@ public final class SolverFaster {
 			writer.append(sContent);
 			writer.flush();
 			writer.close();
-	
-			//Sentencias para enviar email status_saved
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(sContent, "status caso " + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
 		}
 		catch (Exception e) {
 			System.out.println("ERROR: No se pudo guardar el estado de la exploración.");

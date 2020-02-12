@@ -211,13 +211,6 @@ public class ExploracionAction implements Runnable {
 		
 		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println(id + " >>> exploracion agotada.");
-
-//		if (send_mail) { // Envio un mail diciendo que no se encontró solución
-//			SendMail em = new SendMail();
-//			em.setDatos("Exploracion agotada para el caso " + CASO, "Sin solucion, caso " + CASO);
-//			Thread t = new Thread(em);
-//			t.start();
-//		}
 	}
 	
 	

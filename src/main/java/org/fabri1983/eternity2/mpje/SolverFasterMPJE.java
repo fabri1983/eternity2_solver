@@ -37,7 +37,6 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.SendMail;
 import org.fabri1983.eternity2.core.bitset.SparseBitSet;
 import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
 import org.fabri1983.eternity2.ui.EternityII;
@@ -143,7 +142,6 @@ public final class SolverFasterMPJE {
 	
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
-	private static boolean send_mail = false;
 	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	
@@ -532,22 +530,13 @@ public final class SolverFasterMPJE {
 	}
 	
 	/**
-	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar
-	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
-	 * ha finalizado su exploracion asignada.
+	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
 	/*private final static void operarSituacionLimiteAlcanzado (){
 		guardarEstado(NAME_FILE_STATUS);
 		guardarEstado(NAME_FILE_STATUS_COPY);
 		
 		System.out.println("El caso " + CASO + " ha llegado a su limite de exploracion. Exploracion finalizada.");
-		
-		if (send_mail){
-			SendMail em= new SendMail();
-			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
-			Thread t= new Thread(em);
-			t.start();
-		}
 	}*/
 	
 	/**
@@ -826,13 +815,6 @@ public final class SolverFasterMPJE {
 		
 		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println("Rank " + THIS_PROCESS + ": exploración agotada.");
-
-		if (send_mail) { // Envio un mail diciendo que no se encontró solución
-			SendMail em = new SendMail();
-			em.setDatos("Rank " + THIS_PROCESS + ": exploración agotada.", "Rank " + THIS_PROCESS + " exploracion agotada");
-			Thread t= new Thread(em);
-			t.start();
-		}
 	}
 	
 	
@@ -1408,18 +1390,6 @@ public final class SolverFasterMPJE {
 			// guardar los libres solo si es max instance
 			if (max)
 				guardarLibres();
-			
-			//solo para instancia max: enviar email
-			if (send_mail && max) {
-				SendMail em1= new SendMail();
-				SendMail em2= new SendMail();
-				em1.setDatos(sParcial, NAME_FILE_PARCIAL_MAX);
-				em2.setDatos(sDispMax, NAME_FILE_DISPOSICIONES_MAX);
-				Thread t1= new Thread(em1);
-				Thread t2= new Thread(em2);
-				t1.start();
-				t2.start();
-			}
 		}
 		catch(Exception ex) {
 			System.out.println("Rank " + THIS_PROCESS + ": ERROR: No se pudieron generar los archivos de resultado parcial.");
@@ -1451,13 +1421,6 @@ public final class SolverFasterMPJE {
 			wLibres.append(sContent);
 			wLibres.flush();
 			wLibres.close();
-			
-			if (send_mail) {
-				SendMail em= new SendMail();
-				em.setDatos(sContent, NAME_FILE_LIBRES_MAX);
-				Thread t= new Thread(em);
-				t.start();
-			}
 		}
 		catch (Exception escp) {
 			System.out.println("ERROR: No se pudo generar el archivo " + NAME_FILE_LIBRES_MAX);
@@ -1498,15 +1461,8 @@ public final class SolverFasterMPJE {
 			wDisp.flush();
 			wSol.close();
 			wDisp.close();
-			
-			//Sentencias para enviar email solucion
-			if (send_mail) {
-				SendMail em= new SendMail();
-				em.setDatos(contenidoDisp.toString(), NAME_FILE_SOLUCION);
-				Thread t= new Thread(em);
-				t.start();
-			}
-		}catch(Exception ex){
+		}
+		catch(Exception ex){
 			System.out.println("ERROR: No se pudo guardar la solucion!! QUE MACANA!!! (guardarSolucion())");
 			System.out.println(ex);
 		}
@@ -1596,14 +1552,6 @@ public final class SolverFasterMPJE {
 			writer.append(sContent);
 			writer.flush();
 			writer.close();
-
-			//Sentencias para enviar email status_saved
-			if (send_mail) {
-				SendMail em= new SendMail();
-				em.setDatos(sContent, f_name);
-				Thread t= new Thread(em);
-				t.start();
-			}
 		}
 		catch(Exception e){
 			System.out.println("ERROR: No se pudo guardar el estado de la exploración.");
