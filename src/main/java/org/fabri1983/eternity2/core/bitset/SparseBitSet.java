@@ -321,12 +321,12 @@ public class SparseBitSet
 	        throw new IndexOutOfBoundsException("i=" + i);
 	    if (i >= bitsLength)
 	        return;
-	    final int w = i >> SHIFT3;
+	    final int w = i >>> SHIFT3;
 	    long[][] a2;
-	    if ((a2 = bits[w >> SHIFT1]) == null)
+	    if ((a2 = bits[w >>> SHIFT1]) == null)
 	        return;
 	    long[] a3;
-	    if ((a3 = a2[(w >> SHIFT2) & MASK2]) == null)
+	    if ((a3 = a2[(w >>> SHIFT2) & MASK2]) == null)
 	        return;
 	    a3[w & MASK3] &= ~(1L << i); //  Clear the indicated bit
 	}
@@ -347,12 +347,12 @@ public class SparseBitSet
             level3 block goes to all zero. This may be found and corrected
             in some later operation. */
 
-        final int w = i >> SHIFT3;
+        final int w = i >>> SHIFT3;
         long[][] a2;
-        if ((a2 = bits[w >> SHIFT1]) == null)
+        if ((a2 = bits[w >>> SHIFT1]) == null)
             return;
         long[] a3;
-        if ((a3 = a2[(w >> SHIFT2) & MASK2]) == null)
+        if ((a3 = a2[(w >>> SHIFT2) & MASK2]) == null)
             return;
         a3[w & MASK3] &= ~(1L << i); //  Clear the indicated bit
     }
@@ -385,12 +385,12 @@ public class SparseBitSet
     {
         if ((i + 1) < 1)
             throw new IndexOutOfBoundsException("i=" + i);
-        final int w = i >> SHIFT3;
+        final int w = i >>> SHIFT3;
 
         long[][] a2;
         long[] a3;
-        return i < bitsLength && (a2 = bits[w >> SHIFT1]) != null
-                && (a3 = a2[(w >> SHIFT2) & MASK2]) != null
+        return i < bitsLength && (a2 = bits[w >>> SHIFT1]) != null
+                && (a3 = a2[(w >>> SHIFT2) & MASK2]) != null
                 && ((a3[w & MASK3] & (1L << i)) != 0);
     }
 
@@ -410,12 +410,12 @@ public class SparseBitSet
      */
     public boolean getNoBoundChecks(int i)
     {
-        final int w = i >> SHIFT3;
+        final int w = i >>> SHIFT3;
 
         long[][] a2;
         long[] a3;
-        return (a2 = bits[w >> SHIFT1]) != null
-                && (a3 = a2[(w >> SHIFT2) & MASK2]) != null
+        return (a2 = bits[w >>> SHIFT1]) != null
+                && (a3 = a2[(w >>> SHIFT2) & MASK2]) != null
                 && ((a3[w & MASK3] & (1L << i)) != 0);
     }
     
@@ -440,10 +440,10 @@ public class SparseBitSet
         if (i < 0)
             throw new IndexOutOfBoundsException("i=" + i);
         /*  This is the word from which the search begins. */
-        int w = i >> SHIFT3;
+        int w = i >>> SHIFT3;
         int w3 = w & MASK3;
-        int w2 = (w >> SHIFT2) & MASK2;
-        int w1 = w >> SHIFT1;
+        int w2 = (w >>> SHIFT2) & MASK2;
+        int w1 = w >>> SHIFT1;
 
         long nword = ~0L << i;
         final int aLength = bits.length;
@@ -462,8 +462,8 @@ public class SparseBitSet
                 complemented value). */
             ++w;
             w3 = w & MASK3;
-            w2 = (w >> SHIFT2) & MASK2;
-            w1 = w >> SHIFT1;
+            w2 = (w >>> SHIFT2) & MASK2;
+            w1 = w >>> SHIFT1;
             nword = ~0L;
             loop: for (; w1 != aLength; ++w1)
             {
@@ -516,10 +516,10 @@ public class SparseBitSet
         if (i < 0)
             throw new IndexOutOfBoundsException("i=" + i);
         /*  This is the word from which the search begins. */
-        int w = i >> SHIFT3;
+        int w = i >>> SHIFT3;
         int w3 = w & MASK3;
-        int w2 = (w >> SHIFT2) & MASK2;
-        int w1 = w >> SHIFT1;
+        int w2 = (w >>> SHIFT2) & MASK2;
+        int w1 = w >>> SHIFT1;
 
         long word = 0L;
         final int aLength = bits.length;
@@ -536,8 +536,8 @@ public class SparseBitSet
             /*  So now start a search though the rest of the entries for a bit. */
             ++w;
             w3 = w & MASK3;
-            w2 = (w >> SHIFT2) & MASK2;
-            w1 = w >> SHIFT1;
+            w2 = (w >>> SHIFT2) & MASK2;
+            w1 = w >>> SHIFT1;
             major: for (; w1 != aLength; ++w1)
             {
                 if ((a2 = bits[w1]) != null)
@@ -569,9 +569,9 @@ public class SparseBitSet
     {
         if ((i + 1) < 1)
             throw new IndexOutOfBoundsException("i=" + i);
-        final int w = i >> SHIFT3;
-        final int w1 = w >> SHIFT1;
-        final int w2 = (w >> SHIFT2) & MASK2;
+        final int w = i >>> SHIFT3;
+        final int w1 = w >>> SHIFT1;
+        final int w2 = (w >>> SHIFT2) & MASK2;
 
         if (i >= bitsLength)
             resize(i);
@@ -596,9 +596,9 @@ public class SparseBitSet
      */
     public void setNoBoundChecksNoResize(int i)
     {
-        final int w = i >> SHIFT3;
-        final int w1 = w >> SHIFT1;
-        final int w2 = (w >> SHIFT2) & MASK2;
+        final int w = i >>> SHIFT3;
+        final int w1 = w >>> SHIFT1;
+        final int w2 = (w >>> SHIFT2) & MASK2;
 
         long[][] a2;
         if ((a2 = bits[w1]) == null)
@@ -642,7 +642,7 @@ public class SparseBitSet
     {
         /*  Find an array size that is a power of two that is as least as large
             enough to contain the index requested. */
-        final int w1 = (index >> SHIFT3) >> SHIFT1;
+        final int w1 = (index >>> SHIFT3) >>> SHIFT1;
         int newSize = Integer.highestOneBit(w1);
         if (newSize == 0)
             newSize = 1;

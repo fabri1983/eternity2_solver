@@ -229,17 +229,17 @@ public class VerySimpleSelect extends Select {
     public static int selectBitLongReverse(long x, int n) {
         // int bitCount = Long.bitCount(x & 0xffffffff00000000L);
         int bitCount = Long.bitCount(x >>> 32);
-        int more = (bitCount - n - 1) >> 31;
+        int more = (bitCount - n - 1) >>> 31;
         int result = more & 32;
         n -= bitCount & more;
         // bitCount = Long.bitCount((x << result) & 0xffff000000000000L);
         bitCount = Long.bitCount((x << result) >>> 48);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 16;
         n -= bitCount & more;
         // bitCount = Long.bitCount((x << result) & 0xff00000000000000L);
         bitCount = Long.bitCount((x << result) >>> 56);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 8;
         n -= bitCount & more;
         return SELECT_BIT_IN_BYTE_REVERSE[(int) ((x << result) >>> 56) | (n << 8)] + result;
@@ -247,15 +247,15 @@ public class VerySimpleSelect extends Select {
 
     public static int selectBitLong(long x, int n) {
         int bitCount = Long.bitCount(x & 0xffffffffL);
-        int more = (bitCount - n - 1) >> 31;
+        int more = (bitCount - n - 1) >>> 31;
         int result = more & 32;
         n -= bitCount & more;
         bitCount = Long.bitCount((x >>> result) & 0xffff);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 16;
         n -= bitCount & more;
         bitCount = Long.bitCount((x >>> result) & 0xff);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 8;
         n -= bitCount & more;
         return SELECT_BIT_IN_BYTE[(int) ((x >>> result) & 0xff) | (n << 8)] + result;
@@ -264,12 +264,12 @@ public class VerySimpleSelect extends Select {
     public static int selectBitReverse(int x, int n) {
         // int bitCount = Integer.bitCount(x & 0xffff0000);
         int bitCount = Integer.bitCount(x >>> 16);
-        int more = (bitCount - n - 1) >> 31;
+        int more = (bitCount - n - 1) >>> 31;
         int result = more & 16;
         n -= bitCount & more;
         // bitCount = Integer.bitCount((x << result) & 0xff000000);
         bitCount = Integer.bitCount((x << result) >>> 24);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 8;
         n -= bitCount & more;
         return SELECT_BIT_IN_BYTE_REVERSE[((x << result) >>> 24) | (n << 8)] + result;
@@ -277,11 +277,11 @@ public class VerySimpleSelect extends Select {
 
     public static int selectBit(int x, int n) {
         int bitCount = Integer.bitCount(x & 0xffff);
-        int more = (bitCount - n - 1) >> 31;
+        int more = (bitCount - n - 1) >>> 31;
         int result = more & 16;
         n -= bitCount & more;
         bitCount = Integer.bitCount((x >>> result) & 0xff);
-        more = (bitCount - n - 1) >> 31;
+        more = (bitCount - n - 1) >>> 31;
         result += more & 8;
         n -= bitCount & more;
         return SELECT_BIT_IN_BYTE[((x >>> result) & 0xff) | (n << 8)] + result;
