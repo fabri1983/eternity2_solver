@@ -211,13 +211,6 @@ public class ExploracionAction implements Runnable {
 		
 		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println(id + " >>> exploracion agotada.");
-
-//		if (send_mail) { // Envio un mail diciendo que no se encontró solución
-//			SendMail em = new SendMail();
-//			em.setDatos("Exploracion agotada para el caso " + CASO, "Sin solucion, caso " + CASO);
-//			Thread t = new Thread(em);
-//			t.start();
-//		}
 	}
 	
 	
@@ -451,7 +444,7 @@ public class ExploracionAction implements Runnable {
 			
 			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza
 			p.usada = true; //en este punto la pieza va a ser usada
-			Pieza.llevarARotacion(p, rot);
+			Pieza.llevarArotacion(p, rot);
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
@@ -569,7 +562,7 @@ public class ExploracionAction implements Runnable {
         final int lado = SolverFaster.LADO;
         final byte maxColores = SolverFaster.MAX_COLORES;
         final byte gris = PiezaFactory.GRIS;
-        final int indicePcentral = SolverFaster.INDICE_P_CENTRAL;
+        final short indicePcentral = SolverFaster.INDICE_P_CENTRAL;
         
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central

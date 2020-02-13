@@ -305,22 +305,48 @@ public class SparseBitSet
     }
 
     /**
+	 *  Sets the bit at the specified index to <code>false</code>.
+	 *  
+	 * @param       i a bit index.
+	 * @exception   IndexOutOfBoundsException if the specified index is negative
+	 *              or equal to Integer.MAX_VALUE.
+	 * @since       1.6
+	 */
+	public void clear(int i)
+	{
+	    /*  In the interests of speed, no check is made here on whether the
+	        level3 block goes to all zero. This may be found and corrected
+	        in some later operation. */
+	    if ((i + 1) < 1)
+	        throw new IndexOutOfBoundsException("i=" + i);
+	    if (i >= bitsLength)
+	        return;
+	    final int w = i >> SHIFT3;
+	    long[][] a2;
+	    if ((a2 = bits[w >> SHIFT1]) == null)
+	        return;
+	    long[] a3;
+	    if ((a3 = a2[(w >> SHIFT2) & MASK2]) == null)
+	        return;
+	    a3[w & MASK3] &= ~(1L << i); //  Clear the indicated bit
+	}
+
+	/**
      *  Sets the bit at the specified index to <code>false</code>.
+     *  
+     *  IMPORTANT: use this method ONLY when you know that i will never exceed the length of bits.
      *
      * @param       i a bit index.
      * @exception   IndexOutOfBoundsException if the specified index is negative
      *              or equal to Integer.MAX_VALUE.
      * @since       1.6
      */
-    public void clear(int i)
+    public void clearNoBoundChecks(int i)
     {
         /*  In the interests of speed, no check is made here on whether the
             level3 block goes to all zero. This may be found and corrected
             in some later operation. */
-        if ((i + 1) < 1)
-            throw new IndexOutOfBoundsException("i=" + i);
-        if (i >= bitsLength)
-            return;
+
         final int w = i >> SHIFT3;
         long[][] a2;
         if ((a2 = bits[w >> SHIFT1]) == null)
@@ -368,6 +394,31 @@ public class SparseBitSet
                 && ((a3[w & MASK3] & (1L << i)) != 0);
     }
 
+    /**
+     *  Returns the value of the bit with the specified index. The value is
+     *  <code>true</code> if the bit with the index <code>i</code> is currently set
+     *  in this <code>SparseBitSet</code>; otherwise, the result is
+     *  <code>false</code>.
+     *
+     *  IMPORTANT: use this method ONLY when you know that i will never exceed the length of bits.
+     *  
+     * @param       i the bit index
+     * @return      the boolean value of the bit with the specified index.
+     * @exception   IndexOutOfBoundsException if the specified index is negative
+     *              or equal to Integer.MAX_VALUE
+     * @since       1.6
+     */
+    public boolean getNoBoundChecks(int i)
+    {
+        final int w = i >> SHIFT3;
+
+        long[][] a2;
+        long[] a3;
+        return (a2 = bits[w >> SHIFT1]) != null
+                && (a3 = a2[(w >> SHIFT2) & MASK2]) != null
+                && ((a3[w & MASK3] & (1L << i)) != 0);
+    }
+    
     /**
      *  Returns the index of the first bit that is set to <code>false</code> that
      *  occurs on or after the specified starting index.
@@ -534,20 +585,28 @@ public class SparseBitSet
     }
 
     /**
-     *  Sets the bit at the specified index to the specified value.
+     *  Sets the bit at the specified index.
+     *  
+     *  IMPORTANT: Use this method ONLY if you created the SparseBitSet with a final expected size.
      *
      * @param       i a bit index
-     * @param       value a boolean value to set
      * @exception   IndexOutOfBoundsException if the specified index is negative
      *              or equal to Integer.MAX_VALUE
      * @since       1.6
      */
-    public void set(int i, boolean value)
+    public void setNoBoundChecksNoResize(int i)
     {
-        if (value)
-            set(i);
-        else
-            clear(i);
+        final int w = i >> SHIFT3;
+        final int w1 = w >> SHIFT1;
+        final int w2 = (w >> SHIFT2) & MASK2;
+
+        long[][] a2;
+        if ((a2 = bits[w1]) == null)
+            a2 = bits[w1] = new long[LENGTH2][];
+        long[] a3;
+        if ((a3 = a2[w2]) == null)
+            a3 = a2[w2] = new long[LENGTH3];
+        a3[w & MASK3] |= 1L << i;
     }
 
     /**

@@ -30,16 +30,17 @@ public class Arrays
 		return arrayOfInt;
 	}
 
-	public static Object[] ensureCapacity(Object[] paramArrayOfObject, int paramInt)
+	@SuppressWarnings("unchecked")
+	public static <T> T[] ensureCapacity(T[] paramArrayOfObject, int paramInt)
 	{
 		int i = paramArrayOfObject.length;
-		Object[] arrayOfObject;
+		T[] arrayOfObject;
 		if (paramInt > i)
 		{
 			int j = i * 3 / 2 + 1;
 			if (j < paramInt)
 				j = paramInt;
-			arrayOfObject = new Object[j];
+			arrayOfObject = (T[]) new Object[j];
 			System.arraycopy(paramArrayOfObject, 0, arrayOfObject, 0, i);
 		}
 		else
@@ -70,12 +71,13 @@ public class Arrays
 		return paramArrayOfInt;
 	}
 
-	public static Object[] trimToCapacity(Object[] paramArrayOfObject, int paramInt)
+	@SuppressWarnings("unchecked")
+	public static <T> T[] trimToCapacity(T[] paramArrayOfObject, int paramInt)
 	{
 		if (paramArrayOfObject.length > paramInt)
 		{
-			Object[] arrayOfObject = paramArrayOfObject;
-			paramArrayOfObject = new Object[paramInt];
+			T[] arrayOfObject = paramArrayOfObject;
+			paramArrayOfObject = (T[]) new Object[paramInt];
 			System.arraycopy(arrayOfObject, 0, paramArrayOfObject, 0, paramInt);
 		}
 		return paramArrayOfObject;

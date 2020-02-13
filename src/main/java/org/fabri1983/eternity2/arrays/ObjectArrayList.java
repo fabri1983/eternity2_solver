@@ -9,8 +9,6 @@ It is provided "as is" without expressed or implied warranty.
 
 package org.fabri1983.eternity2.arrays;
 
-import java.lang.reflect.Array;
-
 public class ObjectArrayList<T> extends AbstractCollection
 {
 	protected T[] elements;
@@ -47,10 +45,9 @@ public class ObjectArrayList<T> extends AbstractCollection
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void ensureCapacity(int paramInt)
 	{
-		this.elements = (T[]) Arrays.ensureCapacity(this.elements, paramInt);
+		this.elements = Arrays.ensureCapacity(this.elements, paramInt);
 	}
 
 	public T get(int paramInt)
@@ -68,24 +65,9 @@ public class ObjectArrayList<T> extends AbstractCollection
 		return this.size;
 	}
 
-	@SuppressWarnings("unchecked")
-	public T[] toArray(T[] paramArrayOfObject)
-	{
-		if (paramArrayOfObject.length < this.size)
-			paramArrayOfObject = (T[]) Array.newInstance(paramArrayOfObject.getClass().getComponentType(), this.size);
-		T[] arrayOfObject = this.elements;
-		int i = this.size;
-		while (--i >= 0)
-			paramArrayOfObject[i] = arrayOfObject[i];
-		if (paramArrayOfObject.length > this.size)
-			paramArrayOfObject[this.size] = null;
-		return paramArrayOfObject;
-	}
-
-	@SuppressWarnings("unchecked")
 	public void trimToSize()
 	{
-		this.elements = (T[]) Arrays.trimToCapacity(this.elements, size());
+		this.elements = Arrays.trimToCapacity(this.elements, size());
 	}
 
 	@SuppressWarnings("unchecked")

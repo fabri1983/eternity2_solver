@@ -58,7 +58,7 @@ public final class SolverFaster {
 	final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
-	public final static int INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
+	public final static short INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
 	final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
 	final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
 	final static byte F_ESQ_TOP_LEFT= 11;
@@ -336,7 +336,7 @@ public final class SolverFaster {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, (byte)0);
+			Pieza.llevarArotacion(pz, (byte)0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
@@ -410,7 +410,7 @@ public final class SolverFaster {
 			}
 			
 			//restauro la rotación
-			Pieza.llevarARotacion(pz, temp_rot);
+			Pieza.llevarArotacion(pz, temp_rot);
 		}
 	}
 
@@ -425,7 +425,7 @@ public final class SolverFaster {
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// check if key belongs to original keys set
-		if (!sbs.get(key))
+		if (!sbs.getNoBoundChecks(key))
 			return null;
 		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
@@ -436,26 +436,17 @@ public final class SolverFaster {
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
 		// set key as a valid one
-		sbs.set(key);
+		sbs.setNoBoundChecksNoResize(key);
 		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
 	}
 	
 	/**
-	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar
-	 * estado, mandarlo por mail, y avisar tambien por mail que esta instancia
-	 * ha finalizado su exploracion asignada.
+	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
 //	final static void operarSituacionLimiteAlcanzado(ExploracionAction action) {
 //		guardarEstado(action.statusFileName, action);
 //		
 //		System.out.println("El caso " + action.id + " ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
-//		
-//		if (send_mail){
-//			SendMail em= new SendMail();
-//			em.setDatos("El caso " + CASO + " ha llegado a su limite de exploracion.", "Exploracion finalizada: " + CASO);
-//			Thread t= new Thread(em);
-//			t.start();
-//		}
 //	}
 	
 	/**
@@ -599,7 +590,7 @@ public final class SolverFaster {
 				linea= reader.readLine(); //info de la primer pieza
 				while ((linea != null) && (pos < MAX_PIEZAS)){
 					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
-					Pieza.llevarARotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
+					Pieza.llevarArotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
 					action.piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
@@ -771,18 +762,6 @@ public final class SolverFaster {
 			// guardar los libres solo si es max instance
 			if (max)
 				guardarLibres(action);
-			
-			//solo para instancia max: enviar email
-			/*if (send_mail && max){
-				SendMail em1= new SendMail();
-				SendMail em2= new SendMail();
-				em1.setDatos(contenidoParcial.toString(),"ParcialMAX " + CASO);
-				em2.setDatos(contenidoDisp.toString(),"ParcialMAX Disp " + CASO);
-				Thread t1= new Thread(em1);
-				Thread t2= new Thread(em2);
-				t1.start();
-				t2.start();
-			}*/
 		}
 		catch(Exception ex) {
 			System.out.println("ERROR: No se pudieron generar los archivos de resultado parcial.");
@@ -815,13 +794,6 @@ public final class SolverFaster {
 			wLibres.append(sContent);
 			wLibres.flush();
 			wLibres.close();
-			
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(sContent,"LibresMax" + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
 		}
 		catch (Exception escp) {
 			System.out.println("ERROR: No se pudo generar el archivo " + action.libresMaxFileName);
@@ -865,15 +837,8 @@ public final class SolverFaster {
 			wDisp.flush();
 			wSol.close();
 			wDisp.close();
-			
-			//Sentencias para enviar email solucion
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(contenidoDisp.toString(),"Solucion caso" + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
-		}catch(Exception ex)
+		}
+		catch(Exception ex)
 		{
 			System.out.println("ERROR: No se pudo guardar la solucion!! QUE MACANA!!! (guardarSolucion())");
 			System.out.println(ex);
@@ -967,14 +932,6 @@ public final class SolverFaster {
 			writer.append(sContent);
 			writer.flush();
 			writer.close();
-	
-			//Sentencias para enviar email status_saved
-			/*if (send_mail){
-				SendMail em= new SendMail();
-				em.setDatos(sContent, "status caso " + CASO);
-				Thread t= new Thread(em);
-				t.start();
-			}*/
 		}
 		catch (Exception e) {
 			System.out.println("ERROR: No se pudo guardar el estado de la exploración.");
