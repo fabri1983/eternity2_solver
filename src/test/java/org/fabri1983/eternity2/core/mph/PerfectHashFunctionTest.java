@@ -29,7 +29,7 @@ public class PerfectHashFunctionTest {
 		
 		System.out.print("benchmarking... ");
 		Blackhole blackhole = new Blackhole();
-		int loops=5, warmups=5;
+		int loops=15, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int key : keys) {
 				int bucket = PerfectHashFunction.phash(key);

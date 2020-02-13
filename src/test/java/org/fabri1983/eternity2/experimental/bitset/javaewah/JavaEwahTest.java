@@ -25,7 +25,7 @@ public class JavaEwahTest {
 		System.out.print("benchmarking quering random keys ... ");
 		ArrayShuffler.shuffleArray(keys);
 		Blackhole blackhole = new Blackhole();
-		int loops=5, warmups=5;
+		int loops=15, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int key : keys) {
 				boolean isSet = b.get(key);
@@ -40,7 +40,7 @@ public class JavaEwahTest {
 			}
 		}
 		long nanosBench = System.nanoTime() - timeBench;
-		long nanosPerKey = (nanosBench/keys.length)/loops;
+		long nanosPerKey = nanosBench / (keys.length * loops);
 		System.out.println("done. " + nanosPerKey + " nanos/key");
 	}
 	

@@ -444,7 +444,7 @@ public class ExploracionAction implements Runnable {
 			
 			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza
 			p.usada = true; //en este punto la pieza va a ser usada
-			Pieza.llevarARotacion(p, rot);
+			Pieza.llevarArotacion(p, rot);
 			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####

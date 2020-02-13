@@ -42,7 +42,7 @@ public class EliasFanoTest {
 		
 		System.out.print("benchmarking... ");
 		Blackhole blackhole = new Blackhole();
-		int loops=5, warmups=5;
+		int loops=15, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int k : keys) {
 				// get the index of the first element, in the compressed data, greater or equal than k
@@ -59,7 +59,7 @@ public class EliasFanoTest {
 			}
 		}
 		long nanos = System.nanoTime() - timeEval;
-		long nanosPerKey = (nanos/keys.length)/loops;
+		long nanosPerKey = nanos/(keys.length*loops);
 		System.out.println("done. " + nanosPerKey + " nanos/key");
 	}
 	

@@ -1,8 +1,7 @@
 ﻿- Most used slow methods:
-(multiple times due to recursion nature of the method call hierarchy)
-Pieza.llevarARotacion() takes: 93ms, 122ms, 171ms, 205ms, 344ms, 2851ms
-SolverFaster and SolverFasterMPJE getNodoIfKeyIsOriginal() takes: 92ms, 94ms, 96ms, 115ms, 244ms, 343ms, 406ms, 412ms
-obtenerPosiblesPieas() also has a little addiiotnal overhead along with getNodoIfKeyIsOriginal()
+(multiple times were obtained due to recursion nature of method call hierarchy)
+SolverFaster and SolverFasterMPJE: getNodoIfKeyIsOriginal() takes: 92ms, 94ms, 96ms, 115ms, 244ms, 343ms, 406ms, 412ms
+obtenerPosiblesPieas() also has a little additional overhead along with getNodoIfKeyIsOriginal()
 
 ---------------------------------------------------------------------------------------
 TODO

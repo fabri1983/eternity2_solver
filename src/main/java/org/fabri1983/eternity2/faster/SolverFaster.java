@@ -336,7 +336,7 @@ public final class SolverFaster {
 			//guardo la rotación de la pieza
 			byte temp_rot = pz.rotacion;
 			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarARotacion(pz, (byte)0);
+			Pieza.llevarArotacion(pz, (byte)0);
 			
 			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
@@ -410,7 +410,7 @@ public final class SolverFaster {
 			}
 			
 			//restauro la rotación
-			Pieza.llevarARotacion(pz, temp_rot);
+			Pieza.llevarArotacion(pz, temp_rot);
 		}
 	}
 
@@ -425,7 +425,7 @@ public final class SolverFaster {
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// check if key belongs to original keys set
-		if (!sbs.get(key))
+		if (!sbs.getNoBoundChecks(key))
 			return null;
 		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
@@ -436,7 +436,7 @@ public final class SolverFaster {
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
 		// set key as a valid one
-		sbs.set(key);
+		sbs.setNoBoundChecksNoResize(key);
 		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
 	}
 	
@@ -590,7 +590,7 @@ public final class SolverFaster {
 				linea= reader.readLine(); //info de la primer pieza
 				while ((linea != null) && (pos < MAX_PIEZAS)){
 					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
-					Pieza.llevarARotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
+					Pieza.llevarArotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
 					action.piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
