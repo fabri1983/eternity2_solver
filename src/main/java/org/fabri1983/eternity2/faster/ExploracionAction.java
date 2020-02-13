@@ -501,7 +501,7 @@ public class ExploracionAction implements Runnable {
 
 	private final boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
 		
-		final int fila_actual = cursor >> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		final int fila_actual = cursor >>> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 		
 		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
 		// old was: ((cursor+2) % LADO) == 0

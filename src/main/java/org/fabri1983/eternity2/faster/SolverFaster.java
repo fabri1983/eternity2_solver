@@ -54,7 +54,7 @@ public final class SolverFaster {
 	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
 	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
-	final static int LADO= 16;
+	public final static int LADO= 16;
 	final static int LADO_SHIFT_AS_DIVISION = 4;
 	public final static int MAX_PIEZAS= 256;
 	public final static int POSICION_CENTRAL= 135;
@@ -128,8 +128,8 @@ public final class SolverFaster {
 	static boolean retroceder, FairExperimentGif, usarTableroGrafico;
 	static int cellPixelsLado, tableboardRefreshMillis;
 	static boolean flag_retroceder_externo, usar_poda_color_explorado;
-	final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
 	final static boolean zona_proc_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para usar y liberar contornos
+	final static boolean zona_read_contorno[] = new boolean[MAX_PIEZAS]; // arreglo de zonas permitidas para preguntar por contorno used
 	
 	private static ReaderForFile readerForTilesFile;
 	
@@ -250,30 +250,6 @@ public final class SolverFaster {
 	}
 	
 	/**
-	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
-	 */
-	private final static void inicializarZonaReadContornos()
-	{	
-		for (int k=0; k < MAX_PIEZAS; ++k)
-		{
-			int fila_actual = k / LADO;
-			
-			//si estoy en borde top o bottom continuo con la siguiente posición
-			if (k < LADO || k > (MAX_PIEZAS-LADO))
-				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
-			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
-				continue;
-			
-			//desde aqui estoy en el interior del tablero
-			
-			//me aseguro que no llegue ni sobrepase el borde right
-			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
-				zona_read_contorno[k] = true;
-		}
-	}
-	
-	/**
 	 * El arreglo zonas_proc_contorno[] me dice en qué posiciones puedo procesar un contorno superior 
 	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, y ningún otro.
 	 * NOTA: para contorno inferior se debe chequear que cursor sea [33,238].
@@ -282,8 +258,6 @@ public final class SolverFaster {
 	{
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
-			int fila_actual = k / LADO;
-			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
@@ -293,7 +267,8 @@ public final class SolverFaster {
 			
 			//desde aqui estoy en el interior del tablero
 			
-			//me aseguro que no esté cerca del borde left
+			//me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
+			int fila_actual = k / LADO;
 			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
@@ -301,6 +276,29 @@ public final class SolverFaster {
 		}
 		
 		System.out.println("Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+	}
+
+	/**
+	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
+	 */
+	private final static void inicializarZonaReadContornos()
+	{	
+		for (int k=0; k < MAX_PIEZAS; ++k)
+		{
+			//si estoy en borde top o bottom continuo con la siguiente posición
+			if (k < LADO || k > (MAX_PIEZAS-LADO))
+				continue;
+			//si estoy en los bordes entonces continuo con la sig posición
+			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
+				continue;
+			
+			//desde aqui estoy en el interior del tablero
+			
+			//me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
+			int fila_actual = k / LADO;
+			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
+				zona_read_contorno[k] = true;
+		}
 	}
 	
 	/**
@@ -947,11 +945,11 @@ public final class SolverFaster {
 		// cargo en el arreglo matrix_zonas valores que me indiquen en que posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
-		// seteo las posiciones donde se puede preguntar por contorno superior usado
-		inicializarZonaReadContornos();
-		
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcesoContornos();
+		
+		// seteo las posiciones donde se puede preguntar por contorno superior usado
+		inicializarZonaReadContornos();
 		
 		// creates the array of actions
 		actions = new ExploracionAction[NUM_PROCESSES];

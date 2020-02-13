@@ -29,8 +29,8 @@ public class MultiStageMonotoneList extends MonotoneList {
         this.bitCount2 = (int) buffer.readEliasDelta() - 1;
         this.bitCount3 = (int) buffer.readEliasDelta() - 1;
         startLevel1 = buffer.position();
-        count2 = (count3 + (1 << SHIFT2) - 1) >> SHIFT2;
-        count1 = (count3 + (1 << SHIFT1) - 1) >> SHIFT1;
+        count2 = (count3 + (1 << SHIFT2) - 1) >>> SHIFT2;
+        count1 = (count3 + (1 << SHIFT1) - 1) >>> SHIFT1;
         startLevel2 = startLevel1 + count1 * bitCount1;
         startLevel3 = startLevel2 + count2 * bitCount2;
         buffer.seek(startLevel3 + bitCount3 * count3);
@@ -60,8 +60,8 @@ public class MultiStageMonotoneList extends MonotoneList {
          buffer.writeEliasDelta(count3 + 1);
          buffer.writeEliasDelta(diff + 1);
          buffer.writeEliasDelta(BitBuffer.foldSigned(add) + 1);
-         int count2 = (count3 + (1 << SHIFT2) - 1) >> SHIFT2;
-         int count1 = (count3 + (1 << SHIFT1) - 1) >> SHIFT1;
+         int count2 = (count3 + (1 << SHIFT2) - 1) >>> SHIFT2;
+         int count1 = (count3 + (1 << SHIFT1) - 1) >>> SHIFT1;
          int[] group1 = new int[count1];
          int[] group2 = new int[count2];
          int[] group3 = new int[count3];
@@ -79,32 +79,32 @@ public class MultiStageMonotoneList extends MonotoneList {
          for (int i = 0; i < count3; i++) {
              int x = group3[i];
              a = Math.min(a, x);
-             if ((i +1) >> SHIFT2 != i >> SHIFT2 || i == count3 - 1) {
-                 group2[i >> SHIFT2] = a / FACTOR2;
+             if ((i +1) >>> SHIFT2 != i >>> SHIFT2 || i == count3 - 1) {
+                 group2[i >>> SHIFT2] = a / FACTOR2;
                  a = Integer.MAX_VALUE;
              }
          }
          a = Integer.MAX_VALUE;
          for (int i = 0; i < count3; i++) {
-             int d = group2[i >> SHIFT2] * FACTOR2;
+             int d = group2[i >>> SHIFT2] * FACTOR2;
              int x = group3[i];
              group3[i] -= d;
              if (group3[i] < 0) {
                  throw new AssertionError();
              }
              a = Math.min(a, x);
-             if ((i + 1) >> SHIFT1 != i >> SHIFT1 || i == count3 - 1) {
-                 group1[i >> SHIFT1] = a / FACTOR1;
+             if ((i + 1) >>> SHIFT1 != i >>> SHIFT1 || i == count3 - 1) {
+                 group1[i >>> SHIFT1] = a / FACTOR1;
                  a = Integer.MAX_VALUE;
              }
          }
          int last = -1;
          for (int i = 0; i < count3; i++) {
-             int i2 = i >> SHIFT2;
+             int i2 = i >>> SHIFT2;
              if (i2 == last) {
                  continue;
              }
-             int d = group1[i >> SHIFT1] * FACTOR1;
+             int d = group1[i >>> SHIFT1] * FACTOR1;
              group2[i2] -= d / FACTOR2;
              last = i2;
          }
@@ -157,8 +157,8 @@ public class MultiStageMonotoneList extends MonotoneList {
         result += BitBuffer.getEliasDeltaSize(count3 + 1);
         result += BitBuffer.getEliasDeltaSize(diff + 1);
         result += BitBuffer.getEliasDeltaSize(BitBuffer.foldSigned(add) + 1);
-        int count2 = (count3 + (1 << SHIFT2) - 1) >> SHIFT2;
-        int count1 = (count3 + (1 << SHIFT1) - 1) >> SHIFT1;
+        int count2 = (count3 + (1 << SHIFT2) - 1) >>> SHIFT2;
+        int count1 = (count3 + (1 << SHIFT1) - 1) >>> SHIFT1;
         int[] group1 = new int[count1];
         int[] group2 = new int[count2];
         int[] group3 = new int[count3];
@@ -176,32 +176,32 @@ public class MultiStageMonotoneList extends MonotoneList {
         for (int i = 0; i < count3; i++) {
             int x = group3[i];
             a = Math.min(a, x);
-            if ((i +1) >> SHIFT2 != i >> SHIFT2 || i == count3 - 1) {
-                group2[i >> SHIFT2] = a / FACTOR2;
+            if ((i +1) >>> SHIFT2 != i >>> SHIFT2 || i == count3 - 1) {
+                group2[i >>> SHIFT2] = a / FACTOR2;
                 a = Integer.MAX_VALUE;
             }
         }
         a = Integer.MAX_VALUE;
         for (int i = 0; i < count3; i++) {
-            int d = group2[i >> SHIFT2] * FACTOR2;
+            int d = group2[i >>> SHIFT2] * FACTOR2;
             int x = group3[i];
             group3[i] -= d;
             if (group3[i] < 0) {
                 throw new AssertionError();
             }
             a = Math.min(a, x);
-            if ((i + 1) >> SHIFT1 != i >> SHIFT1 || i == count3 - 1) {
-                group1[i >> SHIFT1] = a / FACTOR1;
+            if ((i + 1) >>> SHIFT1 != i >>> SHIFT1 || i == count3 - 1) {
+                group1[i >>> SHIFT1] = a / FACTOR1;
                 a = Integer.MAX_VALUE;
             }
         }
         int last = -1;
         for (int i = 0; i < count3; i++) {
-            int i2 = i >> SHIFT2;
+            int i2 = i >>> SHIFT2;
             if (i2 == last) {
                 continue;
             }
-            int d = group1[i >> SHIFT1] * FACTOR1;
+            int d = group1[i >>> SHIFT1] * FACTOR1;
             group2[i2] -= d / FACTOR2;
             last = i2;
         }

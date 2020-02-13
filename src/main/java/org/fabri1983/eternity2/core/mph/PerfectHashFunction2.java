@@ -72,9 +72,10 @@ public class PerfectHashFunction2 {
 
 	public static int phash(int val) {
 		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign when you know some operations exceed 2^31 - 1
+		// I decided to use >>> to always avoid carrying out the sign.
 		
 		val += 0x6902a4cc; // PHASHSALT 0x6902a4cc = 1761780940 (31 bits!)
-		val ^= (val >> 16);
+		val ^= (val >>> 16);
 		
 		/**
 		 * IMPORTANT: val += (val << 8)

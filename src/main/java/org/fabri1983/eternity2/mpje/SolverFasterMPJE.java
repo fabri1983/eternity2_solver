@@ -142,8 +142,8 @@ public final class SolverFasterMPJE {
 	
 	private static boolean status_cargado, retroceder, FairExperimentGif;
 	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
-	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
+	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
@@ -232,11 +232,11 @@ public final class SolverFasterMPJE {
 		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		inicializarMatrixZonas();
 		
-		//seteo las posiciones donde se puede preguntar por contorno superior usado
-		inicializarZonaReadContornos();
-		
 		//seteo las posiciones donde puedo setear un contorno como usado o libre
 		inicializarZonaProcContornos();
+		
+		//seteo las posiciones donde se puede preguntar por contorno superior usado
+		inicializarZonaReadContornos();
 		
 		cargarPiezas();
 		
@@ -308,30 +308,6 @@ public final class SolverFasterMPJE {
 	}
 	
 	/**
-	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
-	 */
-	private final static void inicializarZonaReadContornos()
-	{	
-		for (int k=0; k < MAX_PIEZAS; ++k)
-		{
-			int fila_actual = k / LADO;
-			
-			//si estoy en borde top o bottom continuo con la siguiente posición
-			if (k < LADO || k > (MAX_PIEZAS-LADO))
-				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
-			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
-				continue;
-			
-			//Hasta aqui estoy en el interior del tablero
-			
-			//me aseguro que no llegue ni sobrepase el borde right
-			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
-				zona_read_contorno[k] = true;
-		}
-	}
-	
-	/**
 	 * El arreglo zonas_proc_contorno[] me dice en qué posiciones puedo procesar un contorno superior 
 	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, ningún otro.
 	 * NOTA: para contorno inferior se debe chequear a parte que cursor sea [33,238].
@@ -340,8 +316,6 @@ public final class SolverFasterMPJE {
 	{
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
-			int fila_actual = k / LADO;
-			
 			//si estoy en borde top o bottom continuo con la siguiente posición
 			if (k < LADO || k > (MAX_PIEZAS-LADO))
 				continue;
@@ -351,7 +325,8 @@ public final class SolverFasterMPJE {
 			
 			//Hasta aqui estoy en el interior del tablero
 			
-			//me aseguro que no esté cerca del borde left
+			//me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
+			int fila_actual = k / LADO;
 			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
 				continue;
 			
@@ -360,6 +335,30 @@ public final class SolverFasterMPJE {
 		
 		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
 		System.out.flush();
+	}
+
+
+	/**
+	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
+	 */
+	private final static void inicializarZonaReadContornos()
+	{	
+		for (int k=0; k < MAX_PIEZAS; ++k)
+		{
+			//si estoy en borde top o bottom continuo con la siguiente posición
+			if (k < LADO || k > (MAX_PIEZAS-LADO))
+				continue;
+			//si estoy en los bordes entonces continuo con la sig posición
+			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
+				continue;
+			
+			//Hasta aqui estoy en el interior del tablero
+			
+			//me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
+			int fila_actual = k / LADO;
+			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
+				zona_read_contorno[k] = true;
+		}
 	}
 	
 	/**
@@ -1160,7 +1159,7 @@ public final class SolverFasterMPJE {
 
 
 	private final static boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
-		final int fila_actual = cursor >> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		final int fila_actual = cursor >>> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
 
 		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
 		// old was: ((cursor+2) % LADO) == 0

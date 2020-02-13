@@ -82,7 +82,7 @@ public class PerfectHashFunction2Test {
 		// evaluate inflated values from deflated array
 		for (int i=0, c=PerfectHashFunction2.tab.length; i < c; ++i) {
 			short expected = PerfectHashFunction2.tab[i];
-			int deflated = tabDeflated[i >> 1];
+			int deflated = tabDeflated[i >>> 1];
 			// final extraction method:
 			// if i is even then value is in lower bits, if odd then value is in higher bits
 			// Note: using an if statement to discern between i even or odd the execution time is 50% slower
@@ -96,7 +96,7 @@ public class PerfectHashFunction2Test {
 		int loops=5, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int i=0, c=PerfectHashFunction2.tab.length; i < c; ++i) {
-				int deflated = tabDeflated[i >> 1];
+				int deflated = tabDeflated[i >>> 1];
 				int value = (deflated >>> (16 * (i & 1))) & 0xffff;
 				blackhole.consume(value);
 			}
@@ -104,7 +104,7 @@ public class PerfectHashFunction2Test {
 		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int i=0, c=PerfectHashFunction2.tab.length; i < c; ++i) {
-				int deflated = tabDeflated[i >> 1];
+				int deflated = tabDeflated[i >>> 1];
 				int value = (deflated >>> (16 * (i & 1))) & 0xffff;
 				blackhole.consume(value);
 			}

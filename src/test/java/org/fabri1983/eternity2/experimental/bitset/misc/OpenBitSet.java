@@ -185,7 +185,7 @@ public class OpenBitSet {
 
 	/** Returns true or false for the specified bit index. */
 	public boolean get(int index) {
-		int i = index >> 6; // div 64
+		int i = index >>> 6; // div 64
 		// signed shift will keep a negative index and force an
 		// array-index-out-of-bounds-exception, removing the need for an explicit check.
 		if (i >= bits.length)
@@ -201,7 +201,7 @@ public class OpenBitSet {
 	 */
 	public boolean fastGet(int index) {
 		assert index >= 0 && index < numBits;
-		int i = index >> 6; // div 64
+		int i = index >>> 6; // div 64
 		// signed shift will keep a negative index and force an
 		// array-index-out-of-bounds-exception, removing the need for an explicit check.
 		long bitmask = 1L << index;
@@ -212,7 +212,7 @@ public class OpenBitSet {
 	 * Returns true or false for the specified bit index
 	 */
 	public boolean get(long index) {
-		int i = (int) (index >> 6); // div 64
+		int i = (int) (index >>> 6); // div 64
 		if (i >= bits.length)
 			return false;
 		long bitmask = 1L << index;
@@ -225,14 +225,14 @@ public class OpenBitSet {
 	 */
 	public boolean fastGet(long index) {
 		assert index >= 0 && index < numBits;
-		int i = (int) (index >> 6); // div 64
+		int i = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		return (bits[i] & bitmask) != 0;
 	}
 
 	/*
 	 * // alternate implementation of get() public boolean get1(int index) { int i =
-	 * index >> 6; // div 64 int bit = index & 0x3f; // mod 64 return
+	 * index >>> 6; // div 64 int bit = index & 0x3f; // mod 64 return
 	 * ((bits[i]>>>bit) & 0x01) != 0; // this does a long shift and a bittest (on
 	 * x86) vs // a long shift, and a long AND, (the test for zero is prob a no-op)
 	 * // testing on a P4 indicates this is slower than (bits[i] & bitmask) != 0; }
@@ -244,12 +244,12 @@ public class OpenBitSet {
 	 */
 	public int getBit(int index) {
 		assert index >= 0 && index < numBits;
-		int i = index >> 6; // div 64
+		int i = index >>> 6; // div 64
 		return ((int) (bits[i] >>> index)) & 0x01;
 	}
 
 	/*
-	 * public boolean get2(int index) { int word = index >> 6; // div 64 int bit =
+	 * public boolean get2(int index) { int word = index >>> 6; // div 64 int bit =
 	 * index & 0x0000003f; // mod 64 return (bits[word] << bit) < 0; // hmmm, this
 	 * would work if bit order were reversed // we could right shift and check for
 	 * parity bit, if it was available to us. }
@@ -268,7 +268,7 @@ public class OpenBitSet {
 	 */
 	public void fastSet(int index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = index >> 6; // div 64
+		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] |= bitmask;
 	}
@@ -279,7 +279,7 @@ public class OpenBitSet {
 	 */
 	public void fastSet(long index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = (int) (index >> 6);
+		int wordNum = (int) (index >>> 6);
 		long bitmask = 1L << index;
 		bits[wordNum] |= bitmask;
 	}
@@ -294,7 +294,7 @@ public class OpenBitSet {
 		if (endIndex <= startIndex)
 			return;
 
-		int startWord = (int) (startIndex >> 6);
+		int startWord = (int) (startIndex >>> 6);
 
 		// since endIndex is one past the end, this is index of the last
 		// word to be changed.
@@ -314,7 +314,7 @@ public class OpenBitSet {
 	}
 
 	private int expandingWordNum(long index) {
-		int wordNum = (int) (index >> 6);
+		int wordNum = (int) (index >>> 6);
 		if (wordNum >= wlen) {
 			ensureCapacity(index + 1);
 		}
@@ -326,7 +326,7 @@ public class OpenBitSet {
 	 */
 	public void fastClear(int index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = index >> 6;
+		int wordNum = index >>> 6;
 		long bitmask = 1L << index;
 		bits[wordNum] &= ~bitmask;
 		// hmmm, it takes one more instruction to clear than it does to set... any
@@ -343,7 +343,7 @@ public class OpenBitSet {
 	 */
 	public void fastClear(long index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = (int) (index >> 6); // div 64
+		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] &= ~bitmask;
 	}
@@ -353,7 +353,7 @@ public class OpenBitSet {
 	 * the size.
 	 */
 	public void clear(long index) {
-		int wordNum = (int) (index >> 6); // div 64
+		int wordNum = (int) (index >>> 6); // div 64
 		if (wordNum >= wlen)
 			return;
 		long bitmask = 1L << index;
@@ -371,13 +371,13 @@ public class OpenBitSet {
 		if (endIndex <= startIndex)
 			return;
 
-		int startWord = (startIndex >> 6);
+		int startWord = (startIndex >>> 6);
 		if (startWord >= wlen)
 			return;
 
 		// since endIndex is one past the end, this is index of the last
 		// word to be changed.
-		int endWord = ((endIndex - 1) >> 6);
+		int endWord = ((endIndex - 1) >>> 6);
 
 		long startmask = -1L << startIndex;
 		long endmask = -1L >>> -endIndex; // 64-(endIndex&0x3f) is the same as -endIndex due to wrap
@@ -411,13 +411,13 @@ public class OpenBitSet {
 		if (endIndex <= startIndex)
 			return;
 
-		int startWord = (int) (startIndex >> 6);
+		int startWord = (int) (startIndex >>> 6);
 		if (startWord >= wlen)
 			return;
 
 		// since endIndex is one past the end, this is index of the last
 		// word to be changed.
-		int endWord = (int) ((endIndex - 1) >> 6);
+		int endWord = (int) ((endIndex - 1) >>> 6);
 
 		long startmask = -1L << startIndex;
 		long endmask = -1L >>> -endIndex; // 64-(endIndex&0x3f) is the same as -endIndex due to wrap
@@ -446,7 +446,7 @@ public class OpenBitSet {
 	 */
 	public boolean getAndSet(int index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = index >> 6; // div 64
+		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		boolean val = (bits[wordNum] & bitmask) != 0;
 		bits[wordNum] |= bitmask;
@@ -459,7 +459,7 @@ public class OpenBitSet {
 	 */
 	public boolean getAndSet(long index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = (int) (index >> 6); // div 64
+		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		boolean val = (bits[wordNum] & bitmask) != 0;
 		bits[wordNum] |= bitmask;
@@ -471,7 +471,7 @@ public class OpenBitSet {
 	 */
 	public void fastFlip(int index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = index >> 6; // div 64
+		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
 	}
@@ -481,7 +481,7 @@ public class OpenBitSet {
 	 */
 	public void fastFlip(long index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = (int) (index >> 6); // div 64
+		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
 	}
@@ -499,7 +499,7 @@ public class OpenBitSet {
 	 */
 	public boolean flipAndGet(int index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = index >> 6; // div 64
+		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
 		return (bits[wordNum] & bitmask) != 0;
@@ -511,7 +511,7 @@ public class OpenBitSet {
 	 */
 	public boolean flipAndGet(long index) {
 		assert index >= 0 && index < numBits;
-		int wordNum = (int) (index >> 6); // div 64
+		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
 		return (bits[wordNum] & bitmask) != 0;
@@ -526,7 +526,7 @@ public class OpenBitSet {
 	public void flip(long startIndex, long endIndex) {
 		if (endIndex <= startIndex)
 			return;
-		int startWord = (int) (startIndex >> 6);
+		int startWord = (int) (startIndex >>> 6);
 
 		// since endIndex is one past the end, this is index of the last
 		// word to be changed.
@@ -577,11 +577,11 @@ public class OpenBitSet {
 	 * returned if there are no more set bits.
 	 */
 	public int nextSetBit(int index) {
-		int i = index >> 6;
+		int i = index >>> 6;
 		if (i >= wlen)
 			return -1;
 		int subIndex = index & 0x3f; // index within the word
-		long word = bits[i] >> subIndex; // skip all the bits to the right of index
+		long word = bits[i] >>> subIndex; // skip all the bits to the right of index
 
 		if (word != 0) {
 			return (i << 6) + subIndex + Long.numberOfTrailingZeros(word);
@@ -625,7 +625,7 @@ public class OpenBitSet {
 	 * specified. -1 is returned if there are no more set bits.
 	 */
 	public int prevSetBit(int index) {
-		int i = index >> 6;
+		int i = index >>> 6;
 		final int subIndex;
 		long word;
 		if (i >= wlen) {
@@ -660,7 +660,7 @@ public class OpenBitSet {
 	 * specified. -1 is returned if there are no more set bits.
 	 */
 	public long prevSetBit(long index) {
-		int i = (int) (index >> 6);
+		int i = (int) (index >>> 6);
 		final int subIndex;
 		long word;
 		if (i >= wlen) {
@@ -771,7 +771,7 @@ public class OpenBitSet {
 		}
 		// fold leftmost bits into right and add a constant to prevent
 		// empty sets from returning 0, which is too common.
-		return (int) ((h >> 32) ^ h) + 0x98761234;
+		return (int) ((h >>> 32) ^ h) + 0x98761234;
 	}
 
 	public static long[] grow(long[] array, int minSize) {
@@ -820,7 +820,7 @@ public class OpenBitSet {
 		// asymptotic exponential growth by 1/8th, favors
 		// spending a bit more CPU to not tie up too much wasted
 		// RAM:
-		int extra = minTargetSize >> 3;
+		int extra = minTargetSize >>> 3;
 
 		if (extra < 3) {
 			// for very small arrays, where constant overhead of

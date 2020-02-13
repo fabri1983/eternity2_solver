@@ -161,7 +161,7 @@ public class IntRecSplitEvaluator {
     
 	private static int getMinBitCount(int size) {
 	    // at least 1.375 bits per key (if it is less, fill with zeroes)
-	    return (size  * 11 + 7) >> 3;
+	    return (size  * 11 + 7) >>> 3;
 	}
     
 }

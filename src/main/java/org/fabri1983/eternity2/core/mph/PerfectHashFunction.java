@@ -95,10 +95,11 @@ public class PerfectHashFunction {
 			0 };
 
 	public static int phash(int val) {
-		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign when you know some operations exceed 2^31 - 1
+		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign when you know some operations exceed 2^31 - 1.
+		// I decided to use >>> to always avoid carrying out the sign.
 
 		int b = val & 0x7ff; // 0x7ff = 2047 => & 0x7ff is the fastest way of doing % 0x800 (PHASHLEN 2048)
-		int a = val >> 6; // it was: (val << 12 ) >> 18
+		int a = val >>> 6; // it was: (val << 12 ) >>> 18
 		int rsl = (a ^ tab[b]);
 		return rsl; // from 1 up to PHASHRANGE - 1
 	}

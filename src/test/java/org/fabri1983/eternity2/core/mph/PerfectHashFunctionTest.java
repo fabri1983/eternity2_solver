@@ -83,7 +83,7 @@ public class PerfectHashFunctionTest {
 		// evaluate inflated values from deflated array
 		for (int i=0, c=PerfectHashFunction.tab.length; i < c; ++i) {
 			short expected = PerfectHashFunction.tab[i];
-			int deflated = tabDeflated[i >> 1];
+			int deflated = tabDeflated[i >>> 1];
 			// final extraction method:
 			// if i is even then value is in lower bits, if odd then value is in higher bits
 			// Note: using an if statement to discern between i even or odd the execution time is 50% slower
@@ -97,7 +97,7 @@ public class PerfectHashFunctionTest {
 		int loops=5, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int i=0, c=PerfectHashFunction.tab.length; i < c; ++i) {
-				int deflated = tabDeflated[i >> 1];
+				int deflated = tabDeflated[i >>> 1];
 				int value = (deflated >>> (16 * (i & 1))) & 0xffff;
 				blackhole.consume(value);
 			}
@@ -105,7 +105,7 @@ public class PerfectHashFunctionTest {
 		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int i=0, c=PerfectHashFunction.tab.length; i < c; ++i) {
-				int deflated = tabDeflated[i >> 1];
+				int deflated = tabDeflated[i >>> 1];
 				int value = (deflated >>> (16 * (i & 1))) & 0xffff;
 				blackhole.consume(value);
 			}
@@ -170,7 +170,7 @@ public class PerfectHashFunctionTest {
 		for (int x = 93; x <= 16121; ++x) {
 			int expected = x/93;
 			int temp = (x << 1) + x;
-			int actual = ((x << 11) + (temp << 8) + temp) >> 18;
+			int actual = ((x << 11) + (temp << 8) + temp) >>> 18;
 			Assert.assertEquals(String.format("Values don't match for x=%s.", x), expected, actual);
 		}
 		

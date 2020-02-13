@@ -82,15 +82,15 @@ public final class NodoPosibles
 	}
 	
 //	public static final byte getTop(final int key) {
-//		return (byte) ((key >> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//		return (byte) ((key >>> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
 //	public static final byte getRight(final int key) {
-//		return (byte) ((key >> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//		return (byte) ((key >>> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
 //	public static final byte getBottom(final int key) {
-//		return (byte) ((key >> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
+//		return (byte) ((key >>> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
 //	public static final byte getLeft(final int key) {
