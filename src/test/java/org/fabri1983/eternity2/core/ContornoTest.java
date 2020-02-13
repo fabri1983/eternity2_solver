@@ -25,8 +25,9 @@ public class ContornoTest {
 		
 		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
 			
-			// Discard top and bottom rows 
-			boolean testSlow = _cursor > SolverFaster.LADO && 
+			boolean testSlow = 
+					// Discard top and bottom rows 
+					_cursor > SolverFaster.LADO && 
 					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
@@ -57,8 +58,9 @@ public class ContornoTest {
 		
 		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
 			
-			// Discard top and bottom rows 
-			boolean testSlow = _cursor > SolverFaster.LADO && 
+			boolean testSlow = 
+					// Discard top and bottom rows 
+					_cursor > SolverFaster.LADO && 
 					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
