@@ -26,7 +26,7 @@ public class ContornoTest {
 		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
 			
 			// Discard top and bottom rows 
-			boolean test = _cursor > SolverFaster.LADO && 
+			boolean testSlow = _cursor > SolverFaster.LADO && 
 					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
@@ -36,15 +36,15 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
 					((_cursor - (Contorno.MAX_COLS - 1)) & (SolverFaster.LADO - 1)) != 0;
 			
-			/*
+			Assert.assertEquals("(Slow) For cursor " + _cursor, zona_proc_contorno[_cursor], testSlow);
+			
 			// Discard corners and borders along with top and bottom rows.
 			// Also discard if cursor is within Contorno.MAX_COLS -1 positions after border left.
 			// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-			boolean test = ((_cursor >>> 4) & ((_cursor + 1 - SolverFaster.MAX_PIEZAS + SolverFaster.LADO) >>> 4) 
-					& _cursor & (_cursor + 1) & (_cursor - Contorno.MAX_COLS + 1) & (SolverFaster.LADO - 1)) != 0;
-			*/
-			
-			Assert.assertEquals("For cursor " + _cursor, zona_proc_contorno[_cursor], test);
+//			boolean testFast = ((_cursor >>> 4) & ((_cursor + 1 - SolverFaster.MAX_PIEZAS + SolverFaster.LADO) >>> 4) 
+//					& _cursor & (_cursor + 1) & (_cursor - Contorno.MAX_COLS + 1) & (SolverFaster.LADO - 1)) != 0;
+//			
+//			Assert.assertEquals("(Fast) For cursor " + _cursor, zona_proc_contorno[_cursor], testFast);
 		}
 	}
 	
@@ -58,7 +58,7 @@ public class ContornoTest {
 		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
 			
 			// Discard top and bottom rows 
-			boolean test = _cursor > SolverFaster.LADO && 
+			boolean testSlow = _cursor > SolverFaster.LADO && 
 					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
@@ -68,15 +68,15 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition. 
 					((_cursor + Contorno.MAX_COLS - 1 + 1) & (SolverFaster.LADO - 1)) != 0;
 			
-			/*
+			Assert.assertEquals("(Slow) For cursor " + _cursor, zona_read_contorno[_cursor], testSlow);
+			
 			// Discard corners and borders along with top and bottom rows.
 			// Also discard if cursor is within Contorno.MAX_COLS - 1 positions before border right.
 			// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-			boolean test = ((_cursor >>> 4) & ((_cursor + 1 - SolverFaster.MAX_PIEZAS + SolverFaster.LADO) >>> 4) 
-					& _cursor & (_cursor + 1) & (_cursor + (Contorno.MAX_COLS - 1 + 1)) & (SolverFaster.LADO - 1)) != 0;
-			*/
-			
-			Assert.assertEquals("For cursor " + _cursor, zona_read_contorno[_cursor], test);
+//			boolean testFast = ((_cursor >>> 4) & ((_cursor + 1 - SolverFaster.MAX_PIEZAS + SolverFaster.LADO) >>> 4) 
+//					& _cursor & (_cursor + 1) & (_cursor + (Contorno.MAX_COLS - 1 + 1)) & (SolverFaster.LADO - 1)) != 0;
+//
+//			Assert.assertEquals("(Fast) For cursor " + _cursor, zona_read_contorno[_cursor], testFast);
 		}
 	}
 	
