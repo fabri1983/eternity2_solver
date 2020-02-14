@@ -10,8 +10,9 @@ public class ContornoTest {
 	static boolean zona_proc_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
 	static boolean zona_read_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
 	
-	// this creates number 0x000000F0 which will be used to mask cursor position to check if is in top or lower row.
-	static int maskForBorderTopAndBottom = SolverFaster.LADO + (SolverFaster.LADO << 1) + (SolverFaster.LADO << 2) + (SolverFaster.LADO << 3);
+	// This creates number 0x000000F0 (for LADO = 16) which will be used to mask cursor position to check if is in top or lower row.
+	// The idea here is to create a number with log2(LADO) 0s as lower bits and then as much 1s to complete a size of byte (8 bits).
+	static int maskForBorderTopAndBottom = 0x000000F0;
 	
 	@BeforeClass
 	public static void beforeClass() {
