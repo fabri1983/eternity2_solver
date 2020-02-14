@@ -47,6 +47,8 @@ Optimizaciones:
 ---------------
 - Lot of Bitwise tricks
 https://medium.com/@shashankmohabia/bitwise-operators-facts-and-hacks-903ca516f28c
+https://graphics.stanford.edu/~seander/bithacks.html
+https://www.hackerearth.com/practice/notes/bit-manipulation/
 
 - Modulo operation X % Y.
 The clever optimization is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
