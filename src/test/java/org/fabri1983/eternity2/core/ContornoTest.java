@@ -10,6 +10,9 @@ public class ContornoTest {
 	static boolean zona_proc_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
 	static boolean zona_read_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
 	
+	// this creates number 0x000000F0 which will be used to mask cursor position to check if is in top or lower row.
+	static int maskForBorderTopAndBottom = SolverFaster.LADO + (SolverFaster.LADO << 1) + (SolverFaster.LADO << 2) + (SolverFaster.LADO << 3);
+	
 	@BeforeClass
 	public static void beforeClass() {
 		inicializarZonaProcesoContornos();
@@ -21,12 +24,12 @@ public class ContornoTest {
 		
 		// test borders top and bottom using a mask
 		boolean print = false;
-		for (int k=0; print && k < 256; ++k) {
-			int top = k & 0x000000F0;
-			int bottom = (k+16) & 0x000000F0;
+		for (int k=0; print && k < SolverFaster.MAX_PIEZAS; ++k) {
+			int top = k & maskForBorderTopAndBottom;
+			int bottom = (k + SolverFaster.LADO) & maskForBorderTopAndBottom;
 			System.out.println(
 					k + ":  " + top + "  " + bottom 
-					+ " -> test (mult): " + (top * bottom));
+					+ " -> test (mult): " + (top * bottom) );
 		}
 		
 		/**
@@ -50,7 +53,7 @@ public class ContornoTest {
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & 0x000000F0) * ((_cursor + SolverFaster.LADO) & 0x000000F0) *
+					(_cursor & maskForBorderTopAndBottom) * ((_cursor + SolverFaster.LADO) & maskForBorderTopAndBottom) *
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) * ((_cursor + 1) & (SolverFaster.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
@@ -86,7 +89,7 @@ public class ContornoTest {
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & 0x000000F0) * ((_cursor + SolverFaster.LADO) & 0x000000F0) *
+					(_cursor & maskForBorderTopAndBottom) * ((_cursor + SolverFaster.LADO) & maskForBorderTopAndBottom) *
 					// Discard borders
 					(_cursor & (SolverFaster.LADO - 1)) * ((_cursor + 1) & (SolverFaster.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
