@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.fabri1983.eternity2.util.ArrayShuffler;
 import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class BooleanSetTest {
@@ -21,7 +22,14 @@ public class BooleanSetTest {
 			b[key] = true;
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println("done. " + microsEval + " micros");
+		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.length));
+		
+		System.out.print("evaluating boolean[] ... ");
+		for (int key : keys) {
+			boolean isSet = b[key];
+			Assert.assertTrue(isSet);
+		}
+		System.out.println("done.");
 		
 		System.out.print("benchmarking quering random keys ... ");
 		ArrayShuffler.shuffleArray(keys);
