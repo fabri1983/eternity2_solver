@@ -423,7 +423,7 @@ public final class SolverFaster {
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// check if key belongs to original keys set
-		if (!sbs.getNoBoundChecks(key))
+		if (!sbs.get(key))
 			return null;
 		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
@@ -434,7 +434,7 @@ public final class SolverFaster {
 		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
 //		super_matriz[top][right][bottom][left] = nodoPosibles;
 		// set key as a valid one
-		sbs.setNoBoundChecksNoResize(key);
+		sbs.set(key);
 		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
 	}
 	
