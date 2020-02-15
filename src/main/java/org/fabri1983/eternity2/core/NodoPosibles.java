@@ -120,7 +120,7 @@ public final class NodoPosibles
 	 * </pre>
 	 * 
 	 * @param number The number to convert
-	 * @param b      bits The number of bits from lower to highest position to generate
+	 * @param b      The number of bits from lower to highest position to generate
 	 * @return The 32-bit long bit string
 	 */
 	public static String intToBinaryString(int number, int b) {

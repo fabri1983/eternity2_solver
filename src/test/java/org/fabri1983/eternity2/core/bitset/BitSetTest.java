@@ -1,11 +1,11 @@
 package org.fabri1983.eternity2.core.bitset;
 
-import java.util.BitSet;
 import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.util.ArrayShuffler;
 import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class BitSetTest {
@@ -22,7 +22,14 @@ public class BitSetTest {
 			b.set(key);
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println("done. " + microsEval + " micros");
+		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.size()));
+		
+		System.out.print("evaluating BitSet ... ");
+		for (int key : keys) {
+			boolean isSet = b.get(key);
+			Assert.assertTrue(isSet);
+		}
+		System.out.println("done.");
 		
 		System.out.print("benchmarking quering random keys ... ");
 		ArrayShuffler.shuffleArray(keys);

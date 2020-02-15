@@ -304,6 +304,10 @@ public class SparseBitSet
         resize(nbits - 1); //  Resize takes last usable index
     }
 
+    public String lengthToString() {
+    	return bits.length+"*"+bits[0].length+"*"+bits[0][0].length + " = " + (bits.length*bits[0].length*bits[0][0].length + "(longs)");
+    }
+    
     /**
 	 *  Sets the bit at the specified index to <code>false</code>.
 	 *  
@@ -337,8 +341,6 @@ public class SparseBitSet
      *  IMPORTANT: use this method ONLY when you know that i will never exceed the length of bits.
      *
      * @param       i a bit index.
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     *              or equal to Integer.MAX_VALUE.
      * @since       1.6
      */
     public void clearNoBoundChecks(int i)
@@ -404,8 +406,6 @@ public class SparseBitSet
      *  
      * @param       i the bit index
      * @return      the boolean value of the bit with the specified index.
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     *              or equal to Integer.MAX_VALUE
      * @since       1.6
      */
     public boolean getNoBoundChecks(int i)
@@ -590,8 +590,6 @@ public class SparseBitSet
      *  IMPORTANT: Use this method ONLY if you created the SparseBitSet with a final expected size.
      *
      * @param       i a bit index
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     *              or equal to Integer.MAX_VALUE
      * @since       1.6
      */
     public void setNoBoundChecksNoResize(int i)
