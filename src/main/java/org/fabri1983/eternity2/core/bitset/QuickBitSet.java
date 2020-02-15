@@ -104,7 +104,7 @@ public class QuickBitSet {
      */
     public void set(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        words[wordIndex] |= (1L << bitIndex); // Restores invariants
+        words[wordIndex] |= (1L << (bitIndex & (BITS_PER_WORD - 1)));
     }
     
     /**
@@ -118,7 +118,7 @@ public class QuickBitSet {
      */
     public boolean get(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        return (words[wordIndex] & (1L << bitIndex)) != 0;
+        return (words[wordIndex] & (1L << (bitIndex & (BITS_PER_WORD - 1)))) != 0;
     }
     
     /**
