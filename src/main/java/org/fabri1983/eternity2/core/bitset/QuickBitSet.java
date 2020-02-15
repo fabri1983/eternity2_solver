@@ -57,7 +57,7 @@ package org.fabri1983.eternity2.core.bitset;
  * @author  Martin Buchholz
  * @since   1.0
  */
-public class BitSet {
+public class QuickBitSet {
 
 	/*
      * BitSets are packed into arrays of "words."  Currently a word is
@@ -81,7 +81,7 @@ public class BitSet {
 	 * @throws NegativeArraySizeException if the specified initial size
 	 *         is negative
 	 */
-	public BitSet(int nbits) {
+	public QuickBitSet(int nbits) {
 	    initWords(nbits);
 	}
 
@@ -104,7 +104,7 @@ public class BitSet {
      */
     public void set(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        words[wordIndex] |= (1L << bitIndex); // Restores invariants
+        words[wordIndex] |= (1L << (bitIndex & (BITS_PER_WORD - 1)));
     }
     
     /**
@@ -118,7 +118,7 @@ public class BitSet {
      */
     public boolean get(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        return (words[wordIndex] & (1L << bitIndex)) != 0;
+        return (words[wordIndex] & (1L << (bitIndex & (BITS_PER_WORD - 1)))) != 0;
     }
     
     /**
