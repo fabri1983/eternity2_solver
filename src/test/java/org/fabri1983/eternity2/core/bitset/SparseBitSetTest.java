@@ -19,14 +19,14 @@ public class SparseBitSetTest {
 		long timeEval = System.nanoTime();
 		SparseBitSet sbs = new SparseBitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
-			sbs.setNoBoundChecksNoResize(key);
+			sbs.set(key);
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
 		System.out.println(String.format("done. %s micros. Matrix length: %s", microsEval, sbs.lengthToString()));
 		
 		System.out.print("evaluating SparseBitSet ... ");
 		for (int key : keys) {
-			boolean isSet = sbs.getNoBoundChecks(key);
+			boolean isSet = sbs.get(key);
 			Assert.assertTrue(isSet);
 		}
 		System.out.println("done.");
@@ -37,14 +37,14 @@ public class SparseBitSetTest {
 		int loops=15, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int key : keys) {
-				boolean isSet = sbs.getNoBoundChecks(key);
+				boolean isSet = sbs.get(key);
 				blackhole.consume(isSet);
 			}
 		}
 		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int key : keys) {
-				boolean isSet = sbs.getNoBoundChecks(key);
+				boolean isSet = sbs.get(key);
 				blackhole.consume(isSet);
 			}
 		}

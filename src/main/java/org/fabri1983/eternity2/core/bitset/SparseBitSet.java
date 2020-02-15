@@ -1,6 +1,11 @@
 package org.fabri1983.eternity2.core.bitset;
 
 /**
+ * IMPORTANT: this class has been heavily modified by removing bound chekcs and other no needed functionality.
+ * <br/>
+ * See original work at https://github.com/brettwooldridge/SparseBitSet.
+ * <p>
+ * 
  *  This class implements a set of bits that grows as needed. Each bit of the
  *  bit set represents a <code>boolean</code> value. The values of a
  *  <code>SparseBitSet</code> are indexed by non-negative integers.
@@ -111,24 +116,10 @@ public class SparseBitSet
      */
     private transient long[][][] bits;
 
-    /**
-     *  For the current size of the bits array, this is the maximum possible
-     *  length of the bit set, i.e., the index of the last possible bit, plus one.
-     *  Note: this not the value returned by <i>length</i>().
-     * @see #resize(int)
-     * @see #length()
-     */
-    private transient int bitsLength;
-
     //==============================================================================
     //  The critical parameters. These are set up so that the compiler may
     //  pre-compute all the values as compile-time constants.
     //==============================================================================
-
-    /**
-     *  The number of bits in a long value.
-     */
-    private static final int LENGTH4 = Long.SIZE;
 
     /**
      *  The number of bits in a positive integer, and the size of permitted index
@@ -191,12 +182,6 @@ public class SparseBitSet
      *  the right end (i.e., after shifting by SHIFT3).
      */
     private static final int SHIFT2 = LEVEL3;
-
-    /**
-     *  UNIT is the greatest number of bits that can be held in one level1 entry.
-     *  That is, bits per word by words per level3 block by blocks per level2 area.
-     */
-    private static final int UNIT = LENGTH2 * LENGTH3 * LENGTH4;
 
     /**
      *  MASK2 is the mask to extract the LEVEL2 address from a word index
@@ -266,19 +251,6 @@ public class SparseBitSet
         check picks up the other disallowed case. Let us hope the compiler never
         gets smart enough to try to do the apparent optimization! */
 
-
-    /**
-     *  Constructs an empty bit set with the default initial size.
-     *  Initially all bits are effectively <code>false</code>.
-     *
-     * @since       1.6
-     */
-    public SparseBitSet()
-    {
-        /*   By requesting 1 bit, will actually get UNIT number of bits. */
-        this(1);
-    }
-
     /**
      *  Creates a bit set whose initial size is large enough to efficiently
      *  represent bits with indices in the range <code>0</code> through
@@ -297,118 +269,22 @@ public class SparseBitSet
      */
     public SparseBitSet(int nbits) throws NegativeArraySizeException
     {
-    	/*  Array size is computed based on this being a capacity given in bits. */
-        if (nbits < 0) // capacity can't be negative -- could only come from
-            throw new NegativeArraySizeException( //  an erroneous user given
-                                                 "(requested capacity=" + nbits + ") < 0"); // nbits value
         resize(nbits - 1); //  Resize takes last usable index
     }
 
-    public String lengthToString() {
-    	return bits.length+"*"+bits[0].length+"*"+bits[0][0].length + " = " + (bits.length*bits[0].length*bits[0][0].length + "(longs)");
-    }
-    
-    /**
-	 *  Sets the bit at the specified index to <code>false</code>.
-	 *  
-	 * @param       i a bit index.
-	 * @exception   IndexOutOfBoundsException if the specified index is negative
-	 *              or equal to Integer.MAX_VALUE.
-	 * @since       1.6
-	 */
-	public void clear(int i)
-	{
-	    /*  In the interests of speed, no check is made here on whether the
-	        level3 block goes to all zero. This may be found and corrected
-	        in some later operation. */
-	    if ((i + 1) < 1)
-	        throw new IndexOutOfBoundsException("i=" + i);
-	    if (i >= bitsLength)
-	        return;
-	    final int w = i >>> SHIFT3;
-	    long[][] a2;
-	    if ((a2 = bits[w >>> SHIFT1]) == null)
-	        return;
-	    long[] a3;
-	    if ((a3 = a2[(w >>> SHIFT2) & MASK2]) == null)
-	        return;
-	    a3[w & MASK3] &= ~(1L << i); //  Clear the indicated bit
-	}
-
-	/**
-     *  Sets the bit at the specified index to <code>false</code>.
-     *  
-     *  IMPORTANT: use this method ONLY when you know that i will never exceed the length of bits.
-     *
-     * @param       i a bit index.
-     * @since       1.6
-     */
-    public void clearNoBoundChecks(int i)
-    {
-        /*  In the interests of speed, no check is made here on whether the
-            level3 block goes to all zero. This may be found and corrected
-            in some later operation. */
-
-        final int w = i >>> SHIFT3;
-        long[][] a2;
-        if ((a2 = bits[w >>> SHIFT1]) == null)
-            return;
-        long[] a3;
-        if ((a3 = a2[(w >>> SHIFT2) & MASK2]) == null)
-            return;
-        a3[w & MASK3] &= ~(1L << i); //  Clear the indicated bit
-    }
-
-    /**
-     *  Sets all of the bits in this <code>SparseBitSet</code> to
-     *  <code>false</code>.
-     *
-     * @since       1.6
-     */
-    public void clear()
-    {
-        /*  This simply resets to null all the entries in the set. */
-        nullify(0);
-    }
-
     /**
      *  Returns the value of the bit with the specified index. The value is
      *  <code>true</code> if the bit with the index <code>i</code> is currently set
      *  in this <code>SparseBitSet</code>; otherwise, the result is
      *  <code>false</code>.
      *
+     *  IMPORTANT: use this method ONLY when you know you will never exceed the length of bits.
+     *  
      * @param       i the bit index
      * @return      the boolean value of the bit with the specified index.
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     *              or equal to Integer.MAX_VALUE
      * @since       1.6
      */
     public boolean get(int i)
-    {
-        if ((i + 1) < 1)
-            throw new IndexOutOfBoundsException("i=" + i);
-        final int w = i >>> SHIFT3;
-
-        long[][] a2;
-        long[] a3;
-        return i < bitsLength && (a2 = bits[w >>> SHIFT1]) != null
-                && (a3 = a2[(w >>> SHIFT2) & MASK2]) != null
-                && ((a3[w & MASK3] & (1L << i)) != 0);
-    }
-
-    /**
-     *  Returns the value of the bit with the specified index. The value is
-     *  <code>true</code> if the bit with the index <code>i</code> is currently set
-     *  in this <code>SparseBitSet</code>; otherwise, the result is
-     *  <code>false</code>.
-     *
-     *  IMPORTANT: use this method ONLY when you know that i will never exceed the length of bits.
-     *  
-     * @param       i the bit index
-     * @return      the boolean value of the bit with the specified index.
-     * @since       1.6
-     */
-    public boolean getNoBoundChecks(int i)
     {
         final int w = i >>> SHIFT3;
 
@@ -420,171 +296,6 @@ public class SparseBitSet
     }
     
     /**
-     *  Returns the index of the first bit that is set to <code>false</code> that
-     *  occurs on or after the specified starting index.
-     *
-     * @param       i the index to start checking from (inclusive)
-     * @return      the index of the next clear bit, or -1 if there is no such bit
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     * @since       1.6
-     */
-    public int nextClearBit(int i)
-    {
-        /*  The index of this method is permitted to be Integer.MAX_VALUE, as this
-            is needed to make this method work together with the method
-            nextSetBit()--as might happen if a search for the next clear bit is
-            started after finding a set bit labelled Integer.MAX_VALUE-1. This
-            case is not optimised, the code will eventually return -1 (since
-            the Integer.MAX_VALUEth bit does "exist," and is 0. */
-
-        if (i < 0)
-            throw new IndexOutOfBoundsException("i=" + i);
-        /*  This is the word from which the search begins. */
-        int w = i >>> SHIFT3;
-        int w3 = w & MASK3;
-        int w2 = (w >>> SHIFT2) & MASK2;
-        int w1 = w >>> SHIFT1;
-
-        long nword = ~0L << i;
-        final int aLength = bits.length;
-
-        long[][] a2;
-        long[] a3;
-        /*  Is the next clear bit in the same word at the nominated beginning bit
-        (including the nominated beginning bit itself). The first check is
-        whether the starting bit is within the structure at all. */
-        if (w1 < aLength && (a2 = bits[w1]) != null
-                && (a3 = a2[w2]) != null
-                && ((nword = ~a3[w3] & (~0L << i))) == 0L)
-        {
-            /*  So now start a search though the rest of the entries for
-                a null area or block, or a clear bit (a set bit in the
-                complemented value). */
-            ++w;
-            w3 = w & MASK3;
-            w2 = (w >>> SHIFT2) & MASK2;
-            w1 = w >>> SHIFT1;
-            nword = ~0L;
-            loop: for (; w1 != aLength; ++w1)
-            {
-                if ((a2 = bits[w1]) == null)
-                    break;
-                for (; w2 != LENGTH2; ++w2)
-                {
-                    if ((a3 = a2[w2]) == null)
-                        break loop;
-                    for (; w3 != LENGTH3; ++w3)
-                        if ((nword = ~a3[w3]) != 0)
-                            break loop;
-                    w3 = 0;
-                }
-                w2 = w3 = 0;
-            }
-        }
-        final int result = (((w1 << SHIFT1) + (w2 << SHIFT2) + w3) << SHIFT3)
-                + Long.numberOfTrailingZeros(nword);
-        return (result == Integer.MAX_VALUE ? -1 : result);
-    }
-
-    /**
-     *  Returns the index of the first bit that is set to <code>true</code> that
-     *  occurs on or after the specified starting index. If no such it exists then
-     *  -1 is returned.
-     *  <p>
-     *  To iterate over the <code>true</code> bits in a <code>SparseBitSet
-     *  sbs</code>, use the following loop:
-     *
-     *  <pre>
-     *  for( int i = sbbits.nextSetBit(0); i &gt;= 0; i = sbbits.nextSetBit(i+1) )
-     *  {
-     *      // operate on index i here
-     *  }</pre>
-     *
-     * @param       i the index to start checking from (inclusive)
-     * @return      the index of the next set bit
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     * @since       1.6
-     */
-    public int nextSetBit(int i)
-    {
-        /*  The index value (i) of this method is permitted to be Integer.MAX_VALUE,
-            as this is needed to make the loop defined above work: just in case the
-            bit labelled Integer.MAX_VALUE-1 is set. This case is not optimised:
-            but eventually -1 will be returned, as this will be included with
-            any search that goes off the end of the level1 array. */
-
-        if (i < 0)
-            throw new IndexOutOfBoundsException("i=" + i);
-        /*  This is the word from which the search begins. */
-        int w = i >>> SHIFT3;
-        int w3 = w & MASK3;
-        int w2 = (w >>> SHIFT2) & MASK2;
-        int w1 = w >>> SHIFT1;
-
-        long word = 0L;
-        final int aLength = bits.length;
-
-        long[][] a2;
-        long[] a3;
-        /*  Is the next set bit in the same word at the nominated beginning bit
-        (including the nominated beginning bit itself). The first check is
-        whether the starting bit is within the structure at all. */
-        if (w1 < aLength && ((a2 = bits[w1]) == null
-                || (a3 = a2[w2]) == null
-                || ((word = a3[w3] & (~0L << i)) == 0L)))
-        {
-            /*  So now start a search though the rest of the entries for a bit. */
-            ++w;
-            w3 = w & MASK3;
-            w2 = (w >>> SHIFT2) & MASK2;
-            w1 = w >>> SHIFT1;
-            major: for (; w1 != aLength; ++w1)
-            {
-                if ((a2 = bits[w1]) != null)
-                    for (; w2 != LENGTH2; ++w2)
-                    {
-                        if ((a3 = a2[w2]) != null)
-                            for (; w3 != LENGTH3; ++w3)
-                                if ((word = a3[w3]) != 0)
-                                    break major;
-                        w3 = 0;
-                    }
-                w2 = w3 = 0;
-            }
-        }
-        return (w1 >= aLength ? -1
-                : (((w1 << SHIFT1) + (w2 << SHIFT2) + w3) << SHIFT3)
-                        + Long.numberOfTrailingZeros(word));
-    }
-
-    /**
-     *  Sets the bit at the specified index.
-     *
-     * @param       i a bit index
-     * @exception   IndexOutOfBoundsException if the specified index is negative
-     *              or equal to Integer.MAX_VALUE
-     * @since       1.6
-     */
-    public void set(int i)
-    {
-        if ((i + 1) < 1)
-            throw new IndexOutOfBoundsException("i=" + i);
-        final int w = i >>> SHIFT3;
-        final int w1 = w >>> SHIFT1;
-        final int w2 = (w >>> SHIFT2) & MASK2;
-
-        if (i >= bitsLength)
-            resize(i);
-        long[][] a2;
-        if ((a2 = bits[w1]) == null)
-            a2 = bits[w1] = new long[LENGTH2][];
-        long[] a3;
-        if ((a3 = a2[w2]) == null)
-            a3 = a2[w2] = new long[LENGTH3];
-        a3[w & MASK3] |= 1L << i;
-    }
-
-    /**
      *  Sets the bit at the specified index.
      *  
      *  IMPORTANT: Use this method ONLY if you created the SparseBitSet with a final expected size.
@@ -592,7 +303,7 @@ public class SparseBitSet
      * @param       i a bit index
      * @since       1.6
      */
-    public void setNoBoundChecksNoResize(int i)
+    public void set(int i)
     {
         final int w = i >>> SHIFT3;
         final int w1 = w >>> SHIFT1;
@@ -607,7 +318,11 @@ public class SparseBitSet
         a3[w & MASK3] |= 1L << i;
     }
 
-    /**
+    public String lengthToString() {
+		return bits.length+"*"+bits[0].length+"*"+bits[0][0].length + " = " + (bits.length*bits[0].length*bits[0][0].length + "(longs)");
+	}
+
+	/**
      *  Clear out a part of the set array with nulls, from the given start to the
      *  end of the array. If the given parameter is beyond the end of the bits
      *  array, nothing is changed.
@@ -660,8 +375,6 @@ public class SparseBitSet
                 nullify(0); //  Don't leave unused pointers around. */
             }
             bits = temp; //  Set new array as the set array
-            bitsLength = //  Index of last possible bit, plus one.
-            (newSize == MAX_LENGTH1 ? Integer.MAX_VALUE : newSize * UNIT);
         }
     }
 
