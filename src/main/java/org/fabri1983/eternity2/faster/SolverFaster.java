@@ -38,7 +38,7 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.bitset.SparseBitSet;
+import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
 import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
@@ -117,7 +117,7 @@ public final class SolverFaster {
 //    final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 //            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
 	final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction2.PHASHRANGE];
-	final static SparseBitSet sbs = new SparseBitSet(777974 + 1);
+	final static QuickLongBitSet sbs = new QuickLongBitSet(777974 + 1);
 	
 	final static byte matrix_zonas[] = new byte[MAX_PIEZAS];
 	

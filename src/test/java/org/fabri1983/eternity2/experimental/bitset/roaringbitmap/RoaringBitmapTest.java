@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.fabri1983.eternity2.util.ArrayShuffler;
 import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
+import org.junit.Assert;
 import org.junit.Test;
 import org.roaringbitmap.RoaringBitmap;
 
@@ -15,11 +16,18 @@ public class RoaringBitmapTest {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating Roaring Bitmap from keys ... ");
+		System.out.print("creating a " + RoaringBitmap.class.getSimpleName() + " from keys ... ");
 		long timeEval = System.nanoTime();
 		RoaringBitmap rr = RoaringBitmap.bitmapOf(keys);
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println("done. " + microsEval + " micros");
+		System.out.println(String.format("done. %s micros. Size in bytes: %s", microsEval, rr.getSizeInBytes()));
+		
+		System.out.print("evaluating " + RoaringBitmap.class.getSimpleName() + " ... ");
+		for (int key : keys) {
+			boolean isSet = rr.contains(key);
+			Assert.assertTrue(isSet);
+		}
+		System.out.println("done.");
 		
 		System.out.print("benchmarking quering random keys ... ");
 		ArrayShuffler.shuffleArray(keys);

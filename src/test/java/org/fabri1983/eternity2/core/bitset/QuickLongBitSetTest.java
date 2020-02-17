@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.experimental.bitset.misc;
+package org.fabri1983.eternity2.core.bitset;
 
 import java.util.concurrent.TimeUnit;
 
@@ -8,25 +8,25 @@ import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OpenBitSetTest {
+public class QuickLongBitSetTest {
 
 	@Test
 	public void testBitAssignmentAndQuery() {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a Lucene's " + OpenBitSet.class.getSimpleName() + " from keys ... ");
+		System.out.print("creating a java " + QuickLongBitSet.class.getSimpleName() + " from keys ... ");
 		long timeEval = System.nanoTime();
-		OpenBitSet b = new OpenBitSet(keys[keys.length - 1] + 1);
+		QuickLongBitSet b = new QuickLongBitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
-			b.fastSet(key);
+			b.set(key);
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.getNumWords()));
+		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.size()));
 		
-		System.out.print("evaluating Lucene's " + OpenBitSet.class.getSimpleName() + " ... ");
+		System.out.print("evaluating " + QuickLongBitSet.class.getSimpleName() + " ... ");
 		for (int key : keys) {
-			boolean isSet = b.fastGet(key);
+			boolean isSet = b.get(key);
 			Assert.assertTrue(isSet);
 		}
 		System.out.println("done.");
@@ -37,14 +37,14 @@ public class OpenBitSetTest {
 		int loops=15, warmups=5;
 		for (int loop=0; loop < warmups; ++loop) {
 			for (int key : keys) {
-				boolean isSet = b.fastGet(key);
+				boolean isSet = b.get(key);
 				blackhole.consume(isSet);
 			}
 		}
 		long timeBench = System.nanoTime();
 		for (int loop=0; loop < loops; ++loop) {
 			for (int key : keys) {
-				boolean isSet = b.fastGet(key);
+				boolean isSet = b.get(key);
 				blackhole.consume(isSet);
 			}
 		}

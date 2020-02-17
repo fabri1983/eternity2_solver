@@ -116,12 +116,8 @@ public class OpenBitSet {
 	protected long[] bits;
 	protected int wlen; // number of words (elements) used in the array
 
-	// Used only for assert:
-	private long numBits;
-
 	/** Constructs an OpenBitSet large enough to hold {@code numBits}. */
 	public OpenBitSet(long numBits) {
-		this.numBits = numBits;
 		bits = new long[bits2words(numBits)];
 		wlen = bits.length;
 	}
@@ -150,7 +146,6 @@ public class OpenBitSet {
 		}
 		this.bits = bits;
 		this.wlen = numWords;
-		this.numBits = wlen * 64;
 	}
 
 	/**
@@ -168,7 +163,7 @@ public class OpenBitSet {
 	public long size() {
 		return capacity();
 	}
-
+	
 	public int length() {
 		return bits.length << 6; // mul 64
 	}
@@ -200,7 +195,6 @@ public class OpenBitSet {
 	 * than the OpenBitSet size
 	 */
 	public boolean fastGet(int index) {
-		assert index >= 0 && index < numBits;
 		int i = index >>> 6; // div 64
 		// signed shift will keep a negative index and force an
 		// array-index-out-of-bounds-exception, removing the need for an explicit check.
@@ -224,7 +218,6 @@ public class OpenBitSet {
 	 * than the OpenBitSet size.
 	 */
 	public boolean fastGet(long index) {
-		assert index >= 0 && index < numBits;
 		int i = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		return (bits[i] & bitmask) != 0;
@@ -243,7 +236,6 @@ public class OpenBitSet {
 	 * OpenBitSet size
 	 */
 	public int getBit(int index) {
-		assert index >= 0 && index < numBits;
 		int i = index >>> 6; // div 64
 		return ((int) (bits[i] >>> index)) & 0x01;
 	}
@@ -267,7 +259,6 @@ public class OpenBitSet {
 	 * OpenBitSet size.
 	 */
 	public void fastSet(int index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] |= bitmask;
@@ -278,7 +269,6 @@ public class OpenBitSet {
 	 * OpenBitSet size.
 	 */
 	public void fastSet(long index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = (int) (index >>> 6);
 		long bitmask = 1L << index;
 		bits[wordNum] |= bitmask;
@@ -325,7 +315,6 @@ public class OpenBitSet {
 	 * clears a bit. The index should be less than the OpenBitSet size.
 	 */
 	public void fastClear(int index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = index >>> 6;
 		long bitmask = 1L << index;
 		bits[wordNum] &= ~bitmask;
@@ -342,7 +331,6 @@ public class OpenBitSet {
 	 * clears a bit. The index should be less than the OpenBitSet size.
 	 */
 	public void fastClear(long index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] &= ~bitmask;
@@ -445,7 +433,6 @@ public class OpenBitSet {
 	 * OpenBitSet size.
 	 */
 	public boolean getAndSet(int index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		boolean val = (bits[wordNum] & bitmask) != 0;
@@ -458,7 +445,6 @@ public class OpenBitSet {
 	 * OpenBitSet size.
 	 */
 	public boolean getAndSet(long index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		boolean val = (bits[wordNum] & bitmask) != 0;
@@ -470,7 +456,6 @@ public class OpenBitSet {
 	 * flips a bit. The index should be less than the OpenBitSet size.
 	 */
 	public void fastFlip(int index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
@@ -480,7 +465,6 @@ public class OpenBitSet {
 	 * flips a bit. The index should be less than the OpenBitSet size.
 	 */
 	public void fastFlip(long index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
@@ -498,7 +482,6 @@ public class OpenBitSet {
 	 * than the OpenBitSet size.
 	 */
 	public boolean flipAndGet(int index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = index >>> 6; // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
@@ -510,7 +493,6 @@ public class OpenBitSet {
 	 * than the OpenBitSet size.
 	 */
 	public boolean flipAndGet(long index) {
-		assert index >= 0 && index < numBits;
 		int wordNum = (int) (index >>> 6); // div 64
 		long bitmask = 1L << index;
 		bits[wordNum] ^= bitmask;
@@ -698,7 +680,6 @@ public class OpenBitSet {
 	public void ensureCapacityWords(int numWords) {
 		bits = grow(bits, numWords);
 		wlen = numWords;
-		assert (this.numBits = Math.max(this.numBits, numWords << 6)) >= 0;
 	}
 
 	/**
@@ -709,7 +690,6 @@ public class OpenBitSet {
 		ensureCapacityWords(bits2words(numBits));
 		// ensureCapacityWords sets numBits to a multiple of 64, but we want to set
 		// it to exactly what the app asked.
-		assert (this.numBits = Math.max(this.numBits, numBits)) >= 0;
 	}
 
 	/**
@@ -775,7 +755,6 @@ public class OpenBitSet {
 	}
 
 	public static long[] grow(long[] array, int minSize) {
-		assert minSize >= 0 : "size must be positive (got " + minSize + "): likely integer overflow?";
 		if (array.length < minSize) {
 			long[] newArray = new long[oversize(minSize, 8)];
 			System.arraycopy(array, 0, newArray, 0, array.length);

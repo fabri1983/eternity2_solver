@@ -15,7 +15,7 @@ public class SparseBitSetTest {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a SparseBitSet from keys ... ");
+		System.out.print("creating a " + SparseBitSet.class.getSimpleName() + " from keys ... ");
 		long timeEval = System.nanoTime();
 		SparseBitSet sbs = new SparseBitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
@@ -24,7 +24,7 @@ public class SparseBitSetTest {
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
 		System.out.println(String.format("done. %s micros. Matrix length: %s", microsEval, sbs.lengthToString()));
 		
-		System.out.print("evaluating SparseBitSet ... ");
+		System.out.print("evaluating " + SparseBitSet.class.getSimpleName() + " ... ");
 		for (int key : keys) {
 			boolean isSet = sbs.get(key);
 			Assert.assertTrue(isSet);

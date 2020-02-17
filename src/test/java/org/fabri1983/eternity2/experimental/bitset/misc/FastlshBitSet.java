@@ -5,8 +5,7 @@ package org.fabri1983.eternity2.experimental.bitset.misc;
  */
 public class FastlshBitSet {
 
-	public final long[] bits;
-	public final int numBits;
+	public final long[] words;
 
 	/**
 	 * Creates a BitSet with the specified number of bits.
@@ -15,11 +14,11 @@ public class FastlshBitSet {
 	 */
 	public FastlshBitSet(int numBits) {
 		int numLongs = numBits >>> 6;
+		// 0x3F = 0b111111 = 63
 		if ((numBits & 0x3F) != 0) {
 			numLongs++;
 		}
-		bits = new long[numLongs];
-		this.numBits = numBits;
+		words = new long[numLongs];
 	}
 
 	/**
@@ -30,7 +29,7 @@ public class FastlshBitSet {
 	 */
 	public boolean get(int index) {
 		// skipping range check for speed
-		return (bits[index >>> 6] & 1L << (index & 0x3F)) != 0L;
+		return (words[index >>> 6] & 1L << (index & 0x3F)) != 0L;
 	}
 
 	/**
@@ -41,9 +40,9 @@ public class FastlshBitSet {
 	 */
 	public void set(int index, boolean b) {
 		if (b)
-			bits[index >>> 6] |= 1L << (index & 0x3F);
+			words[index >>> 6] |= 1L << (index & 0x3F);
 		else
-			bits[index >>> 6] &= ~(1L << (index & 0x3F));
+			words[index >>> 6] &= ~(1L << (index & 0x3F));
 	}
 
 	/**
@@ -53,7 +52,7 @@ public class FastlshBitSet {
 	 */
 	public void set(int index) {
 		// skipping range check for speed
-		bits[index >>> 6] |= 1L << (index & 0x3F);
+		words[index >>> 6] |= 1L << (index & 0x3F);
 	}
 
 	/**
@@ -63,29 +62,33 @@ public class FastlshBitSet {
 	 */
 	public void clear(int index) {
 		// skipping range check for speed
-		bits[index >>> 6] &= ~(1L << (index & 0x3F));
+		words[index >>> 6] &= ~(1L << (index & 0x3F));
 	}
 
 	/**
 	 * Sets all the bits to 0.
 	 */
 	public void clear() {
-		int length = bits.length;
+		int length = words.length;
 		for (int i = 0; i < length; i++) {
-			bits[i] = 0L;
+			words[i] = 0L;
 		}
 	}
-
-	@Override
-	public String toString() {
-		StringBuilder result = new StringBuilder(64 * bits.length);
-		for (long l : bits) {
-			for (int j = 0; j < 64; j++) {
-				result.append((l & 1L << j) == 0 ? '0' : '1');
-			}
-			result.append(' ');
-		}
-		return result.toString();
+	
+	public int getNumWords() {
+		return words.length;
+	}
+	
+	public String toStringAll() {
+    	StringBuilder builder = new StringBuilder(words.length * 64);
+    	for (long num : words) {
+    		builder.append(longToBinary(num)).append("\n");
+    	}
+    	return builder.toString();
+    }
+    
+    private String longToBinary(long number) {
+    	return String.format("%64s", Long.toBinaryString(number)).replaceAll(" ", "0");
 	}
 
 }

@@ -126,12 +126,7 @@ public final class NodoPosibles
 	 * @return The 32-bit long bit string
 	 */
 	public static String intToBinaryString(int number, int b) {
-		StringBuilder result = new StringBuilder(32);
-		for (int i = 31; i >= 0; i--) {
-			int mask = 1 << i;
-			result.append((number & mask) != 0 ? "1" : "0");
-		}
-		return result.substring(result.length() - Math.min(b, 32), result.length());
+		return String.format("%" + b + "s", Integer.toBinaryString(number)).replaceAll(" ", "0");
 	}
 	
 }

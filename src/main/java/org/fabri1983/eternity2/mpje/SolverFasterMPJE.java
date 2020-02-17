@@ -37,7 +37,7 @@ import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.bitset.SparseBitSet;
+import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
 import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
@@ -128,7 +128,7 @@ public final class SolverFasterMPJE {
 //    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 //            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
 	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction2.PHASHRANGE];
-	private final static SparseBitSet sbs = new SparseBitSet(777974 + 1);
+	private final static QuickLongBitSet sbs = new QuickLongBitSet(777974 + 1);
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
