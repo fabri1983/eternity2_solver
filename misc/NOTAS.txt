@@ -1,4 +1,4 @@
-﻿- Most used slow methods:
+﻿- Most used slow methods (obtained with YourKit Java profiler):
 (multiple times were obtained due to recursion nature of method call hierarchy)
 SolverFaster and SolverFasterMPJE: getNodoIfKeyIsOriginal() takes: 92ms, 94ms, 96ms, 115ms, 244ms, 343ms, 406ms, 412ms
 obtenerPosiblesPieas() also has a little additional overhead along with getNodoIfKeyIsOriginal()
