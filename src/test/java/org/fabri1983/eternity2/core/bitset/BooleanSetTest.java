@@ -22,7 +22,7 @@ public class BooleanSetTest {
 			b[key] = true;
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.length));
+		System.out.println(String.format("done. %s micros. Array length: %s", microsEval, b.length));
 		
 		System.out.print("evaluating boolean[] ... ");
 		for (int key : keys) {

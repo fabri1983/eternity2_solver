@@ -15,7 +15,7 @@ public class QuickLongBitSetTest {
 
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a java " + QuickLongBitSet.class.getSimpleName() + " from keys ... ");
+		System.out.print("creating a " + QuickLongBitSet.class.getSimpleName() + " from keys ... ");
 		long timeEval = System.nanoTime();
 		QuickLongBitSet b = new QuickLongBitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
