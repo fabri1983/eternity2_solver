@@ -23,12 +23,16 @@
 package org.fabri1983.eternity2.core;
 
 /**
- * Contiene arreglos de referencias de piezas y sus rotaciones.
+ * It contains an array which have a mixture of rotation and number of tile.
+ * Bits from position 0..7 (8 bits) hold the number of tile.
+ * Bits from position 8..9 (2 bits) hold the rotation of the tile.
  */
 public final class NodoPosibles
 {
-	public short[] referencias;
-	public byte[] rots;
+	public static final short MASK_PIEZA_INDEX = 0b11111111;
+	public static final short MASK_PIEZA_ROT_SHIFT = 8;
+	
+	public short[] mergedInfo;
 	
 	public static NodoPosibles newForKey(int key) {
 		NodoPosibles np = new NodoPosibles();
@@ -37,37 +41,35 @@ public final class NodoPosibles
 	}
 	
 	/**
-	 * Agrega la pieza y la rotación a los arrays de NodoPosibles.
+	 * Agrega la pieza y la rotación mergeandolos con bitwise al array de np.
 	 * 
 	 * @param rot 
 	 */
 	public static final void addReferencia (final NodoPosibles np, final short piezaIndex, byte rot) {
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
-		np.referencias[nextIndex] = piezaIndex;
-		np.rots[nextIndex] = rot;
+		np.mergedInfo[nextIndex] = (short) (piezaIndex | (rot << MASK_PIEZA_ROT_SHIFT));
 	}
 
 	private static void setSizeByKey(NodoPosibles np, int key) {
 		int size = NodoPosiblesMapSizePerIndex.getSizeForKey(key);
-		np.referencias = new short[size];
-		np.rots = new byte[size];
+		np.mergedInfo = new short[size];
 		resetReferencias(np);
 	}
 
 	private static int getNextFreeIndex(final NodoPosibles np) {
 		int nextIndex = 0;
-		for (int c=np.referencias.length; nextIndex < c; ++nextIndex) {
+		for (int c=np.mergedInfo.length; nextIndex < c; ++nextIndex) {
 //			if (np.referencias[nextIndex] == null)
-			if (np.referencias[nextIndex] == -1)
+			if (np.mergedInfo[nextIndex] == -1)
 				return nextIndex;
 		}
 		return nextIndex;
 	}
 
 	public static void resetReferencias(NodoPosibles np) {
-		for (int i=0, c=np.referencias.length; i < c; ++i) {
-			np.referencias[i] = -1;
+		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
+			np.mergedInfo[i] = -1;
 		}
 	}
 
@@ -99,8 +101,8 @@ public final class NodoPosibles
 	
 	public static final short getUbicPieza(final NodoPosibles np, short index)
 	{
-		for (int i=0, c=np.referencias.length; i < c; ++i) {
-			if (np.referencias[i] == index)
+		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
+			if ((np.mergedInfo[i] & MASK_PIEZA_INDEX) == index)
 				return (short)i;
 		}
 		return 0;

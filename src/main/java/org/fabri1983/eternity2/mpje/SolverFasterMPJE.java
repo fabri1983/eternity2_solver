@@ -1027,7 +1027,7 @@ public final class SolverFasterMPJE {
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		int length_posibles = nodoPosibles.referencias.length;
+		int length_posibles = nodoPosibles.mergedInfo.length;
 		final byte flag_zona = matrix_zonas[cursor];
 		
 		num_processes_orig[cursor] = NUM_PROCESSES;
@@ -1067,9 +1067,11 @@ public final class SolverFasterMPJE {
 		}
 		
 		for (; desde < length_posibles; ++desde) {
+			
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			Pieza p = piezas[nodoPosibles.referencias[desde]];
-			byte rot = nodoPosibles.rots[desde];
+			short merged = nodoPosibles.mergedInfo[desde];
+			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
+			byte rot = (byte) (merged >>> NodoPosibles.MASK_PIEZA_ROT_SHIFT);
 			
 			// pregunto si la pieza candidata está siendo usada
 			if (p.usada)

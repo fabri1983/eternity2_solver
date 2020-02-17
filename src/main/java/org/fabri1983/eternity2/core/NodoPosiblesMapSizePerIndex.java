@@ -24,10 +24,10 @@ package org.fabri1983.eternity2.core;
 
 /**
  * This class contains the array size per key needed by {@link NodoPosibles}.
- * This way we have the exact array size and we can avoid resize any temporal array or list.
- * See file misc/super_matriz_sizes_by_index.txt.
- * Given the fact that all possible keys are known, then we can remove those entries which have a value of 1, 
- * and so return 1 when the key is missing. This decrease the size of methods and the size of the map as well.
+ * This way we have the exact array size and we can avoid use/resize any temporal array nor list.
+ * Given the fact that the process of creation of super_matriz only involves known keys, we can skip 
+ * those entries which have a value of 1 from the big switch case, and so return 1 when the key is missing. 
+ * This decrease the size of methods.
  */
 public class NodoPosiblesMapSizePerIndex {
 
@@ -2051,7 +2051,7 @@ public class NodoPosiblesMapSizePerIndex {
 		case 777972: return 24;
 		case 777973: return 24;
 		case 777974: return 64;
-		// Default size is 1 for missing keys. Note that only valid keys exists in the map
+		// Default size is 1 for missing keys.
 		default: return 1;
 		}
 	}

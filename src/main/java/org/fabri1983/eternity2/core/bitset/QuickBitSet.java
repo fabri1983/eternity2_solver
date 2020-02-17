@@ -136,7 +136,7 @@ public class QuickBitSet {
         return words.length;
     }
     
-    public String toStringArray() {
+    public String toStringAll() {
     	StringBuilder builder = new StringBuilder(words.length * BITS_PER_WORD);
     	for (long num : words) {
     		builder.append(longToBinary(num)).append("\n");
