@@ -1,5 +1,3 @@
-package org.fabri1983.eternity2.core.bitset;
-
 /*
  * Copyright (c) 1995, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -24,6 +22,8 @@ package org.fabri1983.eternity2.core.bitset;
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
+package org.fabri1983.eternity2.core.bitset;
 
 /**
  * IMPORTANT: this is a modified version with no bounds checks and also only intended to use with the BitSet(n) constructor.
@@ -57,7 +57,7 @@ package org.fabri1983.eternity2.core.bitset;
  * @author  Martin Buchholz
  * @since   1.0
  */
-public class QuickBitSet {
+public class QuickLongBitSet {
 
 	/*
      * BitSets are packed into arrays of "words."  Currently a word is
@@ -81,7 +81,7 @@ public class QuickBitSet {
 	 * @throws NegativeArraySizeException if the specified initial size
 	 *         is negative
 	 */
-	public QuickBitSet(int nbits) {
+	public QuickLongBitSet(int nbits) {
 	    initWords(nbits);
 	}
 
@@ -89,7 +89,7 @@ public class QuickBitSet {
      * Given a bit index, return word index containing it.
      */
     private static int wordIndex(int bitIndex) {
-        return bitIndex >> ADDRESS_BITS_PER_WORD;
+        return bitIndex >>> ADDRESS_BITS_PER_WORD;
     }
     
     private void initWords(int nbits) {
@@ -104,7 +104,8 @@ public class QuickBitSet {
      */
     public void set(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        words[wordIndex] |= (1L << (bitIndex & (BITS_PER_WORD - 1)));
+        long mask = 1L << bitIndex; // here it seems the compiler does: bitIndex & (BITS_PER_WORD - 1)
+		words[wordIndex] |= mask;
     }
     
     /**
@@ -118,7 +119,8 @@ public class QuickBitSet {
      */
     public boolean get(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        return (words[wordIndex] & (1L << (bitIndex & (BITS_PER_WORD - 1)))) != 0;
+        long mask = 1L << bitIndex; // here it seems the compiler does: bitIndex & (BITS_PER_WORD - 1)
+		return (words[wordIndex] & mask) != 0;
     }
     
     /**
@@ -145,12 +147,7 @@ public class QuickBitSet {
     }
     
     private String longToBinary(long number) {
-		StringBuilder result = new StringBuilder(64);
-		for (int i = 63; i >= 0; i--) {
-			int mask = 1 << i;
-			result.append((number & mask) != 0 ? "1," : "0,");
-		}
-		return result.toString();
+    	return String.format("%64s", Long.toBinaryString(number)).replaceAll(" ", "0");
 	}
     
 }
