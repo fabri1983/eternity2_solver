@@ -32,11 +32,36 @@ public final class NodoPosibles
 	public static final short MASK_PIEZA_INDEX = 0b11111111;
 	public static final short MASK_PIEZA_ROT_SHIFT = 8;
 	
+	// Next constants are used for subtraction of generated key to lower the max key value, 
+	// so we can use smaller Perfect Hash Function tabs and smaller bitsets.
+	public static final int KEY_SUBTRACT_INTERIOR = 108; // minimum key value obtained from interior pieces
+	public static final int KEY_SUBTRACT_BORDER = 18129; // minimum key value obtained from border pieces
+	public static final int KEY_SUBTRACT_CORNER = 576214; // minimum key value obtained from corner pieces
+	
 	public short[] mergedInfo;
 	
-	public static NodoPosibles newForKey(int key) {
-		NodoPosibles np = new NodoPosibles();
-		setSizeByKey(np, key);
+	private NodoPosibles(int size) {
+		mergedInfo = new short[size];
+	}
+	
+	public static NodoPosibles newForKey_interior(int key) {
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_interior(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+	
+	public static NodoPosibles newForKey_border(int key) {
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+	
+	public static NodoPosibles newForKey_corner(int key) {
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
 		return np;
 	}
 	
@@ -49,12 +74,6 @@ public final class NodoPosibles
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		np.mergedInfo[nextIndex] = (short) (piezaIndex | (rot << MASK_PIEZA_ROT_SHIFT));
-	}
-
-	private static void setSizeByKey(NodoPosibles np, int key) {
-		int size = NodoPosiblesMapSizePerIndex.getSizeForKey(key);
-		np.mergedInfo = new short[size];
-		resetReferencias(np);
 	}
 
 	private static int getNextFreeIndex(final NodoPosibles np) {
