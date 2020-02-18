@@ -38,7 +38,7 @@ public class CanvasMPJE extends CanvasAbstract {
     
     @Override
 	protected Pieza getPiezaCentral() {
-    	return SolverFasterMPJE.piezas[SolverFasterMPJE.INDICE_P_CENTRAL];
+    	return SolverFasterMPJE.piezas[SolverFasterMPJE.NUM_P_CENTRAL];
     }
     
 }

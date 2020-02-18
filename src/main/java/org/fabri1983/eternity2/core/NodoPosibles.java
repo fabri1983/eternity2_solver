@@ -99,10 +99,10 @@ public final class NodoPosibles
 //		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 	
-	public static final short getUbicPieza(final NodoPosibles np, short index)
+	public static final short getUbicPieza(final NodoPosibles np, short numero)
 	{
 		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
-			if ((np.mergedInfo[i] & MASK_PIEZA_INDEX) == index)
+			if ((np.mergedInfo[i] & MASK_PIEZA_INDEX) == numero)
 				return (short)i;
 		}
 		return 0;
