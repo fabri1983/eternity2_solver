@@ -61,26 +61,25 @@ public final class SolverFasterMPJE {
 	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
-	private static int ESQUINA_TOP_RIGHT,ESQUINA_BOTTOM_RIGHT,ESQUINA_BOTTOM_LEFT;
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
-	private final static int LADO= 16;
-	private final static int LADO_SHIFT_AS_DIVISION = 4;
-	public final static int MAX_PIEZAS= 256;
-	public final static int POSICION_CENTRAL= 135;
-	public final static short INDICE_P_CENTRAL= 138; //es la ubicación de la pieza central en piezas[]
-	private final static int ANTE_POSICION_CENTRAL= 134; //la posicion inmediatamente anterior a la posicion central
-	private final static int SOBRE_POSICION_CENTRAL= 119; //la posicion arriba de la posicion central
-	private final static byte F_ESQ_TOP_LEFT= 11;
-	private final static byte F_ESQ_TOP_RIGHT= 22;
-	private final static byte F_ESQ_BOTTOM_RIGHT= 33;
-	private final static byte F_ESQ_BOTTOM_LEFT= 44;
-	private final static byte F_INTERIOR= 55;
-	private final static byte F_BORDE_TOP= 66;
-	private final static byte F_BORDE_RIGHT= 77;
-	private final static byte F_BORDE_BOTTOM= 88;
-	private final static byte F_BORDE_LEFT= 99;
+	private final static short LADO= 16;
+	private final static short LADO_SHIFT_AS_DIVISION = 4;
+	public final static short MAX_PIEZAS= 256;
+	public final static short POSICION_CENTRAL= 135; // es el indice en tablero[] donde se coloca la pieza central
+	public final static short NUM_P_CENTRAL= 138; //es la ubicación de la pieza central en piezas[]
+	private final static short ANTE_POSICION_CENTRAL= 134; //la posicion inmediatamente anterior a la posicion central
+	private final static short SOBRE_POSICION_CENTRAL= 119; //la posicion arriba de la posicion central
+	private final static byte F_INTERIOR= 1;
+	private final static byte F_BORDE_RIGHT= 2;
+	private final static byte F_BORDE_LEFT= 3;
+	private final static byte F_BORDE_TOP= 4;
+	private final static byte F_BORDE_BOTTOM= 5;
+	private final static byte F_ESQ_TOP_LEFT= 6;
+	private final static byte F_ESQ_TOP_RIGHT= 7;
+	private final static byte F_ESQ_BOTTOM_LEFT= 8;
+	private final static byte F_ESQ_BOTTOM_RIGHT= 9;
 	private final static byte MAX_ESTADOS_ROTACION= 4;
-	private final static int CURSOR_INVALIDO= -5;
+	private final static short CURSOR_INVALIDO= -5;
 	private final static byte MAX_COLORES= 23;
 	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
 	private final static String FILE_EXT = ".txt";
@@ -95,8 +94,9 @@ public final class SolverFasterMPJE {
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	private static int sig_parcial, cur_destino;
-	public static long count_cycles;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
+	
+	public static long count_cycles;
 	
 	/**
 	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
@@ -196,9 +196,6 @@ public final class SolverFasterMPJE {
 		usar_poda_color_explorado = p_poda_color_explorado; //indica si se usará la poda de colores right explorados en borde left
 		sig_parcial= 1; //esta variable indica el numero de archivo parcial siguiente a guardar
 		MAX_NUM_PARCIAL= max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
-		ESQUINA_TOP_RIGHT= LADO - 1;
-		ESQUINA_BOTTOM_RIGHT= MAX_PIEZAS - 1;
-		ESQUINA_BOTTOM_LEFT= MAX_PIEZAS - LADO;
 		
 		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
 		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
@@ -280,28 +277,28 @@ public final class SolverFasterMPJE {
 			if (k == 0)
 				matrix_zonas[k]= F_ESQ_TOP_LEFT;
 			//esquina top-right
-			else if (k == ESQUINA_TOP_RIGHT)
+			else if (k == (LADO - 1))
 				matrix_zonas[k]= F_ESQ_TOP_RIGHT;
 			//esquina bottom-right
-			else if (k == ESQUINA_BOTTOM_RIGHT)
+			else if (k == (MAX_PIEZAS - 1))
 				matrix_zonas[k]= F_ESQ_BOTTOM_RIGHT;
 			//esquina bottom-left
-			else if (k == ESQUINA_BOTTOM_LEFT)
+			else if (k == (MAX_PIEZAS - LADO))
 				matrix_zonas[k]= F_ESQ_BOTTOM_LEFT;
 			//borde top
-			else if ((k > 0) && (k < ESQUINA_TOP_RIGHT))
+			else if ((k > 0) && (k < (LADO - 1)))
 				matrix_zonas[k]= F_BORDE_TOP;
 			//borde right
 			else if (((k+1) % LADO)==0){
-				if ((k != ESQUINA_TOP_RIGHT) && (k != ESQUINA_BOTTOM_RIGHT))
+				if ((k != (LADO - 1)) && (k != (MAX_PIEZAS - 1)))
 					matrix_zonas[k]= F_BORDE_RIGHT;
 			}
 			//borde bottom
-			else if ((k > ESQUINA_BOTTOM_LEFT) && (k < ESQUINA_BOTTOM_RIGHT))
+			else if ((k > (MAX_PIEZAS - LADO)) && (k < (MAX_PIEZAS - 1)))
 				matrix_zonas[k]= F_BORDE_BOTTOM;
 			//borde left
 			else if ((k % LADO)==0){
-				if ((k != 0) && (k != ESQUINA_BOTTOM_LEFT))
+				if ((k != 0) && (k != (MAX_PIEZAS - LADO)))
 					matrix_zonas[k]= F_BORDE_LEFT;
 			}
 		}
@@ -416,7 +413,7 @@ public final class SolverFasterMPJE {
 		// itero sobre el arreglo de piezas
 		for (short k = 0; k < MAX_PIEZAS; ++k) {
 			
-			if (k == INDICE_P_CENTRAL)
+			if (k == NUM_P_CENTRAL)
 				continue;
 			
 			Pieza pz = piezas[k];
@@ -509,7 +506,7 @@ public final class SolverFasterMPJE {
 		return super_matriz[PerfectHashFunction2.phash(key)];
 	}
 	
-	private final static NodoPosibles getNodoIsKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoIfKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// check if key belongs to original keys set
@@ -582,7 +579,7 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void cargarPiezasFijas () {
 		
-		Pieza piezaCentral = piezas[INDICE_P_CENTRAL];
+		Pieza piezaCentral = piezas[NUM_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
 		tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
@@ -1023,12 +1020,12 @@ public final class SolverFasterMPJE {
 	private final static void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
+		final byte flag_zona = matrix_zonas[cursor];
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(flag_zona, cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
 		int length_posibles = nodoPosibles.mergedInfo.length;
-		final byte flag_zona = matrix_zonas[cursor];
 		
 		num_processes_orig[cursor] = NUM_PROCESSES;
 
@@ -1081,19 +1078,25 @@ public final class SolverFasterMPJE {
 			
 			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
 			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
-			if (flag_zona == F_INTERIOR ) {
-				// si pieza actual no es interior
-				if (p.feature != 0) continue;
-			}
-			// mayor a F_INTERIOR significa que estoy en borde
-			else if (flag_zona > F_INTERIOR) {
-				// si pieza actual no es borde
-				if (p.feature != 1) continue;
-			}
-			// menor a F_INTERIOR significa que estoy en esquina
-			else {
-				// si pieza actual no es esquina
-				if (p.feature != 2) continue;
+			switch (flag_zona) {
+				// interior
+				case F_INTERIOR:
+					// si pieza actual no es interior
+					if (p.feature != 0) continue;
+					break;
+				// borde
+				case F_BORDE_RIGHT:
+				case F_BORDE_LEFT:
+				case F_BORDE_TOP:
+				case F_BORDE_BOTTOM:
+					// si pieza actual no es borde
+					if (p.feature != 1) continue;
+					break;
+				// esquina
+				default:
+					// si pieza actual no es esquina
+					if (p.feature != 2) continue;
+					break;
 			}
 			
 			// pregunto si está activada la poda del color right explorado en borde left
@@ -1217,56 +1220,50 @@ public final class SolverFasterMPJE {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
+	private final static NodoPosibles obtenerPosiblesPiezas (byte flag_m, int _cursor)
 	{
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[INDICE_P_CENTRAL].top, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, piezas[INDICE_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, piezas[NUM_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
 		}
 		
-		final int flag_m = matrix_zonas[_cursor];
+		switch (flag_m) {
+			// interior de tablero
+			case F_INTERIOR: 
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
+
+			// borde right
+			case F_BORDE_RIGHT:
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+			// borde left
+			case F_BORDE_LEFT:
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
+			// borde top
+			case F_BORDE_TOP:
+				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
+			// borde bottom
+			case F_BORDE_BOTTOM:
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 		
-		// estoy en interior de tablero?
-		if (flag_m == F_INTERIOR) 
-			return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
-		// mayor a F_INTERIOR significa que estoy en borde
-		else if (flag_m > F_INTERIOR) {
-			switch (flag_m) {
-				//borde right
-				case F_BORDE_RIGHT:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
-				//borde left
-				case F_BORDE_LEFT:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
-				// borde top
-				case F_BORDE_TOP:
-					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
-				//borde bottom
-				default:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-			}
+			// esquina top-left
+			case F_ESQ_TOP_LEFT:
+				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
+			// esquina top-right
+			case F_ESQ_TOP_RIGHT:
+				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+			// esquina bottom-left
+			case F_ESQ_BOTTOM_LEFT: 
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
+			// esquina bottom-right
+			case F_ESQ_BOTTOM_RIGHT:
+				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 		}
-		// menor a F_INTERIOR significa que estoy en esquina
-		else {
-			switch (flag_m) {
-				//esquina top-left
-				case F_ESQ_TOP_LEFT:
-					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
-				//esquina top-right
-				case F_ESQ_TOP_RIGHT:
-					return getNodoIsKeyIsOriginal(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
-				//esquina bottom-left
-				case F_ESQ_BOTTOM_LEFT: 
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
-					//esquina bottom-right
-				default:
-					return getNodoIsKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-			}
-		}
+		
+		return null;
 	}
 	
 	private final static void setContornoUsado(int _cursor)
@@ -1490,7 +1487,7 @@ public final class SolverFasterMPJE {
 			//guardo el valor del cursor
 			writerBuffer.append(cursor).append("\n");
 			
-			//guardo los indices de tablero[]
+			//guardo los indices de piezas de tablero[]
 			for (int n=0; n < MAX_PIEZAS; ++n) {
 				if (n==(MAX_PIEZAS-1)){
 					if (tablero[n] == null)
@@ -1516,7 +1513,7 @@ public final class SolverFasterMPJE {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
+				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(matrix_zonas[_cursor], _cursor), tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)

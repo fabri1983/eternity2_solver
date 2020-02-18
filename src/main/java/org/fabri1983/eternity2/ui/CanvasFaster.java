@@ -42,7 +42,7 @@ public class CanvasFaster extends CanvasAbstract {
 
 	@Override
 	protected Pieza getPiezaCentral() {
-		return action.piezas[SolverFaster.INDICE_P_CENTRAL];
+		return action.piezas[SolverFaster.NUM_P_CENTRAL];
 	}
 
 }

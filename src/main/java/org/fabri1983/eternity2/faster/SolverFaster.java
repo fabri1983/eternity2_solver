@@ -52,26 +52,25 @@ public final class SolverFaster {
 	static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
 	static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
-	static int ESQUINA_TOP_RIGHT, ESQUINA_BOTTOM_RIGHT, ESQUINA_BOTTOM_LEFT;
 	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
-	public final static int LADO= 16;
-	final static int LADO_SHIFT_AS_DIVISION = 4;
-	public final static int MAX_PIEZAS= 256;
-	public final static int POSICION_CENTRAL= 135;
-	public final static short INDICE_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
-	final static int ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
-	final static int SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
-	final static byte F_ESQ_TOP_LEFT= 11;
-	final static byte F_ESQ_TOP_RIGHT= 22;
-	final static byte F_ESQ_BOTTOM_RIGHT= 33;
-	final static byte F_ESQ_BOTTOM_LEFT= 44;
-	final static byte F_INTERIOR= 55;
-	final static byte F_BORDE_TOP= 66;
-	final static byte F_BORDE_RIGHT= 77;
-	final static byte F_BORDE_BOTTOM= 88;
-	final static byte F_BORDE_LEFT= 99;
+	public final static short LADO= 16;
+	final static short LADO_SHIFT_AS_DIVISION = 4;
+	public final static short MAX_PIEZAS= 256;
+	public final static short POSICION_CENTRAL= 135; // es el indice en tablero[] donde se coloca la pieza central
+	public final static short NUM_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
+	final static short ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
+	final static short SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
+	final static byte F_INTERIOR= 1;
+	final static byte F_BORDE_RIGHT= 2;
+	final static byte F_BORDE_LEFT= 3;
+	final static byte F_BORDE_TOP= 4;
+	final static byte F_BORDE_BOTTOM= 5;
+	final static byte F_ESQ_TOP_LEFT= 6;
+	final static byte F_ESQ_TOP_RIGHT= 7;
+	final static byte F_ESQ_BOTTOM_LEFT= 8;
+	final static byte F_ESQ_BOTTOM_RIGHT= 9;
 	final static byte MAX_ESTADOS_ROTACION= 4;
-	final static int CURSOR_INVALIDO= -5;
+	final static short CURSOR_INVALIDO= -5;
 	final static byte MAX_COLORES= 23;
 	final static String SECCIONES_SEPARATOR_EN_FILE= " ";
 	final static String FILE_EXT = ".txt";
@@ -186,9 +185,6 @@ public final class SolverFaster {
 		usar_poda_color_explorado = p_poda_color_explorado; //indica si se usará la poda de colores right explorados en borde left
 		
 		MAX_NUM_PARCIAL = max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
-		ESQUINA_TOP_RIGHT = LADO - 1;
-		ESQUINA_BOTTOM_RIGHT = MAX_PIEZAS - 1;
-		ESQUINA_BOTTOM_LEFT = MAX_PIEZAS - LADO;
 		
 		usarTableroGrafico = usar_tableboard;
 		cellPixelsLado = cell_pixels_lado;
@@ -214,7 +210,7 @@ public final class SolverFaster {
 	 * y la zona interior.
 	 */
 	private final static void inicializarMatrixZonas ()
-	{
+	{		
 		for (int k=0; k < MAX_PIEZAS; ++k)
 		{
 			matrix_zonas[k]= F_INTERIOR; //primero asumo que estoy en posicion interior
@@ -222,28 +218,28 @@ public final class SolverFaster {
 			if (k == 0)
 				matrix_zonas[k]= F_ESQ_TOP_LEFT;
 			//esquina top-right
-			else if (k == ESQUINA_TOP_RIGHT)
+			else if (k == (LADO - 1))
 				matrix_zonas[k]= F_ESQ_TOP_RIGHT;
 			//esquina bottom-right
-			else if (k == ESQUINA_BOTTOM_RIGHT)
+			else if (k == (MAX_PIEZAS - 1))
 				matrix_zonas[k]= F_ESQ_BOTTOM_RIGHT;
 			//esquina bottom-left
-			else if (k == ESQUINA_BOTTOM_LEFT)
+			else if (k == (MAX_PIEZAS - LADO))
 				matrix_zonas[k]= F_ESQ_BOTTOM_LEFT;
 			//borde top
-			else if ((k > 0) && (k < ESQUINA_TOP_RIGHT))
+			else if ((k > 0) && (k < (LADO - 1)))
 				matrix_zonas[k]= F_BORDE_TOP;
 			//borde right
 			else if (((k+1) % LADO)==0){
-				if ((k != ESQUINA_TOP_RIGHT) && (k != ESQUINA_BOTTOM_RIGHT))
+				if ((k != (LADO - 1)) && (k != (MAX_PIEZAS - 1)))
 					matrix_zonas[k]= F_BORDE_RIGHT;
 			}
 			//borde bottom
-			else if ((k > ESQUINA_BOTTOM_LEFT) && (k < ESQUINA_BOTTOM_RIGHT))
+			else if ((k > (MAX_PIEZAS - LADO)) && (k < (MAX_PIEZAS - 1)))
 				matrix_zonas[k]= F_BORDE_BOTTOM;
 			//borde left
 			else if ((k % LADO)==0){
-				if ((k != 0) && (k != ESQUINA_BOTTOM_LEFT))
+				if ((k != 0) && (k != (MAX_PIEZAS - LADO)))
 					matrix_zonas[k]= F_BORDE_LEFT;
 			}
 		}
@@ -326,7 +322,7 @@ public final class SolverFaster {
 		// itero sobre el arreglo de piezas
 		for (short k = 0; k < MAX_PIEZAS; ++k) {
 			
-			if (k == INDICE_P_CENTRAL)
+			if (k == NUM_P_CENTRAL)
 				continue;
 			
 			Pieza pz = action.piezas[k];
@@ -490,7 +486,7 @@ public final class SolverFaster {
 	 */
 	final static void cargarPiezasFijas(ExploracionAction action) {
 		
-		Pieza piezaCentral = action.piezas[INDICE_P_CENTRAL];
+		Pieza piezaCentral = action.piezas[NUM_P_CENTRAL];
 		piezaCentral.usada= true;
 		//piezaCentral.pos= POSICION_CENTRAL;
 		action.tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
@@ -864,7 +860,7 @@ public final class SolverFaster {
 			//guardo el valor del cursor
 			writerBuffer.append(action.cursor).append("\n");
 			
-			//guardo los indices de tablero[]
+			//guardo los indices de piezas de tablero[]
 			for (int n=0; n < MAX_PIEZAS; ++n) {
 				if (n==(MAX_PIEZAS - 1)) {
 					if (action.tablero[n] == null)
@@ -891,7 +887,7 @@ public final class SolverFaster {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(_cursor), action.tablero[_cursor].numero);
+				action.desde_saved[_cursor] = NodoPosibles.getUbicPieza(action.obtenerPosiblesPiezas(matrix_zonas[_cursor],_cursor), action.tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)
