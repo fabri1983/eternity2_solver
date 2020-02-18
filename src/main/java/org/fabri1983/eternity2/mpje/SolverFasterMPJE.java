@@ -38,7 +38,9 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.PiezaFactory;
 import org.fabri1983.eternity2.core.PiezaStringer;
 import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction2;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Border;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Corner;
+import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Interior;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
 import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
@@ -127,8 +129,10 @@ public final class SolverFasterMPJE {
 	 */
 //    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
 //            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-	private final static NodoPosibles[] super_matriz = new NodoPosibles[PerfectHashFunction2.PHASHRANGE];
-	private final static QuickLongBitSet sbs = new QuickLongBitSet(777974 + 1);
+	final static NodoPosibles[] super_matriz_interior = new NodoPosibles[PerfectHashFunction2Interior.PHASHRANGE];
+	final static NodoPosibles[] super_matriz_border = new NodoPosibles[PerfectHashFunction2Border.PHASHRANGE];
+	final static NodoPosibles[] super_matriz_corner = new NodoPosibles[PerfectHashFunction2Corner.PHASHRANGE];
+	private final static QuickLongBitSet bitset = new QuickLongBitSet(777974 + 1);
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -140,8 +144,10 @@ public final class SolverFasterMPJE {
 	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
 	private final static int[] arr_color_rigth_explorado = new int[LADO];
 	
-	private static boolean status_cargado, retroceder, FairExperimentGif;
-	private static boolean mas_bajo_activo, flag_retroceder_externo, usar_poda_color_explorado;
+	private static boolean FairExperimentGif;
+	private static boolean usar_poda_color_explorado;
+	private static boolean status_cargado, retroceder;
+	private static boolean mas_bajo_activo, flag_retroceder_externo;
 	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
 	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	
@@ -430,68 +436,68 @@ public final class SolverFasterMPJE {
 					continue;
 				
 				//este caso es cuando tengo los 4 colores
-				if (getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left) == null)
-					setNewNodoP(pz.top, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left), k, rot);
+				if (getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz) == null)
+					setNewNodoP(pz.top, pz.right, pz.bottom, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz), k, rot);
 				
 				//tengo tres colores y uno faltante
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left) == null)
-					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left, pz) == null)
+					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left, pz) == null)
+					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left) == null)
-					setNewNodoP(pz.top, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left), k, rot);
+				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left, pz) == null)
+					setNewNodoP(pz.top, pz.right, MAX_COLORES, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES) == null)
-					setNewNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz) == null)
+					setNewNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz), k, rot);
 				
 				//tengo dos colores y dos faltantes
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left) == null)
-					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz) == null)
+					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES) == null)
-					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz) == null)
+					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz) == null)
+					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz) == null)
+					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNewNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz) == null)
+					setNewNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz), k, rot);
 
 				//tengo un color y tres faltantes
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES) == null)
-					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz) == null)
+					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES) == null)
-					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES,pz.right, MAX_COLORES, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz) == null)
+					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz), k, rot);
 				
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left), k, rot);
+				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz) == null)
+					setNewNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz);
+				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz), k, rot);
 			}
 			
 			//restauro la rotación
@@ -499,30 +505,72 @@ public final class SolverFasterMPJE {
 		}
 	}
 
-	private final static NodoPosibles getNodoFromOriginalKey(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoFromOriginalKey(final byte top, final byte right, final byte bottom, final byte left, Pieza p)
 	{
-//		return super_matriz[top][right][bottom][left];
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		return super_matriz[PerfectHashFunction2.phash(key)];
+		// get NodoPosibles according type of pieza
+		if (Pieza.isInterior(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
+			return super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)];
+		} else if (Pieza.isBorder(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
+			return super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)];
+		} else if (Pieza.isCorner(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
+			return super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)];
+		}
+		return null;
 	}
 	
-	private final static NodoPosibles getNodoIfKeyIsOriginal(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoIfKeyIsOriginal_interior(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// check if key belongs to original keys set
-		if (!sbs.get(key))
+		if (!bitset.get(key))
 			return null;
-		return super_matriz[PerfectHashFunction2.phash(key)];
+		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
+		return super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)];
 	}
 	
-	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left)
+	private final static NodoPosibles getNodoIfKeyIsOriginal_border(final byte top, final byte right, final byte bottom, final byte left)
 	{
 		int key = NodoPosibles.getKey(top, right, bottom, left);
-		NodoPosibles nodoPosibles = NodoPosibles.newForKey(key);
-//		super_matriz[top][right][bottom][left] = nodoPosibles;
+		// check if key belongs to original keys set
+		if (!bitset.get(key))
+			return null;
+		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
+		return super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)];
+	}
+	
+	private final static NodoPosibles getNodoIfKeyIsOriginal_corner(final byte top, final byte right, final byte bottom, final byte left)
+	{
+		int key = NodoPosibles.getKey(top, right, bottom, left);
+		// check if key belongs to original keys set
+		if (!bitset.get(key))
+			return null;
+		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
+		return super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)];
+	}
+	
+	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left, Pieza p)
+	{
+		int key = NodoPosibles.getKey(top, right, bottom, left);
 		// set key as a valid one
-		sbs.set(key);
-		super_matriz[PerfectHashFunction2.phash(key)] = nodoPosibles;
+		bitset.set(key);
+		// create a new NodoPosibles according the type of pieza
+		if (Pieza.isInterior(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
+			NodoPosibles nodoPosibles = NodoPosibles.newForKey_interior(keyDiff);
+			super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)] = nodoPosibles;
+		} else if (Pieza.isBorder(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
+			NodoPosibles nodoPosibles = NodoPosibles.newForKey_border(keyDiff);
+			super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)] = nodoPosibles;
+		} else if (Pieza.isCorner(p)) {
+			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
+			NodoPosibles nodoPosibles = NodoPosibles.newForKey_corner(keyDiff);
+			super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)] = nodoPosibles;
+		}
 	}
 	
 	/**
@@ -1020,8 +1068,7 @@ public final class SolverFasterMPJE {
 	private final static void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final byte flag_zona = matrix_zonas[cursor];
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(flag_zona, cursor);
+		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -1076,33 +1123,10 @@ public final class SolverFasterMPJE {
 		
 			++count_cycles; // incremento el contador de combinaciones de piezas
 			
-			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
-			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
-			switch (flag_zona) {
-				// interior
-				case F_INTERIOR:
-					// si pieza actual no es interior
-					if (p.feature != 0) continue;
-					break;
-				// borde
-				case F_BORDE_RIGHT:
-				case F_BORDE_LEFT:
-				case F_BORDE_TOP:
-				case F_BORDE_BOTTOM:
-					// si pieza actual no es borde
-					if (p.feature != 1) continue;
-					break;
-				// esquina
-				default:
-					// si pieza actual no es esquina
-					if (p.feature != 2) continue;
-					break;
-			}
-			
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (usar_poda_color_explorado) {
-				testPodaColorRightExplorado(flag_zona, p);
-			}
+//			if (usar_poda_color_explorado) {
+//				testPodaColorRightExplorado(flag_zona, p);
+//			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
@@ -1121,10 +1145,10 @@ public final class SolverFasterMPJE {
 			}*/
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
-			if (FairExperimentGif) {
-				if (testFairExperimentGif(flag_zona, p))
-					continue;
-			}
+//			if (FairExperimentGif) {
+//				if (testFairExperimentGif(flag_zona, p))
+//					continue;
+//			}
 
 			// seteo los contornos como usados
 			setContornoUsado(cursor);
@@ -1220,47 +1244,47 @@ public final class SolverFasterMPJE {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	private final static NodoPosibles obtenerPosiblesPiezas (byte flag_m, int _cursor)
+	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
 	{
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SOBRE_POSICION_CENTRAL:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case ANTE_POSICION_CENTRAL:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, piezas[NUM_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, piezas[NUM_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
 		}
 		
-		switch (flag_m) {
+		switch (matrix_zonas[_cursor]) {
 			// interior de tablero
 			case F_INTERIOR: 
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
 
 			// borde right
 			case F_BORDE_RIGHT:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 			// borde left
 			case F_BORDE_LEFT:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
+				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
 			// borde top
 			case F_BORDE_TOP:
-				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_border(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
 			// borde bottom
 			case F_BORDE_BOTTOM:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 		
 			// esquina top-left
 			case F_ESQ_TOP_LEFT:
-				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
+				return getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
 			// esquina top-right
 			case F_ESQ_TOP_RIGHT:
-				return getNodoIfKeyIsOriginal(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
 			// esquina bottom-left
 			case F_ESQ_BOTTOM_LEFT: 
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
+				return getNodoIfKeyIsOriginal_corner(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
 			// esquina bottom-right
 			case F_ESQ_BOTTOM_RIGHT:
-				return getNodoIfKeyIsOriginal(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
+				return getNodoIfKeyIsOriginal_corner(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 		}
 		
 		return null;
@@ -1302,11 +1326,11 @@ public final class SolverFasterMPJE {
 	
 		for (int g=0; g < MAX_PIEZAS; ++g){
 			Pieza pzx = piezas[g];
-			if (pzx.feature == 0)
+			if (Pieza.isInterior(pzx))
 				++n_interiores;
-			else if (pzx.feature == 1)
+			else if (Pieza.isBorder(pzx))
 				++n_bordes;
-			else if (pzx.feature == 2)
+			else if (Pieza.isCorner(pzx))
 				++n_esq;
 		}
 		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes)))) {
@@ -1513,7 +1537,7 @@ public final class SolverFasterMPJE {
 				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
 					continue;
 				//tengo el valor para desde_saved[]
-				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(matrix_zonas[_cursor], _cursor), tablero[_cursor].numero);
+				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
 			for (;_cursor < MAX_PIEZAS; ++_cursor)

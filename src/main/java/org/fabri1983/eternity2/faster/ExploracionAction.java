@@ -357,8 +357,7 @@ public class ExploracionAction implements Runnable {
 	private final void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final byte flag_zona = SolverFaster.matrix_zonas[cursor];
-		NodoPosibles nodoPosibles = obtenerPosiblesPiezas(flag_zona, cursor);
+		NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -417,35 +416,12 @@ public class ExploracionAction implements Runnable {
 			++count_cycles;
 			if (usarTableroGrafico)
 				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
-			
-			// Pregunto si la pieza a poner es del tipo adecuado segun cursor.
-			// Porque sucede que puedo obtener cualquier tipo de pieza de acuerdo a los colores que necesito
-			switch (flag_zona) {
-				// interior
-				case SolverFaster.F_INTERIOR:
-					// si pieza actual no es interior
-					if (p.feature != 0) continue;
-					break;
-				// borde
-				case SolverFaster.F_BORDE_RIGHT:
-				case SolverFaster.F_BORDE_LEFT:
-				case SolverFaster.F_BORDE_TOP:
-				case SolverFaster.F_BORDE_BOTTOM:
-					// si pieza actual no es borde
-					if (p.feature != 1) continue;
-					break;
-				// esquina
-				default:
-					// si pieza actual no es esquina
-					if (p.feature != 2) continue;
-					break;
-			}
 				
 			// pregunto si está activada la poda del color right explorado en borde left
-			if (usar_poda_color_explorado) {
-				if (testPodaColorRightExplorado(flag_zona, p))
-					continue;
-			}
+//			if (usar_poda_color_explorado) {
+//				if (testPodaColorRightExplorado(flag_zona, p))
+//					continue;
+//			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
@@ -464,10 +440,10 @@ public class ExploracionAction implements Runnable {
 			}*/
 			
 			//FairExperiment.gif: color bottom repetido en sentido horizontal
-			if (FairExperimentGif) {
-				if (testFairExperimentGif(flag_zona, p))
-					continue;
-			}
+//			if (FairExperimentGif) {
+//				if (testFairExperimentGif(flag_zona, p))
+//					continue;
+//			}
 	
 			//seteo los contornos como usados
 			setContornoUsado(cursor);
@@ -564,7 +540,7 @@ public class ExploracionAction implements Runnable {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	final NodoPosibles obtenerPosiblesPiezas(byte flag_m, int _cursor)
+	final NodoPosibles obtenerPosiblesPiezas(int _cursor)
 	{
         final int lado = SolverFaster.LADO;
         final byte maxColores = SolverFaster.MAX_COLORES;
@@ -574,42 +550,42 @@ public class ExploracionAction implements Runnable {
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, maxColores, piezas[indicePcentral].top, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, maxColores, piezas[indicePcentral].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, piezas[indicePcentral].left, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, piezas[indicePcentral].left, maxColores, tablero[_cursor - 1].right);
 		}
 		
-		switch (flag_m) {
+		switch (SolverFaster.matrix_zonas[_cursor]) {
 			// interior de tablero
 			case SolverFaster.F_INTERIOR:  
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, maxColores, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, maxColores, maxColores, tablero[_cursor - 1].right);
 				
 			// borde right
 			case SolverFaster.F_BORDE_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, gris, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, gris, maxColores, tablero[_cursor - 1].right);
 			// borde left
 			case SolverFaster.F_BORDE_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, maxColores, maxColores, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, maxColores, maxColores, gris);
 			// borde top
 			case SolverFaster.F_BORDE_TOP:
-				return SolverFaster.getNodoIfKeyIsOriginal(gris, maxColores, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(gris, maxColores, maxColores, tablero[_cursor - 1].right);
 			// borde bottom
 			case SolverFaster.F_BORDE_BOTTOM:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, maxColores, gris, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, maxColores, gris, tablero[_cursor - 1].right);
 			
 			// esquina top-left
 			case SolverFaster.F_ESQ_TOP_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal(gris, maxColores, maxColores, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(gris, maxColores, maxColores, gris);
 			// esquina top-right
 			case SolverFaster.F_ESQ_TOP_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal(gris, gris, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(gris, gris, maxColores, tablero[_cursor - 1].right);
 			// esquina bottom-left
 			case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, maxColores, gris, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - lado].bottom, maxColores, gris, gris);
 			// esquina bottom-right
 			case SolverFaster.F_ESQ_BOTTOM_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal(tablero[_cursor - lado].bottom, gris, gris, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - lado].bottom, gris, gris, tablero[_cursor - 1].right);
 		}
 		
 		return null;

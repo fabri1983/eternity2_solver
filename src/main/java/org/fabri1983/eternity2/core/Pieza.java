@@ -50,7 +50,6 @@ public class Pieza {
 	public byte rotacion;
 	public boolean usada;
 	// public int pos; // indica la posición en el tablero real en la que iría la pieza
-	public byte feature;// es_interior = 0 grises, es_borde = 1 gris, es_esquina = 2 grises
 	
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
 //	private static int countIdUnico = 0;
@@ -185,4 +184,30 @@ public class Pieza {
 		}
 	}
 
+	public static final boolean isCorner(final Pieza p) {
+		byte grises = countGrises(p);
+		return grises == 2;
+	}
+	
+	public static final boolean isBorder(final Pieza p) {
+		byte grises = countGrises(p);
+		return grises == 1;
+	}
+	
+	public static final boolean isInterior(final Pieza p) {
+		byte grises = countGrises(p);
+		return grises == 0;
+	}
+
+	private static final byte countGrises(final Pieza p)
+	{
+		byte count_grises=0;
+		if (p.top == PiezaFactory.GRIS) ++count_grises;
+		if (p.right == PiezaFactory.GRIS) ++count_grises;
+		if (p.bottom == PiezaFactory.GRIS) ++count_grises;
+		if (p.left == PiezaFactory.GRIS) ++count_grises;
+		
+		return count_grises;
+	}
+	
 }
