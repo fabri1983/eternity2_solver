@@ -34,7 +34,7 @@ public class PerfectHashFunction2Corner {
 		int b = (val >>> 4) & 0xf; // 0xf = 15 => & 0xf is the fastest way of doing % 0x10 (PHASHLEN 16)
 		int a = (val + (val << 12)) >>> 24;
 		int rsl = (a ^ tab[b]);
-		return rsl; // from 1 up to PHASHRANGE - 1
+		return rsl; // from 0 up to PHASHRANGE - 1
 	}
 	
 }

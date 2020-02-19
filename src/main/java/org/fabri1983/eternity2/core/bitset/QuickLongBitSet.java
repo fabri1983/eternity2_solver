@@ -78,8 +78,6 @@ public class QuickLongBitSet {
 	 * {@code nbits-1}. All bits are initially {@code false}.
 	 *
 	 * @param  nbits the initial size of the bit set
-	 * @throws NegativeArraySizeException if the specified initial size
-	 *         is negative
 	 */
 	public QuickLongBitSet(int nbits) {
 	    initWords(nbits);
