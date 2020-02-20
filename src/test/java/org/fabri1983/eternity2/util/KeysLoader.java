@@ -2,6 +2,11 @@ package org.fabri1983.eternity2.util;
 
 public class KeysLoader {
 
+	/**
+	 * Using a method to return the array since some tests do a shuffle over all the array.
+	 * 
+	 * @return
+	 */
 	public static int[] loadSuperMatrizKeys() {
 		// array length is 6954
 		int[] keys = new int[] { 108, 119, 292, 311, 740, 748, 759, 1060, 1079, 1160, 1175, 1764, 1768, 1783, 2274,

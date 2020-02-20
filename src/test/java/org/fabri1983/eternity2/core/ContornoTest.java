@@ -50,7 +50,8 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
 					((_cursor - (Contorno.MAX_COLS - 1)) & (SolverFaster.LADO - 1)) != 0;
 			
-			Assert.assertEquals("(Slow) For cursor " + _cursor, zona_proc_contorno[_cursor], testSlow);
+			if (zona_proc_contorno[_cursor] != testSlow)
+				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testSlow));
 			
 			boolean testFast = 
 					// Discard top and bottom rows
@@ -62,7 +63,8 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
 					((_cursor - (Contorno.MAX_COLS - 1)) & (SolverFaster.LADO - 1)) != 0;
 			
-			Assert.assertEquals("(Fast) For cursor " + _cursor, zona_proc_contorno[_cursor], testFast);
+			if (zona_proc_contorno[_cursor] != testFast)
+				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testFast));
 		}
 	}
 	
@@ -86,7 +88,8 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition. 
 					((_cursor + Contorno.MAX_COLS - 1 + 1) & (SolverFaster.LADO - 1)) != 0;
 			
-			Assert.assertEquals("(Slow) For cursor " + _cursor, zona_read_contorno[_cursor], testSlow);
+			if (zona_read_contorno[_cursor] != testSlow)
+				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testSlow));
 			
 			boolean testFast = 
 					// Discard top and bottom rows
@@ -98,7 +101,8 @@ public class ContornoTest {
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
 					((_cursor + Contorno.MAX_COLS - 1 + 1) & (SolverFaster.LADO - 1)) != 0;
 
-			Assert.assertEquals("(Fast) For cursor " + _cursor, zona_read_contorno[_cursor], testFast);
+			if (zona_read_contorno[_cursor] != testFast)
+				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testFast));
 		}
 	}
 	

@@ -67,9 +67,6 @@ public class QuickIntBitSet {
     private static final int ADDRESS_BITS_PER_WORD = 5;
     private static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
     
-    /**
-     * The internal field corresponding to the serialField "bits".
-     */
     private int[] words;
 
 	/**
@@ -106,7 +103,7 @@ public class QuickIntBitSet {
      */
     public void set(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        int mask = 1 << bitIndex; // here it seems the compiler does: bitIndex & (BITS_PER_WORD - 1)
+        int mask = 1 << bitIndex; // here it seems the compiler does: 1L << (bitIndex & (BITS_PER_WORD - 1))
 		words[wordIndex] |= mask;
     }
     
@@ -121,7 +118,7 @@ public class QuickIntBitSet {
      */
     public boolean get(int bitIndex) {
         int wordIndex = wordIndex(bitIndex);
-        int mask = 1 << bitIndex; // here it seems the compiler does: bitIndex & (BITS_PER_WORD - 1)
+        int mask = 1 << bitIndex; // here it seems the compiler does: 1L << (bitIndex & (BITS_PER_WORD - 1))
 		return (words[wordIndex] & mask) != 0;
     }
     
@@ -148,7 +145,7 @@ public class QuickIntBitSet {
     	return builder.toString();
     }
     
-    private String intToBinary(int number) {
+    private static String intToBinary(int number) {
     	return String.format("%32s", Integer.toBinaryString(number)).replaceAll(" ", "0");
 	}
     
