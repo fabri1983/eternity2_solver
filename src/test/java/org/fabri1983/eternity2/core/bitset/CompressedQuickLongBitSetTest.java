@@ -1,5 +1,6 @@
 package org.fabri1983.eternity2.core.bitset;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -81,12 +82,8 @@ public class CompressedQuickLongBitSetTest {
 		List<Integer> otherKeys = IntStream.range(0, keys[keys.length - 1])
 				.boxed()
 				.filter( n -> {
-					for (int key : keys) {
-						if (key == n.intValue()) {
-							return false;
-						}
-					}
-					return true;
+					// keys is a sorted array so we can use binary search
+					return Arrays.binarySearch(keys, n.intValue()) < 0;
 				})
 				.collect( Collectors.toList() );
 		

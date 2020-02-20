@@ -33,6 +33,7 @@ public class CompressedQuickLongBitSet {
     /**
      * How many consecutive rows of zeros we want to remove. 
      * Got experimentally from a very specific case. You'll have to experiment and see what number works for you.
+     * Use the test CompressedQuickLongBitSetTest which prints some statistics.
      */
  	private static final int consecutiveRowsOfZeros = 12;
  	
@@ -166,7 +167,7 @@ public class CompressedQuickLongBitSet {
     	int expandedWordIndex = bitIndex >>> ADDRESS_BITS_PER_WORD;
 		
 		// binary search the shift factor to be applied over expanded word
-		int factor = binarySearchForShiftAmount(indexesForShift, 0, indexesForShift.length, expandedWordIndex);
+		int factor = BinarySearch.binarySearch(indexesForShift, 0, indexesForShift.length - 1, expandedWordIndex);
 		
 		// if expanded word index is within the removed rows then it means the bitIndex was originally 0 (not set)
 		if (factor > 0 && (expandedWordIndex - indexesForShift[factor - 1]) < consecutiveRowsOfZeros)
@@ -177,37 +178,9 @@ public class CompressedQuickLongBitSet {
 		return (words[wordIndex] & mask) != 0;
     }
     
-	/**
-	 * In this binary search we return the index of the found target element + 1 so it acts as a factor.
-	 * When target is not found it returns the current low limit.
-	 * This way we simulate a range mapping.
-	 * 
-	 * @param elems
-	 * @param fromIndex
-	 * @param toIndex
-	 * @param target
-	 * @return
-	 */
-	private int binarySearchForShiftAmount(int[] elems, int fromIndex, int toIndex, int target) {
-		int low = fromIndex;
-		int high = toIndex - 1;
-		
-		while (low <= high) {
-			int mid = (low + high) >>> 1; // divided by 2
-			int midVal = elems[mid];
-
-			if (midVal < target) {
-				low = mid + 1; // shift forwards the lower limit to be ahead of mid
-			} else if (midVal > target) {
-				high = mid - 1; // shift backwards the high limit to be before mid
-			} else {
-				return mid + 1; // key found, + 1 so it acts as a factor for our goal
-			}
-		}
-		return low; // key not found, but we keep the current low limit
-	}
 	
-    public int size() {
+	
+	public int size() {
         return words.length;
     }
     
@@ -222,5 +195,5 @@ public class CompressedQuickLongBitSet {
     private static String longToBinary(long number) {
     	return String.format("%64s", Long.toBinaryString(number)).replaceAll(" ", "0");
 	}
-    
+
 }
