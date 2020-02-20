@@ -45,7 +45,7 @@ public class PerfectHashFunction2Border {
 		int b = (val >>> 1) & 0xff; // 0xff = 256 => & 0xff is the fastest way of doing % 0x100 (PHASHLEN 256)
 		int a = (val + (val << 10)) >>> 21;
 		int rsl = (a ^ tab[b]);
-		return rsl; // from 1 up to PHASHRANGE - 1
+		return rsl; // from 0 up to PHASHRANGE - 1
 	}
 	
 }

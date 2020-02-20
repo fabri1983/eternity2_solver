@@ -75,8 +75,10 @@ public class PerfectHashFunction2Test {
 			// direct extraction of values
 			int lowInflated = deflated & 0xffff;
 			int highInflated = deflated >>> 16;
-			Assert.assertEquals("(direct extraction) high numbers don't match.", low, lowInflated);
-			Assert.assertEquals("(direct extraction) low numbers don't match.", high, highInflated);
+			if (low != lowInflated)
+				Assert.fail(String.format("(direct extraction) high numbers don't match: %s %s", low, lowInflated));
+			if (high != highInflated)
+				Assert.fail(String.format("(direct extraction) high numbers don't match: %s %s", high, highInflated));
 		}
 		
 		// evaluate inflated values from deflated array
@@ -87,7 +89,8 @@ public class PerfectHashFunction2Test {
 			// if i is even then value is in lower bits, if odd then value is in higher bits
 			// Note: using an if statement to discern between i even or odd the execution time is 50% slower
 			int value = (deflated >>> (16 * (i & 1))) & 0xffff; // & 1  is  % 2
-			Assert.assertEquals("(final extraction method) values don't match.", expected, value);
+			if (expected != value)
+				Assert.fail(String.format("(final extraction method) values don't match: %s %s", expected, value));
 		}
 		
 		// benchmark inflating

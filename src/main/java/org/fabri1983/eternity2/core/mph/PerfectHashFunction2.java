@@ -90,7 +90,7 @@ public class PerfectHashFunction2 {
 		int b = (val >>> 8) & 0x3ff; // 0x3ff = 1023 => & 0x3ff is the fastest way of doing % 0x400 (PHASHLEN 1024)
 		int a = (val + (val << 1)) >>> 19;
 		int rsl = (a ^ tab[b]);
-		return rsl; // from 1 up to PHASHRANGE - 1
+		return rsl; // from 0 up to PHASHRANGE - 1
 	}
 	
 }

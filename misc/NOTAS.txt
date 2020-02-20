@@ -178,26 +178,8 @@ para 3 columns tengo count maximo 91   con    1556132 filas calculadas.
 para 4 columns tengo count maximo 297  con   68981072 filas calculadas.
 para 5 columns tengo count maximo ??   con 3042060164 filas calculadas.
 
-- Max lenghts de objetos super_matriz[].referencias[] y sus ocurrencias de lenghts:
-Max length: 64
-1  - 4936 --> significa que hay 4936 arreglos referencias[] de longitud 1
-2  - 806
-3  - 488
-4  - 346
-5  - 164
-6  - 56
-7  - 20
-8  - 6
-12 - 40
-24 - 20
-46 - 4
-47 - 4
-48 - 12
-49 - 4
-50 - 44
-64 - 4
 
-- Usando super_matriz[] calculé que existen como máximo 7 piezas interiores (incluyendo las rotadas) para 
+- Usando super_matriz[] calculé que existen como máximo 7 piezas interiores (repitiéndose si tiene mas de una rotación) para 
 combinación de hasta 4 colores consecutivos. Y 4 piezas restantes para borde/esquina.
 
 Entonces en cada posición de cursor donde necesite satisfacer combinación left-top voy a tener:
@@ -206,13 +188,13 @@ Entonces en cada posición de cursor donde necesite satisfacer combinación left
  - alrededor de pieza central (sin tener en cuenta sus rotaciones): 2 piezas para left-top-bottom y 2 piezas para left-top-right.
 
 Sabiendo que existen las siguientes celdas y rotaciones:
- - 4 celdas esquinas (sin rotación): 4! * 4^0
- - 56 celdas de borde (sin rotación): 56! * 56^0
+ - 4 celdas esquinas: 4! * 4^0 (no se rota una vez colocada, por eso vá ^0)
+ - 56 celdas de borde: 56! * 56^0 (no se rota una vez colocada, por eso vá ^0)
 	Pero cada pieza borde puede matchear con hasta otras 12 piezas de borde debido a sus 5 colores que solo pertenecen a borde.
 	Por lo que sería: 12!^5
 	Pero como mencioné arriba solo voy a matchear con hasta 4 piezas como máximo.
 	Por lo que sería: 4!^5
- - 195 celdas internas (4 rotaciones): 195! * 4^195
+ - 195 celdas internas: 195! * 4^195 (4 rotaciones por cada una de ellas)
 	Pero cada pieza interior puede matchear con hasta otras 25 piezas de interior debido a sus 17 colores que solo pertenecen a borde.
 	Por lo que sería: (25!^17) * (4^25)
 	Pero como mencioné arriba solo voy a matchear con hasta 7 piezas como máximo (incluyendo rotadas) y asi eliminando las rotaciones.
@@ -226,7 +208,8 @@ El cálculo con los cálculos que logré:
 	(4! * 4^0) * (4!^5) * (7!^17) = 1.6695... × 10^71
 	
 El uso de contorno_sup en el interior del tablero hace que una combinación dada left-top-top se pueda usar una 
-sola vez lo que hace descartar ramas.
+sola vez lo que hace descartar ramas. Pero no sé cómo hacer ese cálculo.
+
 Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
 	(4! * 4^0) * (2!^5) * (3!^17) = 1.2999... × 10^16
 ---------------------------------------------------------------------------------------

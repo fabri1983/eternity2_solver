@@ -62,7 +62,7 @@ public class PerfectHashFunction2Interior {
 		int b = (val >>> 8) & 0x1ff; // 0x1ff = 511 => & 0x1ff is the fastest way of doing % 0x200 (PHASHLEN 512)
 		int a = (val + (val << 2)) >>> 19;
 		int rsl = (a ^ tab[b]);
-		return rsl; // from 1 up to PHASHRANGE - 1
+		return rsl; // from 0 up to PHASHRANGE - 1
 	}
 	
 }

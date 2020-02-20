@@ -18,9 +18,9 @@ public class IntArrayList extends AbstractIntList {
         this(10);
     }
 
-    public IntArrayList(int paramInt)
+    public IntArrayList(int initialCapacity)
     {
-        this.elements = new int[paramInt];
+        this.elements = new int[initialCapacity];
         this.size = 0;
     }
 

@@ -542,50 +542,45 @@ public class ExploracionAction implements Runnable {
 	 */
 	final NodoPosibles obtenerPosiblesPiezas(int _cursor)
 	{
-        final int lado = SolverFaster.LADO;
-        final byte maxColores = SolverFaster.MAX_COLORES;
-        final byte gris = PiezaFactory.GRIS;
-        final short indicePcentral = SolverFaster.NUM_P_CENTRAL;
-        
 		switch (_cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, maxColores, piezas[indicePcentral].top, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, piezas[SolverFaster.NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, piezas[indicePcentral].left, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, piezas[SolverFaster.NUM_P_CENTRAL].left, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
 		}
 		
 		switch (SolverFaster.matrix_zonas[_cursor]) {
 			// interior de tablero
 			case SolverFaster.F_INTERIOR:  
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - lado].bottom, maxColores, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
 				
 			// borde right
 			case SolverFaster.F_BORDE_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, gris, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, PiezaFactory.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
 			// borde left
 			case SolverFaster.F_BORDE_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, maxColores, maxColores, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, PiezaFactory.GRIS);
 			// borde top
 			case SolverFaster.F_BORDE_TOP:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(gris, maxColores, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(PiezaFactory.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
 			// borde bottom
 			case SolverFaster.F_BORDE_BOTTOM:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - lado].bottom, maxColores, gris, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 			
 			// esquina top-left
 			case SolverFaster.F_ESQ_TOP_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(gris, maxColores, maxColores, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, PiezaFactory.GRIS);
 			// esquina top-right
 			case SolverFaster.F_ESQ_TOP_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(gris, gris, maxColores, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, PiezaFactory.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
 			// esquina bottom-left
 			case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - lado].bottom, maxColores, gris, gris);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
 			// esquina bottom-right
 			case SolverFaster.F_ESQ_BOTTOM_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - lado].bottom, gris, gris, tablero[_cursor - 1].right);
+				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - SolverFaster.LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
 		}
 		
 		return null;

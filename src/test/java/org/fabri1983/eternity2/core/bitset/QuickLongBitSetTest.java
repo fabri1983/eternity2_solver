@@ -52,5 +52,5 @@ public class QuickLongBitSetTest {
 		long nanosPerKey = nanosBench/(keys.length*loops);
 		System.out.println("done. " + nanosPerKey + " nanos/key");
 	}
-	
+
 }

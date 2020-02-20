@@ -23,4 +23,5 @@ public abstract class AbstractIntList extends AbstractCollection
     {
         return this.size;
     }
+    
 }
