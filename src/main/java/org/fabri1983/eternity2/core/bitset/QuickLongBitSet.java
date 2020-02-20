@@ -97,6 +97,7 @@ public class QuickLongBitSet {
     
     /**
      * Sets the bit at the specified index to {@code true}.
+     * IMPORTANT: remember that setting a bit is from LSB (most right bit) to MSB (left most bit)
      *
      * @param  bitIndex a bit index
      * @since  1.0
@@ -112,6 +113,7 @@ public class QuickLongBitSet {
      * is {@code true} if the bit with the index {@code bitIndex}
      * is currently set in this {@code BitSet}; otherwise, the result
      * is {@code false}.
+     * IMPORTANT: remember that reading a bit is from LSB (most right bit) to MSB (left most bit)
      *
      * @param  bitIndex   the bit index
      * @return the value of the bit with the specified index
@@ -148,5 +150,5 @@ public class QuickLongBitSet {
     private static String longToBinary(long number) {
     	return String.format("%64s", Long.toBinaryString(number)).replaceAll(" ", "0");
 	}
-    
+
 }

@@ -29,8 +29,10 @@ public class CompressedQuickLongBitSet {
 
 	private static final int ADDRESS_BITS_PER_WORD = 6;
     private static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
+    
     /**
-     * How many consecutive rows of zeros we want to remove
+     * How many consecutive rows of zeros we want to remove. 
+     * Got experimentally from a very specific case. You'll have to experiment and see what number works for you.
      */
  	private static final int consecutiveRowsOfZeros = 12;
  	
@@ -46,10 +48,11 @@ public class CompressedQuickLongBitSet {
 		
 		// collect all indices where start appearing consecutive zeros
 		int[] indexesForShift = collectShiftedIndexes(bitSet.words, consecutiveRowsOfZeros);
+		int biggerGapShiftIndexes = maxGap(indexesForShift);
 		
 		// print stats?
 		if (printStats) {
-			printStats(bitSet.size(), consecutiveRowsOfZeros, indexesForShift.length);
+			printStats(bitSet.size(), consecutiveRowsOfZeros, indexesForShift.length, biggerGapShiftIndexes);
 		}
 		
 		// remove rows of 0s and shift the valid ones
@@ -59,6 +62,16 @@ public class CompressedQuickLongBitSet {
 		return cbs;
 	}
 	
+	private static int maxGap(int[] indexesForShift) {
+		int maxGap = 0;
+		for (int i=1; i < indexesForShift.length; ++i) {
+			int n = Math.abs(indexesForShift[i] - indexesForShift[i - 1]);
+			if (n > maxGap)
+				maxGap = n;
+		}
+		return maxGap;
+	}
+
 	/**
 	 * Search for positions in words[] having X consecutive rows of zeros. A row of zero is just a long value 0.
 	 * 
@@ -90,17 +103,18 @@ public class CompressedQuickLongBitSet {
 		return Arrays.trimToCapacity(listIndexesForShift.elements(), listIndexesForShift.size());
 	}
 	
-	private static void printStats(int bitsetSize, int consecutiveRowsOfZeros, int totalGroups) {
+	private static void printStats(int bitsetSize, int consecutiveRowsOfZeros, int totalGroups, int biggerGapShiftIndexes) {
 		
 		System.out.println(CompressedQuickLongBitSet.class.getSimpleName() + " stats:");
-		System.out.println("  " + totalGroups + " groups of " + consecutiveRowsOfZeros + " longs.");
+		System.out.println("  " + totalGroups + " groups (longs) of " + consecutiveRowsOfZeros + " consecutive 0s to remove. " 
+				+ "Max Gap between indexes: " + biggerGapShiftIndexes);
 		
 		int removeFromCurrentBitset = consecutiveRowsOfZeros * totalGroups;
 		int newBitSetSize = bitsetSize - removeFromCurrentBitset;
 		System.out.println("  Can remove " + removeFromCurrentBitset + " longs from current " +
-				QuickLongBitSet.class.getSimpleName() + " " + bitsetSize + " longs. New size: " + newBitSetSize + " longs.");
+				QuickLongBitSet.class.getSimpleName() + " of " + bitsetSize + " longs. New size: " + newBitSetSize + " longs.");
 		
-		System.out.println("  But will use 1 additional array of size " + totalGroups + " to hold the shift indexes.");
+		System.out.println("  But will use 1 additional array of size " + totalGroups + " to hold the shift indexes and do binary search.");
 		
 		int realGain = removeFromCurrentBitset - totalGroups;
 		System.out.println("  So real gain is: " + realGain);
@@ -142,6 +156,7 @@ public class CompressedQuickLongBitSet {
      * is {@code true} if the bit with the index {@code bitIndex}
      * is currently set in this {@code BitSet}; otherwise, the result
      * is {@code false}.
+     * IMPORTANT: remember that reading a bit is from LSB (most right bit) to MSB (left most bit)
      *
      * @param  bitIndex   the bit index
      * @return the value of the bit with the specified index
@@ -149,6 +164,8 @@ public class CompressedQuickLongBitSet {
     public boolean get(int bitIndex) {
     	// the expanded word index simulates the index as if it was in QuickLongBitSet
     	int expandedWordIndex = bitIndex >>> ADDRESS_BITS_PER_WORD;
+		
+		// binary search the shift factor to be applied over expanded word
 		int factor = binarySearchForShiftAmount(indexesForShift, 0, indexesForShift.length, expandedWordIndex);
 		
 		// if expanded word index is within the removed rows then it means the bitIndex was originally 0 (not set)
@@ -174,17 +191,18 @@ public class CompressedQuickLongBitSet {
 	private int binarySearchForShiftAmount(int[] elems, int fromIndex, int toIndex, int target) {
 		int low = fromIndex;
 		int high = toIndex - 1;
-
+		
 		while (low <= high) {
 			int mid = (low + high) >>> 1; // divided by 2
 			int midVal = elems[mid];
 
-			if (midVal < target)
-				low = mid + 1;
-			else if (midVal > target)
-				high = mid - 1;
-			else
+			if (midVal < target) {
+				low = mid + 1; // shift forwards the lower limit to be ahead of mid
+			} else if (midVal > target) {
+				high = mid - 1; // shift backwards the high limit to be before mid
+			} else {
 				return mid + 1; // key found, + 1 so it acts as a factor for our goal
+			}
 		}
 		return low; // key not found, but we keep the current low limit
 	}

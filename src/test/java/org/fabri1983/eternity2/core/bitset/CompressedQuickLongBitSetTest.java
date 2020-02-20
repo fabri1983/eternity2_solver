@@ -18,7 +18,7 @@ public class CompressedQuickLongBitSetTest {
 		
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a " + CompressedQuickLongBitSet.class.getSimpleName() + " from hardcoded words[] and indexesForShift[] ... ");
+		System.out.print("creating a " + CompressedQuickLongBitSet.class.getSimpleName() + " from pre calculated arrays ... ");
 		long timeEval = System.nanoTime();
 		CompressedQuickLongBitSet cbs = new CompressedQuickLongBitSet(
 				CompressedQuickLongBitSetHardcodedData.words, 
@@ -76,7 +76,7 @@ public class CompressedQuickLongBitSetTest {
 				Assert.fail(String.format("At key %s: expected %s, but was %s", key, expectedBit, actualBit));
 			}
 		}
-
+		
 		// get any other keys
 		List<Integer> otherKeys = IntStream.range(0, keys[keys.length - 1])
 				.boxed()
