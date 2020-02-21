@@ -8,7 +8,7 @@ public class IntRecSplitLoad {
 
 	public static IntRecSplitEvaluator load() throws IOException, URISyntaxException {
 		
-		int avgBucketSize = 6954;
+		int avgBucketSize = 6862; // the number of keys from misc/super_matriz_decimal.txt
         int leafSize = 17;
         String fileName = "src/test/resources/super_matriz_recsplit.mphf";
         

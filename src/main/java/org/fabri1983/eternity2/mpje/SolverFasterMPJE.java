@@ -116,8 +116,8 @@ public final class SolverFasterMPJE {
 	 * After getting some stats:
 	 *   - array length          = 777975  (last used index is 777974)
 	 *   - total empty indexes   = 771021
-	 *   - total used indexes    =   6954
-	 *   - wasted indexes        =  99.1%  <= but using an array has faster reads than a map :(
+	 *   - total used indexes    =   6862
+	 *   - wasted indexes        = approx 99%  <= but using an array has faster reads than a map :(
 	 * Ver archivo misc/super_matriz_sizes_by_index.txt
 	 * 
 	 * IMPROVEMENT (faster access but more memory consumption): 
@@ -132,7 +132,7 @@ public final class SolverFasterMPJE {
 	final static NodoPosibles[] super_matriz_interior = new NodoPosibles[PerfectHashFunction2Interior.PHASHRANGE];
 	final static NodoPosibles[] super_matriz_border = new NodoPosibles[PerfectHashFunction2Border.PHASHRANGE];
 	final static NodoPosibles[] super_matriz_corner = new NodoPosibles[PerfectHashFunction2Corner.PHASHRANGE];
-	private final static QuickLongBitSet bitset = new QuickLongBitSet(777974 + 1);
+	private final static QuickLongBitSet bitset = new QuickLongBitSet(777942 + 1);
 	
 	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
 	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
@@ -483,21 +483,7 @@ public final class SolverFasterMPJE {
 				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz), k, rot);
 
 				//tengo un color y tres faltantes
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz) == null)
-					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, MAX_COLORES, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz) == null)
-					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, MAX_COLORES, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, MAX_COLORES, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, MAX_COLORES, pz.left, pz), k, rot);
+				//(esta combinación no se usa)
 			}
 			
 			//restauro la rotación
