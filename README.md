@@ -257,13 +257,12 @@ wget https://raw.githubusercontent.com/fabri1983/eternity2_solver/master/misc/su
 cmph -v -g keys_file
   it generates a file named keys_file.mph
 cmph -v -m keys_file.mph keys_file
-37 -> 0
-49 -> 1
-55 -> 2
-305 -> 3
+108 -> 0
+119 -> 1
+292 -> 2
 ...
-777973 -> 6952
-777974 -> 6953
+777941 -> 6860
+777942 -> 6861
 
 exit
 ```
@@ -275,9 +274,10 @@ Athor: Bob Jenkins
 https://burtleburtle.net/bob/hash/perfect.html  
 A newer version is here https://github.com/driedfruit/jenkins-minimal-perfect-hash.  
 It produces C files with the final hash function. **This is the solution I'm using actually**.  
-This tool generates a **Minimal Perfect Hash** function for the 6954 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
+This tool generates a **Minimal Perfect Hash** function for the 6862 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
 which is a structure to rapidly access candidate pieces, with a total size of 331776‬ indexes.  
-Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 43.3% of space** keeping the lookup time O(1) (but still slower than a direct array access).
+Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 43.3% of space** keeping 
+the lookup time O(1) (but still slower than a direct array access).
 
 **Let's use MinGW in Windows to compile the project and produce the C files**
 - Download MinGW from http://www.mingw.org/.

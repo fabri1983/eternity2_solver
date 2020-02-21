@@ -48,14 +48,13 @@ public class BinarySearchOchakif {
 			// The pivot we use here tries to be smarter and to choose a pivot close to the expectable location of the key.
 			// This reduces dramatically the number of steps needed to get to the key.
 			// However, it does not work well with a logarithmic distribution of values, for instance.
-			// When the key is not found quickly the smart way, we switch to the standard pivot.
+			// When the key is not found quickly with the smart way, we switch to the standard pivot.
 			int pivot;
-			if (nPreviousSteps >= MAX_SMART_PIVOT_USES) {
-				pivot = (low + high) >>> 1; // divided by 2
-				// stop increasing nPreviousSteps from now on
-			} else {
+			if (nPreviousSteps < MAX_SMART_PIVOT_USES) {
 				pivot = low + (targetVal - minVal) / (maxVal - minVal) * (high - low);
 				nPreviousSteps++;
+			} else {
+				pivot = (low + high) >>> 1; // divided by 2
 			}
 			
 			int pivotVal = elems[pivot];

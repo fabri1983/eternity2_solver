@@ -12,13 +12,13 @@ public class PerfectHashFunction2Corner {
 	public static final int PHASHRANGE = 256;
 	
 	// PHASHLEN 0x10 = 16
-	static short tab[] = { 132, 146, 124, 40, 183, 0, 233, 113, 125, 212, 213, 6, 138, 8, 209, 94 };
+	static short tab[] = { 82, 32, 0, 125, 0, 131, 0, 45, 0, 0, 255, 82, 0, 87, 0, 0 };
 
 	public static int phash(int val) {
 		// NOTE: in Java remember to replace >> by >>> to avoid carrying out the bit sign when you know some operations exceed 2^31 - 1
 		// I decided to use >>> to always avoid carrying out the sign.
 		
-		val += 0x6a4bf61d; // PHASHSALT 0x6a4bf61d (31 bits!)
+		val += 0x10de9d7; // PHASHSALT 0x10de9d7 (31 bits!)
 		val ^= (val >>> 16);
 		
 		/**
@@ -31,8 +31,8 @@ public class PerfectHashFunction2Corner {
 		val += (val << 8);
 		
 		val ^= (val >>> 4);
-		int b = (val >>> 4) & 0xf; // 0xf = 15 => & 0xf is the fastest way of doing % 0x10 (PHASHLEN 16)
-		int a = (val + (val << 12)) >>> 24;
+		int b = (val >>> 16) & 0xf; // 0xf = 15 => & 0xf is the fastest way of doing % 0x10 (PHASHLEN 16)
+		int a = (val + (val << 17)) >>> 24;
 		int rsl = (a ^ tab[b]);
 		return rsl; // from 0 up to PHASHRANGE - 1
 	}

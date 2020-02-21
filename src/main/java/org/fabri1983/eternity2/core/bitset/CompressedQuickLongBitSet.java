@@ -31,9 +31,10 @@ public class CompressedQuickLongBitSet {
     private static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
     
     /**
-     * How many consecutive rows of zeros we want to remove. 
-     * Got experimentally from a very specific case. You'll have to experiment and see what number works for you.
-     * Use the test CompressedQuickLongBitSetTest which prints some statistics.
+     * How many consecutive rows of zeros we want to remove.<br/>
+     * Got experimentally from a very specific case. You'll have to experiment and see what number works for you.<br/>
+     * Use the test CompressedQuickLongBitSetTest which prints some statistics.<br/>
+     * Changing this value makes useless the values in {@link CompressedQuickLongBitSetHardcodedData}.
      */
  	private static final int consecutiveRowsOfZeros = 12;
  	
@@ -152,33 +153,38 @@ public class CompressedQuickLongBitSet {
 		return targetArray;
 	}
     
-    /**
-     * Returns the value of the bit with the specified index. The value
-     * is {@code true} if the bit with the index {@code bitIndex}
-     * is currently set in this {@code BitSet}; otherwise, the result
-     * is {@code false}.
-     * IMPORTANT: remember that reading a bit is from LSB (most right bit) to MSB (left most bit)
-     *
-     * @param  bitIndex   the bit index
-     * @return the value of the bit with the specified index
-     */
-    public boolean get(int bitIndex) {
-    	// the expanded word index simulates the index as if it was in QuickLongBitSet
-    	int expandedWordIndex = bitIndex >>> ADDRESS_BITS_PER_WORD;
-		
+	/**
+	 * Returns the value of the bit with the specified index. The value is
+	 * {@code true} if the bit with the index {@code bitIndex} is currently set in
+	 * this {@code BitSet}; otherwise, the result is {@code false}. IMPORTANT:
+	 * remember that reading a bit is from LSB (most right bit) to MSB (left most
+	 * bit)
+	 *
+	 * @param bitIndex the bit index
+	 * @return the value of the bit with the specified index
+	 */
+	public boolean get(int bitIndex) {
+		// the expanded word index simulates the index as if it was in QuickLongBitSet
+		int expandedWordIndex = bitIndex >>> ADDRESS_BITS_PER_WORD;
+
 		// binary search the shift factor to be applied over expanded word
 		int factor = BinarySearch.binarySearch(indexesForShift, 0, indexesForShift.length - 1, expandedWordIndex);
-		
+
 		// if expanded word index is within the removed rows then it means the bitIndex was originally 0 (not set)
 		if (factor > 0 && (expandedWordIndex - indexesForShift[factor - 1]) < consecutiveRowsOfZeros)
 			return false;
-		
+
 		int wordIndex = expandedWordIndex - (factor * consecutiveRowsOfZeros);
-        long mask = 1L << bitIndex; // here it seems the compiler does: 1L << (bitIndex & (BITS_PER_WORD - 1))
+		long mask = 1L << bitIndex; // here it seems the compiler does: 1L << (bitIndex & (BITS_PER_WORD - 1))
 		return (words[wordIndex] & mask) != 0;
-    }
+	}
     
-	
+	public int getShiftingFactor(int bitIndex) {
+		// the expanded word index simulates the index as if it was in QuickLongBitSet
+		int expandedWordIndex = bitIndex >>> ADDRESS_BITS_PER_WORD;
+		// binary search the shift factor to be applied over expanded word
+		return BinarySearch.binarySearch(indexesForShift, 0, indexesForShift.length - 1, expandedWordIndex);
+	}
 	
 	public int size() {
         return words.length;
