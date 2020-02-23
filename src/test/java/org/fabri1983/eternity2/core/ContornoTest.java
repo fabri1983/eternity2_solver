@@ -1,18 +1,13 @@
 package org.fabri1983.eternity2.core;
 
-import org.fabri1983.eternity2.faster.SolverFaster;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ContornoTest {
 
-	static boolean zona_proc_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
-	static boolean zona_read_contorno[] = new boolean[SolverFaster.MAX_PIEZAS];
-	
-	// This creates number 0x000000F0 (for LADO = 16) which will be used to mask cursor position to check if is in top or lower row.
-	// The idea here is to create a number with log2(LADO) 0s as lower bits and then as much 1s to complete a size of byte (8 bits).
-	static int maskForBorderTopAndBottom = 0x000000F0;
+	static boolean zona_proc_contorno[] = new boolean[Consts.MAX_PIEZAS];
+	static boolean zona_read_contorno[] = new boolean[Consts.MAX_PIEZAS];
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -25,9 +20,9 @@ public class ContornoTest {
 		
 		// test borders top and bottom using a mask
 		boolean print = false;
-		for (int k=0; print && k < SolverFaster.MAX_PIEZAS; ++k) {
-			int top = k & maskForBorderTopAndBottom;
-			int bottom = (k + SolverFaster.LADO) & maskForBorderTopAndBottom;
+		for (int k=0; print && k < Consts.MAX_PIEZAS; ++k) {
+			int top = k & Consts.maskForBorderTopAndBottom;
+			int bottom = (k + Consts.LADO) & Consts.maskForBorderTopAndBottom;
 			System.out.println(
 					k + ":  " + top + "  " + bottom 
 					+ " -> test (mult): " + (top * bottom) );
@@ -36,32 +31,32 @@ public class ContornoTest {
 		/**
 		 * Test use of math operations to mimic array querying 
 		 */
-		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
+		for (int _cursor = 0; _cursor < Consts.MAX_PIEZAS; ++_cursor) {
 			
 			boolean testSlow = 
 					// Discard top and bottom rows
-					_cursor > SolverFaster.LADO && 
-					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
+					_cursor > Consts.LADO && 
+					_cursor < ((Consts.MAX_PIEZAS - 1) - Consts.LADO) &&
 					// Discard borders
-					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
-					((_cursor + 1) & (SolverFaster.LADO - 1)) != 0 &&
+					(_cursor & (Consts.LADO - 1)) != 0 && 
+					((_cursor + 1) & (Consts.LADO - 1)) != 0 &&
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions after border left. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor - (Contorno.MAX_COLS - 1)) & (SolverFaster.LADO - 1)) != 0;
+					((_cursor - (Contorno.MAX_COLS - 1)) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_proc_contorno[_cursor] != testSlow)
 				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testSlow));
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & maskForBorderTopAndBottom) * ((_cursor + SolverFaster.LADO) & maskForBorderTopAndBottom) *
+					(_cursor & Consts.maskForBorderTopAndBottom) * ((_cursor + Consts.LADO) & Consts.maskForBorderTopAndBottom) *
 					// Discard borders
-					(_cursor & (SolverFaster.LADO - 1)) * ((_cursor + 1) & (SolverFaster.LADO - 1)) *
+					(_cursor & (Consts.LADO - 1)) * ((_cursor + 1) & (Consts.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions after border left. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor - (Contorno.MAX_COLS - 1)) & (SolverFaster.LADO - 1)) != 0;
+					((_cursor - (Contorno.MAX_COLS - 1)) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_proc_contorno[_cursor] != testFast)
 				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testFast));
@@ -74,32 +69,32 @@ public class ContornoTest {
 		/**
 		 * Test use of math operations to mimic array querying 
 		 */
-		for (int _cursor = 0; _cursor < SolverFaster.MAX_PIEZAS; ++_cursor) {
+		for (int _cursor = 0; _cursor < Consts.MAX_PIEZAS; ++_cursor) {
 			
 			boolean testSlow = 
 					// Discard top and bottom rows 
-					_cursor > SolverFaster.LADO && 
-					_cursor < ((SolverFaster.MAX_PIEZAS - 1) - SolverFaster.LADO) &&
+					_cursor > Consts.LADO && 
+					_cursor < ((Consts.MAX_PIEZAS - 1) - Consts.LADO) &&
 					// Discard borders
-					(_cursor & (SolverFaster.LADO - 1)) != 0 && 
-					((_cursor + 1) & (SolverFaster.LADO - 1)) != 0 &&
+					(_cursor & (Consts.LADO - 1)) != 0 && 
+					((_cursor + 1) & (Consts.LADO - 1)) != 0 &&
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions before border right. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition. 
-					((_cursor + Contorno.MAX_COLS - 1 + 1) & (SolverFaster.LADO - 1)) != 0;
+					((_cursor + Contorno.MAX_COLS - 1 + 1) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_read_contorno[_cursor] != testSlow)
 				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testSlow));
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & maskForBorderTopAndBottom) * ((_cursor + SolverFaster.LADO) & maskForBorderTopAndBottom) *
+					(_cursor & Consts.maskForBorderTopAndBottom) * ((_cursor + Consts.LADO) & Consts.maskForBorderTopAndBottom) *
 					// Discard borders
-					(_cursor & (SolverFaster.LADO - 1)) * ((_cursor + 1) & (SolverFaster.LADO - 1)) *
+					(_cursor & (Consts.LADO - 1)) * ((_cursor + 1) & (Consts.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions before border right. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor + Contorno.MAX_COLS - 1 + 1) & (SolverFaster.LADO - 1)) != 0;
+					((_cursor + Contorno.MAX_COLS - 1 + 1) & (Consts.LADO - 1)) != 0;
 
 			if (zona_read_contorno[_cursor] != testFast)
 				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testFast));
@@ -108,20 +103,20 @@ public class ContornoTest {
 	
     private static void inicializarZonaProcesoContornos()
 	{
-	    for (int k=0; k <SolverFaster. MAX_PIEZAS; ++k)
+	    for (int k=0; k < Consts.MAX_PIEZAS; ++k)
 	    {
 	        //si estoy en borde top o bottom continuo con la siguiente posición
-	        if (k < SolverFaster.LADO || k > (SolverFaster.MAX_PIEZAS - SolverFaster.LADO))
+	        if (k < Consts.LADO || k > (Consts.MAX_PIEZAS - Consts.LADO))
 	            continue;
 	        //si estoy en los bordes entonces continuo con la sig posición
-	        if ( (((k+1) % SolverFaster.LADO)==0) || ((k % SolverFaster.LADO)==0) )
+	        if ( (((k+1) % Consts.LADO)==0) || ((k % Consts.LADO)==0) )
 	            continue;
 	        
 	        //desde aqui estoy en el interior del tablero
 	        
 	        //me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
-	        int fila_actual = k / SolverFaster.LADO;
-	        if (((k - Contorno.MAX_COLS) / SolverFaster.LADO) != fila_actual)
+	        int fila_actual = k / Consts.LADO;
+	        if (((k - Contorno.MAX_COLS) / Consts.LADO) != fila_actual)
 	            continue;
 	        
 	        zona_proc_contorno[k] = true;
@@ -130,20 +125,20 @@ public class ContornoTest {
 
 	private static void inicializarZonaReadContornos()
     {    
-        for (int k=0; k < SolverFaster.MAX_PIEZAS; ++k)
+        for (int k=0; k < Consts.MAX_PIEZAS; ++k)
         {
             //si estoy en borde top o bottom continuo con la siguiente posición
-            if (k < SolverFaster.LADO || k > (SolverFaster.MAX_PIEZAS - SolverFaster.LADO))
+            if (k < Consts.LADO || k > (Consts.MAX_PIEZAS - Consts.LADO))
                 continue;
             //si estoy en los bordes entonces continuo con la sig posición
-            if ( (((k+1) % SolverFaster.LADO) == 0) || ((k % SolverFaster.LADO) == 0) )
+            if ( (((k+1) % Consts.LADO) == 0) || ((k % Consts.LADO) == 0) )
                 continue;
             
             //desde aqui estoy en el interior del tablero
             
             //me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
-            int fila_actual = k / SolverFaster.LADO;
-            if ((k + (Contorno.MAX_COLS - 1)) < ((fila_actual * SolverFaster.LADO) + (SolverFaster.LADO - 1)))
+            int fila_actual = k / Consts.LADO;
+            if ((k + (Contorno.MAX_COLS - 1)) < ((fila_actual * Consts.LADO) + (Consts.LADO - 1)))
                 zona_read_contorno[k] = true;
         }
     }

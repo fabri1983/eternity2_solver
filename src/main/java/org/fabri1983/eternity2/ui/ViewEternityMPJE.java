@@ -22,6 +22,7 @@
 
 package org.fabri1983.eternity2.ui;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
 public class ViewEternityMPJE extends ViewEternityAbstract {
@@ -34,7 +35,7 @@ public class ViewEternityMPJE extends ViewEternityAbstract {
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasMPJE(rows, cols, SolverFasterMPJE.POSICION_CENTRAL);
+		return new CanvasMPJE(rows, cols, Consts.POSICION_CENTRAL);
 	}
 
 	@Override

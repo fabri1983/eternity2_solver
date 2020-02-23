@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.core;
+package org.fabri1983.eternity2.core.neighbors;
 
 /**
  * It contains an array which have a mixture of number of tile and rotation value.
@@ -46,6 +46,13 @@ public final class NodoPosibles
 	
 	private NodoPosibles(int size) {
 		mergedInfo = new short[size];
+	}
+	
+	public static NodoPosibles newForKey(int key) {
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
 	}
 	
 	public static NodoPosibles newForKey_interior(int key) {

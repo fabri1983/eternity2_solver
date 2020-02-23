@@ -85,15 +85,14 @@ public class MainFasterBenchmark {
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForFile(),
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 			
 			properties = null;
-			ResourceBundle.clearCache();
 			
 			System.out.println(); // to get a clean output
 			
-			solver.setupInicial();
+			solver.setupInicial(new ClassLoaderReaderForFile());
+			ResourceBundle.clearCache();
 		}
 		
 		private String getProperty(Properties properties, String key) {

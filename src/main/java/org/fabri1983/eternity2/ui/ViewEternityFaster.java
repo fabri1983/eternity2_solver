@@ -22,6 +22,7 @@
 
 package org.fabri1983.eternity2.ui;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.faster.ExploracionAction;
 import org.fabri1983.eternity2.faster.SolverFaster;
 
@@ -39,7 +40,7 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasFaster(rows, cols, SolverFaster.POSICION_CENTRAL, action);
+		return new CanvasFaster(rows, cols, Consts.POSICION_CENTRAL, action);
 	}
 
 	@Override

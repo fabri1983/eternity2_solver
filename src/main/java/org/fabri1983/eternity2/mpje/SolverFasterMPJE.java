@@ -23,24 +23,21 @@
 package org.fabri1983.eternity2.mpje;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
+import org.fabri1983.eternity2.core.CommonFuncs;
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.core.PiezaFactory;
-import org.fabri1983.eternity2.core.PiezaStringer;
-import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Border;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Corner;
-import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Interior;
+import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+import org.fabri1983.eternity2.core.neighbors.SuperMatrizHashFunctionStrategy;
+import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
+import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
+import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
 import org.fabri1983.eternity2.ui.ViewEternityMPJEFactory;
@@ -64,92 +61,33 @@ public final class SolverFasterMPJE {
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
-	private final static short LADO= 16;
-	private final static short LADO_SHIFT_AS_DIVISION = 4;
-	public final static short MAX_PIEZAS= 256;
-	public final static short POSICION_CENTRAL= 135; // es el indice en tablero[] donde se coloca la pieza central
-	public final static short NUM_P_CENTRAL= 138; //es la ubicación de la pieza central en piezas[]
-	private final static short ANTE_POSICION_CENTRAL= 134; //la posicion inmediatamente anterior a la posicion central
-	private final static short SOBRE_POSICION_CENTRAL= 119; //la posicion arriba de la posicion central
-	private final static byte F_INTERIOR= 1;
-	private final static byte F_BORDE_RIGHT= 2;
-	private final static byte F_BORDE_LEFT= 3;
-	private final static byte F_BORDE_TOP= 4;
-	private final static byte F_BORDE_BOTTOM= 5;
-	private final static byte F_ESQ_TOP_LEFT= 6;
-	private final static byte F_ESQ_TOP_RIGHT= 7;
-	private final static byte F_ESQ_BOTTOM_LEFT= 8;
-	private final static byte F_ESQ_BOTTOM_RIGHT= 9;
-	private final static byte MAX_ESTADOS_ROTACION= 4;
-	private final static short CURSOR_INVALIDO= -5;
-	private final static byte MAX_COLORES= 23;
-	private final static String SECCIONES_SEPARATOR_EN_FILE= " ";
-	private final static String FILE_EXT = ".txt";
-	private final static String NAME_FILE_PIEZAS = "e2pieces" + FILE_EXT;
-	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + THIS_PROCESS + FILE_EXT;
-	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + THIS_PROCESS + FILE_EXT;
-	private final static String NAME_FILE_STATUS = "status/status_saved_P" + THIS_PROCESS + FILE_EXT;
-	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + THIS_PROCESS + FILE_EXT;
-	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + THIS_PROCESS + FILE_EXT;
+
+	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + THIS_PROCESS + Consts.FILE_EXT;
+	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + THIS_PROCESS + Consts.FILE_EXT;
+	private final static String NAME_FILE_STATUS = "status/status_saved_P" + THIS_PROCESS + Consts.FILE_EXT;
+	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
+	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + THIS_PROCESS + "";
-	private final static String NAME_FILE_LIBRES_MAX = "status/libresMAX_P" + THIS_PROCESS + FILE_EXT;
+	private final static String NAME_FILE_LIBRES_MAX = "status/libresMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	private static int sig_parcial, cur_destino;
 	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	
-	public static long count_cycles;
+	public static long count_cycles; // count cycles for this only instance
 	
-	/**
-	 * Calculo la capacidad de la matriz de combinaciones de colores, desglozando la distribución en 4 niveles.
-	 * Son 4 niveles porque la matriz de colores solo contempla colores top,right,bottom,left.
-	 * Cantidad de combinaciones:
-	 *  (int) ((MAX_COLORES * Math.pow(2, 5 * 0)) +
-				(MAX_COLORES * Math.pow(2, 5 * 1)) +
-				(MAX_COLORES * Math.pow(2, 5 * 2)) +
-				(MAX_COLORES * Math.pow(2, 5 * 3)))  = 777975
-	 *  donde MAX_COLORES = 23, y usando 5 bits para representar los 23 colores.
-	 * 
-	 * Cada indice del arreglo definido en el orden (top,right,bottom,left) contiene instancia de NodoPosibles 
-	 * la cual brinda arrays de piezas y rotaciones que cumplen con esa combinación particular de colores.
-	 * 
-	 * After getting some stats:
-	 *   - array length          = 777975  (last used index is 777974)
-	 *   - total empty indexes   = 771021
-	 *   - total used indexes    =   6862
-	 *   - wasted indexes        = approx 99%  <= but using an array has faster reads than a map :(
-	 * Ver archivo misc/super_matriz_sizes_by_index.txt
-	 * 
-	 * IMPROVEMENT (faster access but more memory consumption): 
-	 * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
-	 * It uses less memory and the access time is the same than the previous big array.
-	 * 
-	 * IMPROVEMENT FINAL (much less memory but slower than an array access):
-	 * Using a pre calculated Perfect Hash Function I ended up with an array size of PerfectHashFunction2.PHASHRANGE.
-	 */
-//    private final static NodoPosibles[][][][] super_matriz = new NodoPosibles
-//            [MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1][MAX_COLORES+1];
-	final static NodoPosibles[] super_matriz_interior = new NodoPosibles[PerfectHashFunction2Interior.PHASHRANGE];
-	final static NodoPosibles[] super_matriz_border = new NodoPosibles[PerfectHashFunction2Border.PHASHRANGE];
-	final static NodoPosibles[] super_matriz_corner = new NodoPosibles[PerfectHashFunction2Corner.PHASHRANGE];
-	private final static QuickLongBitSet bitset = new QuickLongBitSet(777942 + 1);
-	
-	public final static Pieza[] piezas = new Pieza[MAX_PIEZAS];
-	public final static Pieza[] tablero = new Pieza[MAX_PIEZAS];
-	private final static short[] desde_saved = new short[MAX_PIEZAS];
+	public final static Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
+	public final static Pieza[] tablero = new Pieza[Consts.MAX_PIEZAS];
+	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	private final static Contorno contorno = new Contorno();
-	private final static byte[] matrix_zonas = new byte[MAX_PIEZAS];
 	
-	// cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
-	// color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
-	private final static int[] arr_color_rigth_explorado = new int[LADO];
+	private final static NeighborStrategy neighborStrategy = new SuperMatrizHashFunctionStrategy();
+	
+	private static ColorRightExploredStrategy colorRightExploredStrategy;
 	
 	private static boolean FairExperimentGif;
-	private static boolean usar_poda_color_explorado;
 	private static boolean status_cargado, retroceder;
 	private static boolean mas_bajo_activo, flag_retroceder_externo;
-	private final static boolean[] zona_proc_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para usar y liberar contornos
-	private final static boolean[] zona_read_contorno = new boolean[MAX_PIEZAS]; //arreglo de zonas permitidas para reguntar por contorno used
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
@@ -157,8 +95,6 @@ public final class SolverFasterMPJE {
 	private static StringBuilder printBuffer = new StringBuilder(64);
 	
 	/**
-	 * Algoritmo backtracker.
-	 * 
 	 * @param m_ciclos: número máximo de ciclos para disparar guardar estado.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
@@ -169,22 +105,28 @@ public final class SolverFasterMPJE {
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
-	 * @param p_poda_color_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
-	 * @param p_pos_multi_process: posición en tablero donde inicia exploración multi threading.
+	 * @param p_poda_color_right_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
+	 * @param p_pos_multi_processes: posición en tablero donde inicia exploración multi threading.
+	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
 			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
-			boolean p_fair_experiment_gif, boolean p_poda_color_explorado, int p_pos_multi_process,
+			boolean p_fair_experiment_gif, boolean p_poda_color_right_explorado, int p_pos_multi_processes,
 			int totalProcesses) {
 
 		MAX_CICLOS= m_ciclos;
 		
-		POSICION_MULTI_PROCESSES = p_pos_multi_process;
-		num_processes_orig = new int[MAX_PIEZAS];
+		POSICION_MULTI_PROCESSES = p_pos_multi_processes;
+		num_processes_orig = new int[Consts.MAX_PIEZAS];
+		
+		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
+		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
+		if (usar_multiples_boards)
+			procMultipleBoards = THIS_PROCESS;
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
-		if ((lim_max_par > 0) && (lim_max_par < (MAX_PIEZAS-2)))
+		if ((lim_max_par > 0) && (lim_max_par < (Consts.MAX_PIEZAS-2)))
 			LIMITE_RESULTADO_PARCIAL= lim_max_par;
 		
 		//LIMITE_DE_EXPLORACION= lim_exploracion; //me dice hasta qué posicion debe explorar esta instancia
@@ -197,429 +139,29 @@ public final class SolverFasterMPJE {
 			flag_retroceder_externo= true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
 		
-		cur_destino= CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
-		mas_bajo_activo= false; //permite o no modificar el cursor mas_bajo
-		usar_poda_color_explorado = p_poda_color_explorado; //indica si se usará la poda de colores right explorados en borde left
-		sig_parcial= 1; //esta variable indica el numero de archivo parcial siguiente a guardar
+		//indica si se usará la poda de colores right explorados en borde left
+		if (p_poda_color_right_explorado)
+			colorRightExploredStrategy = new ColorRightExploredLocalStrategy();
+		
 		MAX_NUM_PARCIAL= max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
 		
-		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
-		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
-		if (usar_multiples_boards)
-			procMultipleBoards = THIS_PROCESS;
+		cur_destino= Consts.CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
+		mas_bajo_activo= false; //permite o no modificar el cursor mas_bajo
+		sig_parcial= 1; //esta variable indica el numero de archivo parcial siguiente a guardar
 		
 		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards) {
-			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(LADO, cell_pixels_lado, 
-					MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, totalProcesses);
+			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(Consts.LADO, cell_pixels_lado, 
+					Consts.MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, totalProcesses);
 			tableboardE2 = new EternityII(viewFactory);
 		}
 
 		createDirs();
 	}
 	
-	
-	//##########################################################################//
-	//     INICIALIZACION DE CUALQUIER ESTRUCTURA QUE LO NECESITE
-	//##########################################################################//
-
 	private final static void createDirs() {
 		new File("solution").mkdirs();
 		new File("status").mkdirs();
 	}
-
-	/**
-	 * Inicializa varias estructuras y flags
-	 */
-	public final void setupInicial () {
-		
-		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
-		inicializarMatrixZonas();
-		
-		//seteo las posiciones donde puedo setear un contorno como usado o libre
-		inicializarZonaProcContornos();
-		
-		//seteo las posiciones donde se puede preguntar por contorno superior usado
-		inicializarZonaReadContornos();
-		
-		cargarPiezas();
-		
-		//hago una verificacion de las piezas cargadas
-		verificarTiposDePieza();
-		
-		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
-		cargarSuperEstructura();
-		
-		// Pruebo cargar el primer status_saved
-		status_cargado = cargarEstado(NAME_FILE_STATUS);
-		if (!status_cargado) {
-			cursor=0;
-			mas_bajo= 0; //este valor se setea empiricamente
-			mas_alto= 0;
-			mas_lejano_parcial_max= 0;
-			status_cargado=false;
-			sincronizar = true;
-		}
-		
-		//cargo las posiciones fijas
-		cargarPiezasFijas();
-		
-		//seteo como usados los contornos ya existentes en tablero
-		Contorno.inicializarContornos(contorno, tablero, MAX_PIEZAS, LADO);
-		
-		if (tableboardE2 != null) 
-			tableboardE2.startPainting();
-	}
-
-	/**
-	 * Este arreglo representa las zonas del tablero: las 4 esquinas, los 4 bordes
-	 * y la zona interior.
-	 */
-	private final static void inicializarMatrixZonas ()
-	{
-		for (int k=0; k < MAX_PIEZAS; ++k)
-		{
-			matrix_zonas[k]= F_INTERIOR; //primero asumo que estoy en posicion interior
-			//esquina top-left
-			if (k == 0)
-				matrix_zonas[k]= F_ESQ_TOP_LEFT;
-			//esquina top-right
-			else if (k == (LADO - 1))
-				matrix_zonas[k]= F_ESQ_TOP_RIGHT;
-			//esquina bottom-right
-			else if (k == (MAX_PIEZAS - 1))
-				matrix_zonas[k]= F_ESQ_BOTTOM_RIGHT;
-			//esquina bottom-left
-			else if (k == (MAX_PIEZAS - LADO))
-				matrix_zonas[k]= F_ESQ_BOTTOM_LEFT;
-			//borde top
-			else if ((k > 0) && (k < (LADO - 1)))
-				matrix_zonas[k]= F_BORDE_TOP;
-			//borde right
-			else if (((k+1) % LADO)==0){
-				if ((k != (LADO - 1)) && (k != (MAX_PIEZAS - 1)))
-					matrix_zonas[k]= F_BORDE_RIGHT;
-			}
-			//borde bottom
-			else if ((k > (MAX_PIEZAS - LADO)) && (k < (MAX_PIEZAS - 1)))
-				matrix_zonas[k]= F_BORDE_BOTTOM;
-			//borde left
-			else if ((k % LADO)==0){
-				if ((k != 0) && (k != (MAX_PIEZAS - LADO)))
-					matrix_zonas[k]= F_BORDE_LEFT;
-			}
-		}
-	}
-	
-	/**
-	 * El arreglo zonas_proc_contorno[] me dice en qué posiciones puedo procesar un contorno superior 
-	 * e inferior para setearlo como usado o libre. Solamente sirve a dichos fines, ningún otro.
-	 * NOTA: para contorno inferior se debe chequear a parte que cursor sea [33,238].
-	 */
-	private final static void inicializarZonaProcContornos()
-	{
-		for (int k=0; k < MAX_PIEZAS; ++k)
-		{
-			//si estoy en borde top o bottom continuo con la siguiente posición
-			if (k < LADO || k > (MAX_PIEZAS-LADO))
-				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
-			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
-				continue;
-			
-			//Hasta aqui estoy en el interior del tablero
-			
-			//me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
-			int fila_actual = k / LADO;
-			if (((k - Contorno.MAX_COLS) / LADO) != fila_actual)
-				continue;
-			
-			zona_proc_contorno[k] = true;
-		}
-		
-		System.out.println("Rank " + THIS_PROCESS + ": Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
-		System.out.flush();
-	}
-
-
-	/**
-	 * El arreglo zona_read_contorno[] me dice en qué posiciones puedo leer un contorno para chequear si es usado o no.
-	 */
-	private final static void inicializarZonaReadContornos()
-	{	
-		for (int k=0; k < MAX_PIEZAS; ++k)
-		{
-			//si estoy en borde top o bottom continuo con la siguiente posición
-			if (k < LADO || k > (MAX_PIEZAS-LADO))
-				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
-			if ( (((k+1) % LADO)==0) || ((k % LADO)==0) )
-				continue;
-			
-			//Hasta aqui estoy en el interior del tablero
-			
-			//me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
-			int fila_actual = k / LADO;
-			if ((k + (Contorno.MAX_COLS-1)) < ((fila_actual*LADO) + (LADO-1)))
-				zona_read_contorno[k] = true;
-		}
-	}
-	
-	/**
-	 * Carga cada entrada de la matriz con los indices de las piezas que 
-	 * tienen tales colores en ese orden.
-	 */
-	private final static void cargarSuperEstructura ()
-	{
-		time_inicial=System.nanoTime();
-		
-		llenarSuperEstructura();
-		
-		System.out.println("Rank " + THIS_PROCESS + ": carga de super matriz finalizada (" + TimeUnit.MICROSECONDS.convert(System.nanoTime() - time_inicial, TimeUnit.NANOSECONDS) + " micros)");
-		
-		// combinación de 2 colores consecutivos con mayor número de coincidencias para piezas interiores y para todos los tipos a la vez.
-		/*int maxTotal = 0, maxInterior = 0, key = 0;
-		for (int k=0; k < 4; ++k){
-			for (int i=0; i < MAX_COLORES; ++i)
-				for (int j=0; j < MAX_COLORES; ++j)
-				{
-					switch (k){
-						case 0: key = MapaKeys.getKey(j,MAX_COLORES,MAX_COLORES,i); break;
-						case 1: key = MapaKeys.getKey(i,j,MAX_COLORES,MAX_COLORES); break;
-						case 2: key = MapaKeys.getKey(MAX_COLORES,i,j,MAX_COLORES); break;
-						case 3: key = MapaKeys.getKey(MAX_COLORES,MAX_COLORES,i,j); break;
-						default:break;
-					}
-					// al no filtrar los valores de i y j puedo tener keys inválidas
-					if (key >= super_matriz.length)
-						continue;
-					if (super_matriz[key] != null){
-						// cuento cuantas piezas son interiores
-						Pieza[] arrRef = super_matriz[key].referencias;
-						int parcialC = 0;
-						for (int pp=0, ppn=arrRef.length; pp < ppn; ++pp)
-							if (arrRef[pp].es_interior)
-								++parcialC;
-						maxInterior = Math.max(maxInterior, parcialC);
-						// total de piezas de todo tipo
-						maxTotal = Math.max(maxTotal, super_matriz[key].referencias.length);
-					}
-				}
-		}
-		System.out.println("Maximo num de piezas (incluso rotadas) para 2 colores consecutivos: Total " + maxTotal + ", Interiores " + maxInterior);*/
-	}
-	
-	/**
-	 * Para cada posible combinacion entre los colores de la secciones top, 
-	 * right, bottom y left creo un vector que contendrá las piezas que tengan
-	 * esa combinacion de colores en dichas secciones y ademas guardo en que
-	 * estado de rotacion la cumplen.
-	 */
-	private static final void llenarSuperEstructura ()
-	{
-		// itero sobre el arreglo de piezas
-		for (short k = 0; k < MAX_PIEZAS; ++k) {
-			
-			if (k == NUM_P_CENTRAL)
-				continue;
-			
-			Pieza pz = piezas[k];
-			
-			//guardo la rotación de la pieza
-			byte temp_rot = pz.rotacion;
-			//seteo su rotación en 0. Esto es para generar la matriz siempre en el mismo orden
-			Pieza.llevarArotacion(pz, (byte)0);
-			
-			for (byte rot=0; rot < MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
-			{
-				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
-				if (FairExperimentGif && (pz.top == pz.bottom))
-					continue;
-				
-				//este caso es cuando tengo los 4 colores
-				if (getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz) == null)
-					setNewNodoP(pz.top, pz.right, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz), k, rot);
-				
-				//tengo tres colores y uno faltante
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left, pz) == null)
-					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left, pz) == null)
-					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left, pz) == null)
-					setNewNodoP(pz.top, pz.right, MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz) == null)
-					setNewNodoP(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, MAX_COLORES, pz), k, rot);
-				
-				//tengo dos colores y dos faltantes
-				if (getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz) == null)
-					setNewNodoP(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz) == null)
-					setNewNodoP(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz) == null)
-					setNewNodoP(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(MAX_COLORES, pz.right, pz.bottom, MAX_COLORES, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz) == null)
-					setNewNodoP(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz) == null)
-					setNewNodoP(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, MAX_COLORES, pz.bottom, MAX_COLORES, pz), k, rot);
-				
-				if (getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz) == null)
-					setNewNodoP(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz);
-				NodoPosibles.addReferencia(getNodoFromOriginalKey(pz.top, pz.right, MAX_COLORES, MAX_COLORES, pz), k, rot);
-
-				//tengo un color y tres faltantes
-				//(esta combinación no se usa)
-			}
-			
-			//restauro la rotación
-			Pieza.llevarArotacion(pz, temp_rot);
-		}
-	}
-
-	private final static NodoPosibles getNodoFromOriginalKey(final byte top, final byte right, final byte bottom, final byte left, Pieza p)
-	{
-		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// get NodoPosibles according type of pieza
-		if (Pieza.isInterior(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
-			return super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)];
-		} else if (Pieza.isBorder(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
-			return super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)];
-		} else if (Pieza.isCorner(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
-			return super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)];
-		}
-		return null;
-	}
-	
-	private final static NodoPosibles getNodoIfKeyIsOriginal_interior(final byte top, final byte right, final byte bottom, final byte left)
-	{
-		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// check if key belongs to original keys set
-		if (!bitset.get(key))
-			return null;
-		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
-		return super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)];
-	}
-	
-	private final static NodoPosibles getNodoIfKeyIsOriginal_border(final byte top, final byte right, final byte bottom, final byte left)
-	{
-		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// check if key belongs to original keys set
-		if (!bitset.get(key))
-			return null;
-		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
-		return super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)];
-	}
-	
-	private final static NodoPosibles getNodoIfKeyIsOriginal_corner(final byte top, final byte right, final byte bottom, final byte left)
-	{
-		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// check if key belongs to original keys set
-		if (!bitset.get(key))
-			return null;
-		int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
-		return super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)];
-	}
-	
-	private final static void setNewNodoP(final byte top, final byte right, final byte bottom, final byte left, Pieza p)
-	{
-		int key = NodoPosibles.getKey(top, right, bottom, left);
-		// set key as a valid one
-		bitset.set(key);
-		// create a new NodoPosibles according the type of pieza
-		if (Pieza.isInterior(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_INTERIOR;
-			NodoPosibles nodoPosibles = NodoPosibles.newForKey_interior(keyDiff);
-			super_matriz_interior[PerfectHashFunction2Interior.phash(keyDiff)] = nodoPosibles;
-		} else if (Pieza.isBorder(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_BORDER;
-			NodoPosibles nodoPosibles = NodoPosibles.newForKey_border(keyDiff);
-			super_matriz_border[PerfectHashFunction2Border.phash(keyDiff)] = nodoPosibles;
-		} else if (Pieza.isCorner(p)) {
-			int keyDiff = key - NodoPosibles.KEY_SUBTRACT_CORNER;
-			NodoPosibles nodoPosibles = NodoPosibles.newForKey_corner(keyDiff);
-			super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)] = nodoPosibles;
-		}
-	}
-	
-	/**
-	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
-	 */
-	/*private final static void operarSituacionLimiteAlcanzado (){
-		guardarEstado(NAME_FILE_STATUS);
-		guardarEstado(NAME_FILE_STATUS_COPY);
-		
-		System.out.println("El caso " + CASO + " ha llegado a su limite de exploracion. Exploracion finalizada.");
-	}*/
-	
-	/**
-	 * Carga las piezas desde el archivo NAME_FILE_PIEZAS
-	 */
-	private final static void cargarPiezas () {
-		
-		BufferedReader reader = null;
-		
-		try {
-			// reader= new BufferedReader(new FileReader(NAME_FILE_PIEZAS));
-			reader = new BufferedReader(new InputStreamReader(SolverFasterMPJE.class.getClassLoader().getResourceAsStream(NAME_FILE_PIEZAS)));
-			String linea= reader.readLine();
-			short num=0;
-			while (linea != null){
-				if (num >= MAX_PIEZAS) 
-					throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-				piezas[num]= PiezaFactory.from(linea, num);
-                //PiezaFactory.setFromStringWithNum(linea, num, piezas[num]);
-				linea= reader.readLine();
-				++num;
-			}
-
-			if (num != MAX_PIEZAS)
-				throw new Exception("ERROR. El numero que ingresaste como num de piezas por lado (" + LADO + ") es distinto del que contiene el archivo");
-		}
-		catch (Exception exc){
-			System.out.println(exc.getMessage());
-			throw new RuntimeException(exc);
-		}
-		finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {}
-			}
-		}
-	}
-	
-	/**
-	 * En este metodo se setean las piezas que son fijas al juego. Por ahora solo existe
-	 * una sola pieza fija y es la pieza numero 139 en las posicion 136 real (135 para el
-	 * algoritmo)
-	 */
-	private final static void cargarPiezasFijas () {
-		
-		Pieza piezaCentral = piezas[NUM_P_CENTRAL];
-		piezaCentral.usada= true;
-		//piezaCentral.pos= POSICION_CENTRAL;
-		tablero[POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
-		
-		System.out.println("Rank " + THIS_PROCESS + ": pieza Fija en posicion " + (POSICION_CENTRAL + 1) + " cargada en tablero");
-	}	
 
 	/**
 	 * Carga el ultimo estado de exploración guardado. Si no existe tal estado
@@ -635,7 +177,7 @@ public final class SolverFasterMPJE {
 			// first ask if file exists
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println("Rank " + THIS_PROCESS + " >>> estado de exploracion no existe.");
+				System.out.println(THIS_PROCESS + " >>> estado de exploracion no existe.");
 				System.out.flush();
 				return status_cargado;
 			}
@@ -643,8 +185,9 @@ public final class SolverFasterMPJE {
 			reader= new BufferedReader(new FileReader(f));
 			String linea= reader.readLine();
 			
-			if (linea==null)
-				throw new Exception("First line is null.");
+			if (linea==null) {
+				throw new Exception(THIS_PROCESS + " >>> First line is null.");
+			}
 			else{
 				int sep,sep_ant;
 				
@@ -666,72 +209,70 @@ public final class SolverFasterMPJE {
 				// recorro los indices de las piezas que estaban en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < MAX_PIEZAS; ++k){
-					if (k==(MAX_PIEZAS-1))
+				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
-					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
+					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
-					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
+					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
 					tablero[k]= numPieza == -1 ? null : piezas[numPieza];
 				}
 				
 				// recorro los valores de desde_saved[]
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < MAX_PIEZAS; ++k){
-					if (k==(MAX_PIEZAS-1))
+				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
-					else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
+					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
-					sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
+					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
 					desde_saved[k] = numPieza;
 				}
 				
 				//la siguiente línea indica si se estaba usando poda de color explorado
 				linea= reader.readLine();
 				// recorro los valores de matrix_color_explorado[]
-				if (usar_poda_color_explorado){
+				if (colorRightExploredStrategy != null){
 					if (Boolean.parseBoolean(linea)){
 						//leo la info de matriz_color_explorado
 						linea= reader.readLine();
 						sep=0; sep_ant=0;
-						for (int k=0; k < LADO; ++k){
-							if (k==(LADO-1))
+						for (int k=0; k < Consts.LADO; ++k){
+							if (k==(Consts.LADO-1))
 								sep= linea.length();
-							else sep= linea.indexOf(SECCIONES_SEPARATOR_EN_FILE,sep_ant);
+							else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 							int val= Integer.parseInt(linea.substring(sep_ant,sep));
-							sep_ant= sep+SECCIONES_SEPARATOR_EN_FILE.length();
-							arr_color_rigth_explorado[k] = val;
+							sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
+							colorRightExploredStrategy.set(k, val);
 						}
 					}
 				}
-				
-				cargarPiezas(); //creo las piezas desde el archivo de piezas
 				
 				//las restantes MAX_PIEZAS lineas contienen el estado de rotación y de usada de cada pieza
 				int pos=0; //cuento cuantas lineas voy procesando
 				String splitted[];
 				linea= reader.readLine(); //info de la primer pieza
-				while ((linea != null) && (pos < MAX_PIEZAS)){
-					splitted = linea.split(SECCIONES_SEPARATOR_EN_FILE);
+				while ((linea != null) && (pos < Consts.MAX_PIEZAS)){
+					splitted = linea.split(Consts.SECCIONES_SEPARATOR_EN_FILE);
 					Pieza.llevarArotacion(piezas[pos],Byte.parseByte(splitted[0]));
 					piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
 					linea= reader.readLine();
 					++pos;
 				}
-				if (pos != MAX_PIEZAS){
-					System.out.println("Rank " + THIS_PROCESS + ": ERROR. La cantidad de piezas en el archivo " + n_file + " no coincide con el numero de piezas que el juego espera.");
+				if (pos != Consts.MAX_PIEZAS){
+					System.out.println(THIS_PROCESS + " >>> ERROR. La cantidad de piezas en el archivo " + n_file + " no coincide con el numero de piezas que el juego espera.");
 					throw new Exception("Inconsistent number of pieces.");
 				}
 					
 				status_cargado=true;
 				sincronizar = false;
-				System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion (" + n_file + ") cargado.");
+				System.out.println(THIS_PROCESS + " >>> estado de exploracion (" + n_file + ") cargado.");
 				System.out.flush();
 			}
 		}
 		catch(Exception e){
-			System.out.println("Rank " + THIS_PROCESS + ": estado de exploracion no existe o esta corrupto: " + e.getMessage());
+			System.out.println(THIS_PROCESS + " >>> estado de exploracion no existe o esta corrupto: " + e.getMessage());
 			System.out.flush();
 		}
 		finally {
@@ -748,41 +289,95 @@ public final class SolverFasterMPJE {
 	 * Si el programa es llamado con el argumento retroceder externo en true, entonces
 	 * debo volver la exploracion hasta cierta posicion y guardar estado. No explora.
 	 */
-	private final static void retrocederEstado (){
+	private final static void retrocederEstado () {
+		
 		retroceder= true;
 		cur_destino= DESTINO_RET;
 		
-		while (cursor>=0){
+		while (cursor>=0) {
+			
 			if (!retroceder){
 				mas_bajo_activo= true;
 				mas_bajo= cursor;
-				guardarEstado(NAME_FILE_STATUS);
-				guardarResultadoParcial(false);
-				System.out.println("Rank " + THIS_PROCESS + ": Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, piezas, tablero, cursor, mas_bajo, mas_alto,
+						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, piezas, tablero, sig_parcial,
+						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
+						NAME_FILE_LIBRES_MAX);
+				System.out.println(THIS_PROCESS + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
 				System.out.flush();
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
+			
 			--cursor;
+			
 			//si me paso de la posición inicial significa que no puedo volver mas estados de exploración
 			if (cursor < 0)
 				break; //obliga a salir del while
-			if (cursor != POSICION_CENTRAL){
+			
+			if (cursor != Consts.POSICION_CENTRAL){
 				Pieza pzz= tablero[cursor];
 				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
-				//pzz.pos= -1;
 				tablero[cursor]= null;
 			}
+			
 			//si retrocedió hasta el cursor destino, entonces no retrocedo mas
 			if ((cursor+1) <= cur_destino){
 				retroceder= false;
-				cur_destino= CURSOR_INVALIDO;
+				cur_destino= Consts.CURSOR_INVALIDO;
 			}
+			
 			//si está activado el flag para retroceder niveles de exploración entonces debo limpiar algunas cosas
 			if (retroceder)
 				desde_saved[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 		}
 	}
 	
+	/**
+	 * Inicializa varias estructuras y flags
+	 */
+	public final void setupInicial (ReaderForFile readerForTilesFile) {
+		
+		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
+		CommonFuncs.inicializarMatrixZonas();
+		
+		//seteo las posiciones donde puedo setear un contorno como usado o libre
+		CommonFuncs.inicializarZonaProcesoContornos();
+		System.out.println(THIS_PROCESS + " >>> Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.flush();
+		
+		//seteo las posiciones donde se puede preguntar por contorno superior usado
+		CommonFuncs.inicializarZonaReadContornos();
+		
+		CommonFuncs.cargarPiezas(THIS_PROCESS, piezas, readerForTilesFile);
+		
+		//hago una verificacion de las piezas cargadas
+		CommonFuncs.verificarTiposDePieza(THIS_PROCESS, piezas);
+		
+		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
+		CommonFuncs.cargarSuperEstructura(THIS_PROCESS, piezas, FairExperimentGif, neighborStrategy);
+		
+		// Pruebo cargar el primer status_saved
+		status_cargado = cargarEstado(NAME_FILE_STATUS);
+		if (!status_cargado) {
+			cursor=0;
+			mas_bajo= 0; //este valor se setea empiricamente
+			mas_alto= 0;
+			mas_lejano_parcial_max= 0;
+			status_cargado=false;
+			sincronizar = true;
+		}
+		
+		//cargo las posiciones fijas
+		CommonFuncs.ponerPiezasFijasEnTablero(THIS_PROCESS, piezas, tablero);
+		
+		//seteo como usados los contornos ya existentes en tablero
+		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
+		
+		if (tableboardE2 != null) 
+			tableboardE2.startPainting();
+	}
+
 	/**
 	 * Metodo que carga todo lo necesario antes de empezar la exploracion
 	 * Ademas tiene la responsabilidad de permitir volver estados anteriores 
@@ -795,7 +390,9 @@ public final class SolverFasterMPJE {
 			return;
 		}
 		
-		time_inicial = time_status_saved = System.nanoTime();
+		long nowNanos = System.nanoTime();
+		time_inicial = nowNanos;
+		time_status_saved = nowNanos;
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
@@ -807,7 +404,7 @@ public final class SolverFasterMPJE {
 				if (!retroceder){
 					//pregunto si llegué al limite de esta instancia de exploracion
 					/*if (cursor <= LIMITE_DE_EXPLORACION){
-						operarSituacionLimiteAlcanzado();
+						CommonFuncs.operarSituacionLimiteAlcanzado(NAME_FILE_STATUS, THIS_PROCESS, );
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
@@ -820,13 +417,12 @@ public final class SolverFasterMPJE {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres si no están usados
-				setContornoLibre(cursor);
+				CommonFuncs.setContornoLibre(cursor, contorno, tablero);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
-				if (cursor != POSICION_CENTRAL){
+				if (cursor != Consts.POSICION_CENTRAL){
 					Pieza p = tablero[cursor];
 					p.usada= false;
-					//p.pos= -1;
 					tablero[cursor]= null;
 				}
 				
@@ -834,7 +430,7 @@ public final class SolverFasterMPJE {
 				/*@RETROCEDER
 				if (cursor <= cur_destino){
 					retroceder = false;
-					cur_destino = CURSOR_INVALIDO;
+					cur_destino = Consts.CURSOR_INVALIDO;
 				}
 				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 				if (retroceder)
@@ -844,13 +440,8 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println("Rank " + THIS_PROCESS + ": exploración agotada.");
+		System.out.println(THIS_PROCESS + " >>> exploración agotada.");
 	}
-	
-	
-	//##########################################################################//
-	// METODO CENTRAL. ES EL BACKTRACKING QUE RECORRE EL TABLERO Y COLOCA PIEZAS
-	//##########################################################################//
 	
 	/**
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
@@ -861,13 +452,14 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void explorar (int desde)
 	{
-		/*@FILAS_PRECALCULADASif (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
-			//genero el arreglo de combinaciones de filas
-			calcularFilasDePiezas();
-			combs_hechas = true;
-		}
-		else if (cursor < POSICION_CALCULAR_FILAS)
-			combs_hechas = false; //seteando en false obligo a que se recalculen las filas*/
+//		@FILAS_PRECALCULADAS
+//		if (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
+//			//genero el arreglo de combinaciones de filas
+//			calcularFilasDePiezas();
+//			combs_hechas = true;
+//		}
+//		else if (cursor < POSICION_CALCULAR_FILAS)
+//			combs_hechas = false; //seteando en false obligo a que se recalculen las filas
 		
 		//#############################################################################################
 		/**
@@ -878,9 +470,9 @@ public final class SolverFasterMPJE {
 		//#############################################################################################
 		
 		//si cursor se pasó del limite de piezas, significa que estoy en una solucion
-		if (cursor >= MAX_PIEZAS){
-			guardarSolucion();
-			System.out.println("Rank " + THIS_PROCESS + ": Solucion Encontrada!!");
+		if (cursor >= Consts.MAX_PIEZAS){
+			CommonFuncs.guardarSolucion(THIS_PROCESS, tablero, NAME_FILE_SOLUCION, NAME_FILE_DISPOSICION);
+			System.out.println(THIS_PROCESS + " >>> Solucion Encontrada!!");
 			System.out.flush();
 			return; //evito que la instancia de exporacion continue
 		}
@@ -891,13 +483,15 @@ public final class SolverFasterMPJE {
 			if (cursor >= LIMITE_RESULTADO_PARCIAL){
 				long time_final= System.nanoTime();
 				printBuffer.setLength(0);
-				printBuffer.append("Rank ").append(THIS_PROCESS).append(": ")
+				printBuffer.append(THIS_PROCESS).append(" >>> ")
 					.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
 					.append(" ms, cursor ").append(cursor);
 				System.out.println(printBuffer.toString());
 				System.out.flush();
 				printBuffer.setLength(0);
-				guardarResultadoParcial(true);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(true, THIS_PROCESS, piezas, tablero, sig_parcial,
+						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
+						NAME_FILE_LIBRES_MAX);
 			}
 		}
 		
@@ -909,7 +503,7 @@ public final class SolverFasterMPJE {
 			mas_bajo= cursor;
 		//la siguiente condición se cumple una sola vez
 		if (cursor > 100 && !mas_bajo_activo){
-			mas_bajo= MAX_PIEZAS;
+			mas_bajo= Consts.MAX_PIEZAS;
 			mas_bajo_activo= true;
 		}
 		
@@ -921,10 +515,13 @@ public final class SolverFasterMPJE {
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
 			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
 			count_cycles = 0;
-			guardarEstado(NAME_FILE_STATUS);
-			guardarResultadoParcial(false);
+			CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, piezas, tablero, cursor, mas_bajo, mas_alto,
+					mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
+			sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, piezas, tablero, sig_parcial,
+					MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
+					NAME_FILE_LIBRES_MAX);
 			printBuffer.setLength(0);
-			printBuffer.append("Rank ").append(THIS_PROCESS).append(": Estado guardado en cursor ").append(cursor)
+			printBuffer.append(THIS_PROCESS).append(" >>> Estado guardado en cursor ").append(cursor)
 					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
 					.append(". Tiempo: ").append(durationMillis).append(" ms") 
 					.append(", ").append(piecesPerSec).append(" pieces/sec");
@@ -933,11 +530,12 @@ public final class SolverFasterMPJE {
 			printBuffer.setLength(0);
 			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-			mas_bajo= MAX_PIEZAS;
+			mas_bajo= Consts.MAX_PIEZAS;
 			mas_alto= 0;
 		}
 		
 		//#############################################################################################
+		
 		
 		//#############################################################################################
 		/**
@@ -949,26 +547,27 @@ public final class SolverFasterMPJE {
 		
 		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
 		// Se supone que la pieza fija ya está debidamente colocada.
-		if (cursor == POSICION_CENTRAL){
+		if (cursor == Consts.POSICION_CENTRAL){
 			
 			//seteo los contornos como usados
-			setContornoUsado(cursor);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
 			
 			++cursor;
 			explorar(0);
 			--cursor;
 			
 			//seteo los contornoscomo libres
-			setContornoLibre(cursor);
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
 			/*@RETROCEDER
 			if (cursor <= cur_destino){
 				retroceder= false;
-				cur_destino=CURSOR_INVALIDO;
+				cur_destino= Consts.CURSOR_INVALIDO;
 			}*/
 			return;
 		}
 		
 		//#############################################################################################
+		
 		
 		//#############################################################################################
 		/**
@@ -978,7 +577,7 @@ public final class SolverFasterMPJE {
 		//#############################################################################################
 		
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (esContornoSuperiorUsado(cursor))
+		if (CommonFuncs.esContornoSuperiorUsado(cursor, contorno, tablero))
 			return;
 		
 		// sincronización de los procesos (Knock Knock) una única vez
@@ -988,17 +587,21 @@ public final class SolverFasterMPJE {
 		}
 
 		//pregunto si estoy en una posicion donde puedo preguntar por filas libres y/o cargar fila
-		/*@FILAS_PRECALCULADASif (zonas_cargar_fila[cursor]){
-			//cargo fila precalculadas
-			if (cargarFilasGuardadas() == false)
-				return;
-		}*/
+//		@FILAS_PRECALCULADAS
+//		if (zonas_cargar_fila[cursor]){
+//			//cargo fila precalculadas
+//			if (cargarFilasGuardadas() == false)
+//				return;
+//		}
 		
 		//#############################################################################################
 		
+		
 		//#############################################################################################
+		
 		//ahora hago la exploracion
 		exploracionStandard(desde);
+		
 		//#############################################################################################
 	}
 	
@@ -1019,20 +622,20 @@ public final class SolverFasterMPJE {
 		}
 		else
 		{
-			System.out.println("Rank " + THIS_PROCESS + ": --- Esperando sincronizarse...");
+			System.out.println(THIS_PROCESS + " >>> --- Esperando sincronizarse...");
 			System.out.flush();
 			mpi_send_info[0] = MESSAGE_HALT;
 			// espero recibir mensaje
 			mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO); //el tag identifica al mensaje
 			if (mpi_send_info[0] == MESSAGE_SINCRO) {
-				System.out.println("Rank " + THIS_PROCESS + ": --- Sincronizado with msg " + mpi_send_info[0]);
+				System.out.println(THIS_PROCESS + " >>> --- Sincronizado with msg " + mpi_send_info[0]);
 				System.out.flush();
 			}
 			else if (mpi_send_info[0] == MESSAGE_HALT)
 				;
 		}
 		
-		System.out.println("Rank " + THIS_PROCESS + ": --- Continua procesando.");
+		System.out.println(THIS_PROCESS + " >>> --- Continua procesando.");
 		System.out.flush();
 		
 		/*try {
@@ -1054,7 +657,7 @@ public final class SolverFasterMPJE {
 	private final static void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		final NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
+		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(cursor, tablero, neighborStrategy);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -1110,34 +713,33 @@ public final class SolverFasterMPJE {
 			++count_cycles; // incremento el contador de combinaciones de piezas
 			
 			// pregunto si está activada la poda del color right explorado en borde left
-//			if (usar_poda_color_explorado) {
-//				testPodaColorRightExplorado(flag_zona, p);
-//			}
+			if (colorRightExploredStrategy != null) {
+				CommonFuncs.testPodaColorRightExplorado(cursor, p, colorRightExploredStrategy);
+			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
 			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza
 			p.usada = true; // en este punto la pieza va a ser usada
 			Pieza.llevarArotacion(p, rot);
-			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
-
+			
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
-			/*@CONTORNO_INFERIORif (esContornoInferiorUsado(cursor)){
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				continue;
-			}*/
+//			@CONTORNO_INFERIOR
+//			if (esContornoInferiorUsado(cursor)){
+//				p.usada = false; //la pieza ahora no es usada
+//				continue;
+//			}
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
-//			if (FairExperimentGif) {
-//				if (testFairExperimentGif(flag_zona, p))
-//					continue;
-//			}
+			if (FairExperimentGif) {
+				if (CommonFuncs.testFairExperimentGif(cursor, p, tablero))
+					continue;
+			}
 
 			// seteo los contornos como usados
-			setContornoUsado(cursor);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
 				
 			//##########################
 			// Llamo una nueva instancia
@@ -1147,19 +749,19 @@ public final class SolverFasterMPJE {
 			//##########################
 				
 			// seteo los contornos como libres
-			setContornoLibre(cursor);
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
 			
 			p.usada = false; //la pieza ahora no es usada
-			//p.pos= -1;
 			
 			// si retrocedió hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
-			/*if (cursor <= cur_destino){
-				retroceder= false;
-				cur_destino=CURSOR_INVALIDO;
-			}
-			// caso contrario significa que todavia tengo que seguir retrocediendo
-			if (retroceder)
-				break;*/
+//			@RETROCEDER
+//			if (cursor <= cur_destino){
+//				retroceder= false;
+//				cur_destino=CURSOR_INVALIDO;
+//			}
+//			// caso contrario significa que todavia tengo que seguir retrocediendo
+//			if (retroceder)
+//				break;
 		}
 
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
@@ -1172,398 +774,4 @@ public final class SolverFasterMPJE {
 			pos_multi_process_offset = 0;
 	}
 
-
-	private final static boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
-		final int fila_actual = cursor >>> LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-
-		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (LADO - 1)) == 0;
-
-		// si estoy antes del borde right limpio el arreglo de colores right usados
-		if (flag_antes_borde_right)
-			arr_color_rigth_explorado[fila_actual + 1] = 0;
-		
-		if (flag_zona == F_BORDE_LEFT)
-		{
-			final int mask = 1 << p.right;
-			
-			// pregunto si el color right de la pieza de borde left actual ya está explorado
-			if ((arr_color_rigth_explorado[fila_actual] & mask) != 0) {
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				return true; // sigo con otra pieza de borde
-			}
-			// si no es así entonces lo seteo como explorado
-			else {
-				arr_color_rigth_explorado[fila_actual] |= mask;
-				// int value = arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
-				// arr_color_rigth_explorado.getAndSet(fila_actual, value);
-			}
-		}
-		
-		return false;
-	}
-	
-	private final static boolean testFairExperimentGif(final byte flag_zona, Pieza p) {
-		if (flag_zona == F_INTERIOR || flag_zona == F_BORDE_TOP) {
-			if (p.bottom == tablero[cursor-1].bottom){
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				return true;
-			}
-		}
-		return false;
-	}
-
-
-	//##########################################################################//
-	//##########################################################################//
-	//          ALGUNOS METODOS QUE HACEN COSAS PARA LA EXPLORACION
-	//##########################################################################//
-	//##########################################################################//
-
-	/**
-	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de NodoPosibles 
-	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
-	 *  
-	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
-	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
-	 */
-	private final static NodoPosibles obtenerPosiblesPiezas (int _cursor)
-	{
-		switch (_cursor) {
-			// estoy en la posicion inmediatamente arriba de la posicion central
-			case SOBRE_POSICION_CENTRAL:
-				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, MAX_COLORES, piezas[NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
-			// estoy en la posicion inmediatamente a la izq de la posicion central
-			case ANTE_POSICION_CENTRAL:
-				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, piezas[NUM_P_CENTRAL].left, MAX_COLORES, tablero[_cursor - 1].right);
-		}
-		
-		switch (matrix_zonas[_cursor]) {
-			// interior de tablero
-			case F_INTERIOR: 
-				return getNodoIfKeyIsOriginal_interior(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
-
-			// borde right
-			case F_BORDE_RIGHT:
-				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
-			// borde left
-			case F_BORDE_LEFT:
-				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
-			// borde top
-			case F_BORDE_TOP:
-				return getNodoIfKeyIsOriginal_border(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, tablero[_cursor - 1].right);
-			// borde bottom
-			case F_BORDE_BOTTOM:
-				return getNodoIfKeyIsOriginal_border(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-		
-			// esquina top-left
-			case F_ESQ_TOP_LEFT:
-				return getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, MAX_COLORES, MAX_COLORES, PiezaFactory.GRIS);
-			// esquina top-right
-			case F_ESQ_TOP_RIGHT:
-				return getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, PiezaFactory.GRIS, MAX_COLORES, tablero[_cursor - 1].right);
-			// esquina bottom-left
-			case F_ESQ_BOTTOM_LEFT: 
-				return getNodoIfKeyIsOriginal_corner(tablero[_cursor - LADO].bottom, MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
-			// esquina bottom-right
-			case F_ESQ_BOTTOM_RIGHT:
-				return getNodoIfKeyIsOriginal_corner(tablero[_cursor - LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-		}
-		
-		return null;
-	}
-	
-	private final static void setContornoUsado(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_proc_contorno[_cursor] == true) {
-			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
-		}
-	}
-	
-	private final static void setContornoLibre(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_proc_contorno[_cursor] == true) {
-			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
-		}
-	}
-
-	private final static boolean esContornoSuperiorUsado(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_read_contorno[_cursor] == true) {
-			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor-LADO].bottom][tablero[_cursor-LADO + 1].bottom];
-		}
-		return false;
-	}
-	
-	/**
-	 * Veririfica que no exista pieza extraña o que falte alguna pieza. 
-	 * Solo se usa al cargar las piezas desde archivo o al cargar estado.
-	 */
-	private final static void verificarTiposDePieza (){
-		int n_esq= 0;
-		int n_bordes= 0;
-		int n_interiores= 0;
-	
-		for (int g=0; g < MAX_PIEZAS; ++g){
-			Pieza pzx = piezas[g];
-			if (Pieza.isInterior(pzx))
-				++n_interiores;
-			else if (Pieza.isBorder(pzx))
-				++n_bordes;
-			else if (Pieza.isCorner(pzx))
-				++n_esq;
-		}
-		if ((n_esq != 4) || (n_bordes != (4*(LADO-2))) || (n_interiores != (MAX_PIEZAS - (n_esq + n_bordes)))) {
-			System.out.println("ERROR. Existe una o varias piezas incorrectas.");
-			throw new RuntimeException("ERROR. Existe una o varias piezas incorrectas.");
-		}
-	}
-	
-	
-	
-	//##########################################################################//
-	//##########################################################################//
-	//         METODOS cuyo fin es GUARDAR algo en archivos o en memoria
-	//##########################################################################//
-	//##########################################################################//
-	
-	/**
-	 * Genera un archivo de piezas para leer con el editor visual e2editor.exe, otro archivo
-	 * que contiene las disposiciones de cada pieza en el tablero, y otro archivo que me dice
-	 * las piezas no usadas (generado solo si max es true).
-	 * Si max es true, el archivo generado es el que tiene la mayor disposición de piezas encontrada.
-	 * Si max es false, el archivo generado contiene la disposición de piezas en el instante cuando
-	 * se guarda estado.
-	 */
-	private final static void guardarResultadoParcial (final boolean max){
-		
-		if (MAX_NUM_PARCIAL == 0 && !max)
-			return;
-		
-		try {
-			PrintWriter wParcial= null;
-			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
-			PrintWriter wDispMax= null;
-			StringBuilder parcialBuffer= new StringBuilder(256 * 13);
-			StringBuilder dispMaxBuff= new StringBuilder(256 * 13);
-			
-			if (max){
-				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL_MAX)));
-				wDispMax= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICIONES_MAX)));
-				dispMaxBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
-			}
-			else{
-				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_PARCIAL+"_"+sig_parcial+".txt")));
-				++sig_parcial;
-				if (sig_parcial > MAX_NUM_PARCIAL)
-					sig_parcial= 1;
-			}
-			
-			for (int b=0; b<MAX_PIEZAS; ++b){
-				int pos= b+1;
-				Pieza p= tablero[b];
-				if (p == null){
-					parcialBuffer.append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append("\n");
-					if (max)
-						dispMaxBuff.append("-").append(SECCIONES_SEPARATOR_EN_FILE).append("-").append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
-				}
-				else {
-					parcialBuffer.append(p.top).append(SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
-					if (max)
-						dispMaxBuff.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
-				}
-			}
-			
-			String sParcial = parcialBuffer.toString();
-			String sDispMax = dispMaxBuff.toString();
-			
-			// parcial siempre se va a guardar
-			wParcial.append(sParcial);
-			wParcial.flush();
-			wParcial.close();
-			
-			// solo guardamos max si es una instancia de max
-			if (max){
-				wDispMax.append(sDispMax);
-				wDispMax.flush();
-				wDispMax.close();
-			}
-			
-			// guardar los libres solo si es max instance
-			if (max)
-				guardarLibres();
-		}
-		catch(Exception ex) {
-			System.out.println("Rank " + THIS_PROCESS + ": ERROR: No se pudieron generar los archivos de resultado parcial.");
-			System.out.println(ex);
-		}
-	}
-	
-	/**
-	 * Me guarda en el archivo NAME_FILE_LIBRES_MAX las numeros de las piezas que quedaron libres.
-	 */
-	private final static void guardarLibres (){
-		try{
-			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_LIBRES_MAX)));
-			StringBuilder wLibresBuffer= new StringBuilder(256 * 13);
-			
-			for (int b=0; b < MAX_PIEZAS; ++b) {
-				Pieza pzx= piezas[b];
-				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.numero + 1).append("\n");
-			}
-			
-			for (int b=0; b < MAX_PIEZAS; ++b) {
-				Pieza pzx= piezas[b];
-				if (pzx.usada == false)
-					wLibresBuffer.append(PiezaStringer.toStringColores(pzx)).append("\n");
-			}
-			
-			String sContent = wLibresBuffer.toString();
-			wLibres.append(sContent);
-			wLibres.flush();
-			wLibres.close();
-		}
-		catch (Exception escp) {
-			System.out.println("ERROR: No se pudo generar el archivo " + NAME_FILE_LIBRES_MAX);
-			System.out.println(escp);
-		}
-	}
-	
-	/**
-	 * En el archivo NAME_FILE_SOLUCION se guardan los colores de cada pieza.
-	 * En el archivo NAME_FILE_DISPOSICION se guarda el numero y rotacion de cada pieza.
-	 */
-	private final static void guardarSolucion (){
-		try{
-			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_SOLUCION,true)));
-			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(NAME_FILE_DISPOSICION,true)));
-			StringBuilder contenidoDisp= new StringBuilder(256 * 13);
-			
-			wSol.println("Solucion para " + MAX_PIEZAS + " piezas");
-			wDisp.println("Disposicion para " + MAX_PIEZAS + " piezas.");
-			contenidoDisp.append("Disposicion para " + MAX_PIEZAS + " piezas.\n");
-			wDisp.println("(num pieza) (estado rotacion) (posicion en tablero real)");
-			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
-			
-			for (int b=0; b<MAX_PIEZAS; ++b){
-				Pieza p= tablero[b];
-				int pos= b+1;
-				wSol.println(p.top + SECCIONES_SEPARATOR_EN_FILE + p.right + SECCIONES_SEPARATOR_EN_FILE + p.bottom + SECCIONES_SEPARATOR_EN_FILE + p.left);
-				wDisp.println((p.numero + 1) + SECCIONES_SEPARATOR_EN_FILE + p.rotacion + SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(p.numero + 1).append(SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
-			}
-			wSol.println();
-			wSol.println("-----------------------------------------------------------------");
-			wSol.println();
-			wDisp.println();
-			wDisp.println("-----------------------------------------------------------------");
-			wDisp.println();
-			wSol.flush();
-			wDisp.flush();
-			wSol.close();
-			wDisp.close();
-		}
-		catch(Exception ex){
-			System.out.println("ERROR: No se pudo guardar la solucion!! QUE MACANA!!! (guardarSolucion())");
-			System.out.println(ex);
-		}
-	}
-	
-	/**
-	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
-	 */
-	private final static void guardarEstado (String f_name)
-	{
-		try{
-			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f_name)));
-			StringBuilder writerBuffer = new StringBuilder(256 * 13);
-
-			//guardo el valor de mas_bajo
-			writerBuffer.append(mas_bajo).append("\n");
-			
-			//guardo el valor de mas_alto
-			writerBuffer.append(mas_alto).append("\n");
-			
-			//guardo el valor de mas_lejano 
-			writerBuffer.append(mas_lejano_parcial_max).append("\n");
-			
-			//guardo el valor del cursor
-			writerBuffer.append(cursor).append("\n");
-			
-			//guardo los indices de piezas de tablero[]
-			for (int n=0; n < MAX_PIEZAS; ++n) {
-				if (n==(MAX_PIEZAS-1)){
-					if (tablero[n] == null)
-						writerBuffer.append("-1").append("\n");
-					else
-						writerBuffer.append(tablero[n].numero).append("\n");
-				}
-				else {
-					if (tablero[n] == null)
-						writerBuffer.append("-1").append("\n");
-					else
-						writerBuffer.append((tablero[n])).append(SECCIONES_SEPARATOR_EN_FILE);
-				}
-			}
-			
-			//########################################################################
-			/**
-			 * Calculo los valores para desde_saved[]
-			 */
-			//########################################################################
-			int _cursor=0;
-			for (; _cursor < cursor; ++_cursor) {
-				if (_cursor == POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
-					continue;
-				//tengo el valor para desde_saved[]
-				desde_saved[_cursor] = NodoPosibles.getUbicPieza(obtenerPosiblesPiezas(_cursor), tablero[_cursor].numero);
-			}
-			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;_cursor < MAX_PIEZAS; ++_cursor)
-				desde_saved[_cursor] = 0;
-			//########################################################################
-			
-			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking
-			for (int n=0; n < MAX_PIEZAS; ++n) {
-				if (n==(MAX_PIEZAS-1))
-					writerBuffer.append(desde_saved[n]).append("\n");
-				else
-					writerBuffer.append(desde_saved[n]).append(SECCIONES_SEPARATOR_EN_FILE);
-			}
-			
-			//indico si se utiliza poda de color explorado o no
-			writerBuffer.append(usar_poda_color_explorado).append("\n");
-			
-			//guardo el contenido de matrix_color_explorado
-			if (usar_poda_color_explorado) {
-				for (int n=0; n < LADO; ++n)
-					if (n==(LADO-1))
-						writerBuffer.append(arr_color_rigth_explorado[n]).append("\n");
-					else
-						writerBuffer.append(arr_color_rigth_explorado[n]).append(SECCIONES_SEPARATOR_EN_FILE);
-			}
-			
-			//guardo el estado de rotación y el valor de usada de cada pieza
-			for (int n=0; n < MAX_PIEZAS; ++n)
-			{
-				writerBuffer.append(piezas[n].rotacion).append(SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(piezas[n].usada)).append("\n");
-			}
-			
-			String sContent = writerBuffer.toString();
-			writer.append(sContent);
-			writer.flush();
-			writer.close();
-		}
-		catch(Exception e){
-			System.out.println("ERROR: No se pudo guardar el estado de la exploración.");
-			System.out.println(e);
-		}
-	}
 }

@@ -25,21 +25,23 @@ package org.fabri1983.eternity2.faster;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.fabri1983.eternity2.core.CommonFuncs;
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.NodoPosibles;
 import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.core.PiezaFactory;
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class ExploracionAction implements Runnable {
 
 	String statusFileName, parcialFileName, parcialMaxFileName, 
 			disposicionMaxFileName, libresMaxFileName, solucFileName, dispFileName;
 	
-	public final Pieza[] piezas = new Pieza[SolverFaster.MAX_PIEZAS];
-	public final Pieza[] tablero = new Pieza[SolverFaster.MAX_PIEZAS];
+	public final Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
+	public final Pieza[] tablero = new Pieza[Consts.MAX_PIEZAS];
 	
 	public int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	final short[] desde_saved = new short[SolverFaster.MAX_PIEZAS];
+	final short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	private final Contorno contorno = new Contorno();
 	boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
@@ -54,59 +56,50 @@ public class ExploracionAction implements Runnable {
 	
 	private final long MAX_CICLOS;
 	private int num_processes;
-	private final int POSICION_START_FORK_JOIN;
 	private final int LIMITE_RESULTADO_PARCIAL;
-	private final boolean usar_poda_color_explorado;
-	private final boolean FairExperimentGif;
-	private final boolean usarTableroGrafico;
+	
 	private long count_cycles;
-	private final int[] num_processes_orig = new int[SolverFaster.MAX_PIEZAS];
+	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	private StringBuilder printBuffer = new StringBuilder(64);
 	
 	private CountDownLatch startSignal;
 	
-	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int _pos_start_fork_join, 
-			int limite_resultado_parcial, boolean _FairExperimentGif, boolean _usar_poda_color_explorado, 
-			boolean _usarTableroGrafico, CountDownLatch startSignal) {
+	public ExploracionAction(int _id, int _num_processes, long _max_ciclos, int limite_resultado_parcial, CountDownLatch startSignal) {
 		
 		id = _id;
 		MAX_CICLOS = _max_ciclos;
 		num_processes = _num_processes;
-		POSICION_START_FORK_JOIN = _pos_start_fork_join;
 		LIMITE_RESULTADO_PARCIAL = limite_resultado_parcial;
-		FairExperimentGif = _FairExperimentGif;
-		usar_poda_color_explorado = _usar_poda_color_explorado;
-		usarTableroGrafico = _usarTableroGrafico;
 		
-		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + SolverFaster.FILE_EXT;
-		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + id + SolverFaster.FILE_EXT;
-		parcialMaxFileName = SolverFaster.NAME_FILE_PARCIAL_MAX + "_" + id + SolverFaster.FILE_EXT;
-		disposicionMaxFileName = SolverFaster.NAME_FILE_DISPOSICIONES_MAX + "_" + id + SolverFaster.FILE_EXT;
-		libresMaxFileName = SolverFaster.NAME_FILE_LIBRES_MAX + "_" + id + SolverFaster.FILE_EXT;
-		solucFileName = SolverFaster.NAME_FILE_SOLUCION + "_" + id + SolverFaster.FILE_EXT;
-		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + SolverFaster.FILE_EXT;
+		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + Consts.FILE_EXT;
+		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + id + Consts.FILE_EXT;
+		parcialMaxFileName = SolverFaster.NAME_FILE_PARCIAL_MAX + "_" + id + Consts.FILE_EXT;
+		disposicionMaxFileName = SolverFaster.NAME_FILE_DISPOSICIONES_MAX + "_" + id + Consts.FILE_EXT;
+		libresMaxFileName = SolverFaster.NAME_FILE_LIBRES_MAX + "_" + id + Consts.FILE_EXT;
+		solucFileName = SolverFaster.NAME_FILE_SOLUCION + "_" + id + Consts.FILE_EXT;
+		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + Consts.FILE_EXT;
 
 		this.startSignal = startSignal;
 	}
 
-	public void setupInicial() {
+	public void setupInicial(ReaderForFile readerForTilesFile) {
 		
 		// cargo las piezas desde archivo de piezas
-		SolverFaster.cargarPiezas(this);
+		CommonFuncs.cargarPiezas(id, piezas, readerForTilesFile);
 		
 		// hago una verificacion de las piezas cargadas
-		SolverFaster.verificarTiposDePieza(this);
+		CommonFuncs.verificarTiposDePieza(id, piezas);
 		
 		// Pruebo cargar el primer status_saved
 		status_cargado = SolverFaster.cargarEstado(statusFileName, this);
 		
 		// cargo las posiciones fijas
-		SolverFaster.cargarPiezasFijas(this);
+		CommonFuncs.ponerPiezasFijasEnTablero(id, piezas, tablero);
 		
 		// seteo como usados los contornos ya existentes en tablero
-		Contorno.inicializarContornos(contorno, tablero, SolverFaster.MAX_PIEZAS, SolverFaster.LADO);
+		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
 	}
 
 	public void resetForBenchmark(int _num_processes, CountDownLatch startSignal) {
@@ -161,7 +154,9 @@ public class ExploracionAction implements Runnable {
 		
 		System.out.println(id + " >>> Buscando soluciones...");
 		
-		time_inicial = time_status_saved = System.nanoTime();
+		long nowNanos = System.nanoTime();
+		time_inicial = nowNanos;
+		time_status_saved = nowNanos;
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
@@ -173,7 +168,7 @@ public class ExploracionAction implements Runnable {
 				if (!retroceder) {
 					// pregunto si llegué al limite de esta instancia de exploracion
 					/*if (cursor <= SolverFaster.LIMITE_DE_EXPLORACION) {
-						SolverFaster.operarSituacionLimiteAlcanzado(this);
+						CommonFuncs.operarSituacionLimiteAlcanzado(statusFileName, id, );
 						return;
 					}*/
 					//creo una nueva instancia de exploracion
@@ -186,13 +181,12 @@ public class ExploracionAction implements Runnable {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres
-				setContornoLibre(cursor);
+				CommonFuncs.setContornoLibre(cursor, contorno, tablero);
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
-				if (cursor != SolverFaster.POSICION_CENTRAL) {
+				if (cursor != Consts.POSICION_CENTRAL) {
 					Pieza p = tablero[cursor];
 					p.usada= false;
-					//p.pos= -1;
 					tablero[cursor]= null;
 				}
 				
@@ -200,7 +194,7 @@ public class ExploracionAction implements Runnable {
 				/*@RETROCEDER
 				if (cursor <= cur_destino){
 					retroceder = false;
-					cur_destino = CURSOR_INVALIDO;
+					cur_destino = Consts.CURSOR_INVALIDO;
 				}
 				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 				if (retroceder)
@@ -213,11 +207,6 @@ public class ExploracionAction implements Runnable {
 		System.out.println(id + " >>> exploracion agotada.");
 	}
 	
-	
-	//##########################################################################//
-	// METODO CENTRAL. ES EL BACKTRACKING QUE RECORRE EL TABLERO Y COLOCA PIEZAS
-	//##########################################################################//
-
 	/**
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
@@ -226,7 +215,16 @@ public class ExploracionAction implements Runnable {
 	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
 	 */
 	private final void explorar(int desde)
-	{	
+	{
+//		@FILAS_PRECALCULADAS
+//		if (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
+//			//genero el arreglo de combinaciones de filas
+//			calcularFilasDePiezas();
+//			combs_hechas = true;
+//		}
+//		else if (cursor < POSICION_CALCULAR_FILAS)
+//			combs_hechas = false; //seteando en false obligo a que se recalculen las filas
+			
 		//#############################################################################################
 		/**
 		 * Cabeza de exploración.
@@ -234,9 +232,10 @@ public class ExploracionAction implements Runnable {
 		 * algunas cositas antes de empezar una nueva instancia de exploracion.
 		 */
 		//#############################################################################################
+		
 		//si cursor se pasa del limite de piezas, significa que estoy en una solucion
-		if (cursor >= SolverFaster.MAX_PIEZAS) {
-			SolverFaster.guardarSolucion(this);
+		if (cursor >= Consts.MAX_PIEZAS) {
+			CommonFuncs.guardarSolucion(id, tablero, solucFileName, dispFileName);
 			System.out.println(id + " >>> Solucion Encontrada!!");
 			return; //evito que la instancia de exploracion continue
 		}
@@ -252,7 +251,8 @@ public class ExploracionAction implements Runnable {
 					.append(" ms, cursor ").append(cursor);
 				System.out.println(printBuffer.toString());
 				printBuffer.setLength(0);
-				SolverFaster.guardarResultadoParcial(true, this);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(true, id, piezas, tablero, sig_parcial, SolverFaster.MAX_NUM_PARCIAL, 
+						parcialFileName, parcialMaxFileName, disposicionMaxFileName, libresMaxFileName);
 			}
 		}
 		
@@ -264,12 +264,11 @@ public class ExploracionAction implements Runnable {
 			mas_bajo = cursor;
 		//la siguiente condición se cumple una sola vez
 		if (cursor > 100 && !mas_bajo_activo) {
-			mas_bajo = SolverFaster.MAX_PIEZAS;
+			mas_bajo = Consts.MAX_PIEZAS;
 			mas_bajo_activo = true;
 		}
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
-		
 		if (count_cycles >= MAX_CICLOS) {
 			//calculo el tiempo transcurrido desd el último time_status_saved 
 			long nanoTimeNow = System.nanoTime();
@@ -277,10 +276,12 @@ public class ExploracionAction implements Runnable {
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
 			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
 			count_cycles = 0;
-			if (usarTableroGrafico)
+			if (SolverFaster.usarTableroGrafico)
 				SolverFaster.count_cycles[id] = 0;
-			SolverFaster.guardarEstado(statusFileName, this);
-			SolverFaster.guardarResultadoParcial(false, this);
+			CommonFuncs.guardarEstado(statusFileName, id, piezas, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, 
+					desde_saved, SolverFaster.neighborStrategy, SolverFaster.colorRightExploredStrategy);
+			sig_parcial = CommonFuncs.guardarResultadoParcial(false, id, piezas, tablero, sig_parcial, SolverFaster.MAX_NUM_PARCIAL, 
+					parcialFileName, parcialMaxFileName, disposicionMaxFileName, libresMaxFileName);
 			printBuffer.setLength(0);
 			printBuffer.append(id).append(" >>> Estado guardado en cursor ").append(cursor)
 					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
@@ -290,7 +291,7 @@ public class ExploracionAction implements Runnable {
 			printBuffer.setLength(0);
 			time_status_saved = nanoTimeNow;
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-			mas_bajo = SolverFaster.MAX_PIEZAS;
+			mas_bajo = Consts.MAX_PIEZAS;
 			mas_alto = 0;
 		}
 		//#############################################################################################
@@ -306,22 +307,22 @@ public class ExploracionAction implements Runnable {
 		
 		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
 		// Se supone que la pieza fija ya está debidamente colocada.
-		if (cursor == SolverFaster.POSICION_CENTRAL) {
+		if (cursor == Consts.POSICION_CENTRAL) {
 			
 			//seteo los contornos como usados
-			setContornoUsado(cursor);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
 			
 			++cursor;
 			explorar(0);
 			--cursor;
 			
 			//seteo los contornoscomo libres
-			setContornoLibre(cursor);
-			/*@RETROCEDER
-			if (cursor <= cur_destino){
-				retroceder= false;
-				cur_destino=CURSOR_INVALIDO;
-			}*/
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
+//			@RETROCEDER
+//			if (cursor <= cur_destino){
+//				retroceder= false;
+//				cur_destino= Consts.CURSOR_INVALIDO;
+//			}
 			return;
 		}
 		//#############################################################################################
@@ -335,15 +336,25 @@ public class ExploracionAction implements Runnable {
 		//#############################################################################################
 		
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (esContornoSuperiorUsado(cursor))
+		if (CommonFuncs.esContornoSuperiorUsado(cursor, contorno, tablero))
 			return;
 
+		//pregunto si estoy en una posicion donde puedo preguntar por filas libres y/o cargar fila
+//		@FILAS_PRECALCULADAS
+//		if (zonas_cargar_fila[cursor]){
+//			//cargo fila precalculadas
+//			if (cargarFilasGuardadas() == false)
+//				return;
+//		}
+		
 		//#############################################################################################
 		
 		
 		//#############################################################################################
+		
 		//ahora hago la exploracion
 		exploracionStandard(desde);
+		
 		//#############################################################################################
 	}
 	
@@ -357,7 +368,7 @@ public class ExploracionAction implements Runnable {
 	private final void exploracionStandard(int desde)
 	{
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		NodoPosibles nodoPosibles = obtenerPosiblesPiezas(cursor);
+		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(cursor, tablero, SolverFaster.neighborStrategy);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -367,7 +378,7 @@ public class ExploracionAction implements Runnable {
 
 		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos.
-		if (cursor == POSICION_START_FORK_JOIN + pos_multi_process_offset) {
+		if (cursor == SolverFaster.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
 			int this_proc_absolute = id % num_processes;
 
@@ -414,39 +425,38 @@ public class ExploracionAction implements Runnable {
 				continue; //es usada, pruebo con la siguiente pieza
 	
 			++count_cycles;
-			if (usarTableroGrafico)
+			if (SolverFaster.usarTableroGrafico)
 				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
 				
 			// pregunto si está activada la poda del color right explorado en borde left
-//			if (usar_poda_color_explorado) {
-//				if (testPodaColorRightExplorado(flag_zona, p))
-//					continue;
-//			}
+			if (SolverFaster.colorRightExploredStrategy != null) {
+				if (CommonFuncs.testPodaColorRightExplorado(cursor, p, SolverFaster.colorRightExploredStrategy))
+					continue;
+			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
 			tablero[cursor] = p; //en la posicion "cursor" del tablero pongo la pieza
 			p.usada = true; //en este punto la pieza va a ser usada
 			Pieza.llevarArotacion(p, rot);
-			//p.pos= cursor; //la pieza sera usada en la posicion cursor
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
-	
+			
 			// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
-			/*@CONTORNO_INFERIORif (esContornoInferiorUsado()){
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				continue;
-			}*/
+//			@CONTORNO_INFERIOR
+//			if (esContornoInferiorUsado()){
+//				p.usada = false; //la pieza ahora no es usada
+//				continue;
+//			}
 			
 			//FairExperiment.gif: color bottom repetido en sentido horizontal
-//			if (FairExperimentGif) {
-//				if (testFairExperimentGif(flag_zona, p))
-//					continue;
-//			}
+			if (SolverFaster.FairExperimentGif) {
+				if (CommonFuncs.testFairExperimentGif(cursor, p, tablero))
+					continue;
+			}
 	
 			//seteo los contornos como usados
-			setContornoUsado(cursor);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
 				
 			//##########################
 			//Llamo una nueva instancia
@@ -456,20 +466,19 @@ public class ExploracionAction implements Runnable {
 			//##########################
 				
 			//seteo los contornos como libres
-			setContornoLibre(cursor);
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
 			
 			p.usada = false; //la pieza ahora no es usada
-			//p.pos= -1;
 			
 			//si retrocedí hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
-			/*@RETROCEDER
-			if (cursor <= cur_destino){
-				retroceder= false;
-				cur_destino=CURSOR_INVALIDO;
-			}
-			//caso contrario significa que todavia tengo que seguir retrocediendo
-			if (retroceder)
-				break;*/
+//			@RETROCEDER
+//			if (cursor <= cur_destino){
+//				retroceder= false;
+//				cur_destino= Consts.CURSOR_INVALIDO;
+//			}
+//			//caso contrario significa que todavia tengo que seguir retrocediendo
+//			if (retroceder)
+//				break;
 		}//fin bucle posibles piezas
 		
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
@@ -482,133 +491,4 @@ public class ExploracionAction implements Runnable {
 			pos_multi_process_offset = 0;
 	}
 
-	private final boolean testPodaColorRightExplorado(final byte flag_zona, Pieza p) {
-		
-		final int fila_actual = cursor >>> SolverFaster.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
-		
-		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (SolverFaster.LADO - 1)) == 0;
-		
-		// si estoy antes del borde right limpio el arreglo de colores right usados
-		if (flag_antes_borde_right)
-			SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual + 1, 0);
-		
-		if (flag_zona == SolverFaster.F_BORDE_LEFT)
-		{
-			final int mask = 1 << p.right;
-			
-			// pregunto si el color right de la pieza de borde left actual ya está explorado
-			if ((SolverFaster.arr_color_rigth_explorado.get(fila_actual) & mask) != 0) {
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				return true; // sigo con otra pieza de borde
-			}
-			// si no es así entonces lo seteo como explorado
-			else {
-				// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
-				SolverFaster.arr_color_rigth_explorado.addAndGet(fila_actual, mask);
-				// int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
-				// SolverFaster.arr_color_rigth_explorado.getAndSet(fila_actual, value);
-			}
-		}
-		
-		return false;
-	}
-
-	private final boolean testFairExperimentGif(final byte flag_zona, Pieza p) {
-		if (flag_zona == SolverFaster.F_INTERIOR || flag_zona == SolverFaster.F_BORDE_TOP) {
-			if (p.bottom == tablero[cursor-1].bottom) {
-				p.usada = false; //la pieza ahora no es usada
-				//p.pos= -1;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	//##########################################################################//
-	//##########################################################################//
-	//          ALGUNOS METODOS QUE HACEN COSAS PARA LA EXPLORACION
-	//##########################################################################//
-	//##########################################################################//
-
-	/**
-	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de NodoPosibles 
-	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
-	 *  
-	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
-	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
-	 */
-	final NodoPosibles obtenerPosiblesPiezas(int _cursor)
-	{
-		switch (_cursor) {
-			// estoy en la posicion inmediatamente arriba de la posicion central
-			case SolverFaster.SOBRE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, piezas[SolverFaster.NUM_P_CENTRAL].top, tablero[_cursor - 1].right);
-			// estoy en la posicion inmediatamente a la izq de la posicion central
-			case SolverFaster.ANTE_POSICION_CENTRAL:
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, piezas[SolverFaster.NUM_P_CENTRAL].left, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
-		}
-		
-		switch (SolverFaster.matrix_zonas[_cursor]) {
-			// interior de tablero
-			case SolverFaster.F_INTERIOR:  
-				return SolverFaster.getNodoIfKeyIsOriginal_interior(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
-				
-			// borde right
-			case SolverFaster.F_BORDE_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, PiezaFactory.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
-			// borde left
-			case SolverFaster.F_BORDE_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, PiezaFactory.GRIS);
-			// borde top
-			case SolverFaster.F_BORDE_TOP:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(PiezaFactory.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
-			// borde bottom
-			case SolverFaster.F_BORDE_BOTTOM:
-				return SolverFaster.getNodoIfKeyIsOriginal_border(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-			
-			// esquina top-left
-			case SolverFaster.F_ESQ_TOP_LEFT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, SolverFaster.MAX_COLORES, SolverFaster.MAX_COLORES, PiezaFactory.GRIS);
-			// esquina top-right
-			case SolverFaster.F_ESQ_TOP_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(PiezaFactory.GRIS, PiezaFactory.GRIS, SolverFaster.MAX_COLORES, tablero[_cursor - 1].right);
-			// esquina bottom-left
-			case SolverFaster.F_ESQ_BOTTOM_LEFT: 
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - SolverFaster.LADO].bottom, SolverFaster.MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
-			// esquina bottom-right
-			case SolverFaster.F_ESQ_BOTTOM_RIGHT:
-				return SolverFaster.getNodoIfKeyIsOriginal_corner(tablero[_cursor - SolverFaster.LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[_cursor - 1].right);
-		}
-		
-		return null;
-	}
-
-	private final void setContornoUsado(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (SolverFaster.zona_proc_contorno[_cursor] == true) {
-			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = true;
-		}
-	}
-	
-	private final void setContornoLibre(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (SolverFaster.zona_proc_contorno[_cursor] == true) {
-			contorno.contornos_used[tablero[_cursor-1].left][tablero[_cursor-1].top][tablero[_cursor].top] = false;
-		}
-	}
-
-	private final boolean esContornoSuperiorUsado(int _cursor)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (SolverFaster.zona_read_contorno[_cursor] == true) {
-			return contorno.contornos_used[tablero[_cursor-1].right][tablero[_cursor - SolverFaster.LADO].bottom][tablero[_cursor - SolverFaster.LADO + 1].bottom];
-		}
-		return false;
-	}
-	
 }
