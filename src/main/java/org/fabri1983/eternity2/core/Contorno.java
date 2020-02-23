@@ -33,6 +33,7 @@ public final class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static int MAX_COLS = 2; // Search over the code before change this value
+	
 	private final static int MAX_COLORES_INVOLVED = 17; // 22 - 5 (corner/border) = 17
 	
 	/**

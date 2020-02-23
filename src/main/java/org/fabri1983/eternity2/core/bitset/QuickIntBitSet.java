@@ -85,17 +85,6 @@ public class QuickIntBitSet {
 	}
 	
 	/**
-     * Given a bit index, return word index containing it.
-     */
-    private static int wordIndex(int bitIndex) {
-        return bitIndex >>> ADDRESS_BITS_PER_WORD;
-    }
-    
-    private void initWords(int nbits) {
-        words = new int[wordIndex(nbits-1) + 1];
-    }
-    
-    /**
      * Sets the bit at the specified index to {@code true}.
      * IMPORTANT: remember that reading a bit is from LSB (most right bit) to MSB (left most bit)
      *
@@ -149,6 +138,17 @@ public class QuickIntBitSet {
     
     private static String intToBinary(int number) {
     	return String.format("%32s", Integer.toBinaryString(number)).replaceAll(" ", "0");
+	}
+
+	private void initWords(int nbits) {
+	    words = new int[wordIndex(nbits-1) + 1];
+	}
+
+	/**
+	 * Given a bit index, return word index containing it.
+	 */
+	private static int wordIndex(int bitIndex) {
+	    return bitIndex >>> ADDRESS_BITS_PER_WORD;
 	}
     
 }

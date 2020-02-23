@@ -22,6 +22,8 @@
 
 package org.fabri1983.eternity2.faster;
 
+import org.fabri1983.eternity2.core.Consts;
+import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
 import org.fabri1983.eternity2.ui.ViewEternityFasterFactory;
@@ -42,13 +44,13 @@ public final class SolverFasterWithUI {
 	/**
 	 * Inicializa varias estructuras y flags.
 	 */
-	public final void setupInicial() {
+	public final void setupInicial(ReaderForFile readerForTilesFile) {
 		
-		solver.setupInicial();
+		solver.setupInicial(readerForTilesFile);
 		
 		// solo dibujar el board de la primer action: SolverFaster.actions[0]
-		ViewEternityFactory viewFactory = new ViewEternityFasterFactory(SolverFaster.LADO, SolverFaster.cellPixelsLado, 
-				SolverFaster.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]);
+		ViewEternityFactory viewFactory = new ViewEternityFasterFactory(Consts.LADO, SolverFaster.cellPixelsLado, 
+				Consts.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]);
 		EternityII tableboardE2 = new EternityII(viewFactory); 
 		tableboardE2.startPainting();
 	}

@@ -85,17 +85,6 @@ public class QuickLongBitSet {
 	}
 	
 	/**
-     * Given a bit index, return word index containing it.
-     */
-    private static int wordIndex(int bitIndex) {
-        return bitIndex >>> ADDRESS_BITS_PER_WORD;
-    }
-    
-    private void initWords(int nbits) {
-        words = new long[wordIndex(nbits-1) + 1];
-    }
-    
-    /**
      * Sets the bit at the specified index to {@code true}.
      * IMPORTANT: remember that setting a bit is from LSB (most right bit) to MSB (left most bit)
      *
@@ -149,6 +138,17 @@ public class QuickLongBitSet {
     
     private static String longToBinary(long number) {
     	return String.format("%64s", Long.toBinaryString(number)).replaceAll(" ", "0");
+	}
+
+	private void initWords(int nbits) {
+	    words = new long[wordIndex(nbits-1) + 1];
+	}
+
+	/**
+	 * Given a bit index, return word index containing it.
+	 */
+	private static int wordIndex(int bitIndex) {
+	    return bitIndex >>> ADDRESS_BITS_PER_WORD;
 	}
 
 }

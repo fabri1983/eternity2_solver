@@ -53,24 +53,24 @@ public final class MainFaster
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForFile(),
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 
 			properties = null;
-			ResourceBundle.clearCache();
 
 			// vamos a usar tablero gráfico? 
 			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
 				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
-				solverWithUI.setupInicial();
+				solverWithUI.setupInicial(new ClassLoaderReaderForFile());
+				ResourceBundle.clearCache();
 				solverWithUI.atacar();
 			} else {
-				solver.setupInicial();
+				solver.setupInicial(new ClassLoaderReaderForFile());
+				ResourceBundle.clearCache();
 				solver.atacar();
 			}
 		}
 		catch(Exception e) {
-			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());
+			System.out.println(System.lineSeparator() + "ERROR: " + e.getMessage());
 			e.printStackTrace();
 		}
 		

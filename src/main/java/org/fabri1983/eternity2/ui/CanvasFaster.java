@@ -22,9 +22,9 @@
 
 package org.fabri1983.eternity2.ui;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.faster.ExploracionAction;
-import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class CanvasFaster extends CanvasAbstract {
 
@@ -42,7 +42,7 @@ public class CanvasFaster extends CanvasAbstract {
 
 	@Override
 	protected Pieza getPiezaCentral() {
-		return action.piezas[SolverFaster.NUM_P_CENTRAL];
+		return action.piezas[Consts.NUM_P_CENTRAL];
 	}
 
 }

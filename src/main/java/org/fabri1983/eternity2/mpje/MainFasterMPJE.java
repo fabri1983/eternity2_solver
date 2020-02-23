@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
+import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
 
 import mpi.MPI;
 
@@ -65,9 +66,9 @@ public final class MainFasterMPJE
 					MPI.COMM_WORLD.Size());
 
 			properties = null;
-			ResourceBundle.clearCache();
 
-			sol.setupInicial(); // ejecuto una inicializacion global
+			sol.setupInicial(new ClassLoaderReaderForFile());
+			ResourceBundle.clearCache();
 			sol.atacar();
 			
 		} catch(Exception e){

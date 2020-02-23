@@ -23,6 +23,7 @@
 package org.fabri1983.eternity2.faster;
 
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.fabri1983.eternity2.core.resourcereader.AppPropertiesReader;
 import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
@@ -52,16 +53,16 @@ public final class MainFasterNative
 					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
 					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
 					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					new ClassLoaderReaderForFile(), // the FileReaderForTilesFile() doesn't work in native mode :(
 					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
 
 			properties = null;
 
-			solver.setupInicial();
+			solver.setupInicial(new ClassLoaderReaderForFile()); // the FileReaderForTilesFile() doesn't work in native mode
+			ResourceBundle.clearCache();
 			solver.atacar();
 		}
 		catch(Exception e) {
-			System.out.println(System.lineSeparator() + "Error: " + e.getMessage());
+			System.out.println(System.lineSeparator() + "ERROR: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
