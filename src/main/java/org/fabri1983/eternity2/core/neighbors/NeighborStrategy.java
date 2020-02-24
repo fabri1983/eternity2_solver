@@ -14,6 +14,8 @@ public interface NeighborStrategy {
 
 	NodoPosibles getNodoIfKeyIsOriginal_corner(byte top, byte right, byte bottom, byte left);
 
+	boolean isPiezaCorrectType(byte flagZona, Pieza p);
+
 	void resetForBenchmark();
 
 	void printMergedInfoSizes(boolean skipSizeOne);

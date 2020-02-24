@@ -290,7 +290,7 @@ public class CommonFuncs {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	public final static NodoPosibles obtenerPosiblesPiezas (int cursor, Pieza[] tablero, NeighborStrategy neighborStrategy)
+	public final static NodoPosibles obtenerPosiblesPiezas (byte flagZona, int cursor, Pieza[] tablero, NeighborStrategy neighborStrategy)
 	{
 		switch (cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
@@ -303,7 +303,7 @@ public class CommonFuncs {
 						tablero[cursor - Consts.LADO].bottom, Consts.PIEZA_CENTRAL_COLOR_LEFT, Consts.MAX_COLORES, tablero[cursor - 1].right);
 		}
 		
-		switch (matrix_zonas[cursor]) {
+		switch (flagZona) {
 			// interior de tablero
 			case Consts.F_INTERIOR: 
 				return neighborStrategy.getNodoIfKeyIsOriginal_interior(
@@ -312,35 +312,35 @@ public class CommonFuncs {
 			// borde right
 			case Consts.F_BORDE_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, PiezaFactory.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
+						tablero[cursor - Consts.LADO].bottom, Consts.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
 			// borde left
 			case Consts.F_BORDE_LEFT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.MAX_COLORES, PiezaFactory.GRIS);
+						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.MAX_COLORES, Consts.GRIS);
 			// borde top
 			case Consts.F_BORDE_TOP:
-				return neighborStrategy.getNodoIfKeyIsOriginal_border(PiezaFactory.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_border(Consts.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, tablero[cursor - 1].right);
 			// borde bottom
 			case Consts.F_BORDE_BOTTOM:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, PiezaFactory.GRIS, tablero[cursor - 1].right);
+						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.GRIS, tablero[cursor - 1].right);
 		
 			// esquina top-left
 			case Consts.F_ESQ_TOP_LEFT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						PiezaFactory.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, PiezaFactory.GRIS);
+						Consts.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, Consts.GRIS);
 			// esquina top-right
 			case Consts.F_ESQ_TOP_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						PiezaFactory.GRIS, PiezaFactory.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
+						Consts.GRIS, Consts.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
 			// esquina bottom-left
 			case Consts.F_ESQ_BOTTOM_LEFT: 
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, PiezaFactory.GRIS, PiezaFactory.GRIS);
+						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.GRIS, Consts.GRIS);
 			// esquina bottom-right
 			case Consts.F_ESQ_BOTTOM_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						tablero[cursor - Consts.LADO].bottom, PiezaFactory.GRIS, PiezaFactory.GRIS, tablero[cursor - 1].right);
+						tablero[cursor - Consts.LADO].bottom, Consts.GRIS, Consts.GRIS, tablero[cursor - 1].right);
 		}
 		
 		return null;
@@ -472,7 +472,7 @@ public class CommonFuncs {
 					continue;
 				//tengo el valor para desde_saved[]
 				desde_saved[_cursor] = NodoPosibles.getUbicPieza(
-						obtenerPosiblesPiezas(_cursor, tablero, neighborStrategy), 
+						obtenerPosiblesPiezas(matrix_zonas[_cursor], _cursor, tablero, neighborStrategy), 
 						tablero[_cursor].numero);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
@@ -574,7 +574,7 @@ public class CommonFuncs {
 				int pos= b+1;
 				Pieza p = tablero[b];
 				if (p == null){
-					parcialBuffer.append(PiezaFactory.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(PiezaFactory.GRIS).append("\n");
+					parcialBuffer.append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append("\n");
 					if (max)
 						dispMaxBuff.append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
@@ -612,7 +612,7 @@ public class CommonFuncs {
 		}
 	}
 
-	public final static boolean testPodaColorRightExplorado(int cursor, Pieza p, 
+	public final static boolean testPodaColorRightExplorado(byte flagZona, int cursor, Pieza p, 
 			ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		final int fila_actual = cursor >>> Consts.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
@@ -625,7 +625,7 @@ public class CommonFuncs {
 		if (flag_antes_borde_right)
 			colorRightExploredStrategy.compareAndSet(fila_actual + 1, 0);
 		
-		if (matrix_zonas[cursor] == Consts.F_BORDE_LEFT)
+		if (flagZona == Consts.F_BORDE_LEFT)
 		{
 			final int mask = 1 << p.right;
 			
@@ -647,11 +647,9 @@ public class CommonFuncs {
 		return false;
 	}
 
-	public final static boolean testFairExperimentGif(int cursor, Pieza p, Pieza[] tablero) {
+	public final static boolean testFairExperimentGif(byte flagZona, int cursor, Pieza p, Pieza[] tablero) {
 		
-		byte flag_zona = matrix_zonas[cursor];
-		
-		if (flag_zona == Consts.F_INTERIOR || flag_zona == Consts.F_BORDE_TOP) {
+		if (flagZona == Consts.F_INTERIOR || flagZona == Consts.F_BORDE_TOP) {
 			if (p.bottom == tablero[cursor-1].bottom){
 				p.usada = false;
 				return true;

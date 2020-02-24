@@ -656,8 +656,10 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void exploracionStandard(int desde)
 	{
+		byte flagZona = CommonFuncs.matrix_zonas[cursor];
+		
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(cursor, tablero, neighborStrategy);
+		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(flagZona, cursor, tablero, neighborStrategy);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -703,18 +705,22 @@ public final class SolverFasterMPJE {
 			
 			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			short merged = nodoPosibles.mergedInfo[desde];
-			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
 			byte rot = (byte) (merged >>> NodoPosibles.MASK_PIEZA_ROT_SHIFT);
+			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
 			
 			// pregunto si la pieza candidata está siendo usada
 			if (p.usada)
-				continue; // es usada, pruebo con la siguiente pieza
-		
+				continue; // es usada, pruebo con la siguiente pieza/rotación
+			
+			// is correct type of tile according where cursor is located?
+			if (!neighborStrategy.isPiezaCorrectType(flagZona, p))
+				continue;
+			
 			++count_cycles; // incremento el contador de combinaciones de piezas
 			
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (colorRightExploredStrategy != null) {
-				CommonFuncs.testPodaColorRightExplorado(cursor, p, colorRightExploredStrategy);
+				CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, p, colorRightExploredStrategy);
 			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
@@ -734,7 +740,7 @@ public final class SolverFasterMPJE {
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
 			if (FairExperimentGif) {
-				if (CommonFuncs.testFairExperimentGif(cursor, p, tablero))
+				if (CommonFuncs.testFairExperimentGif(flagZona, cursor, p, tablero))
 					continue;
 			}
 
