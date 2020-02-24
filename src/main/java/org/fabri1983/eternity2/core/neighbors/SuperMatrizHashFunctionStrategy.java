@@ -7,7 +7,7 @@ import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Corner;
 import org.fabri1983.eternity2.core.mph.PerfectHashFunction2Interior;
 
 /**
- * This strategy is an improvement over {@link SuperMatrizMultipleDimensionalStrategy} with much less memory but slower access. <br/>
+ * This strategy is an improvement over {@link SuperMatrizMultiDimensionalStrategy} with much less memory but slower access. <br/>
  * It uses a pre calculated Perfect Hash Function with an array of size PerfectHashFunction2.PHASHRANGE.
  */
 public class SuperMatrizHashFunctionStrategy implements NeighborStrategy {
@@ -101,6 +101,11 @@ public class SuperMatrizHashFunctionStrategy implements NeighborStrategy {
 		return super_matriz_corner[PerfectHashFunction2Corner.phash(keyDiff)];
 	}
 
+	@Override
+	public boolean isPiezaCorrectType(byte flagZona, Pieza p) {
+		return true;
+	}
+	
 	@Override
 	public void resetForBenchmark() {
 		for (int i = 0; i < super_matriz_interior.length; ++i) {

@@ -184,29 +184,15 @@ public class Pieza {
 	}
 
 	public static final boolean isCorner(final Pieza p) {
-		byte grises = countGrises(p);
-		return grises == 2;
+		return p.numero < 4;
 	}
 	
 	public static final boolean isBorder(final Pieza p) {
-		byte grises = countGrises(p);
-		return grises == 1;
+		return p.numero >= 4 && p.numero < Consts.FIRST_NUMERO_PIEZA_INTERIOR;
 	}
 	
 	public static final boolean isInterior(final Pieza p) {
-		byte grises = countGrises(p);
-		return grises == 0;
-	}
-
-	private static final byte countGrises(final Pieza p)
-	{
-		byte count_grises=0;
-		if (p.top == PiezaFactory.GRIS) ++count_grises;
-		if (p.right == PiezaFactory.GRIS) ++count_grises;
-		if (p.bottom == PiezaFactory.GRIS) ++count_grises;
-		if (p.left == PiezaFactory.GRIS) ++count_grises;
-		
-		return count_grises;
+		return p.numero >= Consts.FIRST_NUMERO_PIEZA_INTERIOR;
 	}
 	
 }

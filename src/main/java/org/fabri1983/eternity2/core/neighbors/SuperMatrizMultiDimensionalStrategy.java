@@ -27,7 +27,7 @@ import org.fabri1983.eternity2.core.Pieza;
  * Then, I realize that just using a 4 dimensional array I end up with 331776‬ indexes which is the 43% of 777975.
  * It uses less memory and the access time is the same than the previous big array.
  */
-public class SuperMatrizMultipleDimensionalStrategy implements NeighborStrategy {
+public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 
     public final static NodoPosibles[][][][] super_matriz = new NodoPosibles
             [Consts.MAX_COLORES+1][Consts.MAX_COLORES+1][Consts.MAX_COLORES+1][Consts.MAX_COLORES+1];
@@ -59,6 +59,22 @@ public class SuperMatrizMultipleDimensionalStrategy implements NeighborStrategy 
 		return super_matriz[top][right][bottom][left];
 	}
 
+	@Override
+	public boolean isPiezaCorrectType(byte flagZona, Pieza p) {
+		switch (flagZona) {
+		case Consts.F_INTERIOR: return Pieza.isInterior(p);
+		case Consts.F_BORDE_RIGHT:
+		case Consts.F_BORDE_LEFT:
+		case Consts.F_BORDE_TOP:
+		case Consts.F_BORDE_BOTTOM: return Pieza.isBorder(p);
+		case Consts.F_ESQ_TOP_LEFT:
+		case Consts.F_ESQ_TOP_RIGHT:
+		case Consts.F_ESQ_BOTTOM_LEFT:
+		case Consts.F_ESQ_BOTTOM_RIGHT: return Pieza.isCorner(p);
+		default: return false;
+		}
+	}
+	
 	@Override
 	public void resetForBenchmark() {
 		for (int i = 0; i < super_matriz.length; ++i) {

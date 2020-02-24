@@ -367,8 +367,10 @@ public class ExploracionAction implements Runnable {
 	 */
 	private final void exploracionStandard(int desde)
 	{
+		byte flagZona = CommonFuncs.matrix_zonas[cursor];
+		
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(cursor, tablero, SolverFaster.neighborStrategy);
+		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
 		if (nodoPosibles == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
@@ -417,20 +419,24 @@ public class ExploracionAction implements Runnable {
 			
 			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
 			short merged = nodoPosibles.mergedInfo[desde];
-			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
 			byte rot = (byte) (merged >>> NodoPosibles.MASK_PIEZA_ROT_SHIFT);
+			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
 			
 			// pregunto si la pieza candidata está siendo usada
 			if (p.usada)
-				continue; //es usada, pruebo con la siguiente pieza
+				continue; //es usada, pruebo con la siguiente pieza/rotación
 	
+			// is correct type of tile according where cursor is located?
+			if (!SolverFaster.neighborStrategy.isPiezaCorrectType(flagZona, p))
+				continue;
+			
 			++count_cycles;
 			if (SolverFaster.usarTableroGrafico)
 				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas
 				
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (SolverFaster.colorRightExploredStrategy != null) {
-				if (CommonFuncs.testPodaColorRightExplorado(cursor, p, SolverFaster.colorRightExploredStrategy))
+				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, p, SolverFaster.colorRightExploredStrategy))
 					continue;
 			}
 			
@@ -451,7 +457,7 @@ public class ExploracionAction implements Runnable {
 			
 			//FairExperiment.gif: color bottom repetido en sentido horizontal
 			if (SolverFaster.FairExperimentGif) {
-				if (CommonFuncs.testFairExperimentGif(cursor, p, tablero))
+				if (CommonFuncs.testFairExperimentGif(flagZona, cursor, p, tablero))
 					continue;
 			}
 	

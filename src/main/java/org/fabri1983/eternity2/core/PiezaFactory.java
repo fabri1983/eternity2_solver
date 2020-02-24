@@ -24,9 +24,6 @@ package org.fabri1983.eternity2.core;
 
 public final class PiezaFactory {
 	
-	public static final byte GRIS = 22;
-	private static final String SECCIONES_SEPARATOR_EN_FILE= " ";
-	
 	public static Pieza dummy()
 	{
 		Pieza p = new Pieza();
@@ -35,10 +32,10 @@ public final class PiezaFactory {
 	}
 
 	public static void setAsDummy(Pieza p) {
-		p.top=GRIS;
-		p.right=GRIS;
-		p.bottom=GRIS;
-		p.left=GRIS;
+		p.top=Consts.GRIS;
+		p.right=Consts.GRIS;
+		p.bottom=Consts.GRIS;
+		p.left=Consts.GRIS;
 		p.numero=0;
 		p.rotacion=0;
 		p.usada=false;
@@ -57,9 +54,9 @@ public final class PiezaFactory {
 
 	public static void setFromStringWithNum(String s, short num, Pieza p) {
 		// separo los 4 números que hay en s y se los asigno a c/u de los 4 triangulitos
-		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
-		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
-		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
+		int primer_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, 0);
+		int seg_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
+		int tercer_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
 
 		p.top= Byte.parseByte(s.substring(0,primer_sep));
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
@@ -109,10 +106,10 @@ public final class PiezaFactory {
 
 	public static void setFromString(String s, Pieza p) {
 		// Primero: separo los valores de top, right, bottom y left
-		int primer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, 0);
-		int seg_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
-		int tercer_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
-		int cuarto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, tercer_sep+1);
+		int primer_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, 0);
+		int seg_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, primer_sep+1);
+		int tercer_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, seg_sep+1);
+		int cuarto_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, tercer_sep+1);
 		
 		p.top= Byte.parseByte(s.substring(0,primer_sep));
 		p.right= Byte.parseByte(s.substring(primer_sep+1,seg_sep));
@@ -120,15 +117,15 @@ public final class PiezaFactory {
 		p.left= Byte.parseByte(s.substring(tercer_sep+1,cuarto_sep));
 		
 		//Segundo: separo el valor numerico de la pieza
-		int quinto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
+		int quinto_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, cuarto_sep+1);
 		p.numero= Short.parseShort(s.substring(cuarto_sep+1,quinto_sep));
 		
 		// Tercero: separo el valor de rotación de la pieza
-		int sexto_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
+		int sexto_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
 		p.rotacion= Byte.parseByte(s.substring(quinto_sep+1,sexto_sep));
 		
 		//Cuarto: separo el valor usada de la pieza
-		int sept_sep= s.indexOf(SECCIONES_SEPARATOR_EN_FILE, sexto_sep+1);
+		int sept_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, sexto_sep+1);
 		p.usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
 
 		// Quinto: separo la posición en la que se encuentra la pieza
