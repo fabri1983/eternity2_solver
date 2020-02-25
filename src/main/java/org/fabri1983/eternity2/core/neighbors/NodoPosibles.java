@@ -81,13 +81,13 @@ public final class NodoPosibles
 	 * 
 	 * @param rot 
 	 */
-	public static final void addReferencia (final NodoPosibles np, final short piezaIndex, byte rot) {
+	public static final void addReferencia (NodoPosibles np, short piezaIndex, byte rot) {
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		np.mergedInfo[nextIndex] = (short) (piezaIndex | (rot << MASK_PIEZA_ROT_SHIFT));
 	}
 
-	private static int getNextFreeIndex(final NodoPosibles np) {
+	private static int getNextFreeIndex(NodoPosibles np) {
 		int nextIndex = 0;
 		for (int c=np.mergedInfo.length; nextIndex < c; ++nextIndex) {
 //			if (np.referencias[nextIndex] == null)
@@ -106,30 +106,30 @@ public final class NodoPosibles
 	/**
 	 * Devuelve la clave asociada a esa combinación de 4 colores.
 	 */
-	public static final int getKey (final byte a, final byte b, final byte c, final byte d)
+	public static final int getKey (byte a, byte b, byte c, byte d)
 	{
 		// here we don't apply & since we assume that the color value is clean (has no 
 		// leading 1s due to any previous shifting operation)
 		return (a << 15) | (b << 10) | (c << 5) | d;
 	}
 	
-//	public static final byte getA(final int key) {
+//	public static final byte getA(int key) {
 //		return (byte) ((key >>> 15) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
-//	public static final byte getB(final int key) {
+//	public static final byte getB(int key) {
 //		return (byte) ((key >>> 10) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
-//	public static final byte getC(final int key) {
+//	public static final byte getC(int key) {
 //		return (byte) ((key >>> 5) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 //	
-//	public static final byte getD(final int key) {
+//	public static final byte getD(int key) {
 //		return (byte) ((key) & 31); // 5 bits only belongs to the color value => 31 = 11111
 //	}
 	
-	public static final short getUbicPieza(final NodoPosibles np, short numero)
+	public static final short getUbicPieza(NodoPosibles np, short numero)
 	{
 		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
 			if ((np.mergedInfo[i] & MASK_PIEZA_INDEX) == numero)

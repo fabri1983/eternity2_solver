@@ -37,6 +37,6 @@ public class Consts {
 	public final static byte PIEZA_CENTRAL_COLOR_LEFT = 7;
 	public final static byte MAX_COLORES= 23;
 	public static final byte GRIS = 22;
-	public final static byte FIRST_CORNER_BORDER_COLOR = 17; // See misc/NOTAS.txt
+	public final static byte FIRST_CORNER_OR_BORDER_COLOR = 17; // See misc/NOTAS.txt
 	
 }
