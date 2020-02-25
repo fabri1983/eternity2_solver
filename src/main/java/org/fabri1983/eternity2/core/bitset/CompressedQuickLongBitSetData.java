@@ -1,6 +1,6 @@
 package org.fabri1983.eternity2.core.bitset;
 
-public class CompressedQuickLongBitSetHardcodedData {
+public class CompressedQuickLongBitSetData {
 
 	public static final long[] words = new long[] {
 			0b0000000000000000000000000000000000000000000000000000000000000000L,

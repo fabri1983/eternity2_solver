@@ -22,8 +22,8 @@ public class CompressedQuickLongBitSetTest {
 		System.out.print("creating a " + CompressedQuickLongBitSet.class.getSimpleName() + " from pre calculated arrays ... ");
 		long timeEval = System.nanoTime();
 		CompressedQuickLongBitSet cbs = new CompressedQuickLongBitSet(
-				CompressedQuickLongBitSetHardcodedData.words, 
-				CompressedQuickLongBitSetHardcodedData.indexesForShift);
+				CompressedQuickLongBitSetData.words, 
+				CompressedQuickLongBitSetData.indexesForShift);
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
 		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, cbs.size()));
 		
