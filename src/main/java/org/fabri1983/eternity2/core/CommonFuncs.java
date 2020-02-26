@@ -200,17 +200,12 @@ public class CommonFuncs {
 		System.out.println(processId + " >>> carga de super matriz finalizada (" + elapsedMicros + " micros)");
 	}
 	
-	/**
-	 * Para cada posible combinacion entre los colores de las secciones top, 
-	 * right, bottom y left creo un vector que contendrá las piezas que tengan
-	 * esa combinacion de colores en dichas secciones y ademas guardo en qué
-	 * estado de rotacion la cumplen.
-	 */
 	private static final void llenarSuperEstructura (Pieza[] piezas, boolean useFairExperimentGif, NeighborStrategy neighborStrategy)
 	{
 		// itero sobre el arreglo de piezas
 		for (short k = 0; k < Consts.MAX_PIEZAS; ++k) {
 			
+			// skip pieza central 
 			if (k == Consts.NUM_P_CENTRAL)
 				continue;
 			
@@ -227,55 +222,7 @@ public class CommonFuncs {
 				if (useFairExperimentGif && (pz.top == pz.bottom))
 					continue;
 				
-				//este caso es cuando tengo los 4 colores
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, pz.right, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, pz.bottom, pz.left, pz), k, rot);
-				
-				//tengo tres colores y uno faltante
-				if (neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, pz.bottom, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(Consts.MAX_COLORES, pz.right, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, pz.bottom, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, pz.bottom, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, Consts.MAX_COLORES, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, Consts.MAX_COLORES, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, pz.right, Consts.MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, Consts.MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, Consts.MAX_COLORES, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top ,pz.right, pz.bottom, Consts.MAX_COLORES, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top ,pz.right, pz.bottom, Consts.MAX_COLORES, pz), k, rot);
-				
-				//tengo dos colores y dos faltantes
-				if (neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, Consts.MAX_COLORES, pz.bottom, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(Consts.MAX_COLORES, Consts.MAX_COLORES, pz.bottom, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, Consts.MAX_COLORES, pz.bottom, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, Consts.MAX_COLORES, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(Consts.MAX_COLORES, pz.right, Consts.MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, Consts.MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, pz.bottom, Consts.MAX_COLORES, pz) == null)
-					neighborStrategy.setNewNodoP(Consts.MAX_COLORES, pz.right, pz.bottom, Consts.MAX_COLORES, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(Consts.MAX_COLORES, pz.right, pz.bottom, Consts.MAX_COLORES, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, Consts.MAX_COLORES, pz.left, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, Consts.MAX_COLORES, Consts.MAX_COLORES, pz.left, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, Consts.MAX_COLORES, pz.left, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, pz.bottom, Consts.MAX_COLORES, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, Consts.MAX_COLORES, pz.bottom, Consts.MAX_COLORES, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, Consts.MAX_COLORES, pz.bottom, Consts.MAX_COLORES, pz), k, rot);
-				
-				if (neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, Consts.MAX_COLORES, Consts.MAX_COLORES, pz) == null)
-					neighborStrategy.setNewNodoP(pz.top, pz.right, Consts.MAX_COLORES, Consts.MAX_COLORES, pz);
-				NodoPosibles.addReferencia(neighborStrategy.getNodoFromOriginalKey(pz.top, pz.right, Consts.MAX_COLORES, Consts.MAX_COLORES, pz), k, rot);
-
-				//tengo un color y tres faltantes
-				//(esta combinación no se usa en el juego)
+				neighborStrategy.addNeighbor(pz.top, pz.right, pz.bottom, pz.left, pz, k, rot);
 			}
 			
 			//restauro la rotación
@@ -295,52 +242,52 @@ public class CommonFuncs {
 		switch (cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case Consts.SOBRE_POSICION_CENTRAL:
-				return neighborStrategy.getNodoIfKeyIsOriginal_interior(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.PIEZA_CENTRAL_COLOR_TOP, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_interior_above_central(
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case Consts.ANTE_POSICION_CENTRAL:
-				return neighborStrategy.getNodoIfKeyIsOriginal_interior(
-						tablero[cursor - Consts.LADO].bottom, Consts.PIEZA_CENTRAL_COLOR_LEFT, Consts.MAX_COLORES, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_interior_left_central(
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 		}
 		
 		switch (flagZona) {
 			// interior de tablero
 			case Consts.F_INTERIOR: 
 				return neighborStrategy.getNodoIfKeyIsOriginal_interior(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.MAX_COLORES, tablero[cursor - 1].right);
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 	
 			// borde right
 			case Consts.F_BORDE_RIGHT:
-				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, Consts.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_border_right(
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 			// borde left
 			case Consts.F_BORDE_LEFT:
-				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.MAX_COLORES, Consts.GRIS);
+				return neighborStrategy.getNodoIfKeyIsOriginal_border_left(
+						tablero[cursor - Consts.LADO].bottom);
 			// borde top
 			case Consts.F_BORDE_TOP:
-				return neighborStrategy.getNodoIfKeyIsOriginal_border(Consts.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_border_top(
+						tablero[cursor - 1].right);
 			// borde bottom
 			case Consts.F_BORDE_BOTTOM:
-				return neighborStrategy.getNodoIfKeyIsOriginal_border(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.GRIS, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_border_bottom(
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 		
 			// esquina top-left
 			case Consts.F_ESQ_TOP_LEFT:
-				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						Consts.GRIS, Consts.MAX_COLORES, Consts.MAX_COLORES, Consts.GRIS);
+				return neighborStrategy.getNodoIfKeyIsOriginal_corner_top_left();
 			// esquina top-right
 			case Consts.F_ESQ_TOP_RIGHT:
-				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						Consts.GRIS, Consts.GRIS, Consts.MAX_COLORES, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_corner_top_right(
+						tablero[cursor - 1].right);
 			// esquina bottom-left
 			case Consts.F_ESQ_BOTTOM_LEFT: 
-				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						tablero[cursor - Consts.LADO].bottom, Consts.MAX_COLORES, Consts.GRIS, Consts.GRIS);
+				return neighborStrategy.getNodoIfKeyIsOriginal_corner_bottom_left(
+						tablero[cursor - Consts.LADO].bottom);
 			// esquina bottom-right
 			case Consts.F_ESQ_BOTTOM_RIGHT:
-				return neighborStrategy.getNodoIfKeyIsOriginal_corner(
-						tablero[cursor - Consts.LADO].bottom, Consts.GRIS, Consts.GRIS, tablero[cursor - 1].right);
+				return neighborStrategy.getNodoIfKeyIsOriginal_corner_bottom_right(
+						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
 		}
 		
 		return null;

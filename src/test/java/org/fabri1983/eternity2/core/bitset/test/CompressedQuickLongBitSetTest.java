@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.bitset;
+package org.fabri1983.eternity2.core.bitset.test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.fabri1983.eternity2.core.bitset.CompressedQuickLongBitSet;
+import org.fabri1983.eternity2.core.bitset.CompressedQuickLongBitSetData;
+import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
 import org.fabri1983.eternity2.util.ArrayShuffler;
 import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;

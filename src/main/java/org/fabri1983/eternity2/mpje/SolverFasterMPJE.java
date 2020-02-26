@@ -34,7 +34,7 @@ import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
-import org.fabri1983.eternity2.core.neighbors.SuperMatrizHashFunctionStrategy;
+import org.fabri1983.eternity2.core.neighbors.SuperMatrizMultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
@@ -67,7 +67,7 @@ public final class SolverFasterMPJE {
 	private final static String NAME_FILE_STATUS = "status/status_saved_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + THIS_PROCESS + "";
+	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_LIBRES_MAX = "status/libresMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
@@ -81,7 +81,7 @@ public final class SolverFasterMPJE {
 	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	private final static Contorno contorno = new Contorno();
 	
-	private final static NeighborStrategy neighborStrategy = new SuperMatrizHashFunctionStrategy();
+	private final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
 	
 	private static ColorRightExploredStrategy colorRightExploredStrategy;
 	
@@ -711,10 +711,6 @@ public final class SolverFasterMPJE {
 			// pregunto si la pieza candidata está siendo usada
 			if (p.usada)
 				continue; // es usada, pruebo con la siguiente pieza/rotación
-			
-			// is correct type of tile according where cursor is located?
-			if (!neighborStrategy.isPiezaCorrectType(flagZona, p))
-				continue;
 			
 			++count_cycles; // incremento el contador de combinaciones de piezas
 			

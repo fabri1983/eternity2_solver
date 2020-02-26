@@ -8,35 +8,36 @@ public class Consts {
 	 */
 	public final static int maskForBorderTopAndBottom = 0x000000F0;
 	
-	public final static short LADO= 16;
+	public final static short LADO = 16;
 	public final static short LADO_SHIFT_AS_DIVISION = 4;
-	public final static short MAX_PIEZAS= 256;
-	public final static short POSICION_CENTRAL= 135; // es el indice en tablero[] donde se coloca la pieza central
-	public final static short NUM_P_CENTRAL= 138; // es la ubicación de la pieza central en piezas[]
-	public final static short ANTE_POSICION_CENTRAL= 134; // la posición inmediatamente anterior a la posicion central
-	public final static short SOBRE_POSICION_CENTRAL= 119; // la posición arriba de la posicion central
-	public final static short CURSOR_INVALIDO= -5;
-	public final static byte F_INTERIOR= 1;
-	public final static byte F_BORDE_RIGHT= 2;
-	public final static byte F_BORDE_LEFT= 3;
-	public final static byte F_BORDE_TOP= 4;
-	public final static byte F_BORDE_BOTTOM= 5;
-	public final static byte F_ESQ_TOP_LEFT= 6;
-	public final static byte F_ESQ_TOP_RIGHT= 7;
-	public final static byte F_ESQ_BOTTOM_LEFT= 8;
-	public final static byte F_ESQ_BOTTOM_RIGHT= 9;
-	public final static byte MAX_ESTADOS_ROTACION= 4;
+	public final static short MAX_PIEZAS = 256;
+	public final static short NUM_P_CENTRAL = 138; // es la ubicación de la pieza central en piezas[]
+	public final static short POSICION_CENTRAL = 135; // es el indice en tablero[] donde se coloca la pieza central
+	public final static short SOBRE_POSICION_CENTRAL = 119; // la posición arriba de la posicion central
+	public final static short ANTE_POSICION_CENTRAL = 134; // la posición inmediatamente anterior a la posicion central
+	public final static short CURSOR_INVALIDO = -5;
+	public final static byte F_INTERIOR = 1;
+	public final static byte F_BORDE_RIGHT = 2;
+	public final static byte F_BORDE_LEFT = 3;
+	public final static byte F_BORDE_TOP = 4;
+	public final static byte F_BORDE_BOTTOM = 5;
+	public final static byte F_ESQ_TOP_LEFT = 6;
+	public final static byte F_ESQ_TOP_RIGHT = 7;
+	public final static byte F_ESQ_BOTTOM_LEFT = 8;
+	public final static byte F_ESQ_BOTTOM_RIGHT = 9;
+	public final static byte MAX_ESTADOS_ROTACION = 4;
 	
-	public final static String SECCIONES_SEPARATOR_EN_FILE= " ";
+	public final static String SECCIONES_SEPARATOR_EN_FILE = " ";
 	public final static String FILE_EXT = ".txt";
 	public final static String NAME_FILE_PIEZAS = "e2pieces" + FILE_EXT;
 	
 	public final static int FIRST_NUMERO_PIEZA_INTERIOR = 60;
 	
+	public final static byte MAX_COLORES = 23;
 	public final static byte PIEZA_CENTRAL_COLOR_TOP = 12;
 	public final static byte PIEZA_CENTRAL_COLOR_LEFT = 7;
-	public final static byte MAX_COLORES= 23;
 	public static final byte GRIS = 22;
 	public final static byte FIRST_CORNER_OR_BORDER_COLOR = 17; // See misc/NOTAS.txt
+	public static final int NUM_OF_CORNER_AND_BORDER_COLORS = 5; // See misc/NOTAS.txt
 	
 }

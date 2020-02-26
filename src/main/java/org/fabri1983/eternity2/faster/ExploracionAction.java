@@ -426,10 +426,6 @@ public class ExploracionAction implements Runnable {
 			if (p.usada)
 				continue; //es usada, pruebo con la siguiente pieza/rotación
 	
-			// is correct type of tile according where cursor is located?
-			if (!SolverFaster.neighborStrategy.isPiezaCorrectType(flagZona, p))
-				continue;
-			
 			++count_cycles;
 			if (SolverFaster.usarTableroGrafico)
 				++SolverFaster.count_cycles[id]; //incremento el contador de combinaciones de piezas

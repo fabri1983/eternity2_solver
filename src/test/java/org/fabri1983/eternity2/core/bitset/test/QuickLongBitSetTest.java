@@ -1,30 +1,31 @@
-package org.fabri1983.eternity2.core.bitset;
+package org.fabri1983.eternity2.core.bitset.test;
 
 import java.util.concurrent.TimeUnit;
 
+import org.fabri1983.eternity2.core.bitset.QuickLongBitSet;
 import org.fabri1983.eternity2.util.ArrayShuffler;
 import org.fabri1983.eternity2.util.Blackhole;
 import org.fabri1983.eternity2.util.KeysLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class QuickIntBitSetTest {
+public class QuickLongBitSetTest {
 
 	@Test
 	public void testBitAssignmentAndQuery() {
-		
+
 		int[] keys = KeysLoader.loadSuperMatrizKeys();
 		
-		System.out.print("creating a " + QuickIntBitSet.class.getSimpleName() + " from keys ... ");
+		System.out.print("creating a " + QuickLongBitSet.class.getSimpleName() + " from keys ... ");
 		long timeEval = System.nanoTime();
-		QuickIntBitSet b = new QuickIntBitSet(keys[keys.length - 1] + 1);
+		QuickLongBitSet b = new QuickLongBitSet(keys[keys.length - 1] + 1);
 		for (int key : keys) {
 			b.set(key);
 		}
 		long microsEval = TimeUnit.MICROSECONDS.convert(System.nanoTime() - timeEval, TimeUnit.NANOSECONDS);
-		System.out.println(String.format("done. %s micros. Array length: %s(ints)", microsEval, b.size()));
+		System.out.println(String.format("done. %s micros. Array length: %s(longs)", microsEval, b.size()));
 		
-		System.out.print("evaluating " + QuickIntBitSet.class.getSimpleName() + " ... ");
+		System.out.print("evaluating " + QuickLongBitSet.class.getSimpleName() + " ... ");
 		for (int key : keys) {
 			boolean isSet = b.get(key);
 			Assert.assertTrue(isSet);
@@ -52,4 +53,5 @@ public class QuickIntBitSetTest {
 		long nanosPerKey = nanosBench/(keys.length*loops);
 		System.out.println("done. " + nanosPerKey + " nanos/key");
 	}
+
 }

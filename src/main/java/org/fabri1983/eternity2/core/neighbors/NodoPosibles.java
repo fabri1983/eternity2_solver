@@ -36,52 +36,103 @@ public final class NodoPosibles
 	public static final short MASK_PIEZA_INDEX = 0b11111111;
 	public static final short MASK_PIEZA_ROT_SHIFT = 8;
 	
-	// Next constants are used for subtraction of generated key to lower the max key value, 
-	// so we can use smaller Perfect Hash Function tabs and smaller bitsets.
-	public static final int KEY_SUBTRACT_INTERIOR = 108; // minimum key value obtained from interior pieces
-	public static final int KEY_SUBTRACT_BORDER = 18129; // minimum key value obtained from border pieces
-	public static final int KEY_SUBTRACT_CORNER = 576214; // minimum key value obtained from corner pieces
-	
 	public short[] mergedInfo;
 	
 	private NodoPosibles(int size) {
 		mergedInfo = new short[size];
 	}
 	
-	public static NodoPosibles newForKey(int key) {
-		int size = NodoPosiblesMapSizePerKey.getSizeForKey(key);
-		NodoPosibles np = new NodoPosibles(size);
-		resetReferencias(np);
-		return np;
-	}
-	
-	public static NodoPosibles newForKey_interior(int key) {
+	public static final NodoPosibles newForKey_interior(byte a, byte b) {
+		int key = asKey(a, b);
 		int size = NodoPosiblesMapSizePerKey.getSizeForKey_interior(key);
 		NodoPosibles np = new NodoPosibles(size);
 		resetReferencias(np);
 		return np;
 	}
-	
-	public static NodoPosibles newForKey_border(int key) {
-		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border(key);
+
+	public static final NodoPosibles newForKey_interior_above_central(byte a, byte b) {
+		int key = asKey(a, b);
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_interior_above_central(key);
 		NodoPosibles np = new NodoPosibles(size);
 		resetReferencias(np);
 		return np;
 	}
-	
-	public static NodoPosibles newForKey_corner(int key) {
-		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner(key);
+
+	public static final NodoPosibles newForKey_interior_left_central(byte a, byte b) {
+		int key = asKey(a, b);
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_interior_left_central(key);
 		NodoPosibles np = new NodoPosibles(size);
 		resetReferencias(np);
 		return np;
 	}
-	
+
+	public static final NodoPosibles newForKey_border_right(byte a, byte b) {
+		int key = asKey(a, b);
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border_right(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_border_left(byte a) {
+		int key = a;
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border_left(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_border_top(byte a) {
+		int key = a;
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border_top(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_border_bottom(byte a, byte b) {
+		int key = asKey(a, b);
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_border_bottom(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_corner_top_left() {
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner_top_left();
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_corner_top_right(byte a) {
+		int key = a;
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner_top_right(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_corner_bottom_left(byte a) {
+		int key = a;
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner_bottom_left(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
+	public static final NodoPosibles newForKey_corner_bottom_right(byte a, byte b) {
+		int key = asKey(a, b);
+		int size = NodoPosiblesMapSizePerKey.getSizeForKey_corner_bottom_right(key);
+		NodoPosibles np = new NodoPosibles(size);
+		resetReferencias(np);
+		return np;
+	}
+
 	/**
 	 * Agrega el numero de pieza pieza y la rotación mergeandolos con bitwise en una variable short.
-	 * 
-	 * @param rot 
 	 */
-	public static final void addReferencia (NodoPosibles np, short piezaIndex, byte rot) {
+	public static final void addNeighbor (NodoPosibles np, short piezaIndex, byte rot) {
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		np.mergedInfo[nextIndex] = (short) (piezaIndex | (rot << MASK_PIEZA_ROT_SHIFT));
@@ -104,13 +155,11 @@ public final class NodoPosibles
 	}
 
 	/**
-	 * Devuelve la clave asociada a esa combinación de 4 colores.
+	 * Devuelve la clave asociada a esa combinación de 2 colores.
 	 */
-	public static final int getKey (byte a, byte b, byte c, byte d)
+	public static final int asKey (byte a, byte b)
 	{
-		// here we don't apply & since we assume that the color value is clean (has no 
-		// leading 1s due to any previous shifting operation)
-		return (a << 15) | (b << 10) | (c << 5) | d;
+		return (a << 5) | b;
 	}
 	
 //	public static final byte getA(int key) {
