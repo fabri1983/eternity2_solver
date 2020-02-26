@@ -51,18 +51,19 @@ public final class MainFasterMPJE
 			//   para mpje cluster los primeros 8 parametros son para MPI
 			
 			SolverFasterMPJE sol = new SolverFasterMPJE(
-					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
-					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
-					Integer.parseInt(getProperty(properties,     "exploration.limit")),
-					Integer.parseInt(getProperty(properties,     "max.partial.files")),
-					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
-					Boolean.parseBoolean(getProperty(properties, "ui.show")),
-					Boolean.parseBoolean(getProperty(properties, "ui.per.proc")),
-					Integer.parseInt(getProperty(properties,     "ui.cell.size")),
-					Integer.parseInt(getProperty(properties,     "ui.refresh.millis")),
-					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
-					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
+					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MAX_PARTIAL_FILES)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_GIF_FAIR)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_BORDE_LEFT_EXPLORADO)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TASK_DISTRIBUTION_POS)),
 					MPI.COMM_WORLD.Size());
 
 			properties = null;

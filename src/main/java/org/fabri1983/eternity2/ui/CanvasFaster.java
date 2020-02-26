@@ -22,27 +22,20 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.faster.ExploracionAction;
+import org.fabri1983.eternity2.faster.ExplorationTask;
 
 public class CanvasFaster extends CanvasAbstract {
 
-	private ExploracionAction action;
+	private ExplorationTask action;
 
-	public CanvasFaster(int columns, int rows, int posCentral, ExploracionAction action) {
+	public CanvasFaster(int columns, int rows, int posCentral, ExplorationTask action) {
 		super(columns, rows, posCentral);
 		this.action = action;
 	}
 
 	@Override
-	protected Pieza getPiezaFromTablero(int cursorTablero) {
+	protected Integer getPiezaInfoFromTablero(int cursorTablero) {
 		return action.tablero[cursorTablero];
-	}
-
-	@Override
-	protected Pieza getPiezaCentral() {
-		return action.piezas[Consts.NUM_P_CENTRAL];
 	}
 
 }

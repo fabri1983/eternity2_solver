@@ -1,3 +1,25 @@
+/**
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package org.fabri1983.eternity2.core.neighbors;
 
 import org.fabri1983.eternity2.core.Consts;
@@ -39,7 +61,10 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			[Consts.NUM_OF_CORNER_AND_BORDER_COLORS][Consts.NUM_OF_CORNER_AND_BORDER_COLORS];
 	
 	@Override
-	public void addNeighbor(byte top, byte right, byte bottom, byte left, Pieza p, short piezaIndex, byte rot) {
+	public void addNeighbor(byte top, byte right, byte bottom, byte left, Pieza p) {
+		
+		short piezaIndex = p.numero;
+		
 		if (Pieza.isInterior(p)) {
 			// normal interior pieza
 			NodoPosibles nodoP = getNodoIfKeyIsOriginal_interior(top, left);
@@ -47,7 +72,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 				nodoP = NodoPosibles.newForKey_interior(top, left);
 				m_interior[top][left] = nodoP;
 			}
-			NodoPosibles.addNeighbor(nodoP, piezaIndex, rot);
+			NodoPosibles.addNeighbor(nodoP, top, right, bottom, left, piezaIndex);
 			// above pieza central?
 			if (bottom == Consts.PIEZA_CENTRAL_COLOR_TOP) {
 				NodoPosibles nodoP1 = getNodoIfKeyIsOriginal_interior_above_central(top, left);
@@ -55,7 +80,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 					nodoP1 = NodoPosibles.newForKey_interior_above_central(top, left);
 					m_interior_above_central[top][left] = nodoP1;
 				}
-				NodoPosibles.addNeighbor(nodoP1, piezaIndex, rot);
+				NodoPosibles.addNeighbor(nodoP1, top, right, bottom, left, piezaIndex);
 			}
 			// left pieza central?
 			if (right == Consts.PIEZA_CENTRAL_COLOR_LEFT) {
@@ -64,7 +89,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 					nodoP2 = NodoPosibles.newForKey_interior_left_central(top, left);
 					m_interior_left_central[top][left] = nodoP2;
 				}
-				NodoPosibles.addNeighbor(nodoP2, piezaIndex, rot);
+				NodoPosibles.addNeighbor(nodoP2, top, right, bottom, left, piezaIndex);
 			}
 		}
 		else if (Pieza.isBorder(p)) {
@@ -101,7 +126,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 					m_border_bottom[top][left - Consts.FIRST_CORNER_OR_BORDER_COLOR] = nodoP;
 				}
 			}
-			NodoPosibles.addNeighbor(nodoP, piezaIndex, rot);
+			NodoPosibles.addNeighbor(nodoP, top, right, bottom, left, piezaIndex);
 		}
 		else if (Pieza.isCorner(p)) {
 			NodoPosibles nodoP = null;
@@ -137,7 +162,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 					m_corner_bottom_right[top - Consts.FIRST_CORNER_OR_BORDER_COLOR][left - Consts.FIRST_CORNER_OR_BORDER_COLOR] = nodoP;
 				}
 			}
-			NodoPosibles.addNeighbor(nodoP, piezaIndex, rot);
+			NodoPosibles.addNeighbor(nodoP, top, right, bottom, left, piezaIndex);
 		}
 	}
 
@@ -274,9 +299,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -293,9 +318,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior_above_central[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -312,9 +337,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior_left_central[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -331,9 +356,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_border_right[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -351,7 +376,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			if (nodoP != null) {
 				int key = a;
 				int size = 0;
-				for (short info : nodoP.mergedInfo) {
+				for (int info : nodoP.mergedInfo) {
 					if (info != -1)
 						++size;
 					else
@@ -368,7 +393,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			if (nodoP != null) {
 				int key = a;
 				int size = 0;
-				for (short info : nodoP.mergedInfo) {
+				for (int info : nodoP.mergedInfo) {
 					if (info != -1)
 						++size;
 					else
@@ -384,9 +409,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.NUM_OF_CORNER_AND_BORDER_COLORS; ++b) {
 				NodoPosibles nodoP = m_border_bottom[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -404,7 +429,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			if (nodoP != null) {
 				int key = a;
 				int size = 0;
-				for (short info : nodoP.mergedInfo) {
+				for (int info : nodoP.mergedInfo) {
 					if (info != -1)
 						++size;
 					else
@@ -421,7 +446,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			if (nodoP != null) {
 				int key = a;
 				int size = 0;
-				for (short info : nodoP.mergedInfo) {
+				for (int info : nodoP.mergedInfo) {
 					if (info != -1)
 						++size;
 					else
@@ -438,7 +463,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			if (nodoP != null) {
 				int key = a;
 				int size = 0;
-				for (short info : nodoP.mergedInfo) {
+				for (int info : nodoP.mergedInfo) {
 					if (info != -1)
 						++size;
 					else
@@ -454,9 +479,9 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.NUM_OF_CORNER_AND_BORDER_COLORS; ++b) {
 				NodoPosibles nodoP = m_corner_bottom_right[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					int size = 0;
-					for (short info : nodoP.mergedInfo) {
+					for (int info : nodoP.mergedInfo) {
 						if (info != -1)
 							++size;
 						else
@@ -476,7 +501,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}
@@ -486,7 +511,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior_above_central[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}
@@ -496,7 +521,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_interior_left_central[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}
@@ -506,7 +531,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++b) {
 				NodoPosibles nodoP = m_border_right[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}
@@ -532,7 +557,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.NUM_OF_CORNER_AND_BORDER_COLORS; ++b) {
 				NodoPosibles nodoP = m_border_bottom[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}
@@ -566,7 +591,7 @@ public class SuperMatrizMultiDimensionalStrategy implements NeighborStrategy {
 			for (byte b=0; b < Consts.NUM_OF_CORNER_AND_BORDER_COLORS; ++b) {
 				NodoPosibles nodoP = m_corner_bottom_right[a][b];
 				if (nodoP != null) {
-					int key = NodoPosibles.asKey(a, b);
+					int key = NodoPosibles.colorsAsKey(a, b);
 					System.out.println(key);
 				}
 			}

@@ -48,7 +48,6 @@ public class Pieza {
 	public byte top,right,bottom,left;
 	public short numero; // número que representa la pieza en el juego real (pero aqui es 0-based)
 	public byte rotacion;
-	public boolean usada;
 	
 	// public int idUnico; // es un número para identificar unequivocamente la instancia de la pieza, pues se hacen copias 
 //	private static int countIdUnico = 0;

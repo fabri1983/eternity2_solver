@@ -38,21 +38,16 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 
 Some stats
 ----------
-- **New stats** include changes to use as low memory as possible:  
-(These stats show numbers lower than previous version of the solver which used much more memory. There is always a trade-off)
+- **New stats** include changes to use as low memory as possible:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-    - Placing approx **51.32 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
-    - Placing approx **44.45 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **44.79 million correct tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
+    - Placing approx **66.51 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **70.00 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **51.03 million correct tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
 	
-- **Old stats**:
-  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-    - Placing approx **66.8 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
-    - Placing approx **68.0 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **40.0 million correct tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
-
+- **Outdated stats**:
+(I need to re run the benchmarks on this specific platform using latest project changes)
   - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13. Results:
-    - Placing approx **97 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **97 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **107 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
@@ -150,25 +145,26 @@ E.g.:
 	./run.sh
 ```
 
-The app loads by default the next properties (may vary between forkjoin and mpje profiles). You can pass only those you want to change:
+The app loads by default the next properties (may vary between `threads.properties` and `mpje.properties`). You can pass only those you want to change:
 ```sh
-	max.ciclos.save_status=2147483647
+	max.ciclos.print.stats=2147483647
+	max.ciclos.save.status=true
 	min.pos.save.partial=211
 	exploration.limit=-1
 	max.partial.files=2
 	target.rollback.pos=-1
-	ui.show=true            <-- this has no effect on native build
-	ui.per.proc=false       <-- this has no effect on native build
-	ui.cell.size=28         <-- this has no effect on native build
-	ui.refresh.millis=100   <-- this has no effect on native build
+	ui.show=true            <-- this has no effect on native builds
+	ui.per.proc=false       <-- this has no effect on native builds
+	ui.cell.size=28         <-- this has no effect on native builds
+	ui.refresh.millis=100   <-- this has no effect on native builds
 	experimental.gif.fair=false
 	experimental.borde.left.explorado=false
 	task.distribution.pos=99
-	forkjoin.num.processes=8   <-- this has no effect on MPJE build
+	num.tasks=8             <-- this has no effect on MPJE builds
 ```
 E.g.:
 ```sh
-	./run.sh -Dmin.pos.save.partial=215 -Dforkjoin.num.processes=4
+	./run.sh -Dmin.pos.save.partial=215 -Dnum.tasks=4
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215     <-- it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
 ```
 
@@ -481,13 +477,13 @@ This will help you to decide which iso you need to download:
 		(using --verbose we can see if it picked up our META-INF/native-image/org.fabri1983.eternity2/native-image.properties file)
 		(If in Linux then add option --no-server)
 		(If in Linux then call: mx native-image --server-shutdown)
-	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
+	e2solver.exe -Dnum.tasks=8 -Dmin.pos.save.partial=211
 	```
 	There is also a possible optimization feature named Profile Guided Optimization:
 	```sh
 	mx native-image --pgo-instrument <same params than above>
 	execute the executable for some seconds:
-		e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
+		e2solver.exe -Dnum.tasks=8 -Dmin.pos.save.partial=211
 	mx native-image --pgo=default.iprof <same params than above>
 	execute again and see if there is an improvement in execution speed
 	```

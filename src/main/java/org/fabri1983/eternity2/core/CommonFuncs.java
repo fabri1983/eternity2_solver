@@ -1,3 +1,25 @@
+/**
+ * Copyright (c) 2019 Fabricio Lettieri fabri1983@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package org.fabri1983.eternity2.core;
 
 import java.io.BufferedReader;
@@ -108,17 +130,10 @@ public class CommonFuncs {
 		}
 	}
 	
-	/**
-	 * En este metodo se setean las piezas que son fijas al juego. Por ahora solo existe
-	 * una sola pieza fija y es la pieza numero 139 en las posicion 136 real (135 para el
-	 * algoritmo porque es 0-based)
-	 */
-	public final static void ponerPiezasFijasEnTablero(int processId, Pieza[] piezas, Pieza[] tablero) {
-		
-		Pieza piezaCentral = piezas[Consts.NUM_P_CENTRAL];
-		piezaCentral.usada= true;
-		tablero[Consts.POSICION_CENTRAL]= piezaCentral; // same value than INDICE_P_CENTRAL
-		
+	public final static void ponerPiezasFijasEnTablero(int processId, Pieza[] piezas, int[] tablero, boolean[] usada) {
+		Pieza p = piezas[Consts.NUM_P_CENTRAL];
+		usada[p.numero] = true;
+		tablero[Consts.POSICION_CENTRAL] = NodoPosibles.asMergedInfo(p.top, p.right, p.bottom, p.left, p.numero);
 		System.out.println(processId + " >>> Pieza Fija en posicion " + (Consts.POSICION_CENTRAL + 1) + " cargada en tablero");
 	}
 	
@@ -140,7 +155,6 @@ public class CommonFuncs {
 					throw new Exception("El numero que ingresaste como num de piezas por lado (" + Consts.LADO + ") es distinto del que contiene el archivo");
 				
 				piezas[num]= PiezaFactory.from(linea, num);
-                //PiezaFactory.setFromStringWithNum(linea, num, action.piezas[num]);
 				linea= reader.readLine();
 				++num;
 			}
@@ -166,12 +180,19 @@ public class CommonFuncs {
 	 */
 	public final static void verificarTiposDePieza(int processId, Pieza[] piezas) {
 		
+		// first check index matches with Pieza.numero
+		for (int g=0; g < Consts.MAX_PIEZAS; ++g) {
+			Pieza pzx = piezas[g];
+			if (pzx.numero != g) {
+				throw new RuntimeException(processId + " >>> ERROR. Pieza en indice " + g + " no coincide con su numero " + pzx.numero);
+			}
+		}
+
+		// lastly check number of different types of Pieza
 		int n_esq= 0;
 		int n_bordes= 0;
 		int n_interiores= 0;
-	
-		for (int g=0; g < Consts.MAX_PIEZAS; ++g)
-		{
+		for (int g=0; g < Consts.MAX_PIEZAS; ++g) {
 			Pieza pzx = piezas[g];
 			if (Pieza.isInterior(pzx))
 				++n_interiores;
@@ -222,7 +243,7 @@ public class CommonFuncs {
 				if (useFairExperimentGif && (pz.top == pz.bottom))
 					continue;
 				
-				neighborStrategy.addNeighbor(pz.top, pz.right, pz.bottom, pz.left, pz, k, rot);
+				neighborStrategy.addNeighbor(pz.top, pz.right, pz.bottom, pz.left, pz);
 			}
 			
 			//restauro la rotación
@@ -237,41 +258,41 @@ public class CommonFuncs {
 	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
 	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
 	 */
-	public final static NodoPosibles obtenerPosiblesPiezas (byte flagZona, int cursor, Pieza[] tablero, NeighborStrategy neighborStrategy)
+	public final static NodoPosibles obtenerPosiblesPiezas (byte flagZona, int cursor, int[] tablero, NeighborStrategy neighborStrategy)
 	{
 		switch (cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central
 			case Consts.SOBRE_POSICION_CENTRAL:
 				return neighborStrategy.getNodoIfKeyIsOriginal_interior_above_central(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 			// estoy en la posicion inmediatamente a la izq de la posicion central
 			case Consts.ANTE_POSICION_CENTRAL:
 				return neighborStrategy.getNodoIfKeyIsOriginal_interior_left_central(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 		}
 		
 		switch (flagZona) {
 			// interior de tablero
 			case Consts.F_INTERIOR: 
 				return neighborStrategy.getNodoIfKeyIsOriginal_interior(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 	
 			// borde right
 			case Consts.F_BORDE_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border_right(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 			// borde left
 			case Consts.F_BORDE_LEFT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border_left(
-						tablero[cursor - Consts.LADO].bottom);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]));
 			// borde top
 			case Consts.F_BORDE_TOP:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border_top(
-						tablero[cursor - 1].right);
+						NodoPosibles.right(tablero[cursor - 1]));
 			// borde bottom
 			case Consts.F_BORDE_BOTTOM:
 				return neighborStrategy.getNodoIfKeyIsOriginal_border_bottom(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 		
 			// esquina top-left
 			case Consts.F_ESQ_TOP_LEFT:
@@ -279,56 +300,25 @@ public class CommonFuncs {
 			// esquina top-right
 			case Consts.F_ESQ_TOP_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner_top_right(
-						tablero[cursor - 1].right);
+						NodoPosibles.right(tablero[cursor - 1]));
 			// esquina bottom-left
 			case Consts.F_ESQ_BOTTOM_LEFT: 
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner_bottom_left(
-						tablero[cursor - Consts.LADO].bottom);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]));
 			// esquina bottom-right
 			case Consts.F_ESQ_BOTTOM_RIGHT:
 				return neighborStrategy.getNodoIfKeyIsOriginal_corner_bottom_right(
-						tablero[cursor - Consts.LADO].bottom, tablero[cursor - 1].right);
+						NodoPosibles.bottom(tablero[cursor - Consts.LADO]), NodoPosibles.right(tablero[cursor - 1]));
 		}
 		
 		return null;
 	}
 
 	/**
-	 * Me guarda en el archivo NAME_FILE_LIBRES_MAX las numeros de las piezas que quedaron libres.
-	 */
-	public final static void guardarLibres(int processId, Pieza[] piezas, String libresMaxFileName)
-	{
-		try{
-			PrintWriter wLibres= new PrintWriter(new BufferedWriter(new FileWriter(libresMaxFileName)));
-			StringBuilder wLibresBuffer= new StringBuilder(256 * 13);
-			
-			for (int b=0; b < Consts.MAX_PIEZAS; ++b) {
-				Pieza pzx= piezas[b];
-				if (pzx.usada == false)
-					wLibresBuffer.append(pzx.numero + 1).append("\n");
-			}
-			
-			for (int b=0; b < Consts.MAX_PIEZAS; ++b) {
-				Pieza pzx= piezas[b];
-				if (pzx.usada == false)
-					wLibresBuffer.append(PiezaStringer.toStringColores(pzx)).append("\n");
-			}
-			
-			String sContent = wLibresBuffer.toString();
-			wLibres.append(sContent);
-			wLibres.flush();
-			wLibres.close();
-		}
-		catch (Exception escp) {
-			System.out.println(processId + " >>> ERROR: No se pudo generar el archivo " + libresMaxFileName + ". " + escp.getMessage());
-		}
-	}
-
-	/**
 	 * En el archivo NAME_FILE_SOLUCION se guardan los colores de cada pieza.
 	 * En el archivo NAME_FILE_DISPOSICION se guarda el numero y rotacion de cada pieza.
 	 */
-	public final static void guardarSolucion (int processId, Pieza[] tablero, String solucFileName, String dispFileName)
+	public final static void guardarSolucion (int processId, int[] tablero, String solucFileName, String dispFileName)
 	{
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(solucFileName, true)));
@@ -343,11 +333,16 @@ public class CommonFuncs {
 			
 			for (int b=0; b < Consts.MAX_PIEZAS; ++b)
 			{
-				Pieza p= tablero[b];
 				int pos= b+1;
-				wSol.println(p.top + Consts.SECCIONES_SEPARATOR_EN_FILE + p.right + Consts.SECCIONES_SEPARATOR_EN_FILE + p.bottom + Consts.SECCIONES_SEPARATOR_EN_FILE + p.left);
-				wDisp.println((p.numero + 1) + Consts.SECCIONES_SEPARATOR_EN_FILE + p.rotacion + Consts.SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(p.numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+				int merged = tablero[b];
+				int numero = NodoPosibles.numero(merged);
+				int top = NodoPosibles.top(merged);
+				int right = NodoPosibles.right(merged);
+				int bottom = NodoPosibles.bottom(merged);
+				int left = NodoPosibles.left(merged);
+				wSol.println(top + Consts.SECCIONES_SEPARATOR_EN_FILE + right + Consts.SECCIONES_SEPARATOR_EN_FILE + bottom + Consts.SECCIONES_SEPARATOR_EN_FILE + left);
+				wDisp.println((numero + 1) + Consts.SECCIONES_SEPARATOR_EN_FILE + pos);
+				contenidoDisp.append(numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			
 			wSol.println();
@@ -371,8 +366,8 @@ public class CommonFuncs {
 	/**
 	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
 	 */
-	public final static void guardarEstado (String statusFileName, int processId, Pieza[] piezas, Pieza[] tablero, 
-			int cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved, 
+	public final static void guardarEstado(String statusFileName, int processId, int[] tablero, int cursor,
+			int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved,
 			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		try{
@@ -394,16 +389,10 @@ public class CommonFuncs {
 			//guardo los indices de piezas de tablero[]
 			for (int n=0; n < Consts.MAX_PIEZAS; ++n) {
 				if (n==(Consts.MAX_PIEZAS - 1)) {
-					if (tablero[n] == null)
-						writerBuffer.append("-1").append("\n");
-					else
-						writerBuffer.append(tablero[n].numero).append("\n");
+					writerBuffer.append(tablero[n]).append("\n");
 				}
 				else {
-					if (tablero[n] == null)
-						writerBuffer.append("-1").append("\n");
-					else
-						writerBuffer.append(tablero[n].numero).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
+					writerBuffer.append(tablero[n]).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
 				}
 			}
 			
@@ -412,18 +401,20 @@ public class CommonFuncs {
 			 * Calculo los valores para desde_saved[]
 			 */
 			//########################################################################
-			int _cursor = 0;
-			for (; _cursor < cursor; ++_cursor) {
-				
-				if (_cursor == Consts.POSICION_CENTRAL) //para la pieza central no se tiene en cuenta su valor desde_saved[] 
+			for (int _cursor = 0; _cursor < cursor; ++_cursor) {
+				// para la pieza central no se tiene en cuenta su valor desde_saved[]
+				if (_cursor == Consts.POSICION_CENTRAL) {
+					desde_saved[_cursor] = 0;
 					continue;
-				//tengo el valor para desde_saved[]
-				desde_saved[_cursor] = NodoPosibles.getUbicPieza(
+				}
+				// obtengo el valor para desde_saved[]
+				int mergedInfo = tablero[_cursor];
+				desde_saved[_cursor] = NodoPosibles.getIndexMergedInfo(
 						obtenerPosiblesPiezas(matrix_zonas[_cursor], _cursor, tablero, neighborStrategy), 
-						tablero[_cursor].numero);
+						mergedInfo);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (;_cursor < Consts.MAX_PIEZAS; ++_cursor)
+			for (int _cursor = cursor; _cursor < Consts.MAX_PIEZAS; ++_cursor)
 				desde_saved[_cursor] = 0;
 			//########################################################################
 			
@@ -452,12 +443,6 @@ public class CommonFuncs {
 				}
 			}
 			
-			//guardo el estado de rotación y el valor de usada de cada pieza
-			for (int n=0; n < Consts.MAX_PIEZAS; ++n)
-			{
-				writerBuffer.append(piezas[n].rotacion).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(String.valueOf(piezas[n].usada)).append("\n");
-			}
-			
 			String sContent = writerBuffer.toString();
 			writer.append(sContent);
 			writer.flush();
@@ -472,11 +457,11 @@ public class CommonFuncs {
 	/**
 	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
-	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, Pieza[] piezas, Pieza[] tablero, 
-			int cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved, 
+	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, int[] tablero,
+			int cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved,
 			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
 			
-		guardarEstado(statusFileName, processId, piezas, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, desde_saved, 
+		guardarEstado(statusFileName, processId, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, desde_saved, 
 				neighborStrategy, colorRightExploredStrategy);
 		
 		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
@@ -490,9 +475,8 @@ public class CommonFuncs {
 	 * Si max es false, el archivo generado contiene la disposición de piezas en el instante cuando
 	 * se guarda estado.
 	 */
-	public final static int guardarResultadoParcial(boolean max, int processId, Pieza[] piezas, Pieza[] tablero,
-			int sig_parcial, int maxNumParcial, String parcialFileName, String parcialMaxFileName,
-			String disposicionMaxFileName, String libresMaxFileName)
+	public final static int guardarResultadoParcial(boolean max, int processId, int[] tablero, int sig_parcial,
+			int maxNumParcial, String parcialFileName, String parcialMaxFileName, String disposicionMaxFileName)
 	{
 		if (maxNumParcial == 0 && !max)
 			return sig_parcial;
@@ -519,16 +503,21 @@ public class CommonFuncs {
 			
 			for (int b=0; b < Consts.MAX_PIEZAS; ++b) {
 				int pos= b+1;
-				Pieza p = tablero[b];
-				if (p == null){
+				int merged = tablero[b];
+				if (merged == -1){
 					parcialBuffer.append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append("\n");
 					if (max)
-						dispMaxBuff.append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else {
-					parcialBuffer.append(p.top).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(p.right).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(p.bottom).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(p.left).append("\n");
+					int numero = NodoPosibles.numero(merged);
+					int top = NodoPosibles.top(merged);
+					int right = NodoPosibles.right(merged);
+					int bottom = NodoPosibles.bottom(merged);
+					int left = NodoPosibles.left(merged);
+					parcialBuffer.append(top).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(right).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(bottom).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(left).append("\n");
 					if (max)
-						dispMaxBuff.append(p.numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(p.rotacion).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
+						dispMaxBuff.append(numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
@@ -547,10 +536,6 @@ public class CommonFuncs {
 				wDispMax.close();
 			}
 			
-			// guardar los libres solo si es max instance
-			if (max)
-				guardarLibres(processId, piezas, libresMaxFileName);
-			
 			return sig_parcial;
 		}
 		catch(Exception ex) {
@@ -559,13 +544,13 @@ public class CommonFuncs {
 		}
 	}
 
-	public final static boolean testPodaColorRightExplorado(byte flagZona, int cursor, Pieza p, 
+	public final static boolean testPodaColorRightExplorado(byte flagZona, int cursor, byte right,
 			ColorRightExploredStrategy colorRightExploredStrategy) {
 		
-		final int fila_actual = cursor >>> Consts.LADO_SHIFT_AS_DIVISION; // if divisor is power of 2 then we can use >>
+		final int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION; // if divisor is power of 2 then we can use >>
 		
 		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
-		// old was: ((cursor+2) % LADO) == 0
+		// Old was: ((cursor+2) % LADO) == 0
 		final boolean flag_antes_borde_right = ((cursor + 2) & (Consts.LADO - 1)) == 0;
 		
 		// si estoy antes del borde right limpio el arreglo de colores right usados
@@ -574,12 +559,11 @@ public class CommonFuncs {
 		
 		if (flagZona == Consts.F_BORDE_LEFT)
 		{
-			final int mask = 1 << p.right;
+			final int mask = 1 << right;
 			
 			// pregunto si el color right de la pieza de borde left actual ya está explorado
 			int color = colorRightExploredStrategy.get(fila_actual);
 			if ((color & mask) != 0) {
-				p.usada = false; //la pieza ahora no es usada
 				return true; // sigo con otra pieza de borde
 			}
 			// si no es así entonces lo seteo como explorado
@@ -594,11 +578,14 @@ public class CommonFuncs {
 		return false;
 	}
 
-	public final static boolean testFairExperimentGif(byte flagZona, int cursor, Pieza p, Pieza[] tablero) {
-		
+	public final static boolean testFairExperimentGif(byte flagZona, int cursor, int merged, int[] tablero, boolean[] usada)
+	{
 		if (flagZona == Consts.F_INTERIOR || flagZona == Consts.F_BORDE_TOP) {
-			if (p.bottom == tablero[cursor-1].bottom){
-				p.usada = false;
+			int bottom = NodoPosibles.bottom(merged);
+			int bottomAnterior = NodoPosibles.bottom(tablero[cursor - 1]);
+			if (bottom == bottomAnterior){
+				int numero = NodoPosibles.numero(merged);
+				usada[numero] = false;
 				return true;
 			}
 		}
@@ -606,27 +593,38 @@ public class CommonFuncs {
 		return false;
 	}
 
-	public final static void setContornoUsado(int cursor, Contorno contorno, Pieza[] tablero)
+	public final static void setContornoUsado(int cursor, Contorno contorno, int[] tablero, int mergedActual)
 	{
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_proc_contorno[cursor] == true) {
-			contorno.contornos_used[tablero[cursor-1].left][tablero[cursor-1].top][tablero[cursor].top] = true;
+			int mergedAnterior = tablero[cursor - 1];
+			contorno.used
+					[NodoPosibles.left(mergedAnterior)]
+					[NodoPosibles.top(mergedAnterior)]
+					[NodoPosibles.top(mergedActual)] = true;
 		}
 	}
 	
-	public final static void setContornoLibre(int cursor, Contorno contorno, Pieza[] tablero)
+	public final static void setContornoLibre(int cursor, Contorno contorno, int[] tablero, int mergedActual)
 	{
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_proc_contorno[cursor] == true) {
-			contorno.contornos_used[tablero[cursor-1].left][tablero[cursor-1].top][tablero[cursor].top] = false;
+			int mergedAnterior = tablero[cursor - 1];
+			contorno.used
+					[NodoPosibles.left(mergedAnterior)]
+					[NodoPosibles.top(mergedAnterior)]
+					[NodoPosibles.top(mergedActual)] = false;
 		}
 	}
 
-	public final static boolean esContornoSuperiorUsado(int cursor, Contorno contorno, Pieza[] tablero)
+	public final static boolean esContornoSuperiorUsado(int cursor, Contorno contorno, int[] tablero)
 	{
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if (zona_read_contorno[cursor] == true) {
-			return contorno.contornos_used[tablero[cursor-1].right][tablero[cursor - Consts.LADO].bottom][tablero[cursor - Consts.LADO + 1].bottom];
+			return contorno.used
+					[NodoPosibles.right(tablero[cursor-1])]
+					[NodoPosibles.bottom(tablero[cursor - Consts.LADO])]
+					[NodoPosibles.bottom(tablero[cursor - Consts.LADO + 1])];
 		}
 		return false;
 	}

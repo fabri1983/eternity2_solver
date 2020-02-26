@@ -22,7 +22,7 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.faster.ExploracionAction;
+import org.fabri1983.eternity2.faster.ExplorationTask;
 
 public class ViewEternityFasterFactory implements ViewEternityFactory {
 	
@@ -31,10 +31,10 @@ public class ViewEternityFasterFactory implements ViewEternityFactory {
 	private int num_colours;
 	private long refreshMillis;
 	private int totalProcs;
-	private ExploracionAction action;
+	private ExplorationTask action;
 	
 	public ViewEternityFasterFactory(int lado, int cell_size_pixels, int num_colours, long refreshMillis,
-			int totalProcs, ExploracionAction action) {
+			int totalProcs, ExplorationTask action) {
 		super();
 		this.lado = lado;
 		this.cell_size_pixels = cell_size_pixels;

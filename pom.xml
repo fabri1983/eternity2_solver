@@ -106,7 +106,7 @@
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
+				<env.props.file>threads.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -120,7 +120,7 @@
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFasterNative</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
+				<env.props.file>threads.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -135,7 +135,7 @@
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.injar.filter></pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
+				<env.props.file>threads.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -150,7 +150,7 @@
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.MainFasterNative</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
+				<env.props.file>threads.properties</env.props.file>
 			</properties>
 		</profile>
 		<profile>
@@ -165,7 +165,7 @@
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
 				<pg.injar.filter>!imgs/**</pg.injar.filter>
 				<manifest.main.class>org.fabri1983.eternity2.faster.benchmark.MainFasterBenchmark</manifest.main.class>
-				<env.props.file>forkjoin.properties</env.props.file>
+				<env.props.file>threads.properties</env.props.file>
 			</properties>
 			<dependencies>
 				<dependency>

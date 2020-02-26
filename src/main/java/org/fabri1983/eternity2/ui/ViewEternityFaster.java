@@ -23,17 +23,17 @@
 package org.fabri1983.eternity2.ui;
 
 import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.faster.ExploracionAction;
+import org.fabri1983.eternity2.faster.ExplorationTask;
 import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class ViewEternityFaster extends ViewEternityAbstract {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ExploracionAction action;
+	private ExplorationTask action;
 
 	public ViewEternityFaster(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours,
-			ExploracionAction _action) {
+			ExplorationTask _action) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
 		action = _action;
 	}

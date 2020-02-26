@@ -22,8 +22,6 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
 public class CanvasMPJE extends CanvasAbstract {
@@ -33,13 +31,8 @@ public class CanvasMPJE extends CanvasAbstract {
     }
 
     @Override
-	protected Pieza getPiezaFromTablero(int cursorTablero) {
+	protected Integer getPiezaInfoFromTablero(int cursorTablero) {
     	return SolverFasterMPJE.tablero[cursorTablero];
-    }
-    
-    @Override
-	protected Pieza getPiezaCentral() {
-    	return SolverFasterMPJE.piezas[Consts.NUM_P_CENTRAL];
     }
     
 }

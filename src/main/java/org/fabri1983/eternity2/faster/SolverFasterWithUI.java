@@ -41,9 +41,6 @@ public final class SolverFasterWithUI {
 		return newObj;
 	}
 	
-	/**
-	 * Inicializa varias estructuras y flags.
-	 */
 	public final void setupInicial(ReaderForFile readerForTilesFile) {
 		
 		solver.setupInicial(readerForTilesFile);
@@ -55,11 +52,6 @@ public final class SolverFasterWithUI {
 		tableboardE2.startPainting();
 	}
 	
-	/**
-	 * Invoca al pool de fork-join con varias instancias de RecursiveAction: ExploracionAction.
-	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
-	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
-	 */
 	public final void atacar() {
 		solver.atacar();
 	}

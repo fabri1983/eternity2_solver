@@ -22,6 +22,8 @@
 
 package org.fabri1983.eternity2.core;
 
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+
 /**
  * Esta clase ayuda a saber si un determinado contorno (superior o inferior) está siendo usado o no.
  * La teoria a la que concluí es: si un contorno aparece como usado, luego no existe combinacion de 
@@ -51,20 +53,20 @@ public final class Contorno
 	 * So ending up with MAX_COLORES_INVOLVED = 22 - 5 = 17.
 	 * Para 3 niveles (MAX_COLS=2): MAX_COLORES_INVOLVED^3 = 4913.
 	 */
-	public final boolean[][][] contornos_used = new boolean[MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED];
+	public final boolean[][][] used = new boolean[MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED][MAX_COLORES_INVOLVED];
 	
 	/**
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
 	 * Cada tablero tiene su instancia de Contorno.
 	 */
-	public static final void inicializarContornos (Contorno contorno, Pieza[] tablero, int maxPiezas, int lado)
+	public static final void inicializarContornos (Contorno contorno, int[] tablero, int maxPiezas, int lado)
 	{
 		// el limite inicial y el final me evitan los bordes sup e inf
 		for (int k=lado; k < (maxPiezas - lado); ++k)
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
-			if (tablero[k] == null)
+			if (tablero[k] == -1)
 				return;
 			
 			//borde izquierdo
@@ -77,7 +79,7 @@ public final class Contorno
 				continue;
 			//me fijo si de las posiciones que tengo que obtener el contorno alguna ya es libre
 			for (int a=1; a < MAX_COLS; ++a) {
-				if (tablero[k+a] == null)
+				if (tablero[k+a] == -1)
 					return;
 			}
 			
@@ -86,7 +88,9 @@ public final class Contorno
 			//Saco el contorno superior e inferior y los seteo como usado.
 			//El contorno inferior lo empiezo a contemplar a partir de fila_actual >= 2 porque necesito que 
 			//existan piezas colocadas indicando que se ha formado el contorno inferior.
-			contorno.contornos_used[tablero[k].left][tablero[k].top][tablero[k+1].top] = true;
+			contorno.used	[NodoPosibles.left(tablero[k])]
+									[NodoPosibles.top(tablero[k])]
+									[NodoPosibles.top(tablero[k+1])] = true;
 		}
 	}
 	
@@ -94,7 +98,7 @@ public final class Contorno
 		for (int i=0; i < MAX_COLORES_INVOLVED; ++i) {
 			for (int j=0; j < MAX_COLORES_INVOLVED; ++j) {
 				for (int k=0; k < MAX_COLORES_INVOLVED; ++k) {
-					contorno.contornos_used[i][j][k] = false;
+					contorno.used[i][j][k] = false;
 				}
 			}
 		}
