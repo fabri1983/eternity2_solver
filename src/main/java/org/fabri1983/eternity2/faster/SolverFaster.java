@@ -33,6 +33,7 @@ import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
 import org.fabri1983.eternity2.core.neighbors.SuperMatrizMultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredAtomicStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
@@ -40,27 +41,29 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public final class SolverFaster {
 	
-	static int POSICION_MULTI_PROCESSES = -1; //(99) posición del tablero en la que se aplica fork/join
+	static int POSICION_MULTI_PROCESSES = -1; // posición del tablero en la que se aplica fork/join
 	static int NUM_PROCESSES = 1;
-	static ExploracionAction actions[];
+	static ExplorationTask actions[];
 	static CountDownLatch startSignal;
     
-	static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
+	static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
+	static boolean SAVE_STATUS_ON_MAX_CYCLES;
 	static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	
-	final static String NAME_FILE_SOLUCION = "solution/soluciones";
-	final static String NAME_FILE_DISPOSICION = "solution/disposiciones";
-	final static String NAME_FILE_STATUS = "status/status_saved";
-	final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX";
-	final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
-	final static String NAME_FILE_PARCIAL = "status/parcial";
-	final static String NAME_FILE_LIBRES_MAX = "status/libresMAX";
+	static final String NAME_FILE_SOLUCION = "solution/soluciones";
+	static final String NAME_FILE_DISPOSICION = "solution/disposiciones";
+	static final String NAME_FILE_STATUS = "status/status_saved";
+	static final String NAME_FILE_PARCIAL_MAX = "status/parcialMAX";
+	static final String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
+	static final String NAME_FILE_PARCIAL = "status/parcial";
 	
 	static int LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
+	
+	public static final Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
 	
 	final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
 	
@@ -74,7 +77,8 @@ public final class SolverFaster {
 	}
 	
 	/**
-	 * @param m_ciclos: número máximo de ciclos para disparar guardar estado.
+	 * @param m_ciclos: número máximo de ciclos para imprimir stats.
+	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
 	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
@@ -89,13 +93,13 @@ public final class SolverFaster {
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: parallelism level for the fork-join pool.
 	 */
-	public static SolverFaster build(long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
-			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
-			boolean p_fair_experiment_gif, boolean p_poda_color_right_explorado, int p_pos_multi_processes,
-			int totalProcesses) {
+	public static SolverFaster build(long m_ciclos, boolean save_status_on_max_cycles, int lim_max_par,
+			int lim_exploracion, int max_parciales, int destino_ret, boolean usar_tableboard,
+			boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
+			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
 		
 		MAX_CICLOS = m_ciclos;
-		
+		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
 		POSICION_MULTI_PROCESSES = p_pos_multi_processes;
 		NUM_PROCESSES = Math.min(Runtime.getRuntime().availableProcessors(), totalProcesses);
 		
@@ -144,7 +148,7 @@ public final class SolverFaster {
 	 * Carga el ultimo estado de exploración guardado para la action pasada como parámetro. 
 	 * Si no existe tal estado* inicializa estructuras y variables para que la exploracion comienze desde cero.
 	 */
-	final static boolean cargarEstado(String n_file, ExploracionAction action)
+	final static boolean cargarEstado(String n_file, ExplorationTask action)
 	{
 		BufferedReader reader = null;
 		boolean status_cargado = false;
@@ -180,16 +184,18 @@ public final class SolverFaster {
 				linea= reader.readLine();
 				action.cursor= Integer.parseInt(linea);
 				
-				// recorro los numeros de piezas que estaban en tablero
+				// recorro la info que estaba en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
 				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
+					int mergedInfo= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					action.tablero[k]= numPieza == -1 ? null : action.piezas[numPieza];
+					action.tablero[k]= mergedInfo;
+					if (mergedInfo != -1)
+						action.usada[NodoPosibles.numero(mergedInfo)] = true;
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -223,22 +229,6 @@ public final class SolverFaster {
 					}
 				}
 				
-				//las restantes MAX_PIEZAS lineas contienen el valor de rotación y usada de cada pieza
-				int pos=0; //cuento cuantas lineas voy procesando
-				String splitted[];
-				linea= reader.readLine(); //info de la primer pieza
-				while ((linea != null) && (pos < Consts.MAX_PIEZAS)){
-					splitted = linea.split(Consts.SECCIONES_SEPARATOR_EN_FILE);
-					Pieza.llevarArotacion(action.piezas[pos], Byte.parseByte(splitted[0]));
-					action.piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
-					linea= reader.readLine();
-					++pos;
-				}
-				if (pos != Consts.MAX_PIEZAS){
-					System.out.println(action.id + " >>> ERROR. La cantidad de piezas en el archivo " + n_file + " no coincide con el numero de piezas que el juego espera.");
-					throw new Exception("Inconsistent number of pieces.");
-				}
-				
 				status_cargado=true;
 				
 				System.out.println(action.id + " >>> estado de exploracion (" + n_file + ") cargado.");
@@ -256,12 +246,12 @@ public final class SolverFaster {
 		
 		return status_cargado;
 	}
-	
+
 	/**
 	 * Si el programa es llamado con el argumento {@link SolverFaster#flag_retroceder_externo} en true, entonces
 	 * debo volver la exploracion hasta cierta posicion y guardar estado. No explora.
 	 */
-	final static void retrocederEstado(ExploracionAction action) {
+	final static void retrocederEstado(ExplorationTask action) {
 		
 		action.retroceder= true;
 		int cursor_destino = DESTINO_RET;
@@ -271,12 +261,12 @@ public final class SolverFaster {
 			if (!action.retroceder){
 				action.mas_bajo_activo= true;
 				action.mas_bajo= action.cursor;
-				CommonFuncs.guardarEstado(action.statusFileName, action.id, action.piezas, action.tablero, action.cursor, 
-						action.mas_bajo, action.mas_alto, action.mas_lejano_parcial_max, action.desde_saved, neighborStrategy, 
-						colorRightExploredStrategy);
-				action.sig_parcial = CommonFuncs.guardarResultadoParcial(false, action.id, action.piezas,
-						action.tablero, action.sig_parcial, MAX_NUM_PARCIAL, action.parcialFileName,
-						action.parcialMaxFileName, action.disposicionMaxFileName, action.libresMaxFileName);
+				CommonFuncs.guardarEstado(action.statusFileName, action.id, action.tablero, action.cursor,
+						action.mas_bajo, action.mas_alto, action.mas_lejano_parcial_max, action.desde_saved,
+						neighborStrategy, colorRightExploredStrategy);
+				action.sig_parcial = CommonFuncs.guardarResultadoParcial(false, action.id, action.tablero,
+						action.sig_parcial, MAX_NUM_PARCIAL, action.parcialFileName, action.parcialMaxFileName,
+						action.disposicionMaxFileName);
 				System.out.println(action.id + " >>> Exploracion retrocedio a la posicion " + action.cursor + ". Estado salvado.");
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
@@ -287,10 +277,12 @@ public final class SolverFaster {
 			if (action.cursor < 0)
 				break; //obliga a salir del while
 			
-			if (action.cursor != Consts.POSICION_CENTRAL){
-				Pieza pzz = action.tablero[action.cursor];
-				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
-				action.tablero[action.cursor]= null;
+			if (action.cursor != Consts.POSICION_CENTRAL) {
+				int mergedInfo = action.tablero[action.cursor];
+				int numero = NodoPosibles.numero(mergedInfo);
+				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
+				action.usada[numero] = false;
+				action.tablero[action.cursor] = -1;
 			}
 			
 			//si retrocedá hasta el cursor destino, entonces no retrocedo mas
@@ -305,9 +297,6 @@ public final class SolverFaster {
 		}
 	}
 	
-	/**
-	 * Inicializa varias estructuras y flags
-	 */
 	public final void setupInicial(ReaderForFile readerForTilesFile) {
 		
 		// cargo en el arreglo matrix_zonas valores que me indiquen en que posición estoy (borde, esquina o interior) 
@@ -320,23 +309,28 @@ public final class SolverFaster {
 		// seteo las posiciones donde se puede preguntar por contorno superior usado
 		CommonFuncs.inicializarZonaReadContornos();
 		
+		// cargo las piezas desde archivo de piezas
+		CommonFuncs.cargarPiezas(-1, piezas, readerForTilesFile);
+		
+		// hago una verificacion de las piezas cargadas
+		CommonFuncs.verificarTiposDePieza(-1, piezas);
+		
 		// creates the array of actions
-		actions = new ExploracionAction[NUM_PROCESSES];
+		actions = new ExplorationTask[NUM_PROCESSES];
 		// a start signal that prevents any ExplorationAction from proceeding until the orchestrator (this thread) is ready for them to proceed
 		startSignal = new CountDownLatch(1);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 
-			ExploracionAction exploracionAction = new ExploracionAction(proc, NUM_PROCESSES, MAX_CICLOS,
-					LIMITE_RESULTADO_PARCIAL, startSignal);
+			ExplorationTask task = new ExplorationTask(proc, NUM_PROCESSES, startSignal);
 			
-			exploracionAction.setupInicial(readerForTilesFile);
+			task.setupInicial(readerForTilesFile);
 			
-			actions[proc] = exploracionAction;
+			actions[proc] = task;
 		}
 		
-		// cargar la super matriz (solo basta obtener las piezas de un exploracionAction)
-		CommonFuncs.cargarSuperEstructura(actions[0].id, actions[0].piezas, FairExperimentGif, SolverFaster.neighborStrategy);
+		// cargar la super matriz (solo basta obtener las piezas de una task)
+		CommonFuncs.cargarSuperEstructura(actions[0].id, piezas, FairExperimentGif, neighborStrategy);
 	}
 	
 	private final Thread[] createPoolAndStart() {
@@ -345,7 +339,7 @@ public final class SolverFaster {
 		
 		// submit all threads tasks
 		for (int i = 0, c = actions.length; i < c; ++i) {
-			System.out.println("ExploracionAction " + i + " submitted");
+			System.out.println("Task submitted " + i);
 			Thread thread = new Thread(actions[i]);
 			pool[i] = thread;
 			thread.start();
@@ -357,11 +351,6 @@ public final class SolverFaster {
 		return pool;
 	}
 	
-	/**
-	 * Invoca al pool de threads con varias instancias de RecursiveAction: ExploracionAction.
-	 * Cada action ejecuta una rama de la exploración asociada a su id. De esta manera se logra decidir 
-	 * la rama a explorar y tmb qué siguiente rama explorar una vez finalizada la primer rama.
-	 */
 	public final void atacar() {
 		
 		Thread[] pool = createPoolAndStart();
@@ -405,8 +394,8 @@ public final class SolverFaster {
 		neighborStrategy.resetForBenchmark();
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
-			ExploracionAction exploracionAction = actions[proc];
-			exploracionAction.resetForBenchmark(NUM_PROCESSES, startSignal);
+			ExplorationTask task = actions[proc];
+			task.resetForBenchmark(NUM_PROCESSES, startSignal);
 		}
 	}
 }

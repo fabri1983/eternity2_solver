@@ -71,7 +71,7 @@ public abstract class ViewEternityAbstract extends JFrame implements KeyListener
     
 	private void jbInit() throws Exception {
     	
-    	this.setSize(new Dimension((lado * cell_size) + 13, (lado * cell_size) + 50));
+    	this.setSize(new Dimension((lado * cell_size) + 18, (lado * cell_size) + 56));
 
         eternityJTable = new EternityTable(cell_size, num_colours);
         eternityJTable.addKeyListener(this);

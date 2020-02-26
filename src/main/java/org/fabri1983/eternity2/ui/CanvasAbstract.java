@@ -1,31 +1,29 @@
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.core.Pieza;
-import org.fabri1983.eternity2.core.PiezaFactory;
+import org.fabri1983.eternity2.core.Consts;
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
 
 public abstract class CanvasAbstract implements Canvas {
 
 	private int columns;
 	private int rows;
-	private Pieza pieza_gris;
+	private Integer pieza_gris;
 
 	public CanvasAbstract(int columns, int rows, int posCentral) {
 		this.columns = columns;
 		this.rows = rows;
-		this.pieza_gris = PiezaFactory.dummy();
+		this.pieza_gris = NodoPosibles.asMergedInfo(Consts.GRIS, Consts.GRIS, Consts.GRIS, Consts.GRIS, (short)0);
 	}
 
-	protected abstract Pieza getPiezaFromTablero(int cursorTablero);
-	
-	protected abstract Pieza getPiezaCentral();
+	protected abstract Integer getPiezaInfoFromTablero(int cursorTablero);
 	
 	@Override
-	public Pieza getPieza(int r, int c) {
-		return getPiezaFromTablero(r * rows + c);
+	public Integer getPiezaInfo(int r, int c) {
+		return getPiezaInfoFromTablero(r * rows + c);
 	}
 
 	@Override
-	public Pieza getPiezaGris() {
+	public Integer getPiezaInfoGris() {
 		return pieza_gris;
 	}
 	

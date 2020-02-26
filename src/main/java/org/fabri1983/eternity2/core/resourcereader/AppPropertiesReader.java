@@ -27,6 +27,21 @@ import java.util.Properties;
 
 public class AppPropertiesReader {
 
+	public static final String MAX_CICLOS_PRINT_STATS = 				"max.ciclos.print.stats";
+	public static final String MAX_CICLOS_SAVE_STATUS = 				"max.ciclos.save.status";
+	public static final String MIN_POS_SAVE_PARTIAL = 					"min.pos.save.partial";
+	public static final String EXPLORATION_LIMIT = 						"exploration.limit";
+	public static final String MAX_PARTIAL_FILES = 						"max.partial.files";
+	public static final String TARGET_ROLLBACK_POS = 					"target.rollback.pos";
+	public static final String UI_SHOW = 								"ui.show";
+	public static final String UI_PER_PROC = 							"ui.per.proc";
+	public static final String UI_CELL_SIZE = 							"ui.cell.size";
+	public static final String UI_REFRESH_MILLIS = 						"ui.refresh.millis";
+	public static final String EXPERIMENTAL_GIF_FAIR = 					"experimental.gif.fair";
+	public static final String EXPERIMENTAL_BORDE_LEFT_EXPLORADO = 		"experimental.borde.left.explorado";
+	public static final String TASK_DISTRIBUTION_POS = 					"task.distribution.pos";
+	public static final String NUM_TASKS = 								"num.tasks";
+	
 	public static final Properties readProperties() throws IOException {
 		Properties properties = new Properties();
 		String file = "application.properties";

@@ -38,11 +38,6 @@ public final class PiezaFactory {
 		p.left=Consts.GRIS;
 		p.numero=0;
 		p.rotacion=0;
-		p.usada=false;
-		//p.pos= -1;
-		
-		/*p.idUnico = p.countIdUnico;
-		++p.countIdUnico;*/
 	}
 
 	public static Pieza from (String s, short num)
@@ -65,11 +60,6 @@ public final class PiezaFactory {
 		
 		p.numero= num;
 		p.rotacion=0;
-		p.usada=false;
-		//p.pos= -1;
-		
-		/*p.idUnico = p.countIdUnico;
-		++p.countIdUnico;*/
 	}
 	
 	public static Pieza from (Pieza pz)
@@ -86,11 +76,6 @@ public final class PiezaFactory {
 		p.left= pz.left;
 		p.numero= pz.numero;
 		p.rotacion= pz.rotacion;
-		p.usada= pz.usada;
-		//p.pos= pz.pos;
-		
-		/*p.idUnico = p.countIdUnico;
-		++p.countIdUnico;*/
 	}
 	
 	/**
@@ -123,16 +108,6 @@ public final class PiezaFactory {
 		// Tercero: separo el valor de rotación de la pieza
 		int sexto_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, quinto_sep+1);
 		p.rotacion= Byte.parseByte(s.substring(quinto_sep+1,sexto_sep));
-		
-		//Cuarto: separo el valor usada de la pieza
-		int sept_sep= s.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE, sexto_sep+1);
-		p.usada= Boolean.parseBoolean(s.substring(sexto_sep+1,sept_sep));
-
-		// Quinto: separo la posición en la que se encuentra la pieza
-		//p.pos= Integer.parseInt(s.substring(sept_sep+1,s.length()));
-		
-		/*p.idUnico = p.countIdUnico;
-		++p.countIdUnico;*/
 	}
 	
 }

@@ -34,13 +34,13 @@ import javax.imageio.ImageIO;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
 
 public class EternityCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Pieza p;
+	private Integer pinfo;
     private Image[] imageListTop, imageListRight, imageListBottom, imageListLeft;
     
     public EternityCellRenderer (int cellSize, int numColors) {
@@ -110,23 +110,20 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
     }
     
     public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        p = (Pieza)value;
+    	pinfo = (Integer)value;
         return this;
     }
     
 	public void paint(java.awt.Graphics g) {
 		super.paint(g);
 		g.setColor(Color.BLACK);
-
-		// tengo que preguntar constantemente si no es null debido a que al estar
-		// corriendo en otro Thread la pieza puede haber sido quitada
-		if (p == null)
-			return;
-
-		int top = p.top;
-		int right = p.right;
-		int bottom = p.bottom;
-		int left = p.left;
+		
+		int mergedInfo = pinfo.intValue();
+		
+		int top = NodoPosibles.top(mergedInfo);
+		int right = NodoPosibles.right(mergedInfo);
+		int bottom = NodoPosibles.bottom(mergedInfo);
+		int left = NodoPosibles.left(mergedInfo);
 
 		paintImage(g, top, 0);
 		paintImage(g, right, 1);

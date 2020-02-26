@@ -46,7 +46,7 @@ public final class SolverFasterMPJE {
 	
 	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
-	private static int POSICION_MULTI_PROCESSES = -1; // (99) posición del tablero en la que se usará comunicación multiprocesses
+	private static int POSICION_MULTI_PROCESSES = -1; // posición del tablero en la que se usará comunicación multiprocesses
 	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); // número de procesos
 	public final static int THIS_PROCESS = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
 	private static int TAG_SINCRO = 333; // tags para identificar mensajes interprocesos
@@ -57,7 +57,8 @@ public final class SolverFasterMPJE {
 	private static int[] num_processes_orig;
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
-	private static long MAX_CICLOS; // Número máximo de ciclos para guardar estado
+	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
+	private static boolean SAVE_STATUS_ON_MAX_CYCLES;
 	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
@@ -68,7 +69,6 @@ public final class SolverFasterMPJE {
 	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_LIBRES_MAX = "status/libresMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
 	
 	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
 	private static int sig_parcial, cur_destino;
@@ -77,9 +77,12 @@ public final class SolverFasterMPJE {
 	public static long count_cycles; // count cycles for this only instance
 	
 	public final static Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
-	public final static Pieza[] tablero = new Pieza[Consts.MAX_PIEZAS];
-	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
+	
+	public final static int[] tablero = new int[Consts.MAX_PIEZAS];
+	public final static boolean[] usada = new boolean[Consts.MAX_PIEZAS];
 	private final static Contorno contorno = new Contorno();
+	
+	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	
 	private final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
 	
@@ -90,12 +93,13 @@ public final class SolverFasterMPJE {
 	private static boolean mas_bajo_activo, flag_retroceder_externo;
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
-	private static long time_status_saved; //usado para calcular el tiempo entre diferentes status saved
+	private static long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
 
 	private static StringBuilder printBuffer = new StringBuilder(64);
 	
 	/**
-	 * @param m_ciclos: número máximo de ciclos para disparar guardar estado.
+	 * @param m_ciclos: número máximo de ciclos para imprimir stats.
+	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
 	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
@@ -110,13 +114,13 @@ public final class SolverFasterMPJE {
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: total number of processes.
 	 */
-	public SolverFasterMPJE (long m_ciclos, int lim_max_par, int lim_exploracion, int max_parciales, int destino_ret, 
-			boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, 
-			boolean p_fair_experiment_gif, boolean p_poda_color_right_explorado, int p_pos_multi_processes,
-			int totalProcesses) {
+	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, int lim_max_par, int lim_exploracion,
+			int max_parciales, int destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
+			int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
+			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
 
 		MAX_CICLOS= m_ciclos;
-		
+		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
 		POSICION_MULTI_PROCESSES = p_pos_multi_processes;
 		num_processes_orig = new int[Consts.MAX_PIEZAS];
 		
@@ -206,16 +210,18 @@ public final class SolverFasterMPJE {
 				linea= reader.readLine();
 				cursor= Integer.parseInt(linea);
 				
-				// recorro los indices de las piezas que estaban en tablero
+				// recorro la info que estaba en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
 				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
+					int mergedInfo= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					tablero[k]= numPieza == -1 ? null : piezas[numPieza];
+					tablero[k]= mergedInfo;
+					if (mergedInfo != -1)
+						usada[NodoPosibles.numero(mergedInfo)] = true;
 				}
 				
 				// recorro los valores de desde_saved[]
@@ -249,24 +255,9 @@ public final class SolverFasterMPJE {
 					}
 				}
 				
-				//las restantes MAX_PIEZAS lineas contienen el estado de rotación y de usada de cada pieza
-				int pos=0; //cuento cuantas lineas voy procesando
-				String splitted[];
-				linea= reader.readLine(); //info de la primer pieza
-				while ((linea != null) && (pos < Consts.MAX_PIEZAS)){
-					splitted = linea.split(Consts.SECCIONES_SEPARATOR_EN_FILE);
-					Pieza.llevarArotacion(piezas[pos],Byte.parseByte(splitted[0]));
-					piezas[pos].usada = Boolean.parseBoolean(splitted[1]);
-					linea= reader.readLine();
-					++pos;
-				}
-				if (pos != Consts.MAX_PIEZAS){
-					System.out.println(THIS_PROCESS + " >>> ERROR. La cantidad de piezas en el archivo " + n_file + " no coincide con el numero de piezas que el juego espera.");
-					throw new Exception("Inconsistent number of pieces.");
-				}
-					
 				status_cargado=true;
 				sincronizar = false;
+				
 				System.out.println(THIS_PROCESS + " >>> estado de exploracion (" + n_file + ") cargado.");
 				System.out.flush();
 			}
@@ -299,11 +290,10 @@ public final class SolverFasterMPJE {
 			if (!retroceder){
 				mas_bajo_activo= true;
 				mas_bajo= cursor;
-				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, piezas, tablero, cursor, mas_bajo, mas_alto,
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, tablero, cursor, mas_bajo, mas_alto,
 						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, piezas, tablero, sig_parcial,
-						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
-						NAME_FILE_LIBRES_MAX);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, tablero, sig_parcial,
+						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
 				System.out.println(THIS_PROCESS + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
 				System.out.flush();
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
@@ -315,10 +305,12 @@ public final class SolverFasterMPJE {
 			if (cursor < 0)
 				break; //obliga a salir del while
 			
-			if (cursor != Consts.POSICION_CENTRAL){
-				Pieza pzz= tablero[cursor];
-				pzz.usada= false; //la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
-				tablero[cursor]= null;
+			if (cursor != Consts.POSICION_CENTRAL) {
+				int mergedInfo = tablero[cursor];
+				int numero = NodoPosibles.numero(mergedInfo);
+				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
+				usada[numero] = false;
+				tablero[cursor] = -1;
 			}
 			
 			//si retrocedió hasta el cursor destino, entonces no retrocedo mas
@@ -369,7 +361,7 @@ public final class SolverFasterMPJE {
 		}
 		
 		//cargo las posiciones fijas
-		CommonFuncs.ponerPiezasFijasEnTablero(THIS_PROCESS, piezas, tablero);
+		CommonFuncs.ponerPiezasFijasEnTablero(THIS_PROCESS, piezas, tablero, usada);
 		
 		//seteo como usados los contornos ya existentes en tablero
 		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
@@ -392,7 +384,7 @@ public final class SolverFasterMPJE {
 		
 		long nowNanos = System.nanoTime();
 		time_inicial = nowNanos;
-		time_status_saved = nowNanos;
+		time_max_ciclos = nowNanos;
 		
 		//si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado)
@@ -403,10 +395,10 @@ public final class SolverFasterMPJE {
 			while (cursor >= 0){
 				if (!retroceder){
 					//pregunto si llegué al limite de esta instancia de exploracion
-					/*if (cursor <= LIMITE_DE_EXPLORACION){
-						CommonFuncs.operarSituacionLimiteAlcanzado(NAME_FILE_STATUS, THIS_PROCESS, );
-						return;
-					}*/
+//					if (cursor <= LIMITE_DE_EXPLORACION){
+//						CommonFuncs.operarSituacionLimiteAlcanzado(NAME_FILE_STATUS, THIS_PROCESS, );
+//						return;
+//					}
 					//creo una nueva instancia de exploracion
 					explorar(desde_saved[cursor]);
 				}
@@ -417,25 +409,25 @@ public final class SolverFasterMPJE {
 					break; //obliga a salir del while
 				
 				//seteo los contornos como libres si no están usados
-				CommonFuncs.setContornoLibre(cursor, contorno, tablero);
+				CommonFuncs.setContornoLibre(cursor, contorno, tablero, tablero[cursor]);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != Consts.POSICION_CENTRAL){
-					Pieza p = tablero[cursor];
-					p.usada= false;
-					tablero[cursor]= null;
+					int mergedInfo = tablero[cursor];
+					int numero = NodoPosibles.numero(mergedInfo);
+					usada[numero] = false;
+					tablero[cursor] = -1;
 				}
 				
 				//si retrocedí hasta el cursor destino, entonces no retrocedo mas
-				/*@RETROCEDER
-				if (cursor <= cur_destino){
-					retroceder = false;
-					cur_destino = Consts.CURSOR_INVALIDO;
-				}
-				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
-				if (retroceder)
-					desde_saved[cursor] = 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
-				*/
+//				@RETROCEDER
+//				if (cursor <= cur_destino){
+//					retroceder = false;
+//					cur_destino = Consts.CURSOR_INVALIDO;
+//				}
+//				//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
+//				if (retroceder)
+//					desde_saved[cursor] = 0; //la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 			}
 		}
 		
@@ -489,9 +481,8 @@ public final class SolverFasterMPJE {
 				System.out.println(printBuffer.toString());
 				System.out.flush();
 				printBuffer.setLength(0);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(true, THIS_PROCESS, piezas, tablero, sig_parcial,
-						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
-						NAME_FILE_LIBRES_MAX);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(true, THIS_PROCESS, tablero, sig_parcial,
+						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
 			}
 		}
 		
@@ -511,24 +502,30 @@ public final class SolverFasterMPJE {
 		if (count_cycles >= MAX_CICLOS){
 			//calculo el tiempo entre status saved
 			long nanoTimeNow = System.nanoTime();
-			long durationNanos = nanoTimeNow - time_status_saved;
+			long durationNanos = nanoTimeNow - time_max_ciclos;
 			long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
-			long piecesPerSec = count_cycles * 1000L / durationMillis; // conversion from millis to seconds
+			long piecesPerSec = count_cycles / TimeUnit.SECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+			
 			count_cycles = 0;
-			CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, piezas, tablero, cursor, mas_bajo, mas_alto,
-					mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-			sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, piezas, tablero, sig_parcial,
-					MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX,
-					NAME_FILE_LIBRES_MAX);
+			
+			if (SAVE_STATUS_ON_MAX_CYCLES) {
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, tablero, cursor, mas_bajo, mas_alto,
+						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
+				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, tablero, sig_parcial,
+						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
+			}
+			
 			printBuffer.setLength(0);
-			printBuffer.append(THIS_PROCESS).append(" >>> Estado guardado en cursor ").append(cursor)
+			printBuffer.append(THIS_PROCESS).append(" >>> cursor ").append(cursor)
 					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
 					.append(". Tiempo: ").append(durationMillis).append(" ms") 
 					.append(", ").append(piecesPerSec).append(" pieces/sec");
 			System.out.println(printBuffer.toString());
 			System.out.flush();
 			printBuffer.setLength(0);
-			time_status_saved = nanoTimeNow;
+			
+			time_max_ciclos = nanoTimeNow;
+			
 			//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
 			mas_bajo= Consts.MAX_PIEZAS;
 			mas_alto= 0;
@@ -549,20 +546,23 @@ public final class SolverFasterMPJE {
 		// Se supone que la pieza fija ya está debidamente colocada.
 		if (cursor == Consts.POSICION_CENTRAL){
 			
+			int mergedActual = tablero[cursor];
+			
 			//seteo los contornos como usados
-			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero, mergedActual);
 			
 			++cursor;
 			explorar(0);
 			--cursor;
 			
 			//seteo los contornoscomo libres
-			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
-			/*@RETROCEDER
-			if (cursor <= cur_destino){
-				retroceder= false;
-				cur_destino= Consts.CURSOR_INVALIDO;
-			}*/
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero, mergedActual);
+			
+//			@RETROCEDER
+//			if (cursor <= cur_destino){
+//				retroceder= false;
+//				cur_destino= Consts.CURSOR_INVALIDO;
+//			}
 			return;
 		}
 		
@@ -703,27 +703,26 @@ public final class SolverFasterMPJE {
 		
 		for (; desde < length_posibles; ++desde) {
 			
-			//desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			short merged = nodoPosibles.mergedInfo[desde];
-			byte rot = (byte) (merged >>> NodoPosibles.MASK_PIEZA_ROT_SHIFT);
-			Pieza p = piezas[merged & NodoPosibles.MASK_PIEZA_INDEX];
+			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
+			int merged = nodoPosibles.mergedInfo[desde];
+			int numero = NodoPosibles.numero(merged);
 			
 			// pregunto si la pieza candidata está siendo usada
-			if (p.usada)
-				continue; // es usada, pruebo con la siguiente pieza/rotación
+			if (usada[numero])
+				continue; //es usada, pruebo con la siguiente pieza/rotación
 			
 			++count_cycles; // incremento el contador de combinaciones de piezas
 			
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (colorRightExploredStrategy != null) {
-				CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, p, colorRightExploredStrategy);
+				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, NodoPosibles.right(merged), colorRightExploredStrategy))
+					continue;
 			}
 			
 			//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
 			
-			tablero[cursor] = p; // en la posicion "cursor" del tablero pongo la pieza
-			p.usada = true; // en este punto la pieza va a ser usada
-			Pieza.llevarArotacion(p, rot);
+			tablero[cursor] = merged;
+			usada[numero] = true;
 			
 			//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
 			
@@ -736,12 +735,12 @@ public final class SolverFasterMPJE {
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
 			if (FairExperimentGif) {
-				if (CommonFuncs.testFairExperimentGif(flagZona, cursor, p, tablero))
+				if (CommonFuncs.testFairExperimentGif(flagZona, cursor, merged, tablero, usada))
 					continue;
 			}
 
 			// seteo los contornos como usados
-			CommonFuncs.setContornoUsado(cursor, contorno, tablero);
+			CommonFuncs.setContornoUsado(cursor, contorno, tablero, merged);
 				
 			//##########################
 			// Llamo una nueva instancia
@@ -751,9 +750,9 @@ public final class SolverFasterMPJE {
 			//##########################
 				
 			// seteo los contornos como libres
-			CommonFuncs.setContornoLibre(cursor, contorno, tablero);
+			CommonFuncs.setContornoLibre(cursor, contorno, tablero, merged);
 			
-			p.usada = false; //la pieza ahora no es usada
+			usada[numero] = false; //la pieza ahora no es usada
 			
 			// si retrocedió hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
 //			@RETROCEDER
@@ -767,7 +766,7 @@ public final class SolverFasterMPJE {
 		}
 
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
-		tablero[cursor] = null; //dejo esta posicion de tablero libre
+		tablero[cursor] = -1; //dejo esta posicion de tablero libre
 
 		// restore multi process variables
 		NUM_PROCESSES = num_processes_orig[cursor];

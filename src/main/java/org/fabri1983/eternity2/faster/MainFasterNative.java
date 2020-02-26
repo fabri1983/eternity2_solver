@@ -41,19 +41,20 @@ public final class MainFasterNative
 			Properties properties = AppPropertiesReader.readProperties();
 			
 			SolverFaster solver = SolverFaster.build(
-					Long.parseLong(getProperty(properties,       "max.ciclos.save_status")),
-					Integer.parseInt(getProperty(properties,     "min.pos.save.partial")),
-					Integer.parseInt(getProperty(properties,     "exploration.limit")),
-					Integer.parseInt(getProperty(properties,     "max.partial.files")),
-					Integer.parseInt(getProperty(properties,     "target.rollback.pos")),
-					false, // ui.show
-					false, // ui.per.proc
-					0,     // ui.cell.size
-					0,     // ui.refresh.millis
-					Boolean.parseBoolean(getProperty(properties, "experimental.gif.fair")),
-					Boolean.parseBoolean(getProperty(properties, "experimental.borde.left.explorado")),
-					Integer.parseInt(getProperty(properties,     "task.distribution.pos")),
-					Integer.parseInt(getProperty(properties,     "forkjoin.num.processes")));
+					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MAX_PARTIAL_FILES)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
+					false, // AppPropertiesReader.UI_SHOW
+					false, // AppPropertiesReader.UI_PER_PROC
+					0,     // AppPropertiesReader.UI_CELL_SIZE
+					0,     // AppPropertiesReader.UI_REFRESH_MILLIS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_GIF_FAIR)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_BORDE_LEFT_EXPLORADO)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TASK_DISTRIBUTION_POS)),
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
 
 			properties = null;
 

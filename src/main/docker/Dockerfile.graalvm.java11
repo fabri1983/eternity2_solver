@@ -18,5 +18,5 @@ WORKDIR /app
 
 # Entry with exec so jvm flags are correctly gathered
 ENTRYPOINT exec java -agentlib:native-image-agent=config-output-dir=/native-config/ \
-  -Dui.show=false -Dforkjoin.num.processes=1 -Djava.awt.headless=true -Dsun.java2d.xrender=false \
+  -Dui.show=false -Dnum.tasks=1 -Djava.awt.headless=true -Dsun.java2d.xrender=false \
   -jar ${ENV_E2_JAR}
