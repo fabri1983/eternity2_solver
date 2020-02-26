@@ -41,19 +41,19 @@ Some stats
 - **New stats** include changes to use as low memory as possible:  
 (These stats show numbers lower than previous version of the solver which used much more memory. There is always a trade-off)
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-    - Placing approx **43.41 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
-    - Placing approx **40.83 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **30.36 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
+    - Placing approx **51.32 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **44.45 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **44.79 million correct tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
 	
 - **Old stats**:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-    - Placing approx **66.8 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
-    - Placing approx **68.0 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **40.0 million tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
+    - Placing approx **66.8 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **68.0 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **40.0 million correct tiles per second** running the native image generated with **GraalVM 19.3.1**, **with 8 threads**.
 
   - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13. Results:
-    - Placing approx **97 million tiles per second** running with a pool of **8 threads and 1 task per thread**.
-    - Placing approx **107 million tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **97 million correct tiles per second** running with a pool of **8 threads and 1 task per thread**.
+    - Placing approx **107 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -482,9 +482,6 @@ This will help you to decide which iso you need to download:
 		(If in Linux then add option --no-server)
 		(If in Linux then call: mx native-image --server-shutdown)
 	e2solver.exe -Dforkjoin.num.processes=8 -Dmin.pos.save.partial=211
-	Times for position 215 and 4 processes (now outdated):
-		1 >>> 3232154 ms, cursor 215  (53.8 mins)
-		0 >>> 3272859 ms, cursor 215  (54.5 mins)
 	```
 	There is also a possible optimization feature named Profile Guided Optimization:
 	```sh

@@ -33,7 +33,7 @@ import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
-import org.fabri1983.eternity2.core.neighbors.SuperMatrizHashFunctionStrategy;
+import org.fabri1983.eternity2.core.neighbors.SuperMatrizMultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredAtomicStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
@@ -62,7 +62,7 @@ public final class SolverFaster {
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
-	final static NeighborStrategy neighborStrategy = new SuperMatrizHashFunctionStrategy();
+	final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
 	
 	static ColorRightExploredStrategy colorRightExploredStrategy;
 	

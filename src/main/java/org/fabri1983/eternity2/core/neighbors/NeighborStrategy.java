@@ -4,17 +4,29 @@ import org.fabri1983.eternity2.core.Pieza;
 
 public interface NeighborStrategy {
 	
-	NodoPosibles getNodoFromOriginalKey(byte top, byte right, byte bottom, byte left, Pieza p);
+	void addNeighbor(byte top, byte right, byte bottom, byte left, Pieza p, short piezaIndex, byte rot);
+
+	NodoPosibles getNodoIfKeyIsOriginal_interior(byte top, byte left);
 	
-	void setNewNodoP(byte top, byte right, byte bottom, byte left, Pieza p);
+	NodoPosibles getNodoIfKeyIsOriginal_interior_above_central(byte top, byte left);
 
-	NodoPosibles getNodoIfKeyIsOriginal_interior(byte top, byte right, byte bottom, byte left);
+	NodoPosibles getNodoIfKeyIsOriginal_interior_left_central(byte top, byte left);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_border_right(byte top, byte left);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_border_left(byte top);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_border_top(byte left);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_border_bottom(byte top, byte left);
 
-	NodoPosibles getNodoIfKeyIsOriginal_border(byte top, byte right, byte bottom, byte left);
-
-	NodoPosibles getNodoIfKeyIsOriginal_corner(byte top, byte right, byte bottom, byte left);
-
-	boolean isPiezaCorrectType(byte flagZona, Pieza p);
+	NodoPosibles getNodoIfKeyIsOriginal_corner_top_left();
+	
+	NodoPosibles getNodoIfKeyIsOriginal_corner_top_right(byte left);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_corner_bottom_left(byte top);
+	
+	NodoPosibles getNodoIfKeyIsOriginal_corner_bottom_right(byte top, byte left);
 
 	void resetForBenchmark();
 

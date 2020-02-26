@@ -34,7 +34,7 @@ public class CompressedQuickLongBitSet {
      * How many consecutive rows of zeros we want to remove.<br/>
      * Got experimentally from a very specific case. You'll have to experiment and see what number works for you.<br/>
      * Use the test CompressedQuickLongBitSetTest which prints some statistics.<br/>
-     * Changing this value makes useless the values in {@link CompressedQuickLongBitSetHardcodedData}.
+     * Changing this value makes useless the values in {@link CompressedQuickLongBitSetData}.
      */
  	private static final int consecutiveRowsOfZeros = 12;
  	

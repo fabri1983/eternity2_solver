@@ -1,4 +1,4 @@
-package org.fabri1983.eternity2.core.bitset;
+package org.fabri1983.eternity2.core.bitset.test;
 
 import java.util.concurrent.TimeUnit;
 
