@@ -166,12 +166,19 @@ public class CommonFuncs {
 	 */
 	public final static void verificarTiposDePieza(int processId, Pieza[] piezas) {
 		
+		// first check index matches with Pieza.numero
+		for (int g=0; g < Consts.MAX_PIEZAS; ++g) {
+			Pieza pzx = piezas[g];
+			if (pzx.numero != g) {
+				throw new RuntimeException(processId + " >>> ERROR. Pieza en indice " + g + " no coincide con su numero " + pzx.numero);
+			}
+		}
+
+		// lastly check number of different types of Pieza
 		int n_esq= 0;
 		int n_bordes= 0;
 		int n_interiores= 0;
-	
-		for (int g=0; g < Consts.MAX_PIEZAS; ++g)
-		{
+		for (int g=0; g < Consts.MAX_PIEZAS; ++g) {
 			Pieza pzx = piezas[g];
 			if (Pieza.isInterior(pzx))
 				++n_interiores;
