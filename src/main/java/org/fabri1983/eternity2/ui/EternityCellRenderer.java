@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+import org.fabri1983.eternity2.core.neighbors.Neighbors;
 
 public class EternityCellRenderer extends DefaultTableCellRenderer {
 
@@ -120,10 +120,10 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
 		
 		int mergedInfo = pinfo.intValue();
 		
-		int top = NodoPosibles.top(mergedInfo);
-		int right = NodoPosibles.right(mergedInfo);
-		int bottom = NodoPosibles.bottom(mergedInfo);
-		int left = NodoPosibles.left(mergedInfo);
+		int top = Neighbors.top(mergedInfo);
+		int right = Neighbors.right(mergedInfo);
+		int bottom = Neighbors.bottom(mergedInfo);
+		int left = Neighbors.left(mergedInfo);
 
 		paintImage(g, top, 0);
 		paintImage(g, right, 1);

@@ -28,27 +28,27 @@ public interface NeighborStrategy {
 	
 	void addNeighbor(byte top, byte right, byte bottom, byte left, Pieza p);
 
-	NodoPosibles getNodoIfKeyIsOriginal_interior(byte top, byte left);
+	Neighbors interior(byte top, byte left);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_interior_above_central(byte top, byte left);
+	Neighbors interior_above_central(byte top, byte left);
 
-	NodoPosibles getNodoIfKeyIsOriginal_interior_left_central(byte top, byte left);
+	Neighbors interior_left_central(byte top, byte left);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_border_right(byte top, byte left);
+	Neighbors border_right(byte top, byte left);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_border_left(byte top);
+	Neighbors border_left(byte top);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_border_top(byte left);
+	Neighbors border_top(byte left);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_border_bottom(byte top, byte left);
+	Neighbors border_bottom(byte top, byte left);
 
-	NodoPosibles getNodoIfKeyIsOriginal_corner_top_left();
+	Neighbors corner_top_left();
 	
-	NodoPosibles getNodoIfKeyIsOriginal_corner_top_right(byte left);
+	Neighbors corner_top_right(byte left);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_corner_bottom_left(byte top);
+	Neighbors corner_bottom_left(byte top);
 	
-	NodoPosibles getNodoIfKeyIsOriginal_corner_bottom_right(byte top, byte left);
+	Neighbors corner_bottom_right(byte top, byte left);
 
 	void resetForBenchmark();
 

@@ -35,7 +35,7 @@ public class ViewEternityMPJE extends ViewEternityAbstract {
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasMPJE(rows, cols, Consts.POSICION_CENTRAL);
+		return new CanvasMPJE(rows, cols, Consts.PIEZA_CENTRAL_POS_TABLERO);
 	}
 
 	@Override

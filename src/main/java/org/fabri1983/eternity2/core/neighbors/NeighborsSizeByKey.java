@@ -23,13 +23,13 @@
 package org.fabri1983.eternity2.core.neighbors;
 
 /**
- * This class contains the array size per key needed by {@link NodoPosibles}.
- * This way we have the exact array size and we can avoid use/resize any temporal array nor list.
- * Given the fact that the process of creation of super_matriz only involves known keys, we can skip 
+ * This class contains the array size per key needed by {@link Neighbors}.
+ * This way we have the exact array size and so we can avoid use/resize any temporal array or list.
+ * Additionally, given the fact that the process of creation of arrays only involves known keys, we can skip 
  * those entries which have a value of 1 from the big switch case, and so return 1 when the key is missing. 
  * This decrease the size of methods.
  */
-public class NodoPosiblesMapSizePerKey {
+public class NeighborsSizeByKey {
 
 	public static int getSizeForKey_interior(int key) {
 		switch (key) {
