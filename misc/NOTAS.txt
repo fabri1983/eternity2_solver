@@ -1,8 +1,4 @@
-﻿- Most used slow methods (obtained with YourKit Java profiler):
-(multiple times were obtained due to recursion nature of method call hierarchy)
-SolverFaster and SolverFasterMPJE: getNodoIfKeyIsOriginal() takes: 92ms, 94ms, 96ms, 115ms, 244ms, 343ms, 406ms, 412ms
-obtenerPosiblesPieas() also has a little additional overhead besides the call to getNodoIfKeyIsOriginal().
-
+﻿
 ---------------------------------------------------------------------------------------
 TODO
 ----
@@ -161,7 +157,7 @@ Lo siguiente es extracto del yahoo group:
 El entero mas grande de 31 bits es 2147483648. Usar 2147483647 en Complemento a 2.
 El entero mas grande de 63 bits es 9223372036854775808. Usar 9223372036854775807 en Complemento a 2.
 
-- Analizando los sizes de las diferentes matrices en SuperMatrizMultiDimensionalStrategy:
+- Analizando los sizes de las diferentes matrices en MultiDimensionalStrategy:
   * existen como máximo 6 piezas interiores (repitiéndose si tiene mas de una rotación) para combinación de hasta 3 colores consecutivos. 
   * existen 4 piezas para borde/esquina.
 
@@ -201,6 +197,7 @@ Timings
 
 This numbers helps to easily check if some change has improved on worsen the performance.
 However, the key number to keep an eye is the number of correct tiles per second. 
+	For that benchmarking use: -Dui.show=false -Dmax.ciclos.save.status=false -Dmax.ciclos.print.stats=147483647
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

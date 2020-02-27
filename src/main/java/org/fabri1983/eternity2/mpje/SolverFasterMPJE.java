@@ -32,9 +32,9 @@ import org.fabri1983.eternity2.core.CommonFuncs;
 import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
-import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
-import org.fabri1983.eternity2.core.neighbors.SuperMatrizMultiDimensionalStrategy;
+import org.fabri1983.eternity2.core.neighbors.Neighbors;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
@@ -47,8 +47,8 @@ public final class SolverFasterMPJE {
 	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
 	private static int POSICION_MULTI_PROCESSES = -1; // posición del tablero en la que se usará comunicación multiprocesses
-	private static int NUM_PROCESSES = mpi.MPI.COMM_WORLD.Size(); // número de procesos
-	public final static int THIS_PROCESS = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
+	private static int num_processes = mpi.MPI.COMM_WORLD.Size(); // número de procesos
+	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
 	private static int TAG_SINCRO = 333; // tags para identificar mensajes interprocesos
 	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 200; // mensajes para comunicar una acción o estado
 	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
@@ -59,20 +59,20 @@ public final class SolverFasterMPJE {
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
 	private static boolean SAVE_STATUS_ON_MAX_CYCLES;
-	private static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
+	private static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
-	//private static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
+//	private static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 
-	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_STATUS = "status/status_saved_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + THIS_PROCESS + Consts.FILE_EXT;
-	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + THIS_PROCESS + Consts.FILE_EXT;
+	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_STATUS = "status/status_saved_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + ID + Consts.FILE_EXT;
 	
-	private static int LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
-	private static int sig_parcial, cur_destino;
-	public static int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
+	private static short LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
+	public static short cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, cur_destino;
+	private static int sig_parcial;
 	
 	public static long count_cycles; // count cycles for this only instance
 	
@@ -84,7 +84,7 @@ public final class SolverFasterMPJE {
 	
 	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	
-	private final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
+	private final static NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
 	private static ColorRightExploredStrategy colorRightExploredStrategy;
 	
@@ -114,8 +114,8 @@ public final class SolverFasterMPJE {
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: total number of processes.
 	 */
-	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, int lim_max_par, int lim_exploracion,
-			int max_parciales, int destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
+	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par, short lim_exploracion,
+			int max_parciales, short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
 			int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
 			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
 
@@ -127,7 +127,7 @@ public final class SolverFasterMPJE {
 		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
 		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
 		if (usar_multiples_boards)
-			procMultipleBoards = THIS_PROCESS;
+			procMultipleBoards = ID;
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (Consts.MAX_PIEZAS-2)))
@@ -153,9 +153,9 @@ public final class SolverFasterMPJE {
 		mas_bajo_activo= false; //permite o no modificar el cursor mas_bajo
 		sig_parcial= 1; //esta variable indica el numero de archivo parcial siguiente a guardar
 		
-		if (usar_tableboard && !flag_retroceder_externo && THIS_PROCESS == procMultipleBoards) {
+		if (usar_tableboard && !flag_retroceder_externo && ID == procMultipleBoards) {
 			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(Consts.LADO, cell_pixels_lado, 
-					Consts.MAX_COLORES, (long)p_refresh_millis, THIS_PROCESS, totalProcesses);
+					Consts.MAX_COLORES, (long)p_refresh_millis, ID, totalProcesses);
 			tableboardE2 = new EternityII(viewFactory);
 		}
 
@@ -181,7 +181,7 @@ public final class SolverFasterMPJE {
 			// first ask if file exists
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println(THIS_PROCESS + " >>> estado de exploracion no existe.");
+				System.out.println(ID + " >>> estado de exploracion no existe.");
 				System.out.flush();
 				return status_cargado;
 			}
@@ -190,30 +190,30 @@ public final class SolverFasterMPJE {
 			String linea= reader.readLine();
 			
 			if (linea==null) {
-				throw new Exception(THIS_PROCESS + " >>> First line is null.");
+				throw new Exception(ID + " >>> First line is null.");
 			}
 			else{
 				int sep,sep_ant;
 				
 				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
-				mas_bajo= Integer.parseInt(linea);
+				mas_bajo= Short.parseShort(linea);
 				
 				// contiene el valor de cursor mas alto alcanzado en una vuelta de ciclo
 				linea= reader.readLine();
-				mas_alto= Integer.parseInt(linea);
+				mas_alto= Short.parseShort(linea);
 				
 				// contiene el valor de cursor mas lejano parcial alcanzado (aquel que graba parcial max)
 				linea= reader.readLine();
-				mas_lejano_parcial_max= Integer.parseInt(linea);
+				mas_lejano_parcial_max= Short.parseShort(linea);
 				
 				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
-				cursor= Integer.parseInt(linea);
+				cursor= Short.parseShort(linea);
 				
 				// recorro la info que estaba en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+				for (short k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -221,13 +221,13 @@ public final class SolverFasterMPJE {
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
 					tablero[k]= mergedInfo;
 					if (mergedInfo != -1)
-						usada[NodoPosibles.numero(mergedInfo)] = true;
+						usada[Neighbors.numero(mergedInfo)] = true;
 				}
 				
 				// recorro los valores de desde_saved[]
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+				for (short k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -244,7 +244,7 @@ public final class SolverFasterMPJE {
 						//leo la info de matriz_color_explorado
 						linea= reader.readLine();
 						sep=0; sep_ant=0;
-						for (int k=0; k < Consts.LADO; ++k){
+						for (short k=0; k < Consts.LADO; ++k){
 							if (k==(Consts.LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -258,12 +258,12 @@ public final class SolverFasterMPJE {
 				status_cargado=true;
 				sincronizar = false;
 				
-				System.out.println(THIS_PROCESS + " >>> estado de exploracion (" + n_file + ") cargado.");
+				System.out.println(ID + " >>> estado de exploracion (" + n_file + ") cargado.");
 				System.out.flush();
 			}
 		}
 		catch(Exception e){
-			System.out.println(THIS_PROCESS + " >>> estado de exploracion no existe o esta corrupto: " + e.getMessage());
+			System.out.println(ID + " >>> estado de exploracion no existe o esta corrupto: " + e.getMessage());
 			System.out.flush();
 		}
 		finally {
@@ -290,11 +290,11 @@ public final class SolverFasterMPJE {
 			if (!retroceder){
 				mas_bajo_activo= true;
 				mas_bajo= cursor;
-				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, tablero, cursor, mas_bajo, mas_alto,
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, mas_bajo, mas_alto,
 						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, tablero, sig_parcial,
+				sig_parcial = CommonFuncs.guardarResultadoParcial(false, ID, tablero, sig_parcial,
 						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
-				System.out.println(THIS_PROCESS + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
+				System.out.println(ID + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
 				System.out.flush();
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
@@ -305,9 +305,9 @@ public final class SolverFasterMPJE {
 			if (cursor < 0)
 				break; //obliga a salir del while
 			
-			if (cursor != Consts.POSICION_CENTRAL) {
+			if (cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
 				int mergedInfo = tablero[cursor];
-				int numero = NodoPosibles.numero(mergedInfo);
+				int numero = Neighbors.numero(mergedInfo);
 				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				usada[numero] = false;
 				tablero[cursor] = -1;
@@ -335,19 +335,19 @@ public final class SolverFasterMPJE {
 		
 		//seteo las posiciones donde puedo setear un contorno como usado o libre
 		CommonFuncs.inicializarZonaProcesoContornos();
-		System.out.println(THIS_PROCESS + " >>> Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.println(ID + " >>> Usando restriccion de contornos de " + Contorno.MAX_COLUMNS + " columnas.");
 		System.out.flush();
 		
 		//seteo las posiciones donde se puede preguntar por contorno superior usado
 		CommonFuncs.inicializarZonaReadContornos();
 		
-		CommonFuncs.cargarPiezas(THIS_PROCESS, piezas, readerForTilesFile);
+		CommonFuncs.cargarPiezas(ID, piezas, readerForTilesFile);
 		
 		//hago una verificacion de las piezas cargadas
-		CommonFuncs.verificarTiposDePieza(THIS_PROCESS, piezas);
+		CommonFuncs.verificarTiposDePieza(ID, piezas);
 		
 		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
-		CommonFuncs.cargarSuperEstructura(THIS_PROCESS, piezas, FairExperimentGif, neighborStrategy);
+		CommonFuncs.cargarSuperEstructura(ID, piezas, FairExperimentGif, neighborStrategy);
 		
 		// Pruebo cargar el primer status_saved
 		status_cargado = cargarEstado(NAME_FILE_STATUS);
@@ -361,7 +361,7 @@ public final class SolverFasterMPJE {
 		}
 		
 		//cargo las posiciones fijas
-		CommonFuncs.ponerPiezasFijasEnTablero(THIS_PROCESS, piezas, tablero, usada);
+		CommonFuncs.ponerPiezasFijasEnTablero(ID, piezas, tablero, usada);
 		
 		//seteo como usados los contornos ya existentes en tablero
 		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
@@ -412,9 +412,9 @@ public final class SolverFasterMPJE {
 				CommonFuncs.setContornoLibre(cursor, contorno, tablero, tablero[cursor]);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
-				if (cursor != Consts.POSICION_CENTRAL){
+				if (cursor != Consts.PIEZA_CENTRAL_POS_TABLERO){
 					int mergedInfo = tablero[cursor];
-					int numero = NodoPosibles.numero(mergedInfo);
+					int numero = Neighbors.numero(mergedInfo);
 					usada[numero] = false;
 					tablero[cursor] = -1;
 				}
@@ -432,7 +432,7 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si llego hasta esta sentencia significa una sola cosa:
-		System.out.println(THIS_PROCESS + " >>> exploración agotada.");
+		System.out.println(ID + " >>> exploración agotada.");
 	}
 	
 	/**
@@ -440,7 +440,7 @@ public final class SolverFasterMPJE {
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
 	 * 
-	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de Neighbors.
 	 */
 	private final static void explorar (int desde)
 	{
@@ -463,8 +463,8 @@ public final class SolverFasterMPJE {
 		
 		//si cursor se pasó del limite de piezas, significa que estoy en una solucion
 		if (cursor >= Consts.MAX_PIEZAS){
-			CommonFuncs.guardarSolucion(THIS_PROCESS, tablero, NAME_FILE_SOLUCION, NAME_FILE_DISPOSICION);
-			System.out.println(THIS_PROCESS + " >>> Solucion Encontrada!!");
+			CommonFuncs.guardarSolucion(ID, tablero, NAME_FILE_SOLUCION, NAME_FILE_DISPOSICION);
+			System.out.println(ID + " >>> Solucion Encontrada!!");
 			System.out.flush();
 			return; //evito que la instancia de exporacion continue
 		}
@@ -475,13 +475,13 @@ public final class SolverFasterMPJE {
 			if (cursor >= LIMITE_RESULTADO_PARCIAL){
 				long time_final= System.nanoTime();
 				printBuffer.setLength(0);
-				printBuffer.append(THIS_PROCESS).append(" >>> ")
+				printBuffer.append(ID).append(" >>> ")
 					.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
 					.append(" ms, cursor ").append(cursor);
 				System.out.println(printBuffer.toString());
 				System.out.flush();
 				printBuffer.setLength(0);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(true, THIS_PROCESS, tablero, sig_parcial,
+				sig_parcial = CommonFuncs.guardarResultadoParcial(true, ID, tablero, sig_parcial,
 						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
 			}
 		}
@@ -509,14 +509,14 @@ public final class SolverFasterMPJE {
 			count_cycles = 0;
 			
 			if (SAVE_STATUS_ON_MAX_CYCLES) {
-				CommonFuncs.guardarEstado(NAME_FILE_STATUS, THIS_PROCESS, tablero, cursor, mas_bajo, mas_alto,
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, mas_bajo, mas_alto,
 						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(false, THIS_PROCESS, tablero, sig_parcial,
+				sig_parcial = CommonFuncs.guardarResultadoParcial(false, ID, tablero, sig_parcial,
 						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
 			}
 			
 			printBuffer.setLength(0);
-			printBuffer.append(THIS_PROCESS).append(" >>> cursor ").append(cursor)
+			printBuffer.append(ID).append(" >>> cursor ").append(cursor)
 					.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
 					.append(". Tiempo: ").append(durationMillis).append(" ms") 
 					.append(", ").append(piecesPerSec).append(" pieces/sec");
@@ -544,7 +544,7 @@ public final class SolverFasterMPJE {
 		
 		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
 		// Se supone que la pieza fija ya está debidamente colocada.
-		if (cursor == Consts.POSICION_CENTRAL){
+		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO){
 			
 			int mergedActual = tablero[cursor];
 			
@@ -607,13 +607,13 @@ public final class SolverFasterMPJE {
 	
 	private final static void knocKnock () {
 		
-		if (THIS_PROCESS == 0)
+		if (ID == 0)
 		{
 			mpi_send_info[0] = MESSAGE_SINCRO;
 			System.out.println("Rank 0: --- Sincronizando con todos. Sending msg " + mpi_send_info[0] + " ...");
 			System.out.flush();
 			//sincronizo con los restantes procesos
-			for (int rank=1; rank < NUM_PROCESSES; ++rank)
+			for (int rank=1; rank < num_processes; ++rank)
 				mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); //el tag identifica al mensaje
 			//espero a que todas las peticiones se completen
 			mpi.Request.Waitall(mpi_requests);
@@ -622,20 +622,20 @@ public final class SolverFasterMPJE {
 		}
 		else
 		{
-			System.out.println(THIS_PROCESS + " >>> --- Esperando sincronizarse...");
+			System.out.println(ID + " >>> --- Esperando sincronizarse...");
 			System.out.flush();
 			mpi_send_info[0] = MESSAGE_HALT;
 			// espero recibir mensaje
 			mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO); //el tag identifica al mensaje
 			if (mpi_send_info[0] == MESSAGE_SINCRO) {
-				System.out.println(THIS_PROCESS + " >>> --- Sincronizado with msg " + mpi_send_info[0]);
+				System.out.println(ID + " >>> --- Sincronizado with msg " + mpi_send_info[0]);
 				System.out.flush();
 			}
 			else if (mpi_send_info[0] == MESSAGE_HALT)
 				;
 		}
 		
-		System.out.println(THIS_PROCESS + " >>> --- Continua procesando.");
+		System.out.println(ID + " >>> --- Continua procesando.");
 		System.out.flush();
 		
 		/*try {
@@ -652,60 +652,60 @@ public final class SolverFasterMPJE {
 	 * posicon actual de cursor, y cicla sobre las posibles rotaciones de cada pieza.
 	 * Aplica varias podas que solamente son validas en este nivel de exploracion.
 	 * 
-	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de Neighbors.
 	 */
 	private final static void exploracionStandard(int desde)
 	{
 		byte flagZona = CommonFuncs.matrix_zonas[cursor];
 		
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(flagZona, cursor, tablero, neighborStrategy);
-		if (nodoPosibles == null)
+		Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, neighborStrategy);
+		if (nbs == null)
 			return; // significa que no existen posibles piezas para la actual posicion de cursor
 
-		int length_posibles = nodoPosibles.mergedInfo.length;
+		int length_nbs = nbs.mergedInfo.length;
 		
-		num_processes_orig[cursor] = NUM_PROCESSES;
+		num_processes_orig[cursor] = num_processes;
 
 		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
 		// En este paso solo inicializo algunas variables para futuros cálculos.
 		if (cursor == POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
-			int this_proc_absolute = THIS_PROCESS % NUM_PROCESSES;
+			int this_proc_absolute = ID % num_processes;
 
-			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
-			if (NUM_PROCESSES == length_posibles) {
+			// caso 1: trivial. Cada proc toma una única rama de Neighbors
+			if (num_processes == length_nbs) {
 				desde = this_proc_absolute;
-				length_posibles = this_proc_absolute + 1;
+				length_nbs = this_proc_absolute + 1;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (NUM_PROCESSES < length_posibles) {
-				int span = (length_posibles + 1) / NUM_PROCESSES;
+			else if (num_processes < length_nbs) {
+				int span = (length_nbs + 1) / num_processes;
 				desde = this_proc_absolute * span;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				else if (desde + span < length_posibles)
-					length_posibles = desde + span;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				else if (desde + span < length_nbs)
+					length_nbs = desde + span;
 			}
 			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
 			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
-			// Ahora la cantidad de procs se setea igual a length_posibles
+			// Ahora la cantidad de procs se setea igual a length_nbs
             else {
-				int divisor = (NUM_PROCESSES + 1) / length_posibles; // reparte los procs por posible pieza
-				NUM_PROCESSES = length_posibles;
+				int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
+				num_processes = length_nbs;
 				desde = this_proc_absolute / divisor;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				length_posibles = desde + 1;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				length_nbs = desde + 1;
 				++pos_multi_process_offset;
 			}
 		}
 		
-		for (; desde < length_posibles; ++desde) {
+		for (; desde < length_nbs; ++desde) {
 			
 			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			int merged = nodoPosibles.mergedInfo[desde];
-			int numero = NodoPosibles.numero(merged);
+			int merged = nbs.mergedInfo[desde];
+			int numero = Neighbors.numero(merged);
 			
 			// pregunto si la pieza candidata está siendo usada
 			if (usada[numero])
@@ -715,7 +715,7 @@ public final class SolverFasterMPJE {
 			
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (colorRightExploredStrategy != null) {
-				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, NodoPosibles.right(merged), colorRightExploredStrategy))
+				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(merged), colorRightExploredStrategy))
 					continue;
 			}
 			
@@ -769,10 +769,9 @@ public final class SolverFasterMPJE {
 		tablero[cursor] = -1; //dejo esta posicion de tablero libre
 
 		// restore multi process variables
-		NUM_PROCESSES = num_processes_orig[cursor];
-		--pos_multi_process_offset;
-		if (pos_multi_process_offset < 0)
-			pos_multi_process_offset = 0;
+		num_processes = num_processes_orig[cursor];
+		if (pos_multi_process_offset > 0)
+			--pos_multi_process_offset;
 	}
 
 }

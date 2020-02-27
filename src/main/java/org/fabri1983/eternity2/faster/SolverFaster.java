@@ -32,9 +32,9 @@ import org.fabri1983.eternity2.core.CommonFuncs;
 import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
+import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
-import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
-import org.fabri1983.eternity2.core.neighbors.SuperMatrizMultiDimensionalStrategy;
+import org.fabri1983.eternity2.core.neighbors.Neighbors;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredAtomicStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
@@ -48,9 +48,9 @@ public final class SolverFaster {
     
 	static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
 	static boolean SAVE_STATUS_ON_MAX_CYCLES;
-	static int DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
+	static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
-	public static int LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
+	public static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	
 	static final String NAME_FILE_SOLUCION = "solution/soluciones";
 	static final String NAME_FILE_DISPOSICION = "solution/disposiciones";
@@ -59,13 +59,13 @@ public final class SolverFaster {
 	static final String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
 	static final String NAME_FILE_PARCIAL = "status/parcial";
 	
-	static int LIMITE_RESULTADO_PARCIAL = 211; // por defecto
+	static short LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
 	public static final Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
 	
-	final static NeighborStrategy neighborStrategy = new SuperMatrizMultiDimensionalStrategy();
+	final static NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
 	static ColorRightExploredStrategy colorRightExploredStrategy;
 	
@@ -93,8 +93,8 @@ public final class SolverFaster {
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: parallelism level for the fork-join pool.
 	 */
-	public static SolverFaster build(long m_ciclos, boolean save_status_on_max_cycles, int lim_max_par,
-			int lim_exploracion, int max_parciales, int destino_ret, boolean usar_tableboard,
+	public static SolverFaster build(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par,
+			short lim_exploracion, int max_parciales, short destino_ret, boolean usar_tableboard,
 			boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
 			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
 		
@@ -170,24 +170,24 @@ public final class SolverFaster {
 				int sep,sep_ant;
 				
 				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
-				action.mas_bajo= Integer.parseInt(linea);
+				action.mas_bajo= Short.parseShort(linea);
 				
 				// contiene el valor de cursor mas alto alcanzado en una vuelta de ciclo
 				linea= reader.readLine();
-				action.mas_alto= Integer.parseInt(linea);
+				action.mas_alto= Short.parseShort(linea);
 				
 				// contiene el valor de cursor mas lejano parcial alcanzado (aquel que graba parcial max)
 				linea= reader.readLine();
-				action.mas_lejano_parcial_max= Integer.parseInt(linea);
+				action.mas_lejano_parcial_max= Short.parseShort(linea);
 				
 				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
-				action.cursor= Integer.parseInt(linea);
+				action.cursor= Short.parseShort(linea);
 				
 				// recorro la info que estaba en tablero
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+				for (short k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -195,13 +195,13 @@ public final class SolverFaster {
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
 					action.tablero[k]= mergedInfo;
 					if (mergedInfo != -1)
-						action.usada[NodoPosibles.numero(mergedInfo)] = true;
+						action.usada[Neighbors.numero(mergedInfo)] = true;
 				}
 				
 				// recorro los valores de desde_saved[]
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
-				for (int k=0; k < Consts.MAX_PIEZAS; ++k){
+				for (short k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -218,7 +218,7 @@ public final class SolverFaster {
 						//leo la info de matriz_color_explorado
 						linea= reader.readLine();
 						sep=0; sep_ant=0;
-						for (int k=0; k < Consts.LADO; ++k){
+						for (short k=0; k < Consts.LADO; ++k){
 							if (k==(Consts.LADO-1))
 								sep= linea.length();
 							else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
@@ -277,9 +277,9 @@ public final class SolverFaster {
 			if (action.cursor < 0)
 				break; //obliga a salir del while
 			
-			if (action.cursor != Consts.POSICION_CENTRAL) {
+			if (action.cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
 				int mergedInfo = action.tablero[action.cursor];
-				int numero = NodoPosibles.numero(mergedInfo);
+				int numero = Neighbors.numero(mergedInfo);
 				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				action.usada[numero] = false;
 				action.tablero[action.cursor] = -1;
@@ -304,7 +304,7 @@ public final class SolverFaster {
 		
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
 		CommonFuncs.inicializarZonaProcesoContornos();
-		System.out.println("Usando restriccion de contornos de " + Contorno.MAX_COLS + " columnas.");
+		System.out.println("Usando restriccion de contornos de " + Contorno.MAX_COLUMNS + " columnas.");
 		
 		// seteo las posiciones donde se puede preguntar por contorno superior usado
 		CommonFuncs.inicializarZonaReadContornos();

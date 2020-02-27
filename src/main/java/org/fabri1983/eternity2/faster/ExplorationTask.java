@@ -28,11 +28,15 @@ import java.util.concurrent.TimeUnit;
 import org.fabri1983.eternity2.core.CommonFuncs;
 import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Contorno;
-import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+import org.fabri1983.eternity2.core.neighbors.Neighbors;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class ExplorationTask implements Runnable {
 
+	private int num_processes;
+	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS];
+	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
+	
 	String statusFileName, parcialFileName, parcialMaxFileName, disposicionMaxFileName, solucFileName, dispFileName;
 	
 	public final int[] tablero = new int[Consts.MAX_PIEZAS];
@@ -41,23 +45,20 @@ public class ExplorationTask implements Runnable {
 	
 	final short[] desde_saved = new short[Consts.MAX_PIEZAS];
 	
-	public int cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
+	public short cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
+	int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
+	
+	private long count_cycles;
+	
 	boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
 	boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
-	int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
 	
 	private long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 	private long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
 	
 	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
 	public final int id;
-	
-	private int num_processes;
-	
-	private long count_cycles;
-	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS];
-	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	private StringBuilder printBuffer = new StringBuilder(64);
 	
@@ -180,9 +181,9 @@ public class ExplorationTask implements Runnable {
 				CommonFuncs.setContornoLibre(cursor, contorno, tablero, tablero[cursor]);
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
-				if (cursor != Consts.POSICION_CENTRAL) {
+				if (cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
 					int mergedInfo = tablero[cursor];
-					int numero = NodoPosibles.numero(mergedInfo);
+					int numero = Neighbors.numero(mergedInfo);
 					usada[numero] = false;
 					tablero[cursor] = -1;
 				}
@@ -208,7 +209,7 @@ public class ExplorationTask implements Runnable {
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
 	 * 
-	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de Neighbors.
 	 */
 	private final void explorar(int desde)
 	{
@@ -310,7 +311,7 @@ public class ExplorationTask implements Runnable {
 		
 		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "estandar". 
 		// Se supone que la pieza fija ya está debidamente colocada.
-		if (cursor == Consts.POSICION_CENTRAL) {
+		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 			
 			int mergedActual = tablero[cursor];
 			
@@ -369,18 +370,18 @@ public class ExplorationTask implements Runnable {
 	 * posicon actual de cursor, y cicla sobre las posibles rotaciones de cada pieza.
 	 * Aplica varias podas que solamente son validas en este nivel de exploracion.
 	 * 
-	 * @param desde Es la posición desde donde empiezo a tomar las piezas de NodoPosibles.
+	 * @param desde Es la posición desde donde empiezo a tomar las piezas de Neighbors.
 	 */
 	private final void exploracionStandard(int desde)
 	{
 		byte flagZona = CommonFuncs.matrix_zonas[cursor];
 		
 		// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-		NodoPosibles nodoPosibles = CommonFuncs.obtenerPosiblesPiezas(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
-		if (nodoPosibles == null)
-			return; // significa que no existen posibles piezas para la actual posicion de cursor
+		Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
+		if (nbs == null)
+			return; // significa que no existen posibles piezas para la actual posicion de cursor y los colores vecinos
 
-		int length_posibles = nodoPosibles.mergedInfo.length;
+		int length_nbs = nbs.mergedInfo.length;
 		
 		num_processes_orig[cursor] = num_processes;
 
@@ -390,42 +391,40 @@ public class ExplorationTask implements Runnable {
 			// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
 			int this_proc_absolute = id % num_processes;
 
-			// caso 1: trivial. Cada proc toma una única rama de nodoPosibles
-			if (num_processes == length_posibles) {
+			// caso 1: trivial. Cada proc toma una única rama de Neighbors
+			if (num_processes == length_nbs) {
 				desde = this_proc_absolute;
-				length_posibles = this_proc_absolute + 1;
+				length_nbs = this_proc_absolute + 1;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (num_processes < length_posibles) {
-				int span = (length_posibles + 1) / num_processes;
+			else if (num_processes < length_nbs) {
+				int span = (length_nbs + 1) / num_processes;
 				desde = this_proc_absolute * span;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				else if (desde + span < length_posibles)
-					length_posibles = desde + span;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				else if (desde + span < length_nbs)
+					length_nbs = desde + span;
 			}
 			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
 			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
-			// Ahora la cantidad de procs se setea igual a length_posibles
+			// Ahora la cantidad de procs se setea igual a length_nbs
 			else {
-				int divisor = (num_processes + 1) / length_posibles; // reparte los procs por posible pieza
-				num_processes = length_posibles;
+				int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
+				num_processes = length_nbs;
 				desde = this_proc_absolute / divisor;
-				if (desde >= length_posibles)
-					desde = length_posibles - 1;
-				length_posibles = desde + 1;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				length_nbs = desde + 1;
 				++pos_multi_process_offset;
 			}
-			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + posibles.referencias.length + ". Limites " +
-			// desde + "," + length_posibles);
-			// System.out.flush();
+			// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
 		}
 		
-		for (; desde < length_posibles; ++desde) {
+		for (; desde < length_nbs; ++desde) {
 			
-			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-			int merged = nodoPosibles.mergedInfo[desde];
-			int numero = NodoPosibles.numero(merged);
+			// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de neighbors
+			int merged = nbs.mergedInfo[desde];
+			int numero = Neighbors.numero(merged);
 			
 			// pregunto si la pieza candidata está siendo usada
 			if (usada[numero])
@@ -437,7 +436,7 @@ public class ExplorationTask implements Runnable {
 				
 			// pregunto si está activada la poda del color right explorado en borde left
 			if (SolverFaster.colorRightExploredStrategy != null) {
-				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, NodoPosibles.right(merged), SolverFaster.colorRightExploredStrategy))
+				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(merged), SolverFaster.colorRightExploredStrategy))
 					continue;
 			}
 			
@@ -485,16 +484,15 @@ public class ExplorationTask implements Runnable {
 //			//caso contrario significa que todavia tengo que seguir retrocediendo
 //			if (retroceder)
 //				break;
-		}//fin bucle posibles piezas
+		}
 		
 		desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
 		tablero[cursor] = -1; //dejo esta posicion de tablero libre
 
 		// restore multi process variables
 		num_processes = num_processes_orig[cursor];
-		--pos_multi_process_offset;
-		if (pos_multi_process_offset < 0)
-			pos_multi_process_offset = 0;
+		if (pos_multi_process_offset > 0)
+			--pos_multi_process_offset;
 	}
 
 }

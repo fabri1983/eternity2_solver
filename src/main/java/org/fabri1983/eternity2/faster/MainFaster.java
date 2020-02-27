@@ -43,10 +43,10 @@ public final class MainFaster
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
+					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
+					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MAX_PARTIAL_FILES)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
+					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),

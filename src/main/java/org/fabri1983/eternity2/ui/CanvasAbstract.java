@@ -1,7 +1,7 @@
 package org.fabri1983.eternity2.ui;
 
 import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.core.neighbors.NodoPosibles;
+import org.fabri1983.eternity2.core.neighbors.Neighbors;
 
 public abstract class CanvasAbstract implements Canvas {
 
@@ -12,7 +12,7 @@ public abstract class CanvasAbstract implements Canvas {
 	public CanvasAbstract(int columns, int rows, int posCentral) {
 		this.columns = columns;
 		this.rows = rows;
-		this.pieza_gris = NodoPosibles.asMergedInfo(Consts.GRIS, Consts.GRIS, Consts.GRIS, Consts.GRIS, (short)0);
+		this.pieza_gris = Neighbors.asMergedInfo(Consts.GRIS, Consts.GRIS, Consts.GRIS, Consts.GRIS, (short)0);
 	}
 
 	protected abstract Integer getPiezaInfoFromTablero(int cursorTablero);

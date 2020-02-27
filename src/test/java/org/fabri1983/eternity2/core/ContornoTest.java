@@ -43,7 +43,7 @@ public class ContornoTest {
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions after border left. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor - (Contorno.MAX_COLS - 1)) & (Consts.LADO - 1)) != 0;
+					((_cursor - (Contorno.MAX_COLUMNS - 1)) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_proc_contorno[_cursor] != testSlow)
 				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testSlow));
@@ -56,7 +56,7 @@ public class ContornoTest {
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions after border left. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor - (Contorno.MAX_COLS - 1)) & (Consts.LADO - 1)) != 0;
+					((_cursor - (Contorno.MAX_COLUMNS - 1)) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_proc_contorno[_cursor] != testFast)
 				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_proc_contorno[_cursor], testFast));
@@ -81,7 +81,7 @@ public class ContornoTest {
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions before border right. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition. 
-					((_cursor + Contorno.MAX_COLS - 1 + 1) & (Consts.LADO - 1)) != 0;
+					((_cursor + Contorno.MAX_COLUMNS - 1 + 1) & (Consts.LADO - 1)) != 0;
 			
 			if (zona_read_contorno[_cursor] != testSlow)
 				Assert.fail(String.format("(Slow) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testSlow));
@@ -94,7 +94,7 @@ public class ContornoTest {
 					// At this point cursor is in inner board (no corner no border).
 					// Then we need to check cursor is not within Contorno.MAX_COLS - 1 positions before border right. 
 					// IMPORTANT: Given the fact Contorno.MAX_COLS is 2 then we can use one condition.
-					((_cursor + Contorno.MAX_COLS - 1 + 1) & (Consts.LADO - 1)) != 0;
+					((_cursor + Contorno.MAX_COLUMNS - 1 + 1) & (Consts.LADO - 1)) != 0;
 
 			if (zona_read_contorno[_cursor] != testFast)
 				Assert.fail(String.format("(Fast) For cursor %s: %s != %s", _cursor, zona_read_contorno[_cursor], testFast));
@@ -116,7 +116,7 @@ public class ContornoTest {
 	        
 	        //me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
 	        int fila_actual = k / Consts.LADO;
-	        if (((k - Contorno.MAX_COLS) / Consts.LADO) != fila_actual)
+	        if (((k - Contorno.MAX_COLUMNS) / Consts.LADO) != fila_actual)
 	            continue;
 	        
 	        zona_proc_contorno[k] = true;
@@ -138,7 +138,7 @@ public class ContornoTest {
             
             //me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
             int fila_actual = k / Consts.LADO;
-            if ((k + (Contorno.MAX_COLS - 1)) < ((fila_actual * Consts.LADO) + (Consts.LADO - 1)))
+            if ((k + (Contorno.MAX_COLUMNS - 1)) < ((fila_actual * Consts.LADO) + (Consts.LADO - 1)))
                 zona_read_contorno[k] = true;
         }
     }

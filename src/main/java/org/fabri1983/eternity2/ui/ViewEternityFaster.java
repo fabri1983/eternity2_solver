@@ -40,7 +40,7 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasFaster(rows, cols, Consts.POSICION_CENTRAL, action);
+		return new CanvasFaster(rows, cols, Consts.PIEZA_CENTRAL_POS_TABLERO, action);
 	}
 
 	@Override
