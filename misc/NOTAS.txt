@@ -17,9 +17,9 @@ Código comentado:
 ---------------------------------------------------------------------------------------
 Timings
 -------
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-	5 >>> 2299 ms, cursor 211
-	7 >>> 5503 ms, cursor 211
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06. Results:
+5 >>> 1898 ms, cursor 211
+7 >>> 4490 ms, cursor 211
 
 This numbers helps to easily check if some change has improved on worsen the performance.
 However, the key number to keep an eye is the number of correct tiles per second. 
