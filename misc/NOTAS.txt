@@ -15,6 +15,18 @@ Código comentado:
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
+Timings
+-------
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
+	5 >>> 2299 ms, cursor 211
+	7 >>> 5503 ms, cursor 211
+
+This numbers helps to easily check if some change has improved on worsen the performance.
+However, the key number to keep an eye is the number of correct tiles per second. 
+	For that benchmarking use: -Dui.show=false -Dmax.ciclos.save.status=false -Dmax.ciclos.print.stats=147483647
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 Java GC
 https://plumbr.io/handbook/what-is-garbage-collection
 ---------------------------------------------------------------------------------------
@@ -186,18 +198,6 @@ sola vez lo que hace descartar ramas. Pero no sé cómo hacer ese cálculo.
 
 Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
 	(4! * 4^0) * (2!^5) * (3!^17) = 1.2999... × 10^16
----------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------
-Timings
--------
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenJDK 11. Results:
-	5 >>> 2299 ms, cursor 211
-	7 >>> 5503 ms, cursor 211
-
-This numbers helps to easily check if some change has improved on worsen the performance.
-However, the key number to keep an eye is the number of correct tiles per second. 
-	For that benchmarking use: -Dui.show=false -Dmax.ciclos.save.status=false -Dmax.ciclos.print.stats=147483647
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
