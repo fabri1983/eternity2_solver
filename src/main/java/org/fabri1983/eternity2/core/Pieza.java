@@ -35,12 +35,13 @@ public class Pieza {
 	 */
 	public final static void rotar90 (final Pieza p)
 	{
+		p.rotacion= (byte) ((p.rotacion + 1) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
+		// TODO use XOR technique
 		final byte aux= p.left;
 		p.left= p.bottom;
 		p.bottom= p.right;
 		p.right= p.top;
 		p.top= aux;
-		p.rotacion= (byte) ((p.rotacion + 1) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
 	}
 	
 	/**
@@ -50,13 +51,14 @@ public class Pieza {
 	 */
 	public final static void rotar180 (final Pieza p)
 	{
+		p.rotacion= (byte) ((p.rotacion + 2) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
+		// TODO use XOR technique
 		final byte aux = p.left;
 		p.left= p.right;
 		p.right= aux;
 		final byte aux2 = p.top;
 		p.top= p.bottom;
 		p.bottom= aux2;
-		p.rotacion= (byte) ((p.rotacion + 2) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
 	}
 	
 	/**
@@ -66,12 +68,13 @@ public class Pieza {
 	 */
 	public final static void rotar270 (final Pieza p)
 	{
+		p.rotacion= (byte) ((p.rotacion + 3) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
+		// TODO use XOR technique
 		final byte aux = p.left;
 		p.left= p.top;
 		p.top= p.right;
 		p.right= p.bottom;
 		p.bottom= aux;
-		p.rotacion= (byte) ((p.rotacion + 3) & 3); // 4 max rotations using modulo reduction: x % 4 => x & 3
 	}
 
 	/**
