@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<skip.docker.build>true</skip.docker.build>
-		<source.dir>${basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
+		<source.dir>${project.basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
 		<jmh.version>1.21</jmh.version>
 	</properties>
@@ -253,6 +253,53 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<!-- copy Docker related files to target folder -->
+					<execution>
+						<id>copy-docker-files</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<sourceFile>${project.basedir}/src/main/docker/.dockerignore</sourceFile>
+									<destinationFile>${project.build.directory}/.dockerignore</destinationFile>
+								</fileSet>
+								<fileSet>
+									<sourceFile>${project.basedir}/src/main/docker/Dockerfile.java${maven.compiler.target}</sourceFile>
+									<destinationFile>${project.build.directory}/Dockerfile</destinationFile>
+								</fileSet>
+								<fileSet>
+									<sourceFile>${project.basedir}/src/main/docker/docker-build${script.extension}</sourceFile>
+									<destinationFile>${project.build.directory}/docker-build${script.extension}</destinationFile>
+								</fileSet>
+							</fileSets>
+						</configuration>
+					</execution>
+					<!-- copy MPJe machines file to target folder -->
+					<execution>
+						<id>copy-mpje-machines-file</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<sourceFile>${project.basedir}/src/main/resources/profiles/machines</sourceFile>
+									<destinationFile>${project.build.directory}/machines</destinationFile>
+								</fileSet>
+							</fileSets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.2.1</version>
@@ -314,43 +361,11 @@
 				</dependencies>
 			</plugin>
 			<plugin>
-				<groupId>com.coderplus.maven.plugins</groupId>
-				<artifactId>copy-rename-maven-plugin</artifactId>
-				<version>1.0.1</version>
-				<executions>
-					<!-- copy Docker related files to target folder -->
-					<execution>
-						<id>copy-docker-files</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<fileSets>
-								<fileSet>
-									<sourceFile>${project.basedir}/src/main/docker/.dockerignore</sourceFile>
-									<destinationFile>${project.build.directory}/.dockerignore</destinationFile>
-								</fileSet>
-								<fileSet>
-									<sourceFile>${project.basedir}/src/main/docker/Dockerfile.java${maven.compiler.target}</sourceFile>
-									<destinationFile>${project.build.directory}/Dockerfile</destinationFile>
-								</fileSet>
-								<fileSet>
-									<sourceFile>${project.basedir}/src/main/docker/docker-build${script.extension}</sourceFile>
-									<destinationFile>${project.build.directory}/docker-build${script.extension}</destinationFile>
-								</fileSet>
-							</fileSets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
 				<executions>
 					<execution>
-						<id>copy-libs</id>
+						<id>copy-external-libs</id>
 						<phase>package</phase>
 						<goals>
 							<goal>run</goal>
