@@ -156,7 +156,7 @@ public final class SolverFaster {
 		try{
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println(action.id + " >>> estado de exploracion no existe.");
+				System.out.println(action.id + " >>> Estado de exploracion no existe.");
 				return status_cargado;
 			}
 			
@@ -164,7 +164,7 @@ public final class SolverFaster {
 			String linea = reader.readLine();
 			
 			if (linea==null) {
-				throw new Exception(action.id + " >>> First line is null.");
+				throw new Exception("First line is null.");
 			}
 			else{
 				int sep,sep_ant;
@@ -205,9 +205,9 @@ public final class SolverFaster {
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
+					byte index= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					action.desde_saved[k] = numPieza;
+					action.desde_saved[k] = index;
 				}
 				
 				// la siguiente línea indica si se estaba usando poda de color explorado
@@ -215,7 +215,7 @@ public final class SolverFaster {
 				// recorro los valores de matrix_color_explorado[]
 				if (colorRightExploredStrategy != null){
 					if (Boolean.parseBoolean(linea)){
-						//leo la info de matriz_color_explorado
+						// leo la info de matriz_color_explorado
 						linea= reader.readLine();
 						sep=0; sep_ant=0;
 						for (short k=0; k < Consts.LADO; ++k){

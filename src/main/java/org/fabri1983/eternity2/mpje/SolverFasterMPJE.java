@@ -82,7 +82,7 @@ public final class SolverFasterMPJE {
 	public final static boolean[] usada = new boolean[Consts.MAX_PIEZAS];
 	private final static Contorno contorno = new Contorno();
 	
-	private final static short[] desde_saved = new short[Consts.MAX_PIEZAS];
+	private final static byte[] desde_saved = new byte[Consts.MAX_PIEZAS];
 	
 	private final static NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
@@ -178,10 +178,9 @@ public final class SolverFasterMPJE {
 		boolean status_cargado = false;
 		
 		try{
-			// first ask if file exists
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println(ID + " >>> estado de exploracion no existe.");
+				System.out.println(ID + " >>> Estado de exploracion no existe.");
 				System.out.flush();
 				return status_cargado;
 			}
@@ -190,7 +189,7 @@ public final class SolverFasterMPJE {
 			String linea= reader.readLine();
 			
 			if (linea==null) {
-				throw new Exception(ID + " >>> First line is null.");
+				throw new Exception("First line is null.");
 			}
 			else{
 				int sep,sep_ant;
@@ -231,17 +230,17 @@ public final class SolverFasterMPJE {
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					short numPieza= Short.parseShort(linea.substring(sep_ant,sep));
+					byte index= Byte.parseByte(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					desde_saved[k] = numPieza;
+					desde_saved[k] = index;
 				}
 				
-				//la siguiente línea indica si se estaba usando poda de color explorado
+				// la siguiente línea indica si se estaba usando poda de color explorado
 				linea= reader.readLine();
 				// recorro los valores de matrix_color_explorado[]
 				if (colorRightExploredStrategy != null){
 					if (Boolean.parseBoolean(linea)){
-						//leo la info de matriz_color_explorado
+						// leo la info de matriz_color_explorado
 						linea= reader.readLine();
 						sep=0; sep_ant=0;
 						for (short k=0; k < Consts.LADO; ++k){
@@ -466,7 +465,7 @@ public final class SolverFasterMPJE {
 			CommonFuncs.guardarSolucion(ID, tablero, NAME_FILE_SOLUCION, NAME_FILE_DISPOSICION);
 			System.out.println(ID + " >>> Solucion Encontrada!!");
 			System.out.flush();
-			return; //evito que la instancia de exporacion continue
+			return; // evito que la instancia de exporacion continue
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
@@ -740,20 +739,20 @@ public final class SolverFasterMPJE {
 					continue;
 			}
 
-			// seteo los contornos como usados
+			// seteo el contorno como usados
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, merged);
 				
 			//##########################
-			// Llamo una nueva instancia
+			// Llamo una nueva instancia de exploracion
 			++cursor;
 			explorar(0);
 			--cursor;
 			//##########################
 				
-			// seteo los contornos como libres
+			// seteo el contorno como libres
 			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, merged);
 			
-			usada[numero] = false; //la pieza ahora no es usada
+			usada[numero] = false;
 			
 			// si retrocedió hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
 //			@RETROCEDER
