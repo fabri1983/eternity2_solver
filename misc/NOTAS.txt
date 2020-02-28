@@ -11,6 +11,9 @@ TODO
 	
 - Usar stdlib::lower_bounds() para encontrar el primer elemento talque es mayor o igual que un target value. Posiblemente mejor q busqueda binaria.
 
+- Pieza.rotar90() y demás.
+Agregar implelemtacion usando XOR y hacer benchmark.
+
 - Debug exploracionStandard() la parte de seteo de desde y length_posibles porque me parece que no se está dividiendo accordingly.
 
 - Guardar Estado:
