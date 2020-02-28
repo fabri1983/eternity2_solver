@@ -407,7 +407,7 @@ public final class SolverFasterMPJE {
 				if (cursor < 0)
 					break; //obliga a salir del while
 				
-				//seteo los contornos como libres si no están usados
+				//seteo el contorno como libre
 				CommonFuncs.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, tablero[cursor]);
 
 				//debo setear la pieza en cursor como no usada y sacarla del tablero
@@ -548,14 +548,14 @@ public final class SolverFasterMPJE {
 			int mergedActual = tablero[cursor];
 			byte flagZona = CommonFuncs.matrix_zonas[cursor];
 			
-			//seteo los contornos como usados
+			//seteo el contorno como usado
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedActual);
 			
 			++cursor;
 			explorar(0);
 			--cursor;
 			
-			//seteo los contornoscomo libres
+			//seteo el contorno como libre
 			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, mergedActual);
 			
 //			@RETROCEDER
@@ -739,7 +739,7 @@ public final class SolverFasterMPJE {
 					continue;
 			}
 
-			// seteo el contorno como usados
+			// seteo el contorno como usado
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, merged);
 				
 			//##########################
@@ -749,7 +749,7 @@ public final class SolverFasterMPJE {
 			--cursor;
 			//##########################
 				
-			// seteo el contorno como libres
+			// seteo el contorno como libre
 			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, merged);
 			
 			usada[numero] = false;

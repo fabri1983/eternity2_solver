@@ -4,10 +4,6 @@ TODO
 ----
 - Cambiar Pieza[] piezas por int[] piezas.
 
-- Contorno: 
-Pasarlo a QuickLongBitSet para que ocupe muuuucho menos (pero puede ser mas lento el acceso). 
-Para generar una key a partir de 3 colores: a*(17^2) + b*17 + c
-
 - Mejorar las implementacion de BinarySearch:
 	https://stackoverflow.com/questions/673826/optimize-binary-search-algorithm
 	links del firefox del celu

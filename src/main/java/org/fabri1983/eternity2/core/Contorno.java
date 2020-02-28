@@ -38,20 +38,9 @@ public final class Contorno
 	public final static int MAX_COLUMNS = 2; // Search over the code before change this value
 	
 	/**
-	 * Arreglo para saber si un contorno ha sido usado o no. 
-	 * 
-	 * INITIAL VERSION: 
-	 * (Assuming 23 = max colores)
-	 * Para 3 colors (MAX_COLS=2): just using a 3-dimensional array I ended up with 23^3 =   12167 indexes.
-	 * Para 4 colors (MAX_COLS=3): idem but 4-dimensional array:                    23^4 =  279841 indexes.
-	 * Para 5 colors (MAX_COLS=4): idem but 5-dimensional array:                    23^5 = 6436343 indexes.
-	 * 
-	 * NOTA: Se usan 3 niveles de desglosamiento porque es el mejor número de columnas (un left y dos tops).
-	 * 
-	 * IMPROVEMENT FINAL:
-	 * Given the fact that the Contorno data structure holds only inner colors we can discard those 5 colors belonging 
+	 * Given the fact that we handle only inner colors we can discard those 5 colors belonging 
 	 * to corners and borders. So ending up using 17 colors.
-	 * Para 3 colors (MAX_COLS=2): 17^3 = 4913.
+	 * For 3 colors (MAX_COLUMNS = 2): 17^3 = 4913.
 	 */
 	public final boolean[][][] used = new boolean
 			[Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR];
