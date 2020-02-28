@@ -43,7 +43,7 @@ public class ExplorationTask implements Runnable {
 	public final boolean[] usada = new boolean[Consts.MAX_PIEZAS];
 	private final Contorno contorno = new Contorno();
 	
-	final short[] desde_saved = new short[Consts.MAX_PIEZAS];
+	final byte[] desde_saved = new byte[Consts.MAX_PIEZAS];
 	
 	public short cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
 	int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
@@ -234,7 +234,7 @@ public class ExplorationTask implements Runnable {
 		if (cursor >= Consts.MAX_PIEZAS) {
 			CommonFuncs.guardarSolucion(id, tablero, solucFileName, dispFileName);
 			System.out.println(id + " >>> Solucion Encontrada!!");
-			return; //evito que la instancia de exploracion continue
+			return; // evito que la instancia de exploracion continue
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
@@ -461,28 +461,28 @@ public class ExplorationTask implements Runnable {
 					continue;
 			}
 	
-			//seteo los contornos como usados
+			// seteo el contorno como usados
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, merged);
 				
 			//##########################
-			//Llamo una nueva instancia
+			// Llamo una nueva instancia de epxloracion
 			++cursor;
 			explorar(0);
 			--cursor;
 			//##########################
 				
-			//seteo los contornos como libres
+			// seteo el contorno como libres
 			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, merged);
 			
-			usada[numero] = false; //la pieza ahora no es usada
+			usada[numero] = false;
 			
-			//si retrocedí hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
+			// si retrocedí hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
 //			@RETROCEDER
 //			if (cursor <= cur_destino){
 //				retroceder= false;
 //				cur_destino= Consts.CURSOR_INVALIDO;
 //			}
-//			//caso contrario significa que todavia tengo que seguir retrocediendo
+//			// caso contrario significa que todavia tengo que seguir retrocediendo
 //			if (retroceder)
 //				break;
 		}

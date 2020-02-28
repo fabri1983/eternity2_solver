@@ -31,7 +31,7 @@ package org.fabri1983.eternity2.core.neighbors;
  */
 public class NeighborsSizeByKey {
 
-	public static int getSizeForKey_interior(int key) {
+	public static byte getSizeForKey_interior(int key) {
 		switch (key) {
 		case 0: return 2;
 		case 1: return 4;
@@ -260,7 +260,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 
-	public static int getSizeForKey_interior_above_central(int key) {
+	public static byte getSizeForKey_interior_above_central(int key) {
 		switch (key) {
 		case 99: return 2;
 		case 130: return 2;
@@ -272,7 +272,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_interior_left_central(int key) {
+	public static byte getSizeForKey_interior_left_central(int key) {
 		switch (key) {
 		case 140: return 2;
 		case 228: return 2;
@@ -282,7 +282,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_border_right(int key) {
+	public static byte getSizeForKey_border_right(int key) {
 		switch (key) {
 		case 3: return 2;
 		case 6: return 2;
@@ -298,7 +298,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_border_left(int key) {
+	public static byte getSizeForKey_border_left(int key) {
 		switch (key) {
 		case 0: return 10;
 		case 1: return 12;
@@ -310,7 +310,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_border_top(int key) {
+	public static byte getSizeForKey_border_top(int key) {
 		switch (key) {
 		case 0: return 12;
 		case 1: return 11;
@@ -322,7 +322,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_border_bottom(int key) {
+	public static byte getSizeForKey_border_bottom(int key) {
 		switch (key) {
 		case 4: return 2;
 		case 67: return 2;
@@ -339,11 +339,12 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_corner_top_left() {
+	public static byte getSizeForKey_corner_top_left() {
+		// There are always only 4 tiles in top left corner when doing scan row from top-left to bottom-right
 		return 4;
 	}
 	
-	public static int getSizeForKey_corner_top_right(int key) {
+	public static byte getSizeForKey_corner_top_right(int key) {
 		switch (key) {
 		case 4: return 2;
 		// Default size is 1 for missing keys.
@@ -351,7 +352,7 @@ public class NeighborsSizeByKey {
 		}
 	}
 
-	public static int getSizeForKey_corner_bottom_left(int key) {
+	public static byte getSizeForKey_corner_bottom_left(int key) {
 		switch (key) {
 		case 0: return 2;
 		// Default size is 1 for missing keys.
@@ -359,9 +360,9 @@ public class NeighborsSizeByKey {
 		}
 	}
 	
-	public static int getSizeForKey_corner_bottom_right(int key) {
+	public static byte getSizeForKey_corner_bottom_right(int key) {
 		switch (key) {
-		
+		// All keys have exactly one tile
 		// Default size is 1 for missing keys.
 		default: return 1;
 		}

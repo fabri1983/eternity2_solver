@@ -346,7 +346,7 @@ public class CommonFuncs {
 	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
 	 */
 	public final static void guardarEstado(String statusFileName, int processId, int[] tablero, short cursor,
-			int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved,
+			int mas_bajo, int mas_alto, int mas_lejano_parcial_max, byte[] desde_saved,
 			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		try{
@@ -438,7 +438,7 @@ public class CommonFuncs {
 	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
 	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, int[] tablero,
-			short cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, short[] desde_saved,
+			short cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, byte[] desde_saved,
 			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
 			
 		guardarEstado(statusFileName, processId, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, desde_saved, 

@@ -38,7 +38,7 @@ and
 5 >>> 1804 ms, cursor 211
 7 >>> 4385 ms, cursor 211
 
-Obviously there are some other operations performed by the JVM which produces the differences.
+Obviously there are some other operations performed by the JVM and/or the underlying SO which produces the differences.
 
 These numbers helps to easily check if some change has improved or worsen the performance.
 

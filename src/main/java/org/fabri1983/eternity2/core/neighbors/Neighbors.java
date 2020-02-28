@@ -197,11 +197,11 @@ public final class Neighbors
 		return (a << 5) | b;
 	}
 	
-	public static final short getIndexMergedInfo(Neighbors np, int mergedInfo)
+	public static final byte getIndexMergedInfo(Neighbors np, int mergedInfo)
 	{
 		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
 			if (np.mergedInfo[i] == mergedInfo)
-				return (short)i;
+				return (byte)i;
 		}
 		return 0;
 	}
