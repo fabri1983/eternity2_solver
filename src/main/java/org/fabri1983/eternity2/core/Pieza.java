@@ -87,28 +87,30 @@ public class Pieza {
 		 * This method has no if statements, which helps to avoid branching decisions on CPU.
 		 * 
 		 * We are going to loop clockwise in order to rotate the colors, so we need to calculate the number of loops.
-		 *   rotLoops = (4 - p.rotacion + rot) % 4
-		 *   rotLoops = (-p.rotacion + rot) % 4
-		 *   rotLoops = (rot - p.rotacion) % 4
+		 *   rotSteps = (4 - p.rotacion + rot) % 4
+		 *   rotSteps = (-p.rotacion + rot) % 4
+		 *   rotSteps = (rot - p.rotacion) % 4
 		 * Then using the bitwise modulo trick where M is a power of 2:
-		 *   rotLoops = (rot - p.rotacion) & 3
+		 *   rotSteps = (rot - p.rotacion) & 3
 		 * We may use the distributive of % operand:
 		 *   (A + B) % M = ((A % M) + (B % M)) % M
-		 *   rotLoops = ((rot & 3) - (p.rotacion & 3)) & 3
+		 *   rotSteps = ((rot & 3) - (p.rotacion & 3)) & 3
 		 *   But in our case this involves more operations, so we discard it
 		 */
-		int rotLoops = (rot - p.rotacion) & 3;
+		
+		int rotSteps = (rot - p.rotacion) & 3; // how much times do I need to rotate by 90 degrees
 		p.rotacion = rot;
-		while (rotLoops > 0) {
+		
+		while (rotSteps > 0) {
 			
-			// using a temporal variable
+			// Option 0 (naive): using a temporal variable
 			byte aux= p.left;
 			p.left= p.bottom;
 			p.bottom= p.right;
 			p.right= p.top;
 			p.top= aux;
 			
-			// using bitwise XOR
+			// Alternative: using bitwise XOR
 			/**
 			 * original:
 			 *         top
@@ -157,7 +159,7 @@ public class Pieza {
 //		    // After this, top has value of left 
 //			p.top = (byte) (p.top ^ p.right ^ p.bottom ^ p.left);
 			
-			--rotLoops;
+			--rotSteps;
 		}
 	}
 
