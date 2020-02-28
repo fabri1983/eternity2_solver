@@ -21,8 +21,8 @@ public class ContornoTest {
 		// test borders top and bottom using a mask
 		boolean print = false;
 		for (int k=0; print && k < Consts.MAX_PIEZAS; ++k) {
-			int top = k & Consts.maskForBorderTopAndBottom;
-			int bottom = (k + Consts.LADO) & Consts.maskForBorderTopAndBottom;
+			int top = k & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM;
+			int bottom = (k + Consts.LADO) & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM;
 			System.out.println(
 					k + ":  " + top + "  " + bottom 
 					+ " -> test (mult): " + (top * bottom) );
@@ -50,7 +50,7 @@ public class ContornoTest {
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & Consts.maskForBorderTopAndBottom) * ((_cursor + Consts.LADO) & Consts.maskForBorderTopAndBottom) *
+					(_cursor & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM) * ((_cursor + Consts.LADO) & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM) *
 					// Discard borders
 					(_cursor & (Consts.LADO - 1)) * ((_cursor + 1) & (Consts.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
@@ -88,7 +88,7 @@ public class ContornoTest {
 			
 			boolean testFast = 
 					// Discard top and bottom rows
-					(_cursor & Consts.maskForBorderTopAndBottom) * ((_cursor + Consts.LADO) & Consts.maskForBorderTopAndBottom) *
+					(_cursor & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM) * ((_cursor + Consts.LADO) & Consts.MASK_FOR_BORDER_TOP_AND_BOTTOM) *
 					// Discard borders
 					(_cursor & (Consts.LADO - 1)) * ((_cursor + 1) & (Consts.LADO - 1)) *
 					// At this point cursor is in inner board (no corner no border).
