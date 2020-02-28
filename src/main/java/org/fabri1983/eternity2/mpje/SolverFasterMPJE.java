@@ -443,15 +443,6 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void explorar (int desde)
 	{
-//		@FILAS_PRECALCULADAS
-//		if (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
-//			//genero el arreglo de combinaciones de filas
-//			calcularFilasDePiezas();
-//			combs_hechas = true;
-//		}
-//		else if (cursor < POSICION_CALCULAR_FILAS)
-//			combs_hechas = false; //seteando en false obligo a que se recalculen las filas
-		
 		//#############################################################################################
 		/**
 		 * Cabeza de exploración.
@@ -586,14 +577,6 @@ public final class SolverFasterMPJE {
 			knocKnock();
 		}
 
-		//pregunto si estoy en una posicion donde puedo preguntar por filas libres y/o cargar fila
-//		@FILAS_PRECALCULADAS
-//		if (zonas_cargar_fila[cursor]){
-//			//cargo fila precalculadas
-//			if (cargarFilasGuardadas() == false)
-//				return;
-//		}
-		
 		//#############################################################################################
 		
 		

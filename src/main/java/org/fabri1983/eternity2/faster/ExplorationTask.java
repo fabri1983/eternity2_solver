@@ -213,15 +213,6 @@ public class ExplorationTask implements Runnable {
 	 */
 	private final void explorar(int desde)
 	{
-//		@FILAS_PRECALCULADAS
-//		if (!combs_hechas && cursor >= POSICION_CALCULAR_FILAS){
-//			//genero el arreglo de combinaciones de filas
-//			calcularFilasDePiezas();
-//			combs_hechas = true;
-//		}
-//		else if (cursor < POSICION_CALCULAR_FILAS)
-//			combs_hechas = false; //seteando en false obligo a que se recalculen las filas
-			
 		//#############################################################################################
 		/**
 		 * Cabeza de exploración.
@@ -304,7 +295,7 @@ public class ExplorationTask implements Runnable {
 		//#############################################################################################
 		/**
 		 * Explorar pieza fija.
-		 * Ya me encuentro en una posicion fija, entonces salteo esta posici�n y continuo.
+		 * Ya me encuentro en una posicion fija, entonces salteo esta posición y continuo.
 		 * NOTA: por ahora solo se contempla la posicion 135 (136 real) como fija y no se permte rotarla.
 		 */
 		//#############################################################################################
@@ -346,14 +337,6 @@ public class ExplorationTask implements Runnable {
 		//pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
 		if (CommonFuncs.esContornoSuperiorUsado(cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero))
 			return;
-
-		//pregunto si estoy en una posicion donde puedo preguntar por filas libres y/o cargar fila
-//		@FILAS_PRECALCULADAS
-//		if (zonas_cargar_fila[cursor]){
-//			//cargo fila precalculadas
-//			if (cargarFilasGuardadas() == false)
-//				return;
-//		}
 		
 		//#############################################################################################
 		
