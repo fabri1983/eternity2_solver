@@ -201,7 +201,7 @@ public class CommonFuncs {
 		llenarSuperEstructura(piezas, useFairExperimentGif, neighborStrategy);
 		
 		long elapsedMicros = TimeUnit.MICROSECONDS.convert(System.nanoTime() - startingTime, TimeUnit.NANOSECONDS);
-		System.out.println(processId + " >>> carga de super matriz finalizada (" + elapsedMicros + " micros)");
+		System.out.println(processId + " >>> Carga de super matriz finalizada (" + elapsedMicros + " micros)");
 	}
 	
 	private static final void llenarSuperEstructura (Pieza[] piezas, boolean useFairExperimentGif, NeighborStrategy neighborStrategy)

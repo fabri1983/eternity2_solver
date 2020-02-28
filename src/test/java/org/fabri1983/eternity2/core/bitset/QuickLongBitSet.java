@@ -98,6 +98,18 @@ public class QuickLongBitSet {
     }
     
     /**
+     * Sets the bit at the specified index to {@code false}.
+     * IMPORTANT: remember that setting a bit is from LSB (most right bit) to MSB (left most bit)
+     *
+     * @param  bitIndex a bit index
+     * @since  1.0
+     */
+	public void clear(int bitIndex) {
+		int wordIndex = wordIndex(bitIndex);
+		words[wordIndex] &= ~(1L << bitIndex); // here it seems the compiler does: 1L << (bitIndex & (BITS_PER_WORD - 1))
+	}
+    
+    /**
      * Returns the value of the bit with the specified index. The value
      * is {@code true} if the bit with the index {@code bitIndex}
      * is currently set in this {@code BitSet}; otherwise, the result
