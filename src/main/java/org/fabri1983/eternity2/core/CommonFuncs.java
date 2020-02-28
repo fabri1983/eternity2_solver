@@ -37,52 +37,43 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 public class CommonFuncs {
 
 	/**
-	 * Zonas del tablero: las 4 esquinas, los 4 bordes, y la zona interior.
+	 * Layout 1: Zonas del tablero: las 4 esquinas, los 4 bordes, y la zona interior.<br/>
+	 * Layout 2: Zonas del tablero donse puedo setear contorno superior como usado o libre.<br/>
+	 * Layout 3: Zonas del tablero para chequear si un contorno está usado o no.<br/>
 	 */
 	public final static byte matrix_zonas[] = new byte[Consts.MAX_PIEZAS];
-	/**
-	 * Me dice en qué posiciones puedo procesar un contorno superior (e inferior) para 
-	 * setearlo como usado o libre. Solamente sirve a dichos fines, y ningún otro.
-	 */
-	public final static boolean[] zona_proc_contorno = new boolean[Consts.MAX_PIEZAS];
-	/**
-	 * Me dice en qué posiciones ce tablero puedo leer un contorno para chequear si es usado o no.
-	 */
-	public final static boolean[] zona_read_contorno = new boolean[Consts.MAX_PIEZAS];
 	
 	public final static void inicializarMatrixZonas ()
 	{		
 		for (int k=0; k < Consts.MAX_PIEZAS; ++k)
 		{
-			matrix_zonas[k]= Consts.F_INTERIOR; //primero asumo que estoy en posicion interior
-			//esquina top-left
+			// esquina top-left
 			if (k == 0)
-				matrix_zonas[k]= Consts.F_ESQ_TOP_LEFT;
-			//esquina top-right
+				matrix_zonas[k] |= Consts.F_ESQ_TOP_LEFT;
+			// esquina top-right
 			else if (k == (Consts.LADO - 1))
-				matrix_zonas[k]= Consts.F_ESQ_TOP_RIGHT;
-			//esquina bottom-right
+				matrix_zonas[k] |= Consts.F_ESQ_TOP_RIGHT;
+			// esquina bottom-right
 			else if (k == (Consts.MAX_PIEZAS - 1))
-				matrix_zonas[k]= Consts.F_ESQ_BOTTOM_RIGHT;
-			//esquina bottom-left
+				matrix_zonas[k] |= Consts.F_ESQ_BOTTOM_RIGHT;
+			// esquina bottom-left
 			else if (k == (Consts.MAX_PIEZAS - Consts.LADO))
-				matrix_zonas[k]= Consts.F_ESQ_BOTTOM_LEFT;
-			//borde top
+				matrix_zonas[k] |= Consts.F_ESQ_BOTTOM_LEFT;
+			// borde top
 			else if ((k > 0) && (k < (Consts.LADO - 1)))
-				matrix_zonas[k]= Consts.F_BORDE_TOP;
-			//borde right
-			else if (((k+1) % Consts.LADO)==0){
-				if ((k != (Consts.LADO - 1)) && (k != (Consts.MAX_PIEZAS - 1)))
-					matrix_zonas[k]= Consts.F_BORDE_RIGHT;
-			}
-			//borde bottom
+				matrix_zonas[k] |= Consts.F_BORDE_TOP;
+			// borde bottom
 			else if ((k > (Consts.MAX_PIEZAS - Consts.LADO)) && (k < (Consts.MAX_PIEZAS - 1)))
-				matrix_zonas[k]= Consts.F_BORDE_BOTTOM;
-			//borde left
-			else if ((k % Consts.LADO)==0){
-				if ((k != 0) && (k != (Consts.MAX_PIEZAS - Consts.LADO)))
-					matrix_zonas[k]= Consts.F_BORDE_LEFT;
-			}
+				matrix_zonas[k] |= Consts.F_BORDE_BOTTOM;
+			// borde right
+			else if (((k+1) % Consts.LADO)==0)
+				matrix_zonas[k] |= Consts.F_BORDE_RIGHT;
+			// borde left
+			else if ((k % Consts.LADO)==0)
+				matrix_zonas[k] |= Consts.F_BORDE_LEFT;
+			// interior
+			else
+				matrix_zonas[k] |= Consts.F_INTERIOR;			
 		}
 	}
 	
@@ -106,7 +97,7 @@ public class CommonFuncs {
 			if (((k - Contorno.MAX_COLUMNS) / Consts.LADO) != fila_actual)
 				continue;
 			
-			zona_proc_contorno[k] = true;
+			matrix_zonas[k] |= Consts.F_PROC_CONTORNO;
 		}
 	}
 	
@@ -126,7 +117,7 @@ public class CommonFuncs {
 			//me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
 			int fila_actual = k / Consts.LADO;
 			if ((k + (Contorno.MAX_COLUMNS-1)) < ((fila_actual * Consts.LADO) + (Consts.LADO - 1)))
-				zona_read_contorno[k] = true;
+				matrix_zonas[k] |= Consts.F_READ_CONTORNO;
 		}
 	}
 	
@@ -259,7 +250,7 @@ public class CommonFuncs {
 						Consts.PIEZA_CENTRAL_COLOR_BOTTOM, Neighbors.right(tablero[cursor - 1]));
 		}
 		
-		switch (flagZona) {
+		switch (flagZona & Consts.MASK_F_TABLERO) {
 			// interior de tablero
 			case Consts.F_INTERIOR: 
 				return neighborStrategy.interior(
@@ -397,8 +388,9 @@ public class CommonFuncs {
 				}
 				// obtengo el valor para desde_saved[]
 				int mergedInfo = tablero[_cursor];
+				byte flagZona = matrix_zonas[_cursor];
 				desde_saved[_cursor] = Neighbors.getIndexMergedInfo(
-						neighbors(matrix_zonas[_cursor], _cursor, tablero, neighborStrategy), 
+						neighbors(flagZona, _cursor, tablero, neighborStrategy), 
 						mergedInfo);
 			}
 			//ahora todo lo que está despues de cursor tiene que valer cero
@@ -545,7 +537,7 @@ public class CommonFuncs {
 		if (flag_antes_borde_right)
 			colorRightExploredStrategy.compareAndSet(fila_actual + 1, 0);
 		
-		if (flagZona == Consts.F_BORDE_LEFT)
+		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_LEFT)
 		{
 			final int mask = 1 << right;
 			
@@ -568,7 +560,7 @@ public class CommonFuncs {
 
 	public final static boolean testFairExperimentGif(byte flagZona, short cursor, int merged, int[] tablero, boolean[] usada)
 	{
-		if (flagZona == Consts.F_INTERIOR || flagZona == Consts.F_BORDE_TOP) {
+		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_INTERIOR || (flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_TOP) {
 			byte bottom = Neighbors.bottom(merged);
 			byte bottomAnterior = Neighbors.bottom(tablero[cursor - 1]);
 			if (bottom == bottomAnterior){
@@ -581,34 +573,22 @@ public class CommonFuncs {
 		return false;
 	}
 
-	public final static void setContornoUsado(short cursor, Contorno contorno, int[] tablero, int mergedActual)
+	public final static void toggleContorno(boolean value, short cursor, byte flagZona, Contorno contorno, int[] tablero, int mergedActual)
 	{
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_proc_contorno[cursor] == true) {
+		if ((flagZona & Consts.MASK_F_PROC_CONTORNO) == Consts.F_PROC_CONTORNO) {
 			int mergedAnterior = tablero[cursor - 1];
 			contorno.used
 					[Neighbors.left(mergedAnterior)]
 					[Neighbors.top(mergedAnterior)]
-					[Neighbors.top(mergedActual)] = true;
-		}
-	}
-	
-	public final static void setContornoLibre(short cursor, Contorno contorno, int[] tablero, int mergedActual)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_proc_contorno[cursor] == true) {
-			int mergedAnterior = tablero[cursor - 1];
-			contorno.used
-					[Neighbors.left(mergedAnterior)]
-					[Neighbors.top(mergedAnterior)]
-					[Neighbors.top(mergedActual)] = false;
+					[Neighbors.top(mergedActual)] = value;
 		}
 	}
 
-	public final static boolean esContornoSuperiorUsado(short cursor, Contorno contorno, int[] tablero)
+	public final static boolean esContornoSuperiorUsado(short cursor, byte flagZona, Contorno contorno, int[] tablero)
 	{
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if (zona_read_contorno[cursor] == true) {
+		if ((flagZona & Consts.MASK_F_READ_CONTORNO) == Consts.F_READ_CONTORNO) {
 			return contorno.used
 					[Neighbors.right(tablero[cursor-1])]
 					[Neighbors.bottom(tablero[cursor - Consts.LADO])]

@@ -28,7 +28,7 @@ public class Consts {
 	 * This creates number 0x000000F0 (for LADO = 16) which will be used to mask cursor position to check if is in top or lower row. 
 	 * The idea here is to create a number with log2(LADO) 0s as lower bits and then as much 1s to complete a size of byte (8 bits).
 	 */
-	public final static int maskForBorderTopAndBottom = 0x000000F0;
+	public final static int MASK_FOR_BORDER_TOP_AND_BOTTOM = 0x000000F0;
 	
 	public final static short LADO = 16;
 	public final static short LADO_FOR_SHIFT_DIVISION = 4;
@@ -40,15 +40,21 @@ public class Consts {
 	public final static short BELOW_PIEZA_CENTRAL_POS_TABLERO = PIEZA_CENTRAL_POS_TABLERO + LADO;
 	public final static short CURSOR_INVALIDO = -1;
 	
-	public final static byte F_INTERIOR = 0;
-	public final static byte F_BORDE_RIGHT = 1;
-	public final static byte F_BORDE_LEFT = 2;
-	public final static byte F_BORDE_TOP = 3;
-	public final static byte F_BORDE_BOTTOM = 4;
-	public final static byte F_ESQ_TOP_LEFT = 5;
-	public final static byte F_ESQ_TOP_RIGHT = 6;
-	public final static byte F_ESQ_BOTTOM_LEFT = 7;
-	public final static byte F_ESQ_BOTTOM_RIGHT = 8;
+	public final static byte F_INTERIOR =           0b000000;
+	public final static byte F_BORDE_RIGHT =        0b000001;
+	public final static byte F_BORDE_LEFT =         0b000010;
+	public final static byte F_BORDE_TOP =          0b000011;
+	public final static byte F_BORDE_BOTTOM =       0b000100;
+	public final static byte F_ESQ_TOP_LEFT =       0b000101;
+	public final static byte F_ESQ_TOP_RIGHT =      0b000110;
+	public final static byte F_ESQ_BOTTOM_LEFT =    0b000111;
+	public final static byte F_ESQ_BOTTOM_RIGHT =   0b001000;
+	public final static byte MASK_F_TABLERO =       0b001111;
+	
+	public final static byte F_PROC_CONTORNO =      0b010000;
+	public final static byte F_READ_CONTORNO =      0b100000;	
+	public final static byte MASK_F_PROC_CONTORNO = 0b010000;
+	public final static byte MASK_F_READ_CONTORNO = 0b100000;
 	
 	public final static String SECCIONES_SEPARATOR_EN_FILE = " ";
 	public final static String FILE_EXT = ".txt";
