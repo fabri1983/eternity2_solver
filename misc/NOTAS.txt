@@ -6,9 +6,12 @@ TODO
 
 - Usar shutdown hook para mpje y asi matar todos los sub procesos.
 
+- Hacer calculo de min y max heap size en los .bat y .sh de acuerdo al flag -Dnum.tasks (si no existe entonces es 8).
+
 - Mejorar las implementacion de BinarySearch:
 	https://stackoverflow.com/questions/673826/optimize-binary-search-algorithm
-	links del firefox del celu
+	https://dirtyhandscoding.wordpress.com/2017/08/25/performance-comparison-linear-search-vs-binary-search/
+	https://dirtyhandscoding.wordpress.com/2017/08/02/vectorizing-stdmerge-with-vpermd-from-avx2-and-lookup-table/
 	https://www.ijcaonline.org/archives/volume178/number15/mehmood-2019-ijca-918788.pdf
 	
 - Usar stdlib::lower_bounds() para encontrar el primer elemento talque es mayor o igual que un target value. Posiblemente mejor q busqueda binaria.
