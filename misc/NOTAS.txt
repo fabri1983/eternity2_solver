@@ -220,7 +220,8 @@ El uso de contorno_sup en el interior del tablero hace que una combinación dada
 sola vez lo que hace descartar ramas. Pero no sé cómo hacer ese cálculo.
 
 Si promediamos a 50% (2) intentos de pieza borde, y 50% (3) intentos de pieza interna nos queda:
-	(4! * 4^0) * (2!^5) * (3!^17) = 1.2999... × 10^16
+	(4! * 4^0) * (2!^5) * (3!^17) = 1.2999674453557248 × 10^16
+	
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
