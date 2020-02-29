@@ -39,14 +39,14 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 Some stats
 ----------
 - **New stats** include changes to use as low memory as possible:
-  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06. Results:
-    - Placing approx **85.08 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **84.49 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
+    - Placing approx **85.89 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **93.73 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
     - Placing approx **56.18 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
 	
 - **Outdated stats**:
 (I need to re run the benchmarks on this specific platform using latest project changes)
-  - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13. Results:
+  - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13 (compiled and executed). Results:
     - Placing approx **97 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **107 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
 
@@ -511,14 +511,24 @@ Using GraalVM's Agent Lib to get native image resources and configurations
 ```sh
 SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
 %GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
-set JAVA_HOME=%GRAALVM_HOME%
-Update PATH env variable
+set JAVA_HOME= any JDK 8 or 11 version except the GraalVM one
+	Eg: set JAVA_HOME=c:\java\openjdk1.8.0_242-jvmci-20.0-b02
+Update PATH env variable with %JAVA_HOME%\bin
+```
+Generate jar artifact with -Pjava8native or -Pjava11native
+```sh
+mvn clean package -Pjava8native
 ```
 Then add at the beginning of your java command and run your program for few seconds:
 ```sh
 -agentpath:%GRAALVM_HOME%\jre\bin\native-image-agent.dll=config-output-dir=native-config
 ```
-Then move produced files to `src\main\resources\META-INF\native-image\org.fabri1983.eternity2`.
+Run the solver for few seconds
+```sh
+cd tools
+run.bat -Dui.show=false -Dnum.tasks=1
+```
+Then move produced files from `target\native-config` to `src\main\resources\META-INF\native-image\org.fabri1983.eternity2`.
 That way when jar is generated and then processed by `native-image` tool it will grab those configurations.
 
 

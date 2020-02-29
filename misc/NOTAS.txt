@@ -4,6 +4,8 @@ TODO
 ----
 - Cambiar Pieza[] piezas por int[] piezas.
 
+- Usar shutdown hook para mpje y asi matar todos los sub procesos.
+
 - Mejorar las implementacion de BinarySearch:
 	https://stackoverflow.com/questions/673826/optimize-binary-search-algorithm
 	links del firefox del celu
@@ -34,12 +36,13 @@ Código comentado:
 ---------------------------------------------------------------------------------------
 Timings
 -------
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06. Results:
-5 >>> 1661 ms, cursor 211
-7 >>> 4407 ms, cursor 211
-and
-5 >>> 1804 ms, cursor 211
-7 >>> 4385 ms, cursor 211
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
+Solver with 8 threads:
+	5 >>> 1661 ms, cursor 211
+	7 >>> 4407 ms, cursor 211
+	and
+	5 >>> 1745 ms, cursor 211
+	7 >>> 4360 ms, cursor 211
 
 Obviously there are some other operations performed by the JVM and/or the underlying SO which produces the differences.
 

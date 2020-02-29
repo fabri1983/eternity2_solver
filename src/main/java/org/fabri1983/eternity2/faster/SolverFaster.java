@@ -30,7 +30,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.fabri1983.eternity2.core.CommonFuncs;
 import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
@@ -304,7 +303,6 @@ public final class SolverFaster {
 		
 		// seteo las posiciones donde puedo setear un contorno como usado o libre
 		CommonFuncs.inicializarZonaProcesoContornos();
-		System.out.println("Usando restriccion de contornos de " + Contorno.MAX_COLUMNS + " columnas.");
 		
 		// seteo las posiciones donde se puede preguntar por contorno superior usado
 		CommonFuncs.inicializarZonaReadContornos();
@@ -385,7 +383,7 @@ public final class SolverFaster {
 				} catch (Exception ex) {
 				}
 			}
-			System.out.println("Tasks interrupted.");
+			System.out.println("All tasks interrupted.");
 		}
 	}
 	
