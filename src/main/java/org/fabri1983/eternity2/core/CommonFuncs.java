@@ -346,21 +346,15 @@ public class CommonFuncs {
 	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
 	 */
 	public final static void guardarEstado(String statusFileName, int processId, int[] tablero, short cursor,
-			int mas_bajo, int mas_alto, int mas_lejano_parcial_max, byte[] desde_saved,
-			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
+			short resultado_parcial_count, byte[] desde_saved, NeighborStrategy neighborStrategy,
+			ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		try{
 			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(statusFileName)));
 			StringBuilder writerBuffer= new StringBuilder(256 * 13);
 	
-			//guardo el valor de mas_bajo
-			writerBuffer.append(mas_bajo).append("\n");
-			
-			//guardo el valor de mas_alto
-			writerBuffer.append(mas_alto).append("\n");
-			
-			//guardo el valor de mas_lejano 
-			writerBuffer.append(mas_lejano_parcial_max).append("\n");
+			//guardo el valor de resultado_parcial_count
+			writerBuffer.append(resultado_parcial_count).append("\n");
 			
 			//guardo el valor del cursor
 			writerBuffer.append(cursor).append("\n");
@@ -438,89 +432,47 @@ public class CommonFuncs {
 	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
 	 */
 	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, int[] tablero,
-			short cursor, int mas_bajo, int mas_alto, int mas_lejano_parcial_max, byte[] desde_saved,
-			NeighborStrategy neighborStrategy, ColorRightExploredStrategy colorRightExploredStrategy) {
-			
-		guardarEstado(statusFileName, processId, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, desde_saved, 
+			short cursor, short resultado_parcial_count, byte[] desde_saved, NeighborStrategy neighborStrategy,
+			ColorRightExploredStrategy colorRightExploredStrategy) {
+
+		guardarEstado(statusFileName, processId, tablero, cursor, resultado_parcial_count, desde_saved,
 				neighborStrategy, colorRightExploredStrategy);
-		
+
 		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
 	}
 	
 	/**
-	 * Genera un archivo de piezas para leer con el editor visual e2editor.exe, otro archivo
-	 * que contiene las disposiciones de cada pieza en el tablero, y otro archivo que me dice
-	 * las piezas no usadas (generado solo si max es true).
-	 * Si max es true, el archivo generado es el que tiene la mayor disposición de piezas encontrada.
-	 * Si max es false, el archivo generado contiene la disposición de piezas en el instante cuando
-	 * se guarda estado.
+	 * Genera un archivo de piezas para leer con el editor visual e2editor.exe, y otro archivo
+	 * que contiene las disposiciones de cada pieza en el tablero.
 	 */
-	public final static int guardarResultadoParcial(boolean max, int processId, int[] tablero, int sig_parcial,
-			int maxNumParcial, String parcialFileName, String parcialMaxFileName, String disposicionMaxFileName)
+	public final static void guardarResultadoParcial(int processId, int[] tablero, String parcialFileName)
 	{
-		if (maxNumParcial == 0 && !max)
-			return sig_parcial;
-		
 		try {
-			PrintWriter wParcial= null;
-			// si estamos en max instance tenemos q guardar las disposiciones de las piezas
-			PrintWriter wDispMax = null;
+			PrintWriter wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialFileName)));
 			StringBuilder parcialBuffer= new StringBuilder(256 * 13);
-			StringBuilder dispMaxBuff= new StringBuilder(256 * 13);
-			
-			if (max){
-				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialMaxFileName)));
-				wDispMax= new PrintWriter(new BufferedWriter(new FileWriter(disposicionMaxFileName)));
-				dispMaxBuff.append("(num pieza) (estado rotacion) (posicion en tablero real)").append("\n");
-			}
-			else{
-				String parcialFName = parcialFileName.substring(0, parcialFileName.indexOf(Consts.FILE_EXT)) + "_" + sig_parcial + Consts.FILE_EXT;
-				wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialFName)));
-				++sig_parcial;
-				if (sig_parcial > maxNumParcial)
-					sig_parcial= 1;
-			}
 			
 			for (short b=0; b < Consts.MAX_PIEZAS; ++b) {
-				int pos= b+1;
 				int merged = tablero[b];
 				if (merged == -1){
 					parcialBuffer.append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append("\n");
-					if (max)
-						dispMaxBuff.append("-").append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 				else {
-					short numero = Neighbors.numero(merged);
 					byte top = Neighbors.top(merged);
 					byte right = Neighbors.right(merged);
 					byte bottom = Neighbors.bottom(merged);
 					byte left = Neighbors.left(merged);
 					parcialBuffer.append(top).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(right).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(bottom).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(left).append("\n");
-					if (max)
-						dispMaxBuff.append(numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 				}
 			}
 			
 			String sParcial = parcialBuffer.toString();
-			String sDispMax = dispMaxBuff.toString();
 			
-			// parcial siempre se va a guardar
 			wParcial.append(sParcial);
 			wParcial.flush();
 			wParcial.close();
-			
-			// solo guardamos max si es una instancia de max
-			if (max){
-				wDispMax.append(sDispMax);
-				wDispMax.flush();
-				wDispMax.close();
-			}
-			
-			return sig_parcial;
 		}
 		catch(Exception ex) {
 			System.out.println(processId + " >>> ERROR: No se pudieron generar los archivos de resultado parcial. " + ex.getMessage());
-			return sig_parcial;
 		}
 	}
 

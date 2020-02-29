@@ -37,7 +37,7 @@ public class ExplorationTask implements Runnable {
 	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS];
 	private int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
-	String statusFileName, parcialFileName, parcialMaxFileName, disposicionMaxFileName, solucFileName, dispFileName;
+	String statusFileName, parcialFileName, disposicionFileName, solucFileName;
 	
 	public final int[] tablero = new int[Consts.MAX_PIEZAS];
 	public final boolean[] usada = new boolean[Consts.MAX_PIEZAS];
@@ -45,14 +45,12 @@ public class ExplorationTask implements Runnable {
 	
 	final byte[] desde_saved = new byte[Consts.MAX_PIEZAS];
 	
-	public short cursor, mas_bajo, mas_alto, mas_lejano_parcial_max;
-	int sig_parcial = 1; // esta variable indica el numero de archivo parcial siguiente a guardar
+	public short cursor;
 	
 	private long count_cycles;
 	
 	boolean retroceder; // indica si debo volver estados de backtracking
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
-	boolean mas_bajo_activo; // permite o no modificar el cursor mas_bajo
 	
 	private long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 	private long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
@@ -71,10 +69,8 @@ public class ExplorationTask implements Runnable {
 		
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + id + Consts.FILE_EXT;
 		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + id + Consts.FILE_EXT;
-		parcialMaxFileName = SolverFaster.NAME_FILE_PARCIAL_MAX + "_" + id + Consts.FILE_EXT;
-		disposicionMaxFileName = SolverFaster.NAME_FILE_DISPOSICIONES_MAX + "_" + id + Consts.FILE_EXT;
+		disposicionFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + Consts.FILE_EXT;
 		solucFileName = SolverFaster.NAME_FILE_SOLUCION + "_" + id + Consts.FILE_EXT;
-		dispFileName = SolverFaster.NAME_FILE_DISPOSICION + "_" + id + Consts.FILE_EXT;
 
 		this.startSignal = startSignal;
 	}
@@ -96,8 +92,7 @@ public class ExplorationTask implements Runnable {
 		count_cycles = 0;
 		SolverFaster.count_cycles[id] = 0;
 		
-		cursor = mas_bajo = mas_alto = mas_lejano_parcial_max = 0;
-		sig_parcial = 1;
+		cursor = 0;
 		pos_multi_process_offset = 0;
 		num_processes = _num_processes;
 		
@@ -213,26 +208,15 @@ public class ExplorationTask implements Runnable {
 	{
 		//si cursor se pasa del limite de piezas, significa que estoy en una solucion
 		if (cursor >= Consts.MAX_PIEZAS) {
-			CommonFuncs.guardarSolucion(id, tablero, solucFileName, dispFileName);
+			CommonFuncs.guardarSolucion(id, tablero, solucFileName, disposicionFileName);
 			System.out.println(id + " >>> Solucion Encontrada!!");
 			return; // evito que la instancia de exploracion continue
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
-		if (cursor > mas_lejano_parcial_max) {
+		if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
+			++SolverFaster.LIMITE_RESULTADO_PARCIAL;
 			masLejanoParcialMaxReached();
-		}
-		
-		//voy manteniendo el cursor mas alto para esta vuelta de ciclos
-		if (cursor > mas_alto)
-			mas_alto = cursor;
-		//si cursor se encuentra en una posicion mas baja que la posicion mas baja alcanzada guardo ese valor
-		if (cursor < mas_bajo)
-			mas_bajo = cursor;
-		//la siguiente condición se cumple una sola vez
-		if (cursor > 100 && !mas_bajo_activo) {
-			mas_bajo = Consts.MAX_PIEZAS;
-			mas_bajo_activo = true;
 		}
 		
 		//si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
@@ -399,18 +383,14 @@ public class ExplorationTask implements Runnable {
 	}
 
 	private void masLejanoParcialMaxReached() {
-		mas_lejano_parcial_max = cursor;
-		if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
-			long time_final = System.nanoTime();
-			printBuffer.setLength(0);
-			printBuffer.append(id).append(" >>> ")
-				.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
-				.append(" ms, cursor ").append(cursor);
-			System.out.println(printBuffer.toString());
-			printBuffer.setLength(0);
-			sig_parcial = CommonFuncs.guardarResultadoParcial(true, id, tablero, sig_parcial,
-					SolverFaster.MAX_NUM_PARCIAL, parcialFileName, parcialMaxFileName, disposicionMaxFileName);
-		}
+		long time_final = System.nanoTime();
+		printBuffer.setLength(0);
+		printBuffer.append(id).append(" >>> ")
+			.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
+			.append(" ms, cursor ").append(cursor);
+		System.out.println(printBuffer.toString());
+		printBuffer.setLength(0);
+		CommonFuncs.guardarResultadoParcial(id, tablero, parcialFileName);
 	}
 
 	private void maxCyclesReached() {
@@ -425,25 +405,19 @@ public class ExplorationTask implements Runnable {
 			SolverFaster.count_cycles[id] = 0;
 		
 		if (SolverFaster.SAVE_STATUS_ON_MAX_CYCLES) {
-			CommonFuncs.guardarEstado(statusFileName, id, tablero, cursor, mas_bajo, mas_alto, mas_lejano_parcial_max,
+			CommonFuncs.guardarEstado(statusFileName, id, tablero, cursor, SolverFaster.LIMITE_RESULTADO_PARCIAL,
 					desde_saved, SolverFaster.neighborStrategy, SolverFaster.colorRightExploredStrategy);
-			sig_parcial = CommonFuncs.guardarResultadoParcial(false, id, tablero, sig_parcial,
-					SolverFaster.MAX_NUM_PARCIAL, parcialFileName, parcialMaxFileName, disposicionMaxFileName);
+			CommonFuncs.guardarResultadoParcial(id, tablero, parcialFileName);
 		}
 		
 		printBuffer.setLength(0);
 		printBuffer.append(id).append(" >>> cursor ").append(cursor)
-				.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
 				.append(". Tiempo: ").append(durationMillis).append(" ms") 
 				.append(", ").append(piecesPerSec).append(" pieces/sec");
 		System.out.println(printBuffer.toString());
 		printBuffer.setLength(0);
 		
 		time_max_ciclos = nanoTimeNow;
-		
-		//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-		mas_bajo = Consts.MAX_PIEZAS;
-		mas_alto = 0;
 	}
 	
 }

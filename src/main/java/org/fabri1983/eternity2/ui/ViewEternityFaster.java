@@ -31,7 +31,11 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 	private static final long serialVersionUID = 1L;
 	
 	private ExplorationTask action;
-
+	
+	private int cursor_mas_bajo = 0;
+	private boolean cursor_mas_bajo_initialized;
+	private static final int cursor_pos_for_mas_bajo = 96;
+	
 	public ViewEternityFaster(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours,
 			ExplorationTask _action) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
@@ -54,17 +58,26 @@ public class ViewEternityFaster extends ViewEternityAbstract {
 
 	@Override
 	protected int getCursorTablero() {
-		return action.cursor;
+		short cursor = action.cursor;
+		
+		if (!cursor_mas_bajo_initialized && cursor > cursor_pos_for_mas_bajo) {
+			cursor_mas_bajo_initialized = true;
+			cursor_mas_bajo = cursor;
+		}
+		if (cursor < cursor_mas_bajo)
+			cursor_mas_bajo = cursor;
+		
+		return cursor;
 	}
 
 	@Override
 	protected int getCursorMasBajo() {
-		return action.mas_bajo;
+		return cursor_mas_bajo;
 	}
 
 	@Override
 	protected int getCursorMasLejano() {
-		return action.mas_lejano_parcial_max;
+		return SolverFaster.LIMITE_RESULTADO_PARCIAL;
 	}
 
 	@Override
