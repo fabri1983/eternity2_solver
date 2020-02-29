@@ -42,7 +42,7 @@ Some stats
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
     - Placing approx **98.32 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **93.73 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **57.58 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
+    - Placing approx **58.99 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -491,12 +491,13 @@ This will help you to decide which iso you need to download:
 	```
 - Tips:
 	- Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
-	- For EE only is the low latency G1 GC: *-H:+UseLowLatencyGC*  (since v20.x)
+	- For EE only you can use the low latency G1 GC: *-H:+UseLowLatencyGC*  (since v20.x)
 	- Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
 	- Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
 	- See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
 	- See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
 	- To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
+	- Reference manual: https://docs.oracle.com/en/graalvm/enterprise/20/guide/toc.htm
 
 
 Using GraalVM's Agent Lib to get native image resources and configurations
