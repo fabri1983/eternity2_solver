@@ -36,8 +36,8 @@ Código comentado:
 ---------------------------------------------------------------------------------------
 Timings
 -------
-- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06. Results:
-Solvr with 8 threads
+- Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
+Solver with 8 threads:
 	5 >>> 1661 ms, cursor 211
 	7 >>> 4407 ms, cursor 211
 	and
