@@ -60,19 +60,17 @@ public final class SolverFasterMPJE {
 	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
 	private static boolean SAVE_STATUS_ON_MAX_CYCLES;
 	private static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
-	private static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 //	private static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 
-	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + ID + Consts.FILE_EXT;
-	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + ID + Consts.FILE_EXT;
 	private final static String NAME_FILE_STATUS = "status/status_saved_P" + ID + Consts.FILE_EXT;
-	private final static String NAME_FILE_PARCIAL_MAX = "status/parcialMAX_P" + ID + Consts.FILE_EXT;
-	private final static String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX_P" + ID + Consts.FILE_EXT;
 	private final static String NAME_FILE_PARCIAL = "status/parcial_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_DISPOSICION = "solution/disposiciones_P" + ID + Consts.FILE_EXT;
+	private final static String NAME_FILE_SOLUCION = "solution/soluciones_P" + ID + Consts.FILE_EXT;
 	
-	private static short LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
-	public static short cursor, mas_bajo, mas_alto, mas_lejano_parcial_max, cur_destino;
-	private static int sig_parcial;
+	public static short LIMITE_RESULTADO_PARCIAL = 211; // posición por defecto
+	
+	public static short cursor;
+	public static short cur_destino;
 	
 	public static long count_cycles; // count cycles for this only instance
 	
@@ -90,7 +88,7 @@ public final class SolverFasterMPJE {
 	
 	private static boolean FairExperimentGif;
 	private static boolean status_cargado, retroceder;
-	private static boolean mas_bajo_activo, flag_retroceder_externo;
+	private static boolean flag_retroceder_externo;
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
@@ -102,7 +100,6 @@ public final class SolverFasterMPJE {
 	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
-	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
 	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
 	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
@@ -115,9 +112,9 @@ public final class SolverFasterMPJE {
 	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par, short lim_exploracion,
-			int max_parciales, short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
-			int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
-			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
+			short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado,
+			int p_refresh_millis, boolean p_fair_experiment_gif, boolean p_poda_color_right_explorado,
+			int p_pos_multi_processes, int totalProcesses) {
 
 		MAX_CICLOS= m_ciclos;
 		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
@@ -147,11 +144,7 @@ public final class SolverFasterMPJE {
 		if (p_poda_color_right_explorado)
 			colorRightExploredStrategy = new ColorRightExploredLocalStrategy();
 		
-		MAX_NUM_PARCIAL= max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
-		
 		cur_destino= Consts.CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
-		mas_bajo_activo= false; //permite o no modificar el cursor mas_bajo
-		sig_parcial= 1; //esta variable indica el numero de archivo parcial siguiente a guardar
 		
 		if (usar_tableboard && !flag_retroceder_externo && ID == procMultipleBoards) {
 			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(Consts.LADO, cell_pixels_lado, 
@@ -193,16 +186,8 @@ public final class SolverFasterMPJE {
 			else{
 				int sep,sep_ant;
 				
-				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
-				mas_bajo= Short.parseShort(linea);
-				
-				// contiene el valor de cursor mas alto alcanzado en una vuelta de ciclo
-				linea= reader.readLine();
-				mas_alto= Short.parseShort(linea);
-				
-				// contiene el valor de cursor mas lejano parcial alcanzado (aquel que graba parcial max)
-				linea= reader.readLine();
-				mas_lejano_parcial_max= Short.parseShort(linea);
+				// contiene el valor de resultado_parcial_count
+				LIMITE_RESULTADO_PARCIAL = Short.parseShort(linea);
 				
 				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
@@ -284,12 +269,9 @@ public final class SolverFasterMPJE {
 		while (cursor>=0) {
 			
 			if (!retroceder){
-				mas_bajo_activo= true;
-				mas_bajo= cursor;
-				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, mas_bajo, mas_alto,
-						mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-				sig_parcial = CommonFuncs.guardarResultadoParcial(false, ID, tablero, sig_parcial,
-						MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, desde_saved,
+						neighborStrategy, colorRightExploredStrategy);
+				CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
 				System.out.println(ID + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
@@ -342,11 +324,8 @@ public final class SolverFasterMPJE {
 		// Pruebo cargar el primer status_saved
 		status_cargado = cargarEstado(NAME_FILE_STATUS);
 		if (!status_cargado) {
-			cursor=0;
-			mas_bajo= 0; //este valor se setea empiricamente
-			mas_alto= 0;
-			mas_lejano_parcial_max= 0;
-			status_cargado=false;
+			cursor = 0;
+			status_cargado = false;
 			sincronizar = true;
 		}
 		
@@ -443,20 +422,9 @@ public final class SolverFasterMPJE {
 		}
 		
 		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
-		if (cursor > mas_lejano_parcial_max){
+		if (cursor >= LIMITE_RESULTADO_PARCIAL) {
+			++LIMITE_RESULTADO_PARCIAL;
 			maxLejanoParcialMaxReached();
-		}
-		
-		//voy manteniendo el cursor mas alto para esta vuelta de ciclos
-		if (cursor > mas_alto)
-			mas_alto = cursor;
-		//si cursor se encuentra en una posicion mas baja que la posicion mas baja alcanzada guardo ese valor
-		if (cursor < mas_bajo)
-			mas_bajo= cursor;
-		//la siguiente condición se cumple una sola vez
-		if (cursor > 100 && !mas_bajo_activo){
-			mas_bajo= Consts.MAX_PIEZAS;
-			mas_bajo_activo= true;
 		}
 		
 		//si llegué a MAX_CICLOS de ejecución guardo el estado de exploración
@@ -612,18 +580,14 @@ public final class SolverFasterMPJE {
 	}
 
 	private static final void maxLejanoParcialMaxReached() {
-		mas_lejano_parcial_max= cursor;
-		if (cursor >= LIMITE_RESULTADO_PARCIAL){
-			long time_final= System.nanoTime();
-			printBuffer.setLength(0);
-			printBuffer.append(ID).append(" >>> ")
-				.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
-				.append(" ms, cursor ").append(cursor);
-			System.out.println(printBuffer.toString());
-			printBuffer.setLength(0);
-			sig_parcial = CommonFuncs.guardarResultadoParcial(true, ID, tablero, sig_parcial,
-					MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
-		}
+		long time_final= System.nanoTime();
+		printBuffer.setLength(0);
+		printBuffer.append(ID).append(" >>> ")
+			.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
+			.append(" ms, cursor ").append(cursor);
+		System.out.println(printBuffer.toString());
+		printBuffer.setLength(0);
+		CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
 	}
 
 	private static final void maxCyclesReached() {
@@ -636,25 +600,19 @@ public final class SolverFasterMPJE {
 		count_cycles = 0;
 		
 		if (SAVE_STATUS_ON_MAX_CYCLES) {
-			CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, mas_bajo, mas_alto,
-					mas_lejano_parcial_max, desde_saved, neighborStrategy, colorRightExploredStrategy);
-			sig_parcial = CommonFuncs.guardarResultadoParcial(false, ID, tablero, sig_parcial,
-					MAX_NUM_PARCIAL, NAME_FILE_PARCIAL, NAME_FILE_PARCIAL_MAX, NAME_FILE_DISPOSICIONES_MAX);
+			CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, desde_saved,
+					neighborStrategy, colorRightExploredStrategy);
+			CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
 		}
 		
 		printBuffer.setLength(0);
 		printBuffer.append(ID).append(" >>> cursor ").append(cursor)
-				.append(". Pos Min ").append(mas_bajo).append(", Pos Max ").append(mas_alto)
 				.append(". Tiempo: ").append(durationMillis).append(" ms") 
 				.append(", ").append(piecesPerSec).append(" pieces/sec");
 		System.out.println(printBuffer.toString());
 		printBuffer.setLength(0);
 		
 		time_max_ciclos = nanoTimeNow;
-		
-		//cuando se cumple el ciclo aumento de nuevo el valor de mas_bajo y disminuyo el de mas_alto
-		mas_bajo= Consts.MAX_PIEZAS;
-		mas_alto= 0;
 	}
 	
 	private final static void knocKnock () {

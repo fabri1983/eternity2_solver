@@ -31,7 +31,6 @@ public class AppPropertiesReader {
 	public static final String MAX_CICLOS_SAVE_STATUS = 				"max.ciclos.save.status";
 	public static final String MIN_POS_SAVE_PARTIAL = 					"min.pos.save.partial";
 	public static final String EXPLORATION_LIMIT = 						"exploration.limit";
-	public static final String MAX_PARTIAL_FILES = 						"max.partial.files";
 	public static final String TARGET_ROLLBACK_POS = 					"target.rollback.pos";
 	public static final String UI_SHOW = 								"ui.show";
 	public static final String UI_PER_PROC = 							"ui.per.proc";

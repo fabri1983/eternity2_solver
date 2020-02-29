@@ -25,7 +25,7 @@ The backtracker efficiency is backed by:
 There are two versions of the same solver: 
 - one using a **thread pool** to spawn as many tasks as logic cores the runtime platform provides (is configurable).
 - another using **MPI** *(for distributed execution)*.
-  
+
 The placement of tiles follows a *row-scan schema* from *top-left* to *bottom-right*.  
 
 The project is under continuous development, mostly on spare time. 
@@ -40,15 +40,9 @@ Some stats
 ----------
 - **New stats** include changes to use as low memory as possible:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
-    - Placing approx **85.89 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **98.32 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **93.73 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **56.18 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
-	
-- **Outdated stats**:
-(I need to re run the benchmarks on this specific platform using latest project changes)
-  - Environment: Windows 10 Pro, Intel Core i7 8650U (3.891 GHz max per core), DDR4 2400MHz. OpenJDK 13 (compiled and executed). Results:
-    - Placing approx **97 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **107 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **57.58 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -151,7 +145,6 @@ The app loads by default the next properties (may vary between `threads.properti
 	max.ciclos.save.status=true
 	min.pos.save.partial=211
 	exploration.limit=-1
-	max.partial.files=2
 	target.rollback.pos=-1
 	ui.show=true            <-- this has no effect on native builds
 	ui.per.proc=false       <-- this has no effect on native builds
@@ -511,7 +504,7 @@ Using GraalVM's Agent Lib to get native image resources and configurations
 ```sh
 SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
 %GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
-set JAVA_HOME= any JDK 8 or 11 version except the GraalVM one
+set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
 	Eg: set JAVA_HOME=c:\java\openjdk1.8.0_242-jvmci-20.0-b02
 Update PATH env variable with %JAVA_HOME%\bin
 ```

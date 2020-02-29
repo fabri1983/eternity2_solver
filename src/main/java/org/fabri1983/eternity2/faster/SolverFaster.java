@@ -48,17 +48,14 @@ public final class SolverFaster {
 	static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
 	static boolean SAVE_STATUS_ON_MAX_CYCLES;
 	static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
-	static int MAX_NUM_PARCIAL; // Número de archivos parciales que se generarón
 	public static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	
-	static final String NAME_FILE_SOLUCION = "solution/soluciones";
-	static final String NAME_FILE_DISPOSICION = "solution/disposiciones";
 	static final String NAME_FILE_STATUS = "status/status_saved";
-	static final String NAME_FILE_PARCIAL_MAX = "status/parcialMAX";
-	static final String NAME_FILE_DISPOSICIONES_MAX = "status/disposicionMAX";
 	static final String NAME_FILE_PARCIAL = "status/parcial";
+	static final String NAME_FILE_DISPOSICION = "solution/disposiciones";
+	static final String NAME_FILE_SOLUCION = "solution/soluciones";
 	
-	static short LIMITE_RESULTADO_PARCIAL = 211; // por defecto
+	public static short LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
 	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
 	
@@ -80,7 +77,6 @@ public final class SolverFaster {
 	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
-	 * @param max_parciales: indica hasta cuantos archivos de estado parcial voy a tener.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
 	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
 	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
@@ -93,8 +89,8 @@ public final class SolverFaster {
 	 * @param totalProcesses: parallelism level for the fork-join pool.
 	 */
 	public static SolverFaster build(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par,
-			short lim_exploracion, int max_parciales, short destino_ret, boolean usar_tableboard,
-			boolean usar_multiples_boards, int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
+			short lim_exploracion, short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
+			int cell_pixels_lado, int p_refresh_millis, boolean p_fair_experiment_gif,
 			boolean p_poda_color_right_explorado, int p_pos_multi_processes, int totalProcesses) {
 		
 		MAX_CICLOS = m_ciclos;
@@ -126,8 +122,6 @@ public final class SolverFaster {
 		//indica si se usará la poda de colores right explorados en borde left
 		if (p_poda_color_right_explorado)
 			colorRightExploredStrategy = new ColorRightExploredAtomicStrategy();
-		
-		MAX_NUM_PARCIAL = max_parciales; //indica hasta cuantos archivos parcial.txt voy a tener
 		
 		usarTableroGrafico = usar_tableboard;
 		cellPixelsLado = cell_pixels_lado;
@@ -168,16 +162,8 @@ public final class SolverFaster {
 			else{
 				int sep,sep_ant;
 				
-				// contiene el valor de cursor mas bajo alcanzado en una vuelta de ciclo
-				action.mas_bajo= Short.parseShort(linea);
-				
-				// contiene el valor de cursor mas alto alcanzado en una vuelta de ciclo
-				linea= reader.readLine();
-				action.mas_alto= Short.parseShort(linea);
-				
-				// contiene el valor de cursor mas lejano parcial alcanzado (aquel que graba parcial max)
-				linea= reader.readLine();
-				action.mas_lejano_parcial_max= Short.parseShort(linea);
+				// contiene el valor de resultado_parcial_count
+				SolverFaster.LIMITE_RESULTADO_PARCIAL= Short.parseShort(linea);
 				
 				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
@@ -258,14 +244,10 @@ public final class SolverFaster {
 		while (action.cursor>=0)
 		{
 			if (!action.retroceder){
-				action.mas_bajo_activo= true;
-				action.mas_bajo= action.cursor;
 				CommonFuncs.guardarEstado(action.statusFileName, action.id, action.tablero, action.cursor,
-						action.mas_bajo, action.mas_alto, action.mas_lejano_parcial_max, action.desde_saved,
-						neighborStrategy, colorRightExploredStrategy);
-				action.sig_parcial = CommonFuncs.guardarResultadoParcial(false, action.id, action.tablero,
-						action.sig_parcial, MAX_NUM_PARCIAL, action.parcialFileName, action.parcialMaxFileName,
-						action.disposicionMaxFileName);
+						SolverFaster.LIMITE_RESULTADO_PARCIAL, action.desde_saved, neighborStrategy,
+						colorRightExploredStrategy);
+				CommonFuncs.guardarResultadoParcial(action.id, action.tablero, action.parcialFileName);
 				System.out.println(action.id + " >>> Exploracion retrocedio a la posicion " + action.cursor + ". Estado salvado.");
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}

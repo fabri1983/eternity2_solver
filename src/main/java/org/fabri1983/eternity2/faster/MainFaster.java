@@ -45,7 +45,6 @@ public final class MainFaster
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.MAX_PARTIAL_FILES)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
