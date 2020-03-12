@@ -55,7 +55,7 @@ public class EternityII {
 	private void setupFrame(int proc, int totalProcs) {
 		frame.setVisible(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.setTitle("(" + proc + ") E2Solver");
 
 		setLocation(totalProcs, proc % totalProcs);

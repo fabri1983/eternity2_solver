@@ -28,6 +28,8 @@ public interface Canvas {
 	
 	Integer getPiezaInfoGris();
 	
+	Integer getPiezaInfoBeacon();
+	
 	int getColumns();
 
 	int getRows();

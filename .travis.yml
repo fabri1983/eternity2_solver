@@ -22,8 +22,8 @@ install:
 
 # overrides travis 'script' step
 script:
-  - mvn --batch-mode clean package -Pjava8
-  - mvn --batch-mode clean package -Pmpje
+  - mvn --batch-mode clean package -Pjava8 -DskipTests=true
+  - mvn --batch-mode clean package -Pmpje8 -DskipTests=true
   - mvn --batch-mode clean package -Pjava11
 
 notifications:

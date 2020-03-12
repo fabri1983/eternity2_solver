@@ -22,16 +22,11 @@
 
 package org.fabri1983.eternity2.ui;
 
-import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
 public class ViewEternityMPJE extends ViewEternityAbstract {
 
 	private static final long serialVersionUID = 1L;
-	
-	private int cursor_mas_bajo = 0;
-	private boolean cursor_mas_bajo_initialized;
-	private static final int cursor_pos_for_mas_bajo = 96;
 	
 	public ViewEternityMPJE(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
@@ -39,36 +34,12 @@ public class ViewEternityMPJE extends ViewEternityAbstract {
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasMPJE(rows, cols, Consts.PIEZA_CENTRAL_POS_TABLERO);
+		return new CanvasMPJE(rows, cols);
 	}
 
 	@Override
 	protected long getAccum() {
 		return SolverFasterMPJE.count_cycles;
-	}
-
-	@Override
-	protected int getCursorTablero() {
-		return SolverFasterMPJE.cursor;
-	}
-
-	@Override
-	protected int getCursorMasBajo() {
-		short cursor = SolverFasterMPJE.cursor;
-		
-		if (!cursor_mas_bajo_initialized && cursor > cursor_pos_for_mas_bajo) {
-			cursor_mas_bajo_initialized = true;
-			cursor_mas_bajo = cursor;
-		}
-		if (cursor < cursor_mas_bajo)
-			cursor_mas_bajo = cursor;
-		
-		return cursor;
-	}
-
-	@Override
-	protected int getCursorMasLejano() {
-		return SolverFasterMPJE.LIMITE_RESULTADO_PARCIAL;
 	}
 
 	@Override

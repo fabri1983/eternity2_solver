@@ -50,9 +50,6 @@ public final class MainFasterNative
 					false, // AppPropertiesReader.UI_PER_PROC
 					0,     // AppPropertiesReader.UI_CELL_SIZE
 					0,     // AppPropertiesReader.UI_REFRESH_MILLIS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_GIF_FAIR)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_BORDE_LEFT_EXPLORADO)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TASK_DISTRIBUTION_POS)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
 
 			properties = null;

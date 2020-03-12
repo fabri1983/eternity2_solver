@@ -25,6 +25,7 @@ package org.fabri1983.eternity2.ui;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.Pieza;
 
 public class EternityModel implements TableModel {
@@ -63,8 +64,10 @@ public class EternityModel implements TableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Integer piezaInfo = canvas.getPiezaInfo(rowIndex, columnIndex);
-        if (piezaInfo == -1)
+        if (piezaInfo.intValue() == Consts.TABLERO_INFO_EMPTY_VALUE)
         	return canvas.getPiezaInfoGris();
+        if (piezaInfo.intValue() == CanvasAbstract.BEACON_CURSOR_VALUE)
+        	return canvas.getPiezaInfoBeacon();
 		return piezaInfo;
     }
 

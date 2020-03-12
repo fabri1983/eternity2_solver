@@ -79,7 +79,7 @@
 
 	<profiles>
 		<profile>
-			<id>mpje</id>
+			<id>mpje8</id>
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>

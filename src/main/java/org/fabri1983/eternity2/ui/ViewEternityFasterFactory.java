@@ -51,7 +51,7 @@ public class ViewEternityFasterFactory implements ViewEternityFactory {
 	
 	@Override
 	public int getProc() {
-		return action.id;
+		return action.ID;
 	}
 	
 	@Override

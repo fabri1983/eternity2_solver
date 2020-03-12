@@ -2,11 +2,19 @@
 ---------------------------------------------------------------------------------------
 TODO
 ----
+- Benchmarking: @OperationsPerInvocation(Measure.N)
+
+- Merge iter_desde, iter_length_nbs, and iter_in_loop_desde into an int[]:
+	int[] iter_info = new int[Consts.MAX_PIEZAS];
+	desde and length se pueden guardar como byte.
+	loop guardarlo con un solo bit.
+
 - Cambiar Pieza[] piezas por int[] piezas.
 
 - Usar shutdown hook para mpje y asi matar todos los sub procesos.
 
-- Hacer calculo de min y max heap size en los .bat y .sh de acuerdo al flag -Dnum.tasks (si no existe entonces es 8).
+- Hacer calculo de min y max heap size en los .bat y .sh de acuerdo a Min(-Dnum.tasks, procs_available).
+Solo en run.bat|sh y run_benchmark.bat|sh.
 
 - Mejorar las implementacion de BinarySearch:
 	https://stackoverflow.com/questions/673826/optimize-binary-search-algorithm
@@ -17,9 +25,9 @@ TODO
 - Usar stdlib::lower_bounds() para encontrar el primer elemento talque es mayor o igual que un target value. Posiblemente mejor q busqueda binaria.
 
 - Pieza.rotar90() y demás.
-Agregar implelemtacion usando XOR y hacer benchmark.
+Agregar implementacion usando XOR y hacer benchmark.
 
-- Debug exploracionStandard() la parte de seteo de desde y length_posibles porque me parece que no se está dividiendo accordingly.
+- Debug explorar(): la parte de seteo de desde y length_nbs porque me parece que no se está dividiendo correctly.
 
 - Guardar Estado:
 	- Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se carga status.
@@ -31,8 +39,6 @@ Agregar implelemtacion usando XOR y hacer benchmark.
 ---------------------------------------------------------------------------------------
 Código comentado:
 -----------------
-- se comentó el uso de desde_saved[] porque ahora se calcula cuando se guarda estado.
-- se comentó todo el uso de retroceder y cursor <= cursor_invalido (@RETROCEDER).
 - se comentó el uso de poda contorno inferior en SolverFaster.java y Contorno.java (@CONTORNO_INFERIOR).
 ---------------------------------------------------------------------------------------
 
@@ -41,7 +47,7 @@ Timings
 -------
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
 Solver with 8 threads:
-	5 >>> 1620 ms, cursor 211
+	5 >>> 1552 ms, cursor 211
 
 Obviously there are operations performed by the JVM and/or the underlying SO which interfere with the execution code.
 
@@ -49,7 +55,7 @@ The number helps to easily check if some change has improved or worsen the perfo
 
 However, the key number to keep an eye is the number of correct tiles per second. 
 For that benchmarking use:
--Dui.show=false -Dmax.ciclos.save.status=false -Dmax.ciclos.print.stats=147483647 
+-Dui.show=false -Dmax.ciclos.save.status=false -Dmax.ciclos.print.stats=147483647
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -87,6 +93,7 @@ Optimizaciones:
 https://medium.com/@shashankmohabia/bitwise-operators-facts-and-hacks-903ca516f28c
 https://graphics.stanford.edu/~seander/bithacks.html
 https://www.hackerearth.com/practice/notes/bit-manipulation/
+https://github.com/keon/awesome-bits
 
 - Modulo operation X % Y.
 The clever optimization is to use the bitwise AND operation which eliminates the use of loops and is a very fast CPU operation.
@@ -121,10 +128,11 @@ threads siempre vean la última modificación de la variable, lo que significa u
 
 - Cambiar las comparaciones y comparación/asignación de numeros por operadores de bit.
 Ej:
-	if (x == a) x= b;
-  	else x= a;
+	// where x is equal to either a or b and want to swap the value
+	if (x == a) x = b;
+	else if (x == b) x = a;
 
-	x= a ^ b ^ x; //where x is equal to either a or b
+	x = a ^ b ^ x;
 
 - Cada vez que se crea un arreglo este se inicializa en tiempo de ejecución. Entonces cada vez
 que se invoca un metodo que crea un arreglo local se está perdiendo tiempo en incializacion. 

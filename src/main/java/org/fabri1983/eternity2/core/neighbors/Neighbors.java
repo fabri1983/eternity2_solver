@@ -22,26 +22,30 @@
 
 package org.fabri1983.eternity2.core.neighbors;
 
+import org.fabri1983.eternity2.core.Consts;
+
 /**
  * It contains an array which have a mixture of number of tile and the colors top, right, bottom, left.
- * 
- * Bits from position  0..7  (8 bits) hold the number of tile.
- * Bits from position  8..12 (5 bits) hold left color.
- * Bits from position 13..17 (5 bits) hold bottom color.
- * Bits from position 18..22 (5 bits) hold right color.
- * Bits from position 23..27 (5 bits) hold top color.
- * 
+ * <p>
+ * Bits from position  0..7  (8 bits) hold the number of tile.<br/>
+ * Bits from position  8..12 (5 bits) hold left color.<br/>
+ * Bits from position 13..17 (5 bits) hold bottom color.<br/>
+ * Bits from position 18..22 (5 bits) hold right color.<br/>
+ * Bits from position 23..27 (5 bits) hold top color.<br/>
+ * <p>
  * One picture is better than a thousand of words:
+ * <pre>
  *  int (32 bits): bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
  *                                         ^^^^^^^^  <- number of tile (which is the index in piezas[])
  *                                    ^^^^^          <- left color
  *                               ^^^^^               <- bottom color
  *                          ^^^^^                    <- right color
  *                     ^^^^^                         <- top color
+ * </pre>
  */
 public final class Neighbors
 {
-	private static final int MASK_PIEZA_INDEX = 0b11111111; // 8 bits
+	private static final short MASK_PIEZA_INDEX = 0b11111111; // 8 bits
 	private static final int MASK_COLOR = 0b11111; // 5 bits
 	private static final int SHIFT_COLOR_LEFT = 0 + 8; // +8 because first bits are pieza index
 	private static final int SHIFT_COLOR_BOTTOM = 5 + 8; // +8 because first bits are pieza index
@@ -177,7 +181,7 @@ public final class Neighbors
 	private static int getNextFreeIndex(Neighbors np) {
 		int nextIndex = 0;
 		for (int c=np.mergedInfo.length; nextIndex < c; ++nextIndex) {
-			if (np.mergedInfo[nextIndex] == -1)
+			if (np.mergedInfo[nextIndex] == Consts.TABLERO_INFO_EMPTY_VALUE)
 				return nextIndex;
 		}
 		return nextIndex;
@@ -185,7 +189,7 @@ public final class Neighbors
 
 	public static void resetReferencias(Neighbors np) {
 		for (int i=0, c=np.mergedInfo.length; i < c; ++i) {
-			np.mergedInfo[i] = -1;
+			np.mergedInfo[i] = Consts.TABLERO_INFO_EMPTY_VALUE;
 		}
 	}
 

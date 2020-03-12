@@ -35,7 +35,6 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
-import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 import org.fabri1983.eternity2.ui.EternityII;
@@ -46,15 +45,14 @@ public final class SolverFasterMPJE {
 	
 	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
-	private static int POSICION_MULTI_PROCESSES = -1; // posición del tablero en la que se usará comunicación multiprocesses
 	private static int num_processes = mpi.MPI.COMM_WORLD.Size(); // número de procesos
 	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
-	private static int TAG_SINCRO = 333; // tags para identificar mensajes interprocesos
-	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 200; // mensajes para comunicar una acción o estado
-	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
+	private static byte TAG_SINCRO = 1; // tags para identificar mensajes interprocesos
+	private static byte MESSAGE_HALT = 0, MESSAGE_SINCRO = 2; // mensajes para comunicar una acción o estado
+	private static byte[] mpi_send_info = new byte[1]; // arreglo de envío de mensajes entre procesos
 	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
-	private static int[] num_processes_orig;
+	private static int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
@@ -80,21 +78,18 @@ public final class SolverFasterMPJE {
 	public final static boolean[] usada = new boolean[Consts.MAX_PIEZAS];
 	private final static Contorno contorno = new Contorno();
 	
-	private final static byte[] desde_saved = new byte[Consts.MAX_PIEZAS];
+	private final static int[] iter_desde = new int[Consts.MAX_PIEZAS];
 	
 	private final static NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
-	private static ColorRightExploredStrategy colorRightExploredStrategy;
+	private final static ColorRightExploredStrategy colorRightExploredStrategy = null;//new ColorRightExploredLocalStrategy();
 	
-	private static boolean FairExperimentGif;
-	private static boolean status_cargado, retroceder;
 	private static boolean flag_retroceder_externo;
+	private static boolean status_cargado; // inidica si se ha cargado estado inicial
 	
 	private static long time_inicial; //sirven para calcular el tiempo al hito de posición lejana
 	private static long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
 
-	private static StringBuilder printBuffer = new StringBuilder(64);
-	
 	/**
 	 * @param m_ciclos: número máximo de ciclos para imprimir stats.
 	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
@@ -105,21 +100,15 @@ public final class SolverFasterMPJE {
 	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
-	 * @param p_fair_experiment_gif: dice si se implementa la poda de FairExperiment.gif.
-	 * @param p_poda_color_right_explorado: poda donde solamente se permite explorar una sola vez el color right de la pieza en borde left.
-	 * @param p_pos_multi_processes: posición en tablero donde inicia exploración multi threading.
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par, short lim_exploracion,
 			short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado,
-			int p_refresh_millis, boolean p_fair_experiment_gif, boolean p_poda_color_right_explorado,
-			int p_pos_multi_processes, int totalProcesses) {
+			int p_refresh_millis, int totalProcesses) {
 
-		MAX_CICLOS= m_ciclos;
+		MAX_CICLOS = m_ciclos;
 		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
-		POSICION_MULTI_PROCESSES = p_pos_multi_processes;
-		num_processes_orig = new int[Consts.MAX_PIEZAS];
 		
 		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
 		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
@@ -128,23 +117,16 @@ public final class SolverFasterMPJE {
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (Consts.MAX_PIEZAS-2)))
-			LIMITE_RESULTADO_PARCIAL= lim_max_par;
+			LIMITE_RESULTADO_PARCIAL = lim_max_par;
 		
-		//LIMITE_DE_EXPLORACION= lim_exploracion; //me dice hasta qué posicion debe explorar esta instancia
+//		LIMITE_DE_EXPLORACION = lim_exploracion; //me dice hasta qué posicion debe explorar esta instancia
 		
-		FairExperimentGif = p_fair_experiment_gif;
-		
-		retroceder= false; //variable para indicar que debo volver estados de backtracking
 		if (destino_ret >= 0){
-			DESTINO_RET= destino_ret; //determina el valor hasta el cual debe retroceder cursor
+			DESTINO_RET = destino_ret; //determina el valor hasta el cual debe retroceder cursor
 			flag_retroceder_externo= true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
 		
-		//indica si se usará la poda de colores right explorados en borde left
-		if (p_poda_color_right_explorado)
-			colorRightExploredStrategy = new ColorRightExploredLocalStrategy();
-		
-		cur_destino= Consts.CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
+		cur_destino = Consts.CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
 		
 		if (usar_tableboard && !flag_retroceder_externo && ID == procMultipleBoards) {
 			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(Consts.LADO, cell_pixels_lado, 
@@ -203,20 +185,20 @@ public final class SolverFasterMPJE {
 					int mergedInfo= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
 					tablero[k]= mergedInfo;
-					if (mergedInfo != -1)
+					if (mergedInfo != 0)
 						usada[Neighbors.numero(mergedInfo)] = true;
 				}
 				
-				// recorro los valores de desde_saved[]
+				// recorro los valores de iter_desde[]
 				linea= reader.readLine();
 				sep=0; sep_ant=0;
 				for (short k=0; k < Consts.MAX_PIEZAS; ++k){
 					if (k==(Consts.MAX_PIEZAS-1))
 						sep= linea.length();
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-					byte index= Byte.parseByte(linea.substring(sep_ant,sep));
+					int index= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					desde_saved[k] = index;
+					iter_desde[k] = index;
 				}
 				
 				// la siguiente línea indica si se estaba usando poda de color explorado
@@ -263,13 +245,13 @@ public final class SolverFasterMPJE {
 	 */
 	private final static void retrocederEstado () {
 		
-		retroceder= true;
-		cur_destino= DESTINO_RET;
+		boolean retroceder = true;
+		cur_destino = DESTINO_RET;
 		
 		while (cursor>=0) {
 			
 			if (!retroceder){
-				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, desde_saved,
+				CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, iter_desde,
 						neighborStrategy, colorRightExploredStrategy);
 				CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
 				System.out.println(ID + " >>> Exploracion retrocedio a la posicion " + cursor + ". Estado salvado.");
@@ -287,7 +269,7 @@ public final class SolverFasterMPJE {
 				int numero = Neighbors.numero(mergedInfo);
 				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
 				usada[numero] = false;
-				tablero[cursor] = -1;
+				tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 			}
 			
 			//si retrocedió hasta el cursor destino, entonces no retrocedo mas
@@ -298,48 +280,38 @@ public final class SolverFasterMPJE {
 			
 			//si está activado el flag para retroceder niveles de exploración entonces debo limpiar algunas cosas
 			if (retroceder)
-				desde_saved[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
+				iter_desde[cursor]= 0; //la exploración de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 		}
 	}
 	
 	public final void setupInicial (ReaderForFile readerForTilesFile) {
 		
-		//cargo en el arreglo matrix_zonas valores que me indiquen en qué posición estoy (borde, esquina o interior) 
 		CommonFuncs.inicializarMatrixZonas();
 		
-		//seteo las posiciones donde puedo setear un contorno como usado o libre
 		CommonFuncs.inicializarZonaProcesoContornos();
 		
-		//seteo las posiciones donde se puede preguntar por contorno superior usado
 		CommonFuncs.inicializarZonaReadContornos();
 		
 		CommonFuncs.cargarPiezas(ID, piezas, readerForTilesFile);
 		
-		//hago una verificacion de las piezas cargadas
 		CommonFuncs.verificarTiposDePieza(ID, piezas);
 		
-		//cargar la super estructura 4-dimensional que agiliza la búsqueda de piezas
-		CommonFuncs.cargarSuperEstructura(ID, piezas, FairExperimentGif, neighborStrategy);
+		CommonFuncs.cargarSuperEstructura(ID, piezas, neighborStrategy);
 		
-		// Pruebo cargar el primer status_saved
 		status_cargado = cargarEstado(NAME_FILE_STATUS);
 		if (!status_cargado) {
-			cursor = 0;
-			status_cargado = false;
 			sincronizar = true;
 		}
 		
-		//cargo las posiciones fijas
 		CommonFuncs.ponerPiezasFijasEnTablero(ID, piezas, tablero, usada);
 		
-		//seteo como usados los contornos ya existentes en tablero
 		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
 	}
 
-	public final void atacar ()
+	public final void atacar()
 	{
 		if (flag_retroceder_externo) {
 			retrocederEstado();
@@ -357,21 +329,14 @@ public final class SolverFasterMPJE {
 		time_max_ciclos = nowNanos;
 		
 		// si no se carga estado de exploracion, simplemente exploro desde el principio
-		if (!status_cargado)
+		if (!status_cargado) {
 			explorar(0);
-		// se carga estado de exploración, debo proveer la posibilidad de volver estados anteriores de exploracion
+		}
+		// se cargó estado de exploración, voy a simular pop del stack que cargué
 		else {
-			// ahora exploro comunmente y proveo una especie de recursividad para retroceder estados
 			while (cursor >= 0) {
-				if (!retroceder) {
-					// pregunto si llegué al limite de esta instancia de exploracion
-//					if (cursor <= LIMITE_DE_EXPLORACION){
-//						CommonFuncs.operarSituacionLimiteAlcanzado(NAME_FILE_STATUS, THIS_PROCESS, );
-//						return;
-//					}
-					// creo una nueva instancia de exploracion
-					explorar(desde_saved[cursor]);
-				}
+				
+				explorar(iter_desde[cursor]);
 				--cursor;
 				
 				// si me paso de la posicion inicial significa que no puedo volver mas estados de exploracion
@@ -386,18 +351,8 @@ public final class SolverFasterMPJE {
 					int mergedInfo = tablero[cursor];
 					int numero = Neighbors.numero(mergedInfo);
 					usada[numero] = false;
-					tablero[cursor] = -1;
+					tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 				}
-				
-				// si retrocedí hasta el cursor destino, entonces no retrocedo mas
-//				@RETROCEDER
-//				if (cursor <= cur_destino) {
-//					retroceder = false;
-//					cur_destino = Consts.CURSOR_INVALIDO;
-//				}
-//				// si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
-//				if (retroceder)
-//					desde_saved[cursor] = 0; // la exploracion de posibles piezas para la posicion cursor debe empezar desde la primer pieza
 			}
 		}
 		
@@ -409,210 +364,183 @@ public final class SolverFasterMPJE {
 	 * Para cada posicion de cursor, busca una pieza que se adecue a esa posicion
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
-	 * 
-	 * @param desde Es la posición desde donde empiezo a tomar las piezas de Neighbors.
 	 */
-	private final static void explorar (int desde)
+	private final void explorar(int desde)
 	{
-		//si cursor se pasó del limite de piezas, significa que estoy en una solucion
-		if (cursor >= Consts.MAX_PIEZAS){
+		// si cursor se pasa del limite de piezas, significa que estoy en una solucion
+		if (cursor == Consts.MAX_PIEZAS) {
 			CommonFuncs.guardarSolucion(ID, tablero, NAME_FILE_SOLUCION, NAME_FILE_DISPOSICION);
 			System.out.println(ID + " >>> Solucion Encontrada!!");
-			return; // evito que la instancia de exporacion continue
+			return; // evito que la instancia de exploracion continue
 		}
 		
-		//si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
+		// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 		if (cursor >= LIMITE_RESULTADO_PARCIAL) {
 			++LIMITE_RESULTADO_PARCIAL;
-			maxLejanoParcialMaxReached();
+			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, NAME_FILE_PARCIAL);
 		}
 		
-		//si llegué a MAX_CICLOS de ejecución guardo el estado de exploración
-		if (count_cycles >= MAX_CICLOS){
+		// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
+		if (count_cycles >= MAX_CICLOS) {
 			maxCyclesReached();
 		}
 		
-		// Si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
-		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO){
+		byte flagZona = CommonFuncs.matrix_zonas[cursor];
+		
+		// si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
+		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
+			// seteo el contorno como usado
+			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, tablero[cursor]);
+			// at this point we have set all things up related to a fixed tile, so continue normally with next board position
+			++cursor;
+			explorar(0);
+			--cursor;
+			// seteo el contorno como libre
+			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, tablero[cursor]);
+			return;
+		}
+
+		// can be null when there is no neighbors and when cursor == Consts.PIEZA_CENTRAL_POS_TABLERO
+		Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, neighborStrategy);
+		
+		// if no neighbors then backtrack
+		if (nbs == null)
+			return;
+		
+		// pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
+		if (CommonFuncs.esContornoSuperiorUsado(cursor, flagZona, contorno, tablero)) {
+			return;
+		}
+		
+		int length_nbs = nbs.mergedInfo.length;
+		
+		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso y futuras divisiones.
+		if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 			
-			//seteo el contorno como usado
-			CommonFuncs.toggleContorno(true, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, tablero[cursor]);
+			// save the current value of num_processes, it might be changed
+			num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES] = num_processes;
+			
+			int this_proc_absolute = ID % num_processes;
+			desde = this_proc_absolute;
+			
+			// caso 1: cada proc toma una única rama de Neighbors
+			if (num_processes == length_nbs) {
+				length_nbs = this_proc_absolute + 1;
+			}
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
+			else if (num_processes < length_nbs) {
+				int span = (length_nbs + 1) / num_processes;
+				desde *= span;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				else if (desde + span < length_nbs)
+					length_nbs = desde + span;
+			}
+			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
+			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb continua la división.
+			// Ahora la cantidad de procs se setea igual a length_nbs.
+			else {
+				++pos_multi_process_offset;
+				int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
+				num_processes = length_nbs;
+				desde /= divisor;
+				if (desde >= length_nbs)
+					desde = length_nbs - 1;
+				length_nbs = desde + 1;
+			}
+			
+			// System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
+		}
+		
+		while (desde < length_nbs) {
+			
+			int mergedInfo = nbs.mergedInfo[desde];
+			short numero = Neighbors.numero(mergedInfo);
+			
+			if (usada[numero]) {
+				++desde;
+				continue; // continúo con el siguiente neighbor
+			}
+	
+			++count_cycles;
+				
+			// pregunto si está activada la poda del color right explorado en borde left
+//			if (colorRightExploredStrategy != null) {
+//				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(mergedInfo),
+//						colorRightExploredStrategy)) {
+//					++desde;
+//					continue; // continúo con el siguiente neighbor
+//				}
+//			}
+			
+			// FairExperiment.gif: color bottom repetido en sentido horizontal
+//			if (Consts.USE_FAIR_EXPERIMENT_GIF) {
+//				if (CommonFuncs.testFairExperimentGif(flagZona, cursor, mergedInfo, tablero, usada)) {
+//					++desde;
+//					continue; // continúo con el siguiente neighbor
+//				}
+//			}
+			
+			// pregunto si el borde inferior que genero con la nueva pieza está siendo usado
+//			@CONTORNO_INFERIOR
+//			if (esContornoInferiorUsado(cursor, flagZona, contorno, tablero, mergedInfo)){
+//				++desde;
+//				continue; // continúo con el siguiente neighbor
+//			}
+	
+			// seteo el contorno como usado
+			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
+			
+			tablero[cursor] = mergedInfo;
+			usada[numero] = true;
+			iter_desde[cursor] = desde + 1;
 			
 			++cursor;
-			
 			explorar(0);
-			
 			--cursor;
 			
-			//seteo el contorno como libre
-			CommonFuncs.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, tablero[cursor]);
+			usada[numero] = false;
+//			tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 			
-//			@RETROCEDER
-//			if (cursor <= cur_destino){
-//				retroceder= false;
-//				cur_destino= Consts.CURSOR_INVALIDO;
-//			}
+			// seteo el contorno como libre
+			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, mergedInfo);
+			
+			++desde;
 		}
-		// Pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		else if (CommonFuncs.esContornoSuperiorUsado(cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero)) {
-			; // do nothing
-		}
-		// Exploracion Standard
-		else {
-			
-			byte flagZona = CommonFuncs.matrix_zonas[cursor];
-			
-			// voy a recorrer las posibles piezas que coinciden con los colores de las piezas alrededor de cursor
-			Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, neighborStrategy);
-			if (nbs == null)
-				return; // significa que no existen posibles piezas para la actual posicion de cursor
-
-			int length_nbs = nbs.mergedInfo.length;
-			
-			num_processes_orig[cursor] = num_processes;
-
-			// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso.
-			// En este paso solo inicializo algunas variables para futuros cálculos.
-			if (cursor == POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-				// en ciertas condiciones cuado se disminuye el num de procs, es necesario acomodar el concepto de this_proc para los calculos siguientes.
-				int this_proc_absolute = ID % num_processes;
-
-				// caso 1: trivial. Cada proc toma una única rama de Neighbors
-				if (num_processes == length_nbs) {
-					desde = this_proc_absolute;
-					length_nbs = this_proc_absolute + 1;
-				}
-				// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-				else if (num_processes < length_nbs) {
-					int span = (length_nbs + 1) / num_processes;
-					desde = this_proc_absolute * span;
-					if (desde >= length_nbs)
-						desde = length_nbs - 1;
-					else if (desde + span < length_nbs)
-						length_nbs = desde + span;
-				}
-				// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
-				// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb se continua la división.
-				// Ahora la cantidad de procs se setea igual a length_nbs
-	            else {
-					int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
-					num_processes = length_nbs;
-					desde = this_proc_absolute / divisor;
-					if (desde >= length_nbs)
-						desde = length_nbs - 1;
-					length_nbs = desde + 1;
-					++pos_multi_process_offset;
-				}
-			}
-			
-			for (; desde < length_nbs; ++desde) {
-				
-				// desde_saved[cursor]= desde; //actualizo la posicion en la que leo de posibles
-				int merged = nbs.mergedInfo[desde];
-				int numero = Neighbors.numero(merged);
-				
-				// pregunto si la pieza candidata está siendo usada
-				if (usada[numero])
-					continue; //es usada, pruebo con la siguiente pieza/rotación
-				
-				++count_cycles; // incremento el contador de combinaciones de piezas
-				
-				// pregunto si está activada la poda del color right explorado en borde left
-				if (colorRightExploredStrategy != null) {
-					if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(merged), colorRightExploredStrategy))
-						continue;
-				}
-				
-				//#### En este punto ya tengo la pieza correcta para poner en tablero[cursor] ####
-				
-				tablero[cursor] = merged;
-				usada[numero] = true;
-				
-				//#### En este punto ya tengo la pieza colocada y rotada correctamente ####
-				
-				// una vez rotada adecuadamente la pieza pregunto si el borde inferior que genera está siendo usado
-//				@CONTORNO_INFERIOR
-//				if (esContornoInferiorUsado(cursor)){
-//					usada[numero] = false;
-//					continue;
-//				}
-				
-				// FairExperiment.gif: color bottom repetido en sentido horizontal
-				if (FairExperimentGif) {
-					if (CommonFuncs.testFairExperimentGif(flagZona, cursor, merged, tablero, usada))
-						continue;
-				}
-
-				// seteo el contorno como usado
-				CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, merged);
-					
-				//##########################
-				// Llamo una nueva instancia de exploracion
-				++cursor;
-				explorar(0);
-				--cursor;
-				//##########################
-					
-				// seteo el contorno como libre
-				CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, merged);
-				
-				usada[numero] = false;
-				
-				// si retrocedió hasta la posicion destino, seteo la variable retroceder en false e invalído a cur_destino
-//				@RETROCEDER
-//				if (cursor <= cur_destino){
-//					retroceder= false;
-//					cur_destino=CURSOR_INVALIDO;
-//				}
-//				// caso contrario significa que todavia tengo que seguir retrocediendo
-//				if (retroceder)
-//					break;
-			}
-
-			desde_saved[cursor] = 0; //debo poner que el desde inicial para este cursor sea 0
-			tablero[cursor] = -1; //dejo esta posicion de tablero libre
-
-			// restore multi process variables
-			num_processes = num_processes_orig[cursor];
-			if (pos_multi_process_offset > 0)
-				--pos_multi_process_offset;
+		
+		iter_desde[cursor] = 0;
+		tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
+		
+		if (cursor >= Consts.POSICION_MULTI_PROCESSES && cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
+			restoreMultiProcessesExploration();
 		}
 	}
-
-	private static final void maxLejanoParcialMaxReached() {
-		long time_final= System.nanoTime();
-		printBuffer.setLength(0);
-		printBuffer.append(ID).append(" >>> ")
-			.append(TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS))
-			.append(" ms, cursor ").append(cursor);
-		System.out.println(printBuffer.toString());
-		printBuffer.setLength(0);
-		CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
+	
+	private static final void restoreMultiProcessesExploration() {
+		num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
+		// restore multi processes variables only when pos_multi_process_offset > 0, meaning that 
+		// both pos_multi_process_offset and num_processes have been modified
+		if (pos_multi_process_offset > 0) {
+			--pos_multi_process_offset;
+		}
 	}
-
+	
 	private static final void maxCyclesReached() {
-		//calculo el tiempo entre status saved
-		long nanoTimeNow = System.nanoTime();
-		long durationNanos = nanoTimeNow - time_max_ciclos;
+		long durationNanos = System.nanoTime() - time_max_ciclos;
 		long durationMillis = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
 		long piecesPerSec = count_cycles / TimeUnit.SECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
 		
+		System.out.println(ID + " >>> cursor " + cursor + ". Tiempo: " + durationMillis + " ms, " + piecesPerSec + " pieces/sec");
+
 		count_cycles = 0;
 		
 		if (SAVE_STATUS_ON_MAX_CYCLES) {
-			CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, desde_saved,
+			CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, iter_desde,
 					neighborStrategy, colorRightExploredStrategy);
 			CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);
 		}
 		
-		printBuffer.setLength(0);
-		printBuffer.append(ID).append(" >>> cursor ").append(cursor)
-				.append(". Tiempo: ").append(durationMillis).append(" ms") 
-				.append(", ").append(piecesPerSec).append(" pieces/sec");
-		System.out.println(printBuffer.toString());
-		printBuffer.setLength(0);
-		
-		time_max_ciclos = nanoTimeNow;
+		time_max_ciclos = System.nanoTime();
 	}
 	
 	private final static void knocKnock () {
@@ -621,12 +549,12 @@ public final class SolverFasterMPJE {
 		if (ID == 0)
 		{
 			mpi_send_info[0] = MESSAGE_SINCRO;
-			//sincronizo con los restantes procesos
+			// sincronizo con los restantes procesos
 			for (int rank=1; rank < num_processes; ++rank)
-				mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); //el tag identifica al mensaje
+				mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); // el tag identifica al mensaje
 			System.out.println("Rank 0: --- Sincronizando con todos. Sending msg " + mpi_send_info[0] + " ...");
 			System.out.flush();
-			//espero a que todas las peticiones se completen
+			// espero a que todas las peticiones se completen
 			mpi.Request.Waitall(mpi_requests);
 			System.out.println("Rank 0: --- Todos sincronizados.");
 			System.out.flush();
@@ -638,7 +566,7 @@ public final class SolverFasterMPJE {
 			System.out.flush();
 			mpi_send_info[0] = MESSAGE_HALT;
 			// espero recibir mensaje
-			mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO); //el tag identifica al mensaje
+			mpi.MPI.COMM_WORLD.Recv(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, mpi.MPI.ANY_SOURCE, TAG_SINCRO); // el tag identifica al mensaje
 			if (mpi_send_info[0] == MESSAGE_SINCRO) {
 				System.out.println(ID + " >>> --- Sincronizado with msg " + mpi_send_info[0]);
 				System.out.flush();
