@@ -47,9 +47,9 @@ public final class SolverFasterMPJE {
 	
 	private static int num_processes = mpi.MPI.COMM_WORLD.Size(); // número de procesos
 	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
-	private static byte TAG_SINCRO = 1; // tags para identificar mensajes interprocesos
-	private static byte MESSAGE_HALT = 0, MESSAGE_SINCRO = 2; // mensajes para comunicar una acción o estado
-	private static byte[] mpi_send_info = new byte[1]; // arreglo de envío de mensajes entre procesos
+	private static int TAG_SINCRO = 1; // tags para identificar mensajes interprocesos
+	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 2; // mensajes para comunicar una acción o estado
+	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
 	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
 	private static int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
