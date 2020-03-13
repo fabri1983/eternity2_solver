@@ -7,7 +7,7 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 | ----- | ------- |
 | [![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=master)](https://travis-ci.org/fabri1983/eternity2_solver?branch=master) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
 
-![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.jpg?raw=true "eternity solver mpje 8 threads")  
+![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.png?raw=true "eternity2 solver mpje 8 processes with UI enabled")  
 
 - The project is managed with **Maven 3.6.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
 - It provides several jar artifacts from **Java 8 to 11**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
@@ -41,9 +41,10 @@ Some stats
 - **New stats** include changes for use far less memory than before:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
     - Placing approx **98.32 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **96.60 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **97.37 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
     - Placing approx **106.14 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx  **94.54 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
     - Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
     - Placing approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
@@ -128,7 +129,7 @@ Also by default it uses `Proguard` code processing. Add `-Dproguard.skip=true` a
 
 **Profiles (use -P <name>)**
 - `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
-- `mpje8`: intended for running in cluster/multi-core environment using MPJExpress api. It only works on a JVM 1.8. Creates `e2solver_mpje.jar`.
+- `mpje8`, `mpje11`: intended for running in cluster/multi-core environment using MPJExpress api. Creates `e2solver_mpje.jar`.
 - `java8native`, `java11native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
 
@@ -165,7 +166,7 @@ E.g.:
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
 Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
-Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profile *mpje8*.  
+Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profiles *mpje8* and *mpje11*.  
 Use `run_benchmark.[bat|sh]` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
