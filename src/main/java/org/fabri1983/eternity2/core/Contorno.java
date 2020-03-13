@@ -55,7 +55,7 @@ public final class Contorno
 		{
 			// given the way we populate the board is from top-left to bottom-right, 
 			// then if we find an empty slot it means there is no more pieces in the board
-			if (tablero[k] == -1)
+			if (tablero[k] == Consts.TABLERO_INFO_EMPTY_VALUE)
 				return;
 			
 			// borde left
@@ -71,7 +71,7 @@ public final class Contorno
 			
 			// me fijo si de las posiciones que tengo que obtener el contorno alguna está vacía
 			for (int a=1; a < MAX_COLUMNS; ++a) {
-				if (tablero[k+a] == -1)
+				if (tablero[k+a] == Consts.TABLERO_INFO_EMPTY_VALUE)
 					return;
 			}
 			

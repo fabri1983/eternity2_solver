@@ -194,17 +194,17 @@ public class CommonFuncs {
 		}
 	}
 	
-	public final static void cargarSuperEstructura(int processId, Pieza[] piezas, boolean useFairExperimentGif, NeighborStrategy neighborStrategy)
+	public final static void cargarSuperEstructura(int processId, Pieza[] piezas, NeighborStrategy neighborStrategy)
 	{
 		long startingTime = System.nanoTime();
 		
-		llenarSuperEstructura(piezas, useFairExperimentGif, neighborStrategy);
+		llenarSuperEstructura(piezas, neighborStrategy);
 		
 		long elapsedMicros = TimeUnit.MICROSECONDS.convert(System.nanoTime() - startingTime, TimeUnit.NANOSECONDS);
 		System.out.println(processId + " >>> Carga de super matriz finalizada (" + elapsedMicros + " micros)");
 	}
 	
-	private static final void llenarSuperEstructura (Pieza[] piezas, boolean useFairExperimentGif, NeighborStrategy neighborStrategy)
+	private static final void llenarSuperEstructura (Pieza[] piezas, NeighborStrategy neighborStrategy)
 	{
 		// itero sobre el arreglo de piezas
 		for (short k = 0; k < Consts.MAX_PIEZAS; ++k) {
@@ -217,9 +217,11 @@ public class CommonFuncs {
 			
 			for (byte rot=0; rot < Consts.MAX_ESTADOS_ROTACION; ++rot, Pieza.rotar90(pz))
 			{
-				//FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
-				if (useFairExperimentGif && (pz.top == pz.bottom))
-					continue;
+				// FairExperiment.gif: si la pieza tiene su top igual a su bottom => rechazo la pieza
+				if (Consts.USE_FAIR_EXPERIMENT_GIF) {
+					if (pz.top == pz.bottom)
+						continue;
+				}
 				
 				neighborStrategy.addNeighbor(pz.top, pz.right, pz.bottom, pz.left, pz);
 			}
@@ -302,13 +304,10 @@ public class CommonFuncs {
 		try{
 			PrintWriter wSol= new PrintWriter(new BufferedWriter(new FileWriter(solucFileName, true)));
 			PrintWriter wDisp= new PrintWriter(new BufferedWriter(new FileWriter(dispFileName, true)));
-			StringBuilder contenidoDisp= new StringBuilder(256 * 13);
 			
 			wSol.println("Solucion para " + Consts.MAX_PIEZAS + " piezas");
 			wDisp.println("Disposicion para " + Consts.MAX_PIEZAS + " piezas.");
-			contenidoDisp.append("Disposicion para " + Consts.MAX_PIEZAS + " piezas.\n");
 			wDisp.println("(num pieza) (estado rotacion) (posicion en tablero real)");
-			contenidoDisp.append("(num pieza) (estado rotacion) (posicion en tablero real)\n");
 			
 			for (int b=0; b < Consts.MAX_PIEZAS; ++b)
 			{
@@ -321,7 +320,6 @@ public class CommonFuncs {
 				int left = Neighbors.left(merged);
 				wSol.println(top + Consts.SECCIONES_SEPARATOR_EN_FILE + right + Consts.SECCIONES_SEPARATOR_EN_FILE + bottom + Consts.SECCIONES_SEPARATOR_EN_FILE + left);
 				wDisp.println((numero + 1) + Consts.SECCIONES_SEPARATOR_EN_FILE + pos);
-				contenidoDisp.append(numero + 1).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(pos).append("\n");
 			}
 			
 			wSol.println();
@@ -346,11 +344,11 @@ public class CommonFuncs {
 	 * Guarda las estructuras necesaria del algoritmo para poder continuar desde el actual estado de exploración.
 	 */
 	public final static void guardarEstado(String statusFileName, int processId, int[] tablero, short cursor,
-			short resultado_parcial_count, byte[] desde_saved, NeighborStrategy neighborStrategy,
+			short resultado_parcial_count, int[] iter_desde, NeighborStrategy neighborStrategy,
 			ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		try{
-			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(statusFileName)));
+			PrintWriter writer= new PrintWriter(new BufferedWriter(new FileWriter(statusFileName, false)));
 			StringBuilder writerBuffer= new StringBuilder(256 * 13);
 	
 			//guardo el valor de resultado_parcial_count
@@ -369,35 +367,12 @@ public class CommonFuncs {
 				}
 			}
 			
-			//########################################################################
-			/**
-			 * Calculo los valores para desde_saved[]
-			 */
-			//########################################################################
-			for (short _cursor = 0; _cursor < cursor; ++_cursor) {
-				// para la pieza central no se tiene en cuenta su valor desde_saved[]
-				if (_cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
-					desde_saved[_cursor] = 0;
-					continue;
-				}
-				// obtengo el valor para desde_saved[]
-				int mergedInfo = tablero[_cursor];
-				byte flagZona = matrix_zonas[_cursor];
-				desde_saved[_cursor] = Neighbors.getIndexMergedInfo(
-						neighbors(flagZona, _cursor, tablero, neighborStrategy), 
-						mergedInfo);
-			}
-			//ahora todo lo que está despues de cursor tiene que valer cero
-			for (short _cursor = cursor; _cursor < Consts.MAX_PIEZAS; ++_cursor)
-				desde_saved[_cursor] = 0;
-			//########################################################################
-			
-			//guardo las posiciones de posibles piezas (desde_saved[]) de cada nivel del backtracking
+			//guardo los valores de iter_desde[]
 			for (short n=0; n < Consts.MAX_PIEZAS; ++n) {
 				if (n==(Consts.MAX_PIEZAS-1))
-					writerBuffer.append(desde_saved[n]).append("\n");
+					writerBuffer.append(iter_desde[n]).append("\n");
 				else
-					writerBuffer.append(desde_saved[n]).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
+					writerBuffer.append(iter_desde[n]).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
 			}
 			
 			//indico si se utiliza poda de color explorado o no
@@ -429,31 +404,18 @@ public class CommonFuncs {
 	}
 
 	/**
-	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
-	 */
-	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, int[] tablero,
-			short cursor, short resultado_parcial_count, byte[] desde_saved, NeighborStrategy neighborStrategy,
-			ColorRightExploredStrategy colorRightExploredStrategy) {
-
-		guardarEstado(statusFileName, processId, tablero, cursor, resultado_parcial_count, desde_saved,
-				neighborStrategy, colorRightExploredStrategy);
-
-		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
-	}
-	
-	/**
 	 * Genera un archivo de piezas para leer con el editor visual e2editor.exe, y otro archivo
 	 * que contiene las disposiciones de cada pieza en el tablero.
 	 */
 	public final static void guardarResultadoParcial(int processId, int[] tablero, String parcialFileName)
 	{
 		try {
-			PrintWriter wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialFileName)));
+			PrintWriter wParcial= new PrintWriter(new BufferedWriter(new FileWriter(parcialFileName, false)));
 			StringBuilder parcialBuffer= new StringBuilder(256 * 13);
 			
 			for (short b=0; b < Consts.MAX_PIEZAS; ++b) {
 				int merged = tablero[b];
-				if (merged == -1){
+				if (merged == Consts.TABLERO_INFO_EMPTY_VALUE){
 					parcialBuffer.append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append(Consts.SECCIONES_SEPARATOR_EN_FILE).append(Consts.GRIS).append("\n");
 				}
 				else {
@@ -474,6 +436,28 @@ public class CommonFuncs {
 		catch(Exception ex) {
 			System.out.println(processId + " >>> ERROR: No se pudieron generar los archivos de resultado parcial. " + ex.getMessage());
 		}
+	}
+
+	public final static void maxLejanoParcialReached(int processId, short cursor, long time_inicial, int[] tablero, String parcialFileName) {
+		
+		long time_final = System.nanoTime();
+		long timeMillis = TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS);
+		System.out.println(processId + " >>> " + timeMillis + " ms, cursor " + cursor);
+		
+		CommonFuncs.guardarResultadoParcial(processId, tablero, parcialFileName);
+	}
+	
+	/**
+	 * La exploracion ha alcanzado su punto limite, ahora es necesario guardar estado
+	 */
+	public final static void operarSituacionLimiteAlcanzado(String statusFileName, int processId, int[] tablero,
+			short cursor, short resultado_parcial_count, int[] desde_saved, NeighborStrategy neighborStrategy,
+			ColorRightExploredStrategy colorRightExploredStrategy) {
+	
+		guardarEstado(statusFileName, processId, tablero, cursor, resultado_parcial_count, desde_saved,
+				neighborStrategy, colorRightExploredStrategy);
+	
+		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
 	}
 
 	public final static boolean testPodaColorRightExplorado(byte flagZona, short cursor, byte right,
@@ -542,7 +526,7 @@ public class CommonFuncs {
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if ((flagZona & Consts.MASK_F_READ_CONTORNO) == Consts.F_READ_CONTORNO) {
 			return contorno.used
-					[Neighbors.right(tablero[cursor-1])]
+					[Neighbors.right(tablero[cursor - 1])]
 					[Neighbors.bottom(tablero[cursor - Consts.LADO])]
 					[Neighbors.bottom(tablero[cursor - Consts.LADO + 1])];
 		}

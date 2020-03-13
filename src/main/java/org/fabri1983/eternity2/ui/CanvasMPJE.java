@@ -22,17 +22,21 @@
 
 package org.fabri1983.eternity2.ui;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.mpje.SolverFasterMPJE;
 
 public class CanvasMPJE extends CanvasAbstract {
     
-    public CanvasMPJE(int columns, int rows, int posCentral) {
-    	super(columns, rows, posCentral);
+    public CanvasMPJE(int columns, int rows) {
+    	super(columns, rows);
     }
 
     @Override
 	protected Integer getPiezaInfoFromTablero(int cursorTablero) {
-    	return SolverFasterMPJE.tablero[cursorTablero];
+    	int mergedInfo = SolverFasterMPJE.tablero[cursorTablero];
+    	if (mergedInfo == Consts.TABLERO_INFO_EMPTY_VALUE && cursorTablero == SolverFasterMPJE.LIMITE_RESULTADO_PARCIAL)
+    		return BEACON_CURSOR_VALUE; // this forces to paint a special image
+		return mergedInfo;
     }
     
 }

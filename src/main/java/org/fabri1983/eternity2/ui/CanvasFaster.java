@@ -22,20 +22,25 @@
 
 package org.fabri1983.eternity2.ui;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.faster.ExplorationTask;
+import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class CanvasFaster extends CanvasAbstract {
 
 	private ExplorationTask action;
 
-	public CanvasFaster(int columns, int rows, int posCentral, ExplorationTask action) {
-		super(columns, rows, posCentral);
+	public CanvasFaster(int columns, int rows, ExplorationTask action) {
+		super(columns, rows);
 		this.action = action;
 	}
 
 	@Override
 	protected Integer getPiezaInfoFromTablero(int cursorTablero) {
-		return action.tablero[cursorTablero];
+		int mergedInfo = action.tablero[cursorTablero];
+    	if (mergedInfo == Consts.TABLERO_INFO_EMPTY_VALUE && cursorTablero == SolverFaster.LIMITE_RESULTADO_PARCIAL)
+    		return BEACON_CURSOR_VALUE; // this forces to paint a special image
+		return mergedInfo;
 	}
 
 }

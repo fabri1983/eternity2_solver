@@ -38,11 +38,15 @@ Note that only pre calculated candidates are eligible for filtering. Here is whe
 
 Some stats
 ----------
-- **New stats** include changes to use as low memory as possible:
+- **New stats** include changes for use far less memory than before:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
     - Placing approx **98.32 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **93.73 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-    - Placing approx **58.99 million correct tiles per second** running the native image generated with **GraalVM 20.0.0**, **with 8 threads**.
+    - Placing approx **96.60 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
+    - Placing approx **106.14 million correct tiles per second** running with a pool of **8 threads**.
+  - Native images stats:
+    - Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
+    - Placing approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -124,7 +128,7 @@ Also by default it uses `Proguard` code processing. Add `-Dproguard.skip=true` a
 
 **Profiles (use -P <name>)**
 - `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
-- `mpje`: intended for running in cluster/multi-core environment using MPJExpress api. Currently compiles to java 1.8. Creates `e2solver_mpje.jar`.
+- `mpje8`: intended for running in cluster/multi-core environment using MPJExpress api. It only works on a JVM 1.8. Creates `e2solver_mpje.jar`.
 - `java8native`, `java11native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
 
@@ -150,9 +154,6 @@ The app loads by default the next properties (may vary between `threads.properti
 	ui.per.proc=false       <-- this has no effect on native builds
 	ui.cell.size=28         <-- this has no effect on native builds
 	ui.refresh.millis=100   <-- this has no effect on native builds
-	experimental.gif.fair=false
-	experimental.borde.left.explorado=false
-	task.distribution.pos=99
 	num.tasks=8             <-- this has no effect on MPJE builds
 ```
 E.g.:
@@ -164,7 +165,7 @@ E.g.:
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
 Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
-Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profile *mpje*.  
+Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profile *mpje8*.  
 Use `run_benchmark.[bat|sh]` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
@@ -189,12 +190,12 @@ Then you can build a *custom and smaller JRE* which will have a smaller memory f
 - Windows:
 ```sh
 jdeps --add-modules=ALL-MODULE-PATH --multi-release=11 --print-module-deps ^
-  -cp "target\libs\javamail-1.4.5\lib\*";"target\libs\mpj-v0_44\lib\*" target\e2solver.jar
+  -cp "target\libs\mpj-v0_44\lib\*" target\e2solver.jar
 ```
 - Linux:
 ```sh
 jdeps --add-modules=ALL-MODULE-PATH --multi-release=11 --print-module-deps \
-  -cp "target/libs/javamail-1.4.5/lib/*":"target/libs/mpj-v0_44/lib/*" target/e2solver.jar
+  -cp "target/libs/mpj-v0_44/lib/*" target/e2solver.jar
 ```
 - Example Output:
 ```sh
@@ -452,7 +453,7 @@ This will help you to decide which iso you need to download:
 			(or open a cmd console and run: call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd")
 		For Java11 targets:
 			open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
-			(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall x64)
+			(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
 	SET JAVA_HOME=C:\java\graalvm-ee-java8-20.0.0  or  C:\java\graalvm-ee-java11-20.0.0
 	cd substratevm
 	mx build --all
@@ -490,14 +491,15 @@ This will help you to decide which iso you need to download:
 	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
 	```
 - Tips:
-	- Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
-	- For EE only you can use the low latency G1 GC: *-H:+UseLowLatencyGC*  (since v20.x)
-	- Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
-	- Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
-	- See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
-	- See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
-	- To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
-	- Reference manual: https://docs.oracle.com/en/graalvm/enterprise/20/guide/toc.htm
+  - Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
+  - For EE only you can use the low latency G1 GC: *-H:+UseLowLatencyGC*  (since v20.x)
+  - Use *--report-unsupported-elements-at-runtime* to see which elements are not visible ahead of time for Graal since they are not explicitely declared in the classpath.
+  - Use *-H:+ReportExceptionStackTraces* to better understand any exception during image generation.
+  - See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
+  - See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
+  - To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
+  - Reference manual: https://docs.oracle.com/en/graalvm/enterprise/20/guide/toc.htm
+  - *-H:+PrintAnalysisCallTree* or *-H:+PrintImageObjectTree* options are meant to help answer questions about why a certain method or object are getting into an image.
 
 
 Using GraalVM's Agent Lib to get native image resources and configurations

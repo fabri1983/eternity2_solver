@@ -22,7 +22,6 @@
 
 package org.fabri1983.eternity2.ui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
@@ -41,7 +40,7 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 1L;
 	
 	private Integer pinfo;
-    private Image[] imageListTop, imageListRight, imageListBottom, imageListLeft;
+    private Image[] imagesTopOriented, imagesRightOriented, imagesBottomOriented, imagesLeftOriented;
     
     public EternityCellRenderer (int cellSize, int numColors) {
 		// acoto el tamaño de celda
@@ -50,20 +49,20 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
     	if (cellSize > 40)
     		cellSize = 40;
     	
-        imageListTop = new Image[numColors];
-        imageListRight = new Image[numColors];
-        imageListBottom = new Image[numColors];
-        imageListLeft = new Image[numColors];
+        imagesTopOriented = new Image[numColors];
+        imagesRightOriented = new Image[numColors];
+        imagesBottomOriented = new Image[numColors];
+        imagesLeftOriented = new Image[numColors];
         
 		// para cada imagen voy haciendo una copia rotada, de esta forma no tengo que rotarla al redibujar
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         for (int i=0; i < numColors; i++) {
             try {
             	Image img = loadImage(i, classLoader).getScaledInstance(cellSize, cellSize, 0);
-                imageListTop[i] = img;
-                imageListRight[i] = rotarImg(img, 1, cellSize);
-                imageListBottom[i] = rotarImg(img, 2, cellSize);
-                imageListLeft[i] = rotarImg(img, 3, cellSize);
+                imagesTopOriented[i] = img;
+                imagesRightOriented[i] = rotarImg(img, 1, cellSize);
+                imagesBottomOriented[i] = rotarImg(img, 2, cellSize);
+                imagesLeftOriented[i] = rotarImg(img, 3, cellSize);
             } catch (IOException e) {}
         }
     }
@@ -75,48 +74,57 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
 
     private Image rotarImg (Image img, int rotacion, int cellSize) {
 		// creo el buffer que contendrá los pixeles de Img
-    	int buffer[] = new int[cellSize * cellSize];
+		int piexelBuffer[] = new int[cellSize * cellSize];
 		// objeto que llenará a buffer[] con los pixeles de Img
-    	PixelGrabber grabber = new PixelGrabber(img, 0, 0, cellSize, cellSize, buffer, 0, cellSize);
-    	//ejecuto el grabado en buffer[]
-    	try {
-            grabber.grabPixels();
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-        }
-        //voy rotando la imagen siempre 90 grados.
-        for (int i=0; i < rotacion; i++) {
-            buffer = rotatePixels(buffer, cellSize);
-        }
-        //creo la imagen a partir de buffer[]
-        Image rotImg = createImage(new MemoryImageSource(cellSize, cellSize, buffer, 0, cellSize));
-        
-        return rotImg;
+		PixelGrabber grabber = new PixelGrabber(img, 0, 0, cellSize, cellSize, piexelBuffer, 0, cellSize);
+		// ejecuto el grabado en buffer[]
+		try {
+			grabber.grabPixels();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// voy rotando la imagen siempre 90 grados antihorario
+		for (int i = 0; i < rotacion; i++) {
+			rotate2DArrayInPlace(piexelBuffer, cellSize);
+		}
+		// creo la imagen a partir de buffer[]
+		Image rotImg = createImage(new MemoryImageSource(cellSize, cellSize, piexelBuffer, 0, cellSize));
+
+		return rotImg;
     }
     
     /**
-     * Rota en sentido antihorario los pixeles de un buffer.
-     * @param buffer
-     * @return int[]
+     * Rota 90 grados en sentido antihorario los pixeles de un buffer.
      */
-    private int[] rotatePixels (int[] buffer, int cellSize) {
-        int rotate[] = new int[cellSize * cellSize];
-        for(int x = 0; x < cellSize; x++) {
-            for(int y = 0; y < cellSize; y++) {
-                rotate[((cellSize-x-1)*cellSize)+y] = buffer[(y*cellSize)+x];
-            }
-        }
-        return rotate;
-    }
+	private void rotate2DArrayInPlace(int[] pixels, int N) {
+		// Consider all squares one by one
+		for (int x = 0; x < N / 2; x++) {
+			// Consider elements in group of 4 in current square
+			for (int y = x; y < N - x - 1; y++) {
+				// store current cell in temp variable
+				int temp = pixels[(x * N) + y];
+				// move values from right to top
+				pixels[(x * N) + y] = pixels[(y * N) + N - 1 - x];
+				// move values from bottom to right
+				pixels[(y * N) + N - 1 - x] = pixels[(N * (N - 1 - x)) + N - 1 - y];
+				// move values from left to bottom
+				pixels[(N * (N - 1 - x)) + N - 1 - y] = pixels[(N * (N - 1 - y)) + x];
+				// assign temp to left
+				pixels[(N * (N - 1 - y)) + x] = temp;
+			}
+		}
+	}
     
-    public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    @Override
+    public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, 
+    		boolean hasFocus, int row, int column) {
     	pinfo = (Integer)value;
         return this;
     }
     
+    @Override
 	public void paint(java.awt.Graphics g) {
 		super.paint(g);
-		g.setColor(Color.BLACK);
 		
 		int mergedInfo = pinfo.intValue();
 		
@@ -125,22 +133,11 @@ public class EternityCellRenderer extends DefaultTableCellRenderer {
 		int bottom = Neighbors.bottom(mergedInfo);
 		int left = Neighbors.left(mergedInfo);
 
-		paintImage(g, top, 0);
-		paintImage(g, right, 1);
-		paintImage(g, bottom, 2);
-		paintImage(g, left, 3);
+		// NOTE: la rotación de los pixeles es antihoraria, that's why right and left are inverted
+		g.drawImage(imagesTopOriented[top], 0, 0, null);
+		g.drawImage(imagesLeftOriented[right], 0, 0, null);
+		g.drawImage(imagesBottomOriented[bottom], 0, 0, null);
+		g.drawImage(imagesRightOriented[left], 0, 0, null);
 	}
-    
-    private void paintImage (java.awt.Graphics g, int imageIndex, int rot) {
-		// NOTA! debido a que la rotación de los pixeles es antihoraria el siguiente switch tiene
-		// modificaciones para left y right
-		switch (rot){
-    		case 0: g.drawImage(imageListTop[imageIndex], 0, 0, null); break;
-    		case 1: g.drawImage(imageListLeft[imageIndex], 0, 0, null); break;
-    		case 2: g.drawImage(imageListBottom[imageIndex], 0, 0, null); break;
-    		case 3: g.drawImage(imageListRight[imageIndex], 0, 0, null); break;
-    		default: break;
-		}
-    }
 
 }

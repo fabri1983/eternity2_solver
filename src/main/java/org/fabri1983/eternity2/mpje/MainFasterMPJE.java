@@ -60,9 +60,6 @@ public final class MainFasterMPJE
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_GIF_FAIR)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.EXPERIMENTAL_BORDE_LEFT_EXPLORADO)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.TASK_DISTRIBUTION_POS)),
 					MPI.COMM_WORLD.Size());
 
 			properties = null;

@@ -30,6 +30,7 @@ cd ../target
 
 :: 2m max usage for 8 threads. However the whole benchmark needs 4m
 set mem_alloc=4m
+set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
 
 :: Options to enable SerialGC and its configuration for minor usage:
 ::  -XX:+UseSerialGC   Disables Parallel or Concurrent GC. It uses just 1 thread.
@@ -56,7 +57,7 @@ set mem_alloc=4m
 ::  -XX:HeapBaseMinAddress=0
 ::  -XX:FreqInlineSize=600   Using 600 bytes as the threshold for "too big for inline" which corresponds to method exploracionStandard() with a size of 595 bytes
 ::  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
-set e2_jvm_opts=-XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
+set e2_jvm_opts=%no_ui_options% -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
 
 java %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %jvm_args% ^
   -jar e2solver_benchmark.jar %main_args% ^

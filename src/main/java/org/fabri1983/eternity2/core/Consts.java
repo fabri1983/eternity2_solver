@@ -30,6 +30,9 @@ public class Consts {
 	 */
 	public final static int MASK_FOR_BORDER_TOP_AND_BOTTOM = 0x000000F0;
 	
+	public final static int POSICION_MULTI_PROCESSES = 99; // posición del tablero en la que empiezo a dividir ramas de epxloracion
+	public final static boolean USE_FAIR_EXPERIMENT_GIF = false;
+	
 	public final static short LADO = 16;
 	public final static short LADO_FOR_SHIFT_DIVISION = 4;
 	public final static short MAX_PIEZAS = 256;
@@ -39,6 +42,7 @@ public class Consts {
 	public final static short BEFORE_PIEZA_CENTRAL_POS_TABLERO = PIEZA_CENTRAL_POS_TABLERO - 1;
 	public final static short BELOW_PIEZA_CENTRAL_POS_TABLERO = PIEZA_CENTRAL_POS_TABLERO + LADO;
 	public final static short CURSOR_INVALIDO = -1;
+	public final static int TABLERO_INFO_EMPTY_VALUE = 0;
 	
 	public final static byte F_INTERIOR =           0b000000;
 	public final static byte F_BORDE_RIGHT =        0b000001;

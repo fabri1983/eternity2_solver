@@ -302,7 +302,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
@@ -321,7 +321,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
@@ -340,7 +340,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
@@ -359,7 +359,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
@@ -377,7 +377,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 				int key = a;
 				int size = 0;
 				for (int info : nbs.mergedInfo) {
-					if (info != -1)
+					if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 						++size;
 					else
 						break;
@@ -394,7 +394,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 				int key = a;
 				int size = 0;
 				for (int info : nbs.mergedInfo) {
-					if (info != -1)
+					if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 						++size;
 					else
 						break;
@@ -412,7 +412,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
@@ -430,7 +430,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 				int key = a;
 				int size = 0;
 				for (int info : nbs.mergedInfo) {
-					if (info != -1)
+					if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 						++size;
 					else
 						break;
@@ -447,7 +447,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 				int key = a;
 				int size = 0;
 				for (int info : nbs.mergedInfo) {
-					if (info != -1)
+					if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 						++size;
 					else
 						break;
@@ -464,7 +464,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 				int key = a;
 				int size = 0;
 				for (int info : nbs.mergedInfo) {
-					if (info != -1)
+					if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 						++size;
 					else
 						break;
@@ -482,7 +482,7 @@ public class MultiDimensionalStrategy implements NeighborStrategy {
 					int key = Neighbors.colorsAsKey(a, b);
 					int size = 0;
 					for (int info : nbs.mergedInfo) {
-						if (info != -1)
+						if (info != Consts.TABLERO_INFO_EMPTY_VALUE)
 							++size;
 						else
 							break;
