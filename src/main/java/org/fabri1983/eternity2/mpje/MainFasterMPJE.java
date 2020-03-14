@@ -39,6 +39,7 @@ public final class MainFasterMPJE
 		int rank = MPI.COMM_WORLD.Rank();
 		
 		// imprimo una sola vez la portada
+		// TODO fix this to be printed once in every machine in the cluster, taking into account that rank == 0 is only one machine.
 		if (rank == 0) {
 			BannerPrinterMPJE.printBanner();
 		}
@@ -47,12 +48,12 @@ public final class MainFasterMPJE
 			Properties properties = AppPropertiesReader.readProperties();
 
 			// NOTA:
-			//   para mpje multicore los primeros 3 parametros son para MPI
-			//   para mpje cluster los primeros 8 parametros son para MPI
+			//   para mpje multicore los primeros 3 parametros de args[] son para MPI
+			//   para mpje cluster los primeros 8 parametros de args[] son para MPI
 			
 			SolverFasterMPJE sol = new SolverFasterMPJE(
 					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.ON_MAX_REACHED_SAVE_STATUS)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
@@ -61,8 +62,6 @@ public final class MainFasterMPJE
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)),
 					MPI.COMM_WORLD.Size());
-
-			properties = null;
 
 			sol.setupInicial(new ClassLoaderReaderForFile());
 			ResourceBundle.clearCache();

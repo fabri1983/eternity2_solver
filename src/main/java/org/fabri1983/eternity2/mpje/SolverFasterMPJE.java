@@ -46,7 +46,7 @@ public final class SolverFasterMPJE {
 	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
 	private static int num_processes = mpi.MPI.COMM_WORLD.Size(); // número de procesos
-	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0 base)
+	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0-based)
 	private static int TAG_SINCRO = 1; // tags para identificar mensajes interprocesos
 	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 2; // mensajes para comunicar una acción o estado
 	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
@@ -56,7 +56,7 @@ public final class SolverFasterMPJE {
 	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
-	private static boolean SAVE_STATUS_ON_MAX_CYCLES;
+	private static boolean SAVE_STATUS_ON_MAX;
 	private static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 //	private static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 
@@ -91,24 +91,24 @@ public final class SolverFasterMPJE {
 	private static long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
 
 	/**
-	 * @param m_ciclos: número máximo de ciclos para imprimir stats.
-	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
+	 * @param max_ciclos: número máximo de ciclos para imprimir stats.
+	 * @param save_status_on_max: guardar status cuando se alcanza MAX_CICLOS o LIMITE_RESULTADO_PARCIAL superado.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
 	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
-	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
+	 * @param usar_multiples_boards: true para mostrar múltiples boards (1 per solver).
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param reader: implementation of the tiles file reader.
 	 * @param totalProcesses: total number of processes.
 	 */
-	public SolverFasterMPJE(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par, short lim_exploracion,
+	public SolverFasterMPJE(long max_ciclos, boolean save_status_on_max, short lim_max_par, short lim_exploracion,
 			short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado,
 			int p_refresh_millis, int totalProcesses) {
 
-		MAX_CICLOS = m_ciclos;
-		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
+		MAX_CICLOS = max_ciclos;
+		SAVE_STATUS_ON_MAX = save_status_on_max;
 		
 		int procMultipleBoards = 0; // por default solo el primer proceso muestra el tableboard
 		// si se quiere mostrar multiple tableboards entonces hacer que el target proc sea este mismo proceso 
@@ -123,7 +123,7 @@ public final class SolverFasterMPJE {
 		
 		if (destino_ret >= 0){
 			DESTINO_RET = destino_ret; //determina el valor hasta el cual debe retroceder cursor
-			flag_retroceder_externo= true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
+			flag_retroceder_externo = true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
 		
 		cur_destino = Consts.CURSOR_INVALIDO; //variable para indicar hasta que posicion debo retroceder
@@ -377,7 +377,7 @@ public final class SolverFasterMPJE {
 		// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 		if (cursor >= LIMITE_RESULTADO_PARCIAL) {
 			++LIMITE_RESULTADO_PARCIAL;
-			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, NAME_FILE_PARCIAL);
+			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, NAME_FILE_PARCIAL, SolverFasterMPJE.SAVE_STATUS_ON_MAX);
 		}
 		
 		// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
@@ -461,16 +461,10 @@ public final class SolverFasterMPJE {
 				++desde;
 				continue; // continúo con el siguiente neighbor
 			}
-	
-			++count_cycles;
-				
-			// pregunto si está activada la poda del color right explorado en borde left
-//			if (colorRightExploredStrategy != null) {
-//				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(mergedInfo),
-//						colorRightExploredStrategy)) {
-//					++desde;
-//					continue; // continúo con el siguiente neighbor
-//				}
+			
+//			if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, mergedInfo, colorRightExploredStrategy)) {
+//				++desde;
+//				continue; // continúo con el siguiente neighbor
 //			}
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
@@ -487,7 +481,9 @@ public final class SolverFasterMPJE {
 //				++desde;
 //				continue; // continúo con el siguiente neighbor
 //			}
-	
+			
+			++count_cycles;
+			
 			// seteo el contorno como usado
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
 			
@@ -534,7 +530,7 @@ public final class SolverFasterMPJE {
 
 		count_cycles = 0;
 		
-		if (SAVE_STATUS_ON_MAX_CYCLES) {
+		if (SAVE_STATUS_ON_MAX) {
 			CommonFuncs.guardarEstado(NAME_FILE_STATUS, ID, tablero, cursor, LIMITE_RESULTADO_PARCIAL, iter_desde,
 					neighborStrategy, colorRightExploredStrategy);
 			CommonFuncs.guardarResultadoParcial(ID, tablero, NAME_FILE_PARCIAL);

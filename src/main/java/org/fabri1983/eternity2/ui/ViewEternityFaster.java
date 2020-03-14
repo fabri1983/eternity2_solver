@@ -23,30 +23,29 @@
 package org.fabri1983.eternity2.ui;
 
 import org.fabri1983.eternity2.faster.ExplorationTask;
-import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class ViewEternityFaster extends ViewEternityAbstract {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ExplorationTask action;
+	private ExplorationTask[] actions;
 	
 	public ViewEternityFaster(long p_refresh_milis, int pLado, int cell_size_pixels, int p_num_colours,
-			ExplorationTask _action) {
+			ExplorationTask[] actions) {
 		super(p_refresh_milis, pLado, cell_size_pixels, p_num_colours);
-		action = _action;
+		this.actions = actions;
 	}
 
 	@Override
 	protected Canvas createCanvas(int rows, int cols) {
-		return new CanvasFaster(rows, cols, action);
+		return new CanvasFaster(rows, cols, actions[0]);
 	}
 
 	@Override
 	protected long getAccum() {
 		long accum = 0;
-		for (int i = 0, c = SolverFaster.count_cycles.length; i < c; ++i) {
-			accum += SolverFaster.count_cycles[i];
+		for (int i = 0, c = actions.length; i < c; ++i) {
+			accum += actions[i].count_cycles;
 		}
 		return accum;
 	}

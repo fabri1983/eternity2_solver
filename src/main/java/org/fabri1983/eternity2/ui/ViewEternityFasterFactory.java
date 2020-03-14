@@ -31,31 +31,32 @@ public class ViewEternityFasterFactory implements ViewEternityFactory {
 	private int num_colours;
 	private long refreshMillis;
 	private int totalProcs;
-	private ExplorationTask action;
+	private ExplorationTask[] actions;
 	
 	public ViewEternityFasterFactory(int lado, int cell_size_pixels, int num_colours, long refreshMillis,
-			int totalProcs, ExplorationTask action) {
+			int totalProcs, ExplorationTask[] actions) {
 		super();
 		this.lado = lado;
 		this.cell_size_pixels = cell_size_pixels;
 		this.num_colours = num_colours;
 		this.refreshMillis = refreshMillis;
 		this.totalProcs = totalProcs;
-		this.action = action;
+		this.actions = actions;
 	}
 
 	@Override
 	public ViewEternityAbstract create() {
-		return new ViewEternityFaster(refreshMillis, lado, cell_size_pixels, num_colours, action);
+		return new ViewEternityFaster(refreshMillis, lado, cell_size_pixels, num_colours, actions);
 	}
 	
 	@Override
 	public int getProc() {
-		return action.ID;
+		return 0;
 	}
 	
 	@Override
 	public int getTotalProcs() {
 		return totalProcs;
 	}
+	
 }

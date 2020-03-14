@@ -83,16 +83,16 @@ public class CommonFuncs {
 		
 		for (int k=0; k < Consts.MAX_PIEZAS; ++k)
 		{
-			//si estoy en borde top o bottom continuo con la siguiente posición
+			// si estoy en borde top o bottom (inclusive esquinas) continuo con la siguiente posición
 			if (k < Consts.LADO || k > (Consts.MAX_PIEZAS - Consts.LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
+			// si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % Consts.LADO)==0) || ((k % Consts.LADO)==0) )
 				continue;
 			
-			//desde aqui estoy en el interior del tablero
+			// desde aqui estoy en el interior del tablero
 			
-			//me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
+			// me aseguro que no esté en borde left + (Contorno.MAX_COLS - 1)
 			int fila_actual = k / Consts.LADO;
 			if (((k - Contorno.MAX_COLUMNS) / Consts.LADO) != fila_actual)
 				continue;
@@ -105,16 +105,16 @@ public class CommonFuncs {
 	{	
 		for (int k=0; k < Consts.MAX_PIEZAS; ++k)
 		{
-			//si estoy en borde top o bottom continuo con la siguiente posición
+			// si estoy en borde top o bottom (inclusive esquinas) continuo con la siguiente posición
 			if (k < Consts.LADO || k > (Consts.MAX_PIEZAS - Consts.LADO))
 				continue;
-			//si estoy en los bordes entonces continuo con la sig posición
+			// si estoy en los bordes entonces continuo con la sig posición
 			if ( (((k+1) % Consts.LADO)==0) || ((k % Consts.LADO)==0) )
 				continue;
 			
-			//desde aqui estoy en el interior del tablero
+			// desde aqui estoy en el interior del tablero
 			
-			//me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
+			// me aseguro que no esté dentro de (Contorno.MAX_COLS - 1) posiciones antes de border right
 			int fila_actual = k / Consts.LADO;
 			if ((k + (Contorno.MAX_COLUMNS-1)) < ((fila_actual * Consts.LADO) + (Consts.LADO - 1)))
 				matrix_zonas[k] |= Consts.F_READ_CONTORNO;
@@ -438,13 +438,15 @@ public class CommonFuncs {
 		}
 	}
 
-	public final static void maxLejanoParcialReached(int processId, short cursor, long time_inicial, int[] tablero, String parcialFileName) {
+	public final static void maxLejanoParcialReached(int processId, short cursor, long time_inicial, int[] tablero,
+			String parcialFileName, boolean saveStatus) {
 		
 		long time_final = System.nanoTime();
 		long timeMillis = TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS);
 		System.out.println(processId + " >>> " + timeMillis + " ms, cursor " + cursor);
 		
-		CommonFuncs.guardarResultadoParcial(processId, tablero, parcialFileName);
+		if (saveStatus)
+			CommonFuncs.guardarResultadoParcial(processId, tablero, parcialFileName);
 	}
 	
 	/**
@@ -460,43 +462,33 @@ public class CommonFuncs {
 		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
 	}
 
-	public final static boolean testPodaColorRightExplorado(byte flagZona, short cursor, byte right,
+	public final static boolean testPodaColorRightExplorado(byte flagZona, short cursor, int merged,
 			ColorRightExploredStrategy colorRightExploredStrategy) {
 		
 		int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION; // if divisor is power of 2 then we can use >>
 		
-		// For modulo try this for better performance only if divisor is power of 2 and dividend is positive: dividend & (divisor - 1)
-		// Old was: ((cursor+2) % LADO) == 0
-		final boolean flag_antes_borde_right = ((cursor + 2) & (Consts.LADO - 1)) == 0;
-		
-		// si estoy antes del borde right limpio el arreglo de colores right usados
-		if (flag_antes_borde_right)
-			colorRightExploredStrategy.compareAndSet(fila_actual + 1, 0);
-		
-		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_LEFT)
-		{
-			final int mask = 1 << right;
-			
-			// pregunto si el color right de la pieza de borde left actual ya está explorado
-			int color = colorRightExploredStrategy.get(fila_actual);
-			if ((color & mask) != 0) {
-				return true; // sigo con otra pieza de borde
+		switch (flagZona & Consts.MASK_F_TABLERO) {
+			case Consts.F_BORDE_LEFT: {
+				int mask = 1 << Neighbors.right(merged);			
+				int previousColor = colorRightExploredStrategy.getAndMask(fila_actual, mask);
+				// si el color right ya está explorado entonces continuo con otra pieza de borde, 
+				// sino ya lo marqué como explorado para futura poda
+				return (previousColor & mask) != 0;
 			}
-			// si no es así entonces lo seteo como explorado
-			else {
-				// asignación en una sola operación, ya que el bit en p.right vale 0 (según la condición anterior)
-				colorRightExploredStrategy.compareAndSet(fila_actual, color | mask);
-				// int value = SolverFaster.arr_color_rigth_explorado.get(fila_actual) | 1 << p.right;
-				// SolverFaster.arr_color_rigth_explorado.compareAndSet(fila_actual, value);
+			case Consts.F_ESQ_TOP_RIGHT:
+			case Consts.F_BORDE_RIGHT: {
+				// limpio los bits de colores right usados de la siguiente fila
+				colorRightExploredStrategy.set(fila_actual + 1, 0);
+				return false;
 			}
+			default: return false;
 		}
-		
-		return false;
 	}
 
 	public final static boolean testFairExperimentGif(byte flagZona, short cursor, int merged, int[] tablero, boolean[] usada)
 	{
-		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_INTERIOR || (flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_TOP) {
+		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_INTERIOR || (flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_TOP)
+		{
 			byte bottom = Neighbors.bottom(merged);
 			byte bottomAnterior = Neighbors.bottom(tablero[cursor - 1]);
 			if (bottom == bottomAnterior){

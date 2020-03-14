@@ -30,9 +30,6 @@ import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
 
 public final class MainFasterNative
 {
-	/**
-	 * @param args
-	 */
 	public static void main (String[] args)
 	{
 		BannerPrinterFaster.printBanner();
@@ -42,17 +39,11 @@ public final class MainFasterNative
 			
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.ON_MAX_REACHED_SAVE_STATUS)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
-					false, // AppPropertiesReader.UI_SHOW
-					false, // AppPropertiesReader.UI_PER_PROC
-					0,     // AppPropertiesReader.UI_CELL_SIZE
-					0,     // AppPropertiesReader.UI_REFRESH_MILLIS)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
-
-			properties = null;
 
 			solver.setupInicial(new ClassLoaderReaderForFile()); // the FileReaderForTilesFile() doesn't work in native mode
 			ResourceBundle.clearCache();

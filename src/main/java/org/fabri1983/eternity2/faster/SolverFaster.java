@@ -34,6 +34,7 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
+import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
@@ -44,7 +45,7 @@ public final class SolverFaster {
 	static CountDownLatch startSignal;
     
 	static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
-	static boolean SAVE_STATUS_ON_MAX_CYCLES;
+	static boolean SAVE_STATUS_ON_MAX;
 	static short DESTINO_RET; // Posición de cursor hasta la cual debe retroceder cursor
 	public static short LIMITE_DE_EXPLORACION; // me dice hasta qué posición debe explorar esta instancia
 	
@@ -55,44 +56,31 @@ public final class SolverFaster {
 	
 	public static short LIMITE_RESULTADO_PARCIAL = 211; // por defecto
 	
-	public static long count_cycles[]; // count cycles per task when usarTableroGrafico is true
-	
 	public static final Pieza[] piezas = new Pieza[Consts.MAX_PIEZAS];
 	
 	static final NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
-	static final ColorRightExploredStrategy colorRightExploredStrategy = null;//new ColorRightExploredAtomicStrategy();
+	static final ColorRightExploredStrategy colorRightExploredStrategy = null;//new ColorRightExploredLocalStrategy();
 	
 	static boolean flag_retroceder_externo;
-	
-	static boolean usarTableroGrafico;
-	static int cellPixelsLado, tableboardRefreshMillis;
 	
 	private SolverFaster() {
 	}
 	
 	/**
-	 * @param m_ciclos: número máximo de ciclos para imprimir stats.
-	 * @param save_status_on_max_cycles: guardar status cuando se alcanza MAX_CICLOS.
+	 * @param max_ciclos: número máximo de ciclos para imprimir stats.
+	 * @param save_status_on_max: guardar status cuando se alcanza MAX_CICLOS o LIMITE_RESULTADO_PARCIAL superado.
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
-	 * @param usar_tableboard: indica si se mostrará el tablero gráfico.
-	 * @param usar_multiples_boards: true para mostrar múltiples tableboards (1 per solver)
-	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
-	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param totalProcesses: parallelism level for the fork-join pool.
 	 */
-	public static SolverFaster build(long m_ciclos, boolean save_status_on_max_cycles, short lim_max_par,
-			short lim_exploracion, short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards,
-			int cell_pixels_lado, int p_refresh_millis, int totalProcesses) {
+	public static SolverFaster build(long max_ciclos, boolean save_status_on_max, short lim_max_par,
+			short lim_exploracion, short destino_ret, int totalProcesses) {
 		
-		MAX_CICLOS = m_ciclos;
-		SAVE_STATUS_ON_MAX_CYCLES = save_status_on_max_cycles;
+		MAX_CICLOS = max_ciclos;
+		SAVE_STATUS_ON_MAX = save_status_on_max;
 		NUM_PROCESSES = Math.min(Runtime.getRuntime().availableProcessors(), totalProcesses);
-		
-		// cycles counter per task
-		count_cycles = new long[NUM_PROCESSES];
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (Consts.MAX_PIEZAS-2)))
@@ -105,10 +93,6 @@ public final class SolverFaster {
 			flag_retroceder_externo = true; //flag para saber si se debe retroceder al cursor antes de empezar a explorar
 		}
 		
-		usarTableroGrafico = usar_tableboard;
-		cellPixelsLado = cell_pixels_lado;
-		tableboardRefreshMillis = p_refresh_millis;
-
 		createDirs();
 		
 		return new SolverFaster();

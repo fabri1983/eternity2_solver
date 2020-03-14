@@ -28,16 +28,16 @@ import org.fabri1983.eternity2.faster.SolverFaster;
 
 public class CanvasFaster extends CanvasAbstract {
 
-	private ExplorationTask action;
+	private ExplorationTask action0;
 
-	public CanvasFaster(int columns, int rows, ExplorationTask action) {
+	public CanvasFaster(int columns, int rows, ExplorationTask action0) {
 		super(columns, rows);
-		this.action = action;
+		this.action0 = action0;
 	}
 
 	@Override
 	protected Integer getPiezaInfoFromTablero(int cursorTablero) {
-		int mergedInfo = action.tablero[cursorTablero];
+		int mergedInfo = action0.tablero[cursorTablero];
     	if (mergedInfo == Consts.TABLERO_INFO_EMPTY_VALUE && cursorTablero == SolverFaster.LIMITE_RESULTADO_PARCIAL)
     		return BEACON_CURSOR_VALUE; // this forces to paint a special image
 		return mergedInfo;
