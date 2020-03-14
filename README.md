@@ -31,19 +31,22 @@ The placement of tiles follows a *row-scan schema* from *top-left* to *bottom-ri
 The project is under continuous development, mostly on spare time. 
 Every time I come up with an idea, improvement, or code refactor is for performance gain purpose. 
 I'm focused on 2 main strategies:  
-- *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board after it passes a series of filters. 
-Note that only pre calculated candidates are eligible for filtering. Here is where micro/macro optimizations and new clever filtering algorithms come into action.
-- *Time needed to reach a given board position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame in which CPU processing capabiliy is decoupled from game logic. Here is where only micro/macro optimizations come into action.
-  
+- *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board 
+after it passes a series of filters. Note that only pre calculated candidates are eligible for filtering. Here is 
+where micro/macro optimizations and new clever filtering algorithms come into action.
+- *Time needed to reach a given board position (eg 211) with a fixed configuration (eg 8 threads)*. Given the fact 
+that board positions, tiles, and filtering structures are visited always in the same order, this gives us a frame 
+in which CPU processing capabiliy is decoupled from game logic. Here is where micro/macro optimizations come into action.
+
 
 Some stats
 ----------
 - **New stats** include changes for use far less memory than before:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
-    - Placing approx **98.32 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **97.37 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **103.90 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx  **97.37 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
-    - Placing approx **106.14 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **107.26 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx  **94.54 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
     - Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
@@ -146,13 +149,13 @@ E.g.:
 
 The app loads by default the next properties (may vary between `threads.properties` and `mpje.properties`). You can pass only those you want to change:
 ```sh
-	max.ciclos.print.stats=2147483647
-	max.ciclos.save.status=true
+	max.cycles.print.stats=9223372036854775807
+	on.max.reached.save.status=true
 	min.pos.save.partial=211
 	exploration.limit=-1
 	target.rollback.pos=-1
 	ui.show=true            <-- this has no effect on native builds
-	ui.per.proc=false       <-- this has no effect on native builds
+	ui.per.proc=false       <-- this has no effect on native builds, and is only valid for MPJE builds
 	ui.cell.size=28         <-- this has no effect on native builds
 	ui.refresh.millis=100   <-- this has no effect on native builds
 	num.tasks=8             <-- this has no effect on MPJE builds
@@ -160,7 +163,8 @@ The app loads by default the next properties (may vary between `threads.properti
 E.g.:
 ```sh
 	./run.sh -Dmin.pos.save.partial=215 -Dnum.tasks=4
-	./run_mpje_multicore.sh -Dmin.pos.save.partial=215     <-- it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
+	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
+	   it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
 ```
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  

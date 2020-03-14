@@ -31,7 +31,7 @@ import org.fabri1983.eternity2.ui.ViewEternityFasterFactory;
 public final class SolverFasterWithUI {
 	
 	private SolverFaster solver;
-
+	
 	private SolverFasterWithUI() {	
 	}
 	
@@ -41,15 +41,16 @@ public final class SolverFasterWithUI {
 		return newObj;
 	}
 	
-	public final void setupInicial(ReaderForFile readerForTilesFile) {
+	public final void setupInicial(ReaderForFile readerForTilesFile, int cellPixelsLado, int boardRefreshMillis) {
 		
 		solver.setupInicial(readerForTilesFile);
 		
-		// solo dibujar el board de la primer action: SolverFaster.actions[0]
-		ViewEternityFactory viewFactory = new ViewEternityFasterFactory(Consts.LADO, SolverFaster.cellPixelsLado, 
-				Consts.MAX_COLORES, (long)SolverFaster.tableboardRefreshMillis, 1, SolverFaster.actions[0]);
-		EternityII tableboardE2 = new EternityII(viewFactory); 
-		tableboardE2.startPainting();
+		if (!SolverFaster.flag_retroceder_externo) {
+			ViewEternityFactory viewFactory = new ViewEternityFasterFactory(Consts.LADO, cellPixelsLado, 
+					Consts.MAX_COLORES, (long)boardRefreshMillis, 1, SolverFaster.actions);
+			EternityII tableboardE2 = new EternityII(viewFactory); 
+			tableboardE2.startPainting();
+		}
 	}
 	
 	public final void atacar() {

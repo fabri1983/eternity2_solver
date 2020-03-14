@@ -48,11 +48,13 @@ public class ExplorationTask implements Runnable {
 
 	private boolean status_cargado; // inidica si se ha cargado estado inicial
 	
-	protected long count_cycles;
+	public long count_cycles;
 	protected long time_inicial; // sirve para calcular el tiempo al hito de posición lejana
 	protected long time_max_ciclos; //usado para calcular el tiempo entre diferentes status saved
 	
-	// identificador 0-based para identificar la action y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
+	/**
+	 * 0-based para identificar la task y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
+	 */
 	public final int ID;
 	
 	protected CountDownLatch startSignal;
@@ -85,7 +87,6 @@ public class ExplorationTask implements Runnable {
 	public void resetForBenchmark(int _num_processes, CountDownLatch startSignal) {
 		
 		count_cycles = 0;
-		SolverFaster.count_cycles[ID] = 0;
 		
 		cursor = 0;
 		pos_multi_process_offset = 0;
@@ -192,7 +193,7 @@ public class ExplorationTask implements Runnable {
 		// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 		if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
 			++SolverFaster.LIMITE_RESULTADO_PARCIAL;
-			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, parcialFileName);
+			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, parcialFileName, SolverFaster.SAVE_STATUS_ON_MAX);
 		}
 		
 		// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
@@ -276,18 +277,10 @@ public class ExplorationTask implements Runnable {
 				++desde;
 				continue; // continúo con el siguiente neighbor
 			}
-	
-			++count_cycles;
-			if (SolverFaster.usarTableroGrafico)
-				++SolverFaster.count_cycles[ID]; // incremento el contador de combinaciones de piezas
-				
-			// pregunto si está activada la poda del color right explorado en borde left
-//			if (SolverFaster.colorRightExploredStrategy != null) {
-//				if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(mergedInfo),
-//						SolverFaster.colorRightExploredStrategy)) {
-//					++desde;
-//					continue; // continúo con el siguiente neighbor
-//				}
+			
+//			if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, mergedInfo, SolverFaster.colorRightExploredStrategy)) {
+//				++desde;
+//				continue; // continúo con el siguiente neighbor
 //			}
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
@@ -304,7 +297,9 @@ public class ExplorationTask implements Runnable {
 //				++desde;
 //				continue; // continúo con el siguiente neighbor
 //			}
-	
+			
+			++count_cycles;
+			
 			// seteo el contorno como usado
 			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
 			
@@ -348,10 +343,8 @@ public class ExplorationTask implements Runnable {
 		System.out.println(ID + " >>> cursor " + cursor + ". Tiempo: " + durationMillis + " ms, " + piecesPerSec + " pieces/sec");
 		
 		count_cycles = 0;
-		if (SolverFaster.usarTableroGrafico)
-			SolverFaster.count_cycles[ID] = 0;
 		
-		if (SolverFaster.SAVE_STATUS_ON_MAX_CYCLES) {
+		if (SolverFaster.SAVE_STATUS_ON_MAX) {
 			CommonFuncs.guardarEstado(statusFileName, ID, tablero, cursor, SolverFaster.LIMITE_RESULTADO_PARCIAL,
 					iter_desde, SolverFaster.neighborStrategy, SolverFaster.colorRightExploredStrategy);
 			CommonFuncs.guardarResultadoParcial(ID, tablero, parcialFileName);

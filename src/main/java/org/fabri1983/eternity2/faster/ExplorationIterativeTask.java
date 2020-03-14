@@ -96,7 +96,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
 					if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
 						++SolverFaster.LIMITE_RESULTADO_PARCIAL;
-						CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, parcialFileName);
+						CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, parcialFileName, SolverFaster.SAVE_STATUS_ON_MAX);
 					}
 					
 					// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
@@ -166,18 +166,10 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						++desde;
 						continue; // continúo con el siguiente neighbor
 					}
-			
-					++count_cycles;
-					if (SolverFaster.usarTableroGrafico)
-						++SolverFaster.count_cycles[ID]; // incremento el contador de combinaciones de piezas
-						
-					// pregunto si está activada la poda del color right explorado en borde left
-//					if (SolverFaster.colorRightExploredStrategy != null) {
-//						if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, Neighbors.right(mergedInfo),
-//								SolverFaster.colorRightExploredStrategy)) {
-//							++desde;
-//							continue; // continúo con el siguiente neighbor
-//						}
+					
+//					if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, mergedInfo, SolverFaster.colorRightExploredStrategy)) {
+//						++desde;
+//						continue; // continúo con el siguiente neighbor
 //					}
 					
 					// FairExperiment.gif: color bottom repetido en sentido horizontal
@@ -194,7 +186,9 @@ public class ExplorationIterativeTask extends ExplorationTask {
 //						++desde;
 //						continue; // continúo con el siguiente neighbor
 //					}
-			
+					
+					++count_cycles;
+					
 					// seteo el contorno como usado
 					CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
 					

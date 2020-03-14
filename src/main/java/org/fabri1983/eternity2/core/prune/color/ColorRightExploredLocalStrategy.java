@@ -27,17 +27,12 @@ import org.fabri1983.eternity2.core.Consts;
 public class ColorRightExploredLocalStrategy implements ColorRightExploredStrategy {
 
 	/**
-	 * Cada posición es un entero donde se usan 23 bits para los colores donde un bit valdrá 0 si ese 
-	 * color (right en borde left) no ha sido exlorado para la fila actual, sino valdrá 1.
+	 * Cada celda del arreglo representa una fila del tablero, y cada fila es un
+	 * entero donde se usan los bits 16..0 (17 colores internos).<br/>
+	 * Un bit valdrá 0 si ese color (right en borde left) no ha sido exlorado para
+	 * la fila actual, sino valdrá 1.
 	 */
 	public final static int[] arr_color_rigth_explorado = new int[Consts.LADO];
-	
-	private boolean usar_poda_color_explorado;
-	
-	@Override
-	public boolean usarPodaColorRightExpl() {
-		return usar_poda_color_explorado;
-	}
 	
 	@Override
 	public int get(int i) {
@@ -50,8 +45,11 @@ public class ColorRightExploredLocalStrategy implements ColorRightExploredStrate
 	}
 
 	@Override
-	public void compareAndSet(int i, int val) {
-		arr_color_rigth_explorado[i] = val;
+	public int getAndMask(int i, int mask) {
+		// TODO investigate if this can be made in 1 instruction. Maybe using XOR
+		int prev = arr_color_rigth_explorado[i];
+		arr_color_rigth_explorado[i] |= mask;
+		return prev;
 	}
 	
 }

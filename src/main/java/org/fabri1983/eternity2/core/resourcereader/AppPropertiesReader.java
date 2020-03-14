@@ -27,8 +27,8 @@ import java.util.Properties;
 
 public class AppPropertiesReader {
 
-	public static final String MAX_CICLOS_PRINT_STATS = 				"max.ciclos.print.stats";
-	public static final String MAX_CICLOS_SAVE_STATUS = 				"max.ciclos.save.status";
+	public static final String MAX_CICLOS_PRINT_STATS = 				"max.cycles.print.stats";
+	public static final String ON_MAX_REACHED_SAVE_STATUS = 			"on.max.reached.save.status";
 	public static final String MIN_POS_SAVE_PARTIAL = 					"min.pos.save.partial";
 	public static final String EXPLORATION_LIMIT = 						"exploration.limit";
 	public static final String TARGET_ROLLBACK_POS = 					"target.rollback.pos";

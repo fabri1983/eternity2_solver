@@ -30,9 +30,6 @@ import org.fabri1983.eternity2.core.resourcereader.ClassLoaderReaderForFile;
 
 public final class MainFaster
 {
-	/**
-	 * @param args
-	 */
 	public static void main (String[] args)
 	{
 		BannerPrinterFaster.printBanner();
@@ -42,22 +39,19 @@ public final class MainFaster
 			
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.MAX_CICLOS_SAVE_STATUS)),
+					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.ON_MAX_REACHED_SAVE_STATUS)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW)),
-					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
 
-			properties = null;
-
 			// vamos a usar tablero gráfico? 
-			if (SolverFaster.usarTableroGrafico && !SolverFaster.flag_retroceder_externo) {
+			boolean showUI = Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW));
+			if (showUI) {
 				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
-				solverWithUI.setupInicial(new ClassLoaderReaderForFile());
+				int cellPixelsLado = Integer.parseInt(getProperty(properties, AppPropertiesReader.UI_CELL_SIZE));
+				int boardRefreshMillis = Integer.parseInt(getProperty(properties, AppPropertiesReader.UI_REFRESH_MILLIS));
+				solverWithUI.setupInicial(new ClassLoaderReaderForFile(), cellPixelsLado, boardRefreshMillis);
 				ResourceBundle.clearCache();
 				solverWithUI.atacar();
 			} else {
