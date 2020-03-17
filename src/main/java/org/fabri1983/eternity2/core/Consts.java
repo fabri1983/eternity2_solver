@@ -23,15 +23,6 @@
 package org.fabri1983.eternity2.core;
 
 public class Consts {
-
-	/**
-	 * This creates number 0x000000F0 (for LADO = 16) which will be used to mask cursor position to check if is in top or lower row. 
-	 * The idea here is to create a number with log2(LADO) 0s as lower bits and then as much 1s to complete a size of byte (8 bits).
-	 */
-	public final static int MASK_FOR_BORDER_TOP_AND_BOTTOM = 0x000000F0;
-	
-	public final static int POSICION_MULTI_PROCESSES = 99; // posición del tablero en la que empiezo a dividir ramas de epxloracion
-	public final static boolean USE_FAIR_EXPERIMENT_GIF = false;
 	
 	public final static short LADO = 16;
 	public final static short LADO_FOR_SHIFT_DIVISION = 4;
@@ -43,6 +34,19 @@ public class Consts {
 	public final static short BELOW_PIEZA_CENTRAL_POS_TABLERO = PIEZA_CENTRAL_POS_TABLERO + LADO;
 	public final static short CURSOR_INVALIDO = -1;
 	public final static int TABLERO_INFO_EMPTY_VALUE = 0;
+	
+	/**
+	 * This creates number 0x000000F0 (for LADO = 16) which will be used to mask cursor position to check if is in top or lower row. 
+	 * The idea here is to create a number with log2(LADO) 0s as lower bits and then as much 1s to complete a size of byte (8 bits).
+	 */
+	public final static int MASK_FOR_BORDER_TOP_AND_BOTTOM = 0x000000F0;
+	
+	public final static boolean USE_FAIR_EXPERIMENT_GIF = false;
+
+	/**
+	 * At which board position do we start to split calculations. 
+	 */
+	public final static int POSICION_MULTI_PROCESSES = 99;
 	
 	public final static byte F_INTERIOR =           0b000000;
 	public final static byte F_BORDE_RIGHT =        0b000001;

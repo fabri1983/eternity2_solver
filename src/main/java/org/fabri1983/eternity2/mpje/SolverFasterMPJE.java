@@ -336,12 +336,13 @@ public final class SolverFasterMPJE {
 				if (cursor < 0)
 					break; //obliga a salir del while
 				
+				int mergedInfo = tablero[cursor];
+				
 				// seteo el contorno como libre
-				contorno.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], tablero, tablero[cursor]);
+				contorno.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], tablero, mergedInfo);
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
-					int mergedInfo = tablero[cursor];
 					int numero = Neighbors.numero(mergedInfo);
 					usada[numero] = false;
 					tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
@@ -506,17 +507,12 @@ public final class SolverFasterMPJE {
 		iter_desde[cursor] = 0;
 		tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 		
-		if (cursor >= Consts.POSICION_MULTI_PROCESSES && cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-			restoreMultiProcessesExploration();
-		}
-	}
-	
-	private static final void restoreMultiProcessesExploration() {
-		num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
-		// restore multi processes variables only when pos_multi_process_offset > 0, meaning that 
-		// both pos_multi_process_offset and num_processes have been modified
-		if (pos_multi_process_offset > 0) {
-			--pos_multi_process_offset;
+		// restore multi processes variables
+		if ((cursor >= Consts.POSICION_MULTI_PROCESSES) & (cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset)) {
+			num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
+			if (pos_multi_process_offset > 0) {
+				--pos_multi_process_offset;
+			}
 		}
 	}
 	
