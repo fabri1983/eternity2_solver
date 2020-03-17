@@ -156,8 +156,12 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						
 						iter_desde[cursor] = 0;
 						tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE; // tablero libre
-						if (cursor >= Consts.POSICION_MULTI_PROCESSES && cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-							restoreMultiProcessesExploration();
+						// restore multi processes variables
+						if ((cursor >= Consts.POSICION_MULTI_PROCESSES) & (cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset)) {
+							num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
+							if (pos_multi_process_offset > 0) {
+								--pos_multi_process_offset;
+							}
 						}
 						break main_loop; // exit neighbors while-loop to back track a position
 					}
