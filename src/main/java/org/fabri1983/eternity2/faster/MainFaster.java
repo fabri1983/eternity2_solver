@@ -37,15 +37,16 @@ public final class MainFaster
 		try{
 			Properties properties = AppPropertiesReader.readProperties();
 			
+			int numTasks = getSanitizeNumTasks(properties);
+			
 			SolverFaster solver = SolverFaster.build(
 					Long.parseLong(getProperty(properties,       AppPropertiesReader.MAX_CICLOS_PRINT_STATS)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.ON_MAX_REACHED_SAVE_STATUS)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
+					numTasks);
 
-			// vamos a usar tablero gráfico? 
 			boolean showUI = Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW));
 			if (showUI) {
 				SolverFasterWithUI solverWithUI = SolverFasterWithUI.from(solver);
@@ -70,6 +71,13 @@ public final class MainFaster
 
 	private static String getProperty(Properties properties, String key) {
 		return AppPropertiesReader.getProperty(properties, key);
+	}
+	
+	private static int getSanitizeNumTasks(Properties properties) {
+		String numTasksValue = getProperty(properties, AppPropertiesReader.NUM_TASKS);
+		if (numTasksValue == null || "".equals(numTasksValue))
+			return Runtime.getRuntime().availableProcessors();
+		return Math.min(Runtime.getRuntime().availableProcessors(), Integer.parseInt(numTasksValue));
 	}
 	
 }

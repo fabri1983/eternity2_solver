@@ -1,5 +1,6 @@
-package org.fabri1983.eternity2.core;
+package org.fabri1983.eternity2.core.prune.contorno;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

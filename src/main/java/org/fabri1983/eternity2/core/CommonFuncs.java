@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
+import org.fabri1983.eternity2.core.prune.contorno.Contorno;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class CommonFuncs {
@@ -229,73 +230,6 @@ public class CommonFuncs {
 	}
 
 	/**
-	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de Neighbors 
-	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
-	 *  
-	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
-	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
-	 */
-	public final static Neighbors neighbors (byte flagZona, short cursor, int[] tablero, NeighborStrategy neighborStrategy)
-	{
-		// check for vicinity of fixed tiles positions
-		switch (cursor) {
-			// estoy en la posicion inmediatamente arriba de la posicion central
-			case Consts.ABOVE_PIEZA_CENTRAL_POS_TABLERO:
-				return neighborStrategy.interior_above_central(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-			// estoy en la posicion inmediatamente a la izq de la posicion central
-			case Consts.BEFORE_PIEZA_CENTRAL_POS_TABLERO:
-				return neighborStrategy.interior_left_central(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-			case Consts.BELOW_PIEZA_CENTRAL_POS_TABLERO:
-				return neighborStrategy.interior(
-						Consts.PIEZA_CENTRAL_COLOR_BOTTOM, Neighbors.right(tablero[cursor - 1]));
-		}
-		
-		switch (flagZona & Consts.MASK_F_TABLERO) {
-			// interior de tablero
-			case Consts.F_INTERIOR: 
-				return neighborStrategy.interior(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-	
-			// borde right
-			case Consts.F_BORDE_RIGHT:
-				return neighborStrategy.border_right(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-			// borde left
-			case Consts.F_BORDE_LEFT:
-				return neighborStrategy.border_left(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]));
-			// borde top
-			case Consts.F_BORDE_TOP:
-				return neighborStrategy.border_top(
-						Neighbors.right(tablero[cursor - 1]));
-			// borde bottom
-			case Consts.F_BORDE_BOTTOM:
-				return neighborStrategy.border_bottom(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-		
-			// esquina top-left
-			case Consts.F_ESQ_TOP_LEFT:
-				return neighborStrategy.corner_top_left();
-			// esquina top-right
-			case Consts.F_ESQ_TOP_RIGHT:
-				return neighborStrategy.corner_top_right(
-						Neighbors.right(tablero[cursor - 1]));
-			// esquina bottom-left
-			case Consts.F_ESQ_BOTTOM_LEFT: 
-				return neighborStrategy.corner_bottom_left(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]));
-			// esquina bottom-right
-			case Consts.F_ESQ_BOTTOM_RIGHT:
-				return neighborStrategy.corner_bottom_right(
-						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
-		}
-		
-		return null;
-	}
-
-	/**
 	 * En el archivo NAME_FILE_SOLUCION se guardan los colores de cada pieza.
 	 * En el archivo NAME_FILE_DISPOSICION se guarda el numero y rotacion de cada pieza.
 	 */
@@ -375,21 +309,12 @@ public class CommonFuncs {
 					writerBuffer.append(iter_desde[n]).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
 			}
 			
-			//indico si se utiliza poda de color explorado o no
-			if (colorRightExploredStrategy != null)
-				writerBuffer.append(Boolean.TRUE).append("\n");
-			else
-				writerBuffer.append(Boolean.FALSE).append("\n");
-			
 			//guardo el contenido de arr_color_rigth_explorado
-			if (colorRightExploredStrategy != null)
-			{
-				for (short n=0; n < Consts.LADO; ++n) {
-					if (n==(Consts.LADO-1))
-						writerBuffer.append(colorRightExploredStrategy.get(n)).append("\n");
-					else
-						writerBuffer.append(colorRightExploredStrategy.get(n)).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
-				}
+			for (short n=0; n < Consts.LADO; ++n) {
+				if (n==(Consts.LADO-1))
+					writerBuffer.append(colorRightExploredStrategy.get(n)).append("\n");
+				else
+					writerBuffer.append(colorRightExploredStrategy.get(n)).append(Consts.SECCIONES_SEPARATOR_EN_FILE);
 			}
 			
 			String sContent = writerBuffer.toString();
@@ -445,8 +370,9 @@ public class CommonFuncs {
 		long timeMillis = TimeUnit.MILLISECONDS.convert(time_final - time_inicial, TimeUnit.NANOSECONDS);
 		System.out.println(processId + " >>> " + timeMillis + " ms, cursor " + cursor);
 		
-		if (saveStatus)
+		if (saveStatus) {
 			CommonFuncs.guardarResultadoParcial(processId, tablero, parcialFileName);
+		}
 	}
 	
 	/**
@@ -462,29 +388,6 @@ public class CommonFuncs {
 		System.out.println(processId + " >>> ha llegado a su limite de exploracion. Exploracion finalizada forzosamente.");
 	}
 
-	public final static boolean testPodaColorRightExplorado(byte flagZona, short cursor, int merged,
-			ColorRightExploredStrategy colorRightExploredStrategy) {
-		
-		int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION; // if divisor is power of 2 then we can use >>
-		
-		switch (flagZona & Consts.MASK_F_TABLERO) {
-			case Consts.F_BORDE_LEFT: {
-				int mask = 1 << Neighbors.right(merged);			
-				int previousColor = colorRightExploredStrategy.getAndMask(fila_actual, mask);
-				// si el color right ya está explorado entonces continuo con otra pieza de borde, 
-				// sino ya lo marqué como explorado para futura poda
-				return (previousColor & mask) != 0;
-			}
-			case Consts.F_ESQ_TOP_RIGHT:
-			case Consts.F_BORDE_RIGHT: {
-				// limpio los bits de colores right usados de la siguiente fila
-				colorRightExploredStrategy.set(fila_actual + 1, 0);
-				return false;
-			}
-			default: return false;
-		}
-	}
-
 	public final static boolean testFairExperimentGif(byte flagZona, short cursor, int merged, int[] tablero, boolean[] usada)
 	{
 		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_INTERIOR || (flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_TOP)
@@ -498,30 +401,6 @@ public class CommonFuncs {
 			}
 		}
 		
-		return false;
-	}
-
-	public final static void toggleContorno(boolean value, short cursor, byte flagZona, Contorno contorno, int[] tablero, int mergedActual)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if ((flagZona & Consts.MASK_F_PROC_CONTORNO) == Consts.F_PROC_CONTORNO) {
-			int mergedAnterior = tablero[cursor - 1];
-			contorno.used
-					[Neighbors.left(mergedAnterior)]
-					[Neighbors.top(mergedAnterior)]
-					[Neighbors.top(mergedActual)] = value;
-		}
-	}
-
-	public final static boolean esContornoSuperiorUsado(short cursor, byte flagZona, Contorno contorno, int[] tablero)
-	{
-		// me fijo si estoy en la posición correcta para preguntar por contorno usado
-		if ((flagZona & Consts.MASK_F_READ_CONTORNO) == Consts.F_READ_CONTORNO) {
-			return contorno.used
-					[Neighbors.right(tablero[cursor - 1])]
-					[Neighbors.bottom(tablero[cursor - Consts.LADO])]
-					[Neighbors.bottom(tablero[cursor - Consts.LADO + 1])];
-		}
 		return false;
 	}
 	

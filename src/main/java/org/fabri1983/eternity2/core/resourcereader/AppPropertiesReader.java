@@ -27,16 +27,16 @@ import java.util.Properties;
 
 public class AppPropertiesReader {
 
-	public static final String MAX_CICLOS_PRINT_STATS = 				"max.cycles.print.stats";
-	public static final String ON_MAX_REACHED_SAVE_STATUS = 			"on.max.reached.save.status";
-	public static final String MIN_POS_SAVE_PARTIAL = 					"min.pos.save.partial";
-	public static final String EXPLORATION_LIMIT = 						"exploration.limit";
-	public static final String TARGET_ROLLBACK_POS = 					"target.rollback.pos";
-	public static final String UI_SHOW = 								"ui.show";
-	public static final String UI_PER_PROC = 							"ui.per.proc";
-	public static final String UI_CELL_SIZE = 							"ui.cell.size";
-	public static final String UI_REFRESH_MILLIS = 						"ui.refresh.millis";
-	public static final String NUM_TASKS = 								"num.tasks";
+	public static final String MAX_CICLOS_PRINT_STATS = 		"max.cycles.print.stats";
+	public static final String ON_MAX_REACHED_SAVE_STATUS = 	"on.max.reached.save.status";
+	public static final String MIN_POS_SAVE_PARTIAL = 			"min.pos.save.partial";
+	public static final String EXPLORATION_LIMIT = 				"exploration.limit";
+	public static final String TARGET_ROLLBACK_POS = 			"target.rollback.pos";
+	public static final String UI_SHOW = 						"ui.show";
+	public static final String UI_PER_PROC = 					"ui.per.proc";
+	public static final String UI_CELL_SIZE = 					"ui.cell.size";
+	public static final String UI_REFRESH_MILLIS = 				"ui.refresh.millis";
+	public static final String NUM_TASKS = 						"num.tasks";
 	
 	public static final Properties readProperties() throws IOException {
 		Properties properties = new Properties();

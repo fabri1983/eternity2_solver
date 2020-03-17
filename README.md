@@ -43,14 +43,14 @@ Some stats
 ----------
 - **New stats** include changes for use far less memory than before:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
-    - Placing approx **103.90 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx  **97.37 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **90.75 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
-    - Placing approx **107.26 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx  **94.54 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Placing approx **91.70 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
-    - Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
-    - Placing approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
+    - *(outdated)* Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
+    - *(outdated)* Placing approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -141,15 +141,16 @@ Execution
 ---------
 First generate the artifact (previous section).  
 Go under tools folder and use one of the runXXX commands.  
-E.g.:
+Eg:
 ```sh
 	cd tools
 	./run.sh
 ```
 
-The app loads by default the next properties (may vary between `threads.properties` and `mpje.properties`). You can pass only those you want to change:
+The app loads by default the next properties (may vary between `threads.properties` and `mpje.properties`). 
+You can pass those you want to change:
 ```sh
-	max.cycles.print.stats=9223372036854775807
+	max.cycles.print.stats=21474836470    <-- Java's Integer.MAX_VALUE * 10
 	on.max.reached.save.status=true
 	min.pos.save.partial=211
 	exploration.limit=-1
@@ -158,9 +159,9 @@ The app loads by default the next properties (may vary between `threads.properti
 	ui.per.proc=false       <-- this has no effect on native builds, and is only valid for MPJE builds
 	ui.cell.size=28         <-- this has no effect on native builds
 	ui.refresh.millis=100   <-- this has no effect on native builds
-	num.tasks=8             <-- this has no effect on MPJE builds
+	num.tasks=Runtime availableProcessors()     <-- this option has no effect on MPJE builds
 ```
-E.g.:
+Eg:
 ```sh
 	./run.sh -Dmin.pos.save.partial=215 -Dnum.tasks=4
 	./run_mpje_multicore.sh -Dmin.pos.save.partial=215

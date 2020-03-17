@@ -47,7 +47,7 @@ public final class SolverFasterWithUI {
 		
 		if (!SolverFaster.flag_retroceder_externo) {
 			ViewEternityFactory viewFactory = new ViewEternityFasterFactory(Consts.LADO, cellPixelsLado, 
-					Consts.MAX_COLORES, (long)boardRefreshMillis, 1, SolverFaster.actions);
+					Consts.MAX_COLORES, (long)boardRefreshMillis, 1, SolverFaster.tasks);
 			EternityII tableboardE2 = new EternityII(viewFactory); 
 			tableboardE2.startPainting();
 		}
