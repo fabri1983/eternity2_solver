@@ -30,12 +30,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.fabri1983.eternity2.core.CommonFuncs;
 import org.fabri1983.eternity2.core.Consts;
-import org.fabri1983.eternity2.core.Contorno;
 import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
 import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
+import org.fabri1983.eternity2.core.prune.contorno.Contorno;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 import org.fabri1983.eternity2.ui.EternityII;
 import org.fabri1983.eternity2.ui.ViewEternityFactory;
@@ -82,7 +82,7 @@ public final class SolverFasterMPJE {
 	
 	private final static NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
-	private final static ColorRightExploredStrategy colorRightExploredStrategy = null;//new ColorRightExploredLocalStrategy();
+	private final static ColorRightExploredStrategy colorRightExploredStrategy = new ColorRightExploredStrategy();
 	
 	private static boolean flag_retroceder_externo;
 	private static boolean status_cargado; // inidica si se ha cargado estado inicial
@@ -201,26 +201,19 @@ public final class SolverFasterMPJE {
 					iter_desde[k] = index;
 				}
 				
-				// la siguiente línea indica si se estaba usando poda de color explorado
-				linea= reader.readLine();
 				// recorro los valores de matrix_color_explorado[]
-				if (colorRightExploredStrategy != null){
-					if (Boolean.parseBoolean(linea)){
-						// leo la info de matriz_color_explorado
-						linea= reader.readLine();
-						sep=0; sep_ant=0;
-						for (short k=0; k < Consts.LADO; ++k){
-							if (k==(Consts.LADO-1))
-								sep= linea.length();
-							else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							int val= Integer.parseInt(linea.substring(sep_ant,sep));
-							sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-							colorRightExploredStrategy.set(k, val);
-						}
-					}
+				linea= reader.readLine();
+				sep=0; sep_ant=0;
+				for (short k=0; k < Consts.LADO; ++k){
+					if (k==(Consts.LADO-1))
+						sep= linea.length();
+					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
+					int val= Integer.parseInt(linea.substring(sep_ant,sep));
+					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
+					colorRightExploredStrategy.set(k, val);
 				}
 				
-				status_cargado=true;
+				status_cargado = true;
 				sincronizar = false;
 				
 				System.out.println(ID + " >>> estado de exploracion (" + n_file + ") cargado.");
@@ -305,7 +298,7 @@ public final class SolverFasterMPJE {
 		
 		CommonFuncs.ponerPiezasFijasEnTablero(ID, piezas, tablero, usada);
 		
-		Contorno.inicializarContornos(contorno, tablero, Consts.MAX_PIEZAS, Consts.LADO);
+		contorno.inicializarContornos(tablero, Consts.MAX_PIEZAS, Consts.LADO);
 		
 		if (tableboardE2 != null) 
 			tableboardE2.startPainting();
@@ -344,7 +337,7 @@ public final class SolverFasterMPJE {
 					break; //obliga a salir del while
 				
 				// seteo el contorno como libre
-				CommonFuncs.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, tablero[cursor]);
+				contorno.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], tablero, tablero[cursor]);
 
 				// debo setear la pieza en cursor como no usada y sacarla del tablero
 				if (cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
@@ -375,13 +368,13 @@ public final class SolverFasterMPJE {
 		}
 		
 		// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
-		if (cursor >= LIMITE_RESULTADO_PARCIAL) {
+		if (cursor == LIMITE_RESULTADO_PARCIAL) {
 			++LIMITE_RESULTADO_PARCIAL;
 			CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, NAME_FILE_PARCIAL, SolverFasterMPJE.SAVE_STATUS_ON_MAX);
 		}
 		
 		// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
-		if (count_cycles >= MAX_CICLOS) {
+		if (count_cycles == MAX_CICLOS) {
 			maxCyclesReached();
 		}
 		
@@ -390,25 +383,25 @@ public final class SolverFasterMPJE {
 		// si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
 		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 			// seteo el contorno como usado
-			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, tablero[cursor]);
+			contorno.toggleContorno(true, cursor, flagZona, tablero, tablero[cursor]);
 			// at this point we have set all things up related to a fixed tile, so continue normally with next board position
 			++cursor;
 			explorar(0);
 			--cursor;
 			// seteo el contorno como libre
-			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, tablero[cursor]);
+			contorno.toggleContorno(false, cursor, flagZona, tablero, tablero[cursor]);
 			return;
 		}
 
 		// can be null when there is no neighbors and when cursor == Consts.PIEZA_CENTRAL_POS_TABLERO
-		Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, neighborStrategy);
+		Neighbors nbs = Neighbors.neighbors(flagZona, cursor, tablero, neighborStrategy);
 		
 		// if no neighbors then backtrack
 		if (nbs == null)
 			return;
 		
 		// pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-		if (CommonFuncs.esContornoSuperiorUsado(cursor, flagZona, contorno, tablero)) {
+		if (contorno.esContornoSuperiorUsado(cursor, flagZona, tablero)) {
 			return;
 		}
 		
@@ -452,6 +445,9 @@ public final class SolverFasterMPJE {
 			// System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
 		}
 		
+		// clean bits of this row
+		colorRightExploredStrategy.cleanRow(flagZona, cursor, tablero);
+		
 		while (desde < length_nbs) {
 			
 			int mergedInfo = nbs.mergedInfo[desde];
@@ -462,10 +458,10 @@ public final class SolverFasterMPJE {
 				continue; // continúo con el siguiente neighbor
 			}
 			
-//			if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, mergedInfo, colorRightExploredStrategy)) {
-//				++desde;
-//				continue; // continúo con el siguiente neighbor
-//			}
+			if (colorRightExploredStrategy.run(flagZona, cursor, mergedInfo, tablero)) {
+				++desde;
+				continue; // continúo con el siguiente neighbor
+			}
 			
 			// FairExperiment.gif: color bottom repetido en sentido horizontal
 //			if (Consts.USE_FAIR_EXPERIMENT_GIF) {
@@ -482,14 +478,17 @@ public final class SolverFasterMPJE {
 //				continue; // continúo con el siguiente neighbor
 //			}
 			
-			++count_cycles;
+			// clean bits next row
+			colorRightExploredStrategy.cleanNextRow(cursor);
 			
 			// seteo el contorno como usado
-			CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
+			contorno.toggleContorno(true, cursor, flagZona, tablero, mergedInfo);
 			
 			tablero[cursor] = mergedInfo;
 			usada[numero] = true;
 			iter_desde[cursor] = desde + 1;
+			
+			++count_cycles;
 			
 			++cursor;
 			explorar(0);
@@ -499,7 +498,7 @@ public final class SolverFasterMPJE {
 //			tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 			
 			// seteo el contorno como libre
-			CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, mergedInfo);
+			contorno.toggleContorno(false, cursor, flagZona, tablero, mergedInfo);
 			
 			++desde;
 		}

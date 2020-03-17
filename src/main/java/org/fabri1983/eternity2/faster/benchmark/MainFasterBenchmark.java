@@ -78,7 +78,7 @@ public class MainFasterBenchmark {
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.MIN_POS_SAVE_PARTIAL)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.EXPLORATION_LIMIT)),
 					Short.parseShort(getProperty(properties,     AppPropertiesReader.TARGET_ROLLBACK_POS)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.NUM_TASKS)));
+					Runtime.getRuntime().availableProcessors());
 			
 			System.out.println(); // to get a clean output
 			

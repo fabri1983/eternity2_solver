@@ -166,9 +166,9 @@ public final class Neighbors
 	}
 	
 	/**
-	 * Agrega el numero de pieza pieza y la rotación mergeandolos con bitwise en una variable short.
+	 * Agrega los colores y el número de pieza mergeándolos con bitwise en una variable short.
 	 */
-	public static final void addNeighbor (Neighbors np, byte top, byte right, byte bottom, byte left, short piezaIndex) {
+	public static final void addNeighbor(Neighbors np, byte top, byte right, byte bottom, byte left, short piezaIndex) {
 		// get next position with no data
 		int nextIndex = getNextFreeIndex(np);
 		np.mergedInfo[nextIndex] = asMergedInfo(top, right, bottom, left, piezaIndex);
@@ -193,6 +193,73 @@ public final class Neighbors
 		}
 	}
 
+	/**
+	 * Dada la posicion de cursor se fija cuáles colores tiene alrededor y devuelve una referencia de Neighbors 
+	 * que contiene las piezas que cumplan con los colores en el orden top-right-bottom-left (sentido horario).
+	 *  
+	 * NOTA: saqué muchas sentencias porque solamente voy a tener una pieza fija (135 en tablero), por eso 
+	 * este metodo solo contempla las piezas top y left, salvo en el vecindario de la pieza fija.
+	 */
+	public final static Neighbors neighbors (byte flagZona, short cursor, int[] tablero, NeighborStrategy neighborStrategy)
+	{
+		// check for vicinity of fixed tiles positions
+		switch (cursor) {
+			// estoy en la posicion inmediatamente arriba de la posicion central
+			case Consts.ABOVE_PIEZA_CENTRAL_POS_TABLERO:
+				return neighborStrategy.interior_above_central(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+			// estoy en la posicion inmediatamente a la izq de la posicion central
+			case Consts.BEFORE_PIEZA_CENTRAL_POS_TABLERO:
+				return neighborStrategy.interior_left_central(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+			case Consts.BELOW_PIEZA_CENTRAL_POS_TABLERO:
+				return neighborStrategy.interior(
+						Consts.PIEZA_CENTRAL_COLOR_BOTTOM, Neighbors.right(tablero[cursor - 1]));
+		}
+		
+		switch (flagZona & Consts.MASK_F_TABLERO) {
+			// interior de tablero
+			case Consts.F_INTERIOR: 
+				return neighborStrategy.interior(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+	
+			// borde right
+			case Consts.F_BORDE_RIGHT:
+				return neighborStrategy.border_right(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+			// borde left
+			case Consts.F_BORDE_LEFT:
+				return neighborStrategy.border_left(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]));
+			// borde top
+			case Consts.F_BORDE_TOP:
+				return neighborStrategy.border_top(
+						Neighbors.right(tablero[cursor - 1]));
+			// borde bottom
+			case Consts.F_BORDE_BOTTOM:
+				return neighborStrategy.border_bottom(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+		
+			// esquina top-left
+			case Consts.F_ESQ_TOP_LEFT:
+				return neighborStrategy.corner_top_left();
+			// esquina top-right
+			case Consts.F_ESQ_TOP_RIGHT:
+				return neighborStrategy.corner_top_right(
+						Neighbors.right(tablero[cursor - 1]));
+			// esquina bottom-left
+			case Consts.F_ESQ_BOTTOM_LEFT: 
+				return neighborStrategy.corner_bottom_left(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]));
+			// esquina bottom-right
+			case Consts.F_ESQ_BOTTOM_RIGHT:
+				return neighborStrategy.corner_bottom_right(
+						Neighbors.bottom(tablero[cursor - Consts.LADO]), Neighbors.right(tablero[cursor - 1]));
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Devuelve la clave asociada a esa combinación de 2 colores.
 	 */

@@ -81,7 +81,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 				byte flagZona = CommonFuncs.matrix_zonas[cursor];
 				
 				// can be null when there is no neighbors and when cursor == Consts.PIEZA_CENTRAL_POS_TABLERO
-				Neighbors nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
+				Neighbors nbs = Neighbors.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
 				
 				// if not continuing from a loop of neighbors then do some normal checks
 				if (!continueLoopNeighbors) {
@@ -94,32 +94,32 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					}
 					
 					// si cursor pasó el cursor mas lejano hasta ahora alcanzado, guardo la solucion parcial hasta aqui lograda
-					if (cursor >= SolverFaster.LIMITE_RESULTADO_PARCIAL) {
+					if (cursor == SolverFaster.LIMITE_RESULTADO_PARCIAL) {
 						++SolverFaster.LIMITE_RESULTADO_PARCIAL;
 						CommonFuncs.maxLejanoParcialReached(ID, cursor, time_inicial, tablero, parcialFileName, SolverFaster.SAVE_STATUS_ON_MAX);
 					}
 					
 					// si llegué a MAX_CICLOS de ejecucion, guardo el estado de exploración
-					if (count_cycles >= SolverFaster.MAX_CICLOS) {
+					if (count_cycles == SolverFaster.MAX_CICLOS) {
 						maxCyclesReached();
 					}
 					
 					// si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
 					if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 						// seteo el contorno como usado
-						CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, tablero[cursor]);
+						contorno.toggleContorno(true, cursor, flagZona, tablero, tablero[cursor]);
 						// at this point we have set all things up related to a fixed tile, so continue normally with next board position
 						++cursor;
 						// get new values
 						flagZona = CommonFuncs.matrix_zonas[cursor];
-						nbs = CommonFuncs.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
+						nbs = Neighbors.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
 					}
 					
 					if (nbs == null)
 						break; // exit the while-loop to back track a position
 					
 					// pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
-					if (CommonFuncs.esContornoSuperiorUsado(cursor, flagZona, contorno, tablero)) {
+					if (contorno.esContornoSuperiorUsado(cursor, flagZona, tablero)) {
 						break; // exit the while-loop to back track a position
 					}
 					
@@ -129,6 +129,9 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 						setupMultiProcessesExploration();
 					}
+					
+					// clean bits of this row
+					colorRightExploredStrategy.cleanRow(flagZona, cursor, tablero);
 				}
 				
 				//###################################################################################################
@@ -147,7 +150,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					if (desde >= nbs_length) {
 						int mergedInfo = tablero[cursor];
 						// seteo el contorno como libre
-						CommonFuncs.toggleContorno(false, cursor, flagZona, contorno, tablero, mergedInfo);
+						contorno.toggleContorno(false, cursor, flagZona, tablero, mergedInfo);
 						short numero = Neighbors.numero(mergedInfo);
 						usada[numero] = false; // pieza libre
 						
@@ -167,10 +170,10 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						continue; // continúo con el siguiente neighbor
 					}
 					
-//					if (CommonFuncs.testPodaColorRightExplorado(flagZona, cursor, mergedInfo, SolverFaster.colorRightExploredStrategy)) {
-//						++desde;
-//						continue; // continúo con el siguiente neighbor
-//					}
+					if (colorRightExploredStrategy.run(flagZona, cursor, mergedInfo, tablero)) {
+						++desde;
+						continue; // continúo con el siguiente neighbor
+					}
 					
 					// FairExperiment.gif: color bottom repetido en sentido horizontal
 //					if (Consts.USE_FAIR_EXPERIMENT_GIF) {
@@ -187,14 +190,16 @@ public class ExplorationIterativeTask extends ExplorationTask {
 //						continue; // continúo con el siguiente neighbor
 //					}
 					
-					++count_cycles;
+					// clean bits next row
+					colorRightExploredStrategy.cleanNextRow(cursor);
 					
 					// seteo el contorno como usado
-					CommonFuncs.toggleContorno(true, cursor, flagZona, contorno, tablero, mergedInfo);
+					contorno.toggleContorno(true, cursor, flagZona, tablero, mergedInfo);
 					
 					tablero[cursor] = mergedInfo;
 					usada[numero] = true;
 					iter_desde[cursor] = desde + 1;
+					++count_cycles;
 					++cursor;
 					continue main_loop; // exit this while-loop and continue with next board position
 				}
@@ -204,7 +209,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 			
 			if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 				// seteo el  contorno como libre
-				CommonFuncs.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, tablero[cursor]);
+				contorno.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], tablero, tablero[cursor]);
 				--cursor;
 				continue;
 			}
@@ -212,7 +217,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 			// asumo que estaba en el loop de neighbors -> limpio todo para continuar con next neighbor
 			int mergedInfo = tablero[cursor];
 			// seteo el contorno como libre
-			CommonFuncs.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], contorno, tablero, mergedInfo);
+			contorno.toggleContorno(false, cursor, CommonFuncs.matrix_zonas[cursor], tablero, mergedInfo);
 			short numero = Neighbors.numero(mergedInfo);
 			usada[numero] = false; // pieza libre
 //			tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE; // tablero libre

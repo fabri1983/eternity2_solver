@@ -20,8 +20,9 @@
  * SOFTWARE.
  */
 
-package org.fabri1983.eternity2.core;
+package org.fabri1983.eternity2.core.prune.contorno;
 
+import org.fabri1983.eternity2.core.Consts;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
 
 /**
@@ -32,7 +33,7 @@ import org.fabri1983.eternity2.core.neighbors.Neighbors;
  * 
  * Nota: Usar un contorno por instancia de tablero.
  */
-public final class Contorno
+public class Contorno
 {
 	// El mejor número de columnas es 2 (es más rápido)
 	public final static int MAX_COLUMNS = 2; // Search over the code before change this value
@@ -45,10 +46,32 @@ public final class Contorno
 	public final boolean[][][] used = new boolean
 			[Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR];
 	
+	public void toggleContorno(boolean value, short cursor, byte flagZona, int[] tablero, int mergedActual)
+	{
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if ((flagZona & Consts.MASK_F_PROC_CONTORNO) == Consts.F_PROC_CONTORNO) {
+			int mergedAnterior = tablero[cursor - 1];
+			used[Neighbors.left(mergedAnterior)]
+				[Neighbors.top(mergedAnterior)]
+				[Neighbors.top(mergedActual)] = value;
+		}
+	}
+
+	public boolean esContornoSuperiorUsado(short cursor, byte flagZona, int[] tablero)
+	{
+		// me fijo si estoy en la posición correcta para preguntar por contorno usado
+		if ((flagZona & Consts.MASK_F_READ_CONTORNO) == Consts.F_READ_CONTORNO) {
+			return used	[Neighbors.right(tablero[cursor - 1])]
+						[Neighbors.bottom(tablero[cursor - Consts.LADO])]
+						[Neighbors.bottom(tablero[cursor - Consts.LADO + 1])];
+		}
+		return false;
+	}
+	
 	/**
 	 * Inicializa el arreglo de contornos usados poniendo como usados aquellos contornos que ya están en tablero.
 	 */
-	public static final void inicializarContornos (Contorno contorno, int[] tablero, short maxPiezas, short lado)
+	public void inicializarContornos (int[] tablero, short maxPiezas, short lado)
 	{
 		// el limite inicial y el final me evitan los bordes sup e inf
 		for (short k=lado; k < (maxPiezas - lado); ++k)
@@ -80,15 +103,15 @@ public final class Contorno
 			// Saco el contorno superior e inferior y los seteo como usado.
 			// El contorno inferior lo empiezo a contemplar a partir de fila_actual >= 2 porque necesito que 
 			// existan piezas colocadas indicando que se ha formado el contorno inferior.
-			contorno.used[Neighbors.left(tablero[k])][Neighbors.top(tablero[k])][Neighbors.top(tablero[k+1])] = true;
+			used[Neighbors.left(tablero[k])][Neighbors.top(tablero[k])][Neighbors.top(tablero[k+1])] = true;
 		}
 	}
 	
-	public static final void resetContornos(Contorno contorno) {
+	public void resetContornos() {
 		for (int i=0; i < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++i) {
 			for (int j=0; j < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++j) {
 				for (int k=0; k < Consts.FIRST_CORNER_OR_BORDER_COLOR; ++k) {
-					contorno.used[i][j][k] = false;
+					used[i][j][k] = false;
 				}
 			}
 		}

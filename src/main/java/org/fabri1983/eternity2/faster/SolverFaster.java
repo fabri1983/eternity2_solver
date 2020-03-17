@@ -34,14 +34,12 @@ import org.fabri1983.eternity2.core.Pieza;
 import org.fabri1983.eternity2.core.neighbors.MultiDimensionalStrategy;
 import org.fabri1983.eternity2.core.neighbors.NeighborStrategy;
 import org.fabri1983.eternity2.core.neighbors.Neighbors;
-import org.fabri1983.eternity2.core.prune.color.ColorRightExploredLocalStrategy;
-import org.fabri1983.eternity2.core.prune.color.ColorRightExploredStrategy;
 import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public final class SolverFaster {
 	
 	static int NUM_PROCESSES = 1;
-	static ExplorationTask actions[];
+	static ExplorationTask tasks[];
 	static CountDownLatch startSignal;
     
 	static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
@@ -60,8 +58,6 @@ public final class SolverFaster {
 	
 	static final NeighborStrategy neighborStrategy = new MultiDimensionalStrategy();
 	
-	static final ColorRightExploredStrategy colorRightExploredStrategy = null;//new ColorRightExploredLocalStrategy();
-	
 	static boolean flag_retroceder_externo;
 	
 	private SolverFaster() {
@@ -73,14 +69,14 @@ public final class SolverFaster {
 	 * @param lim_max_par: posición en tablero minima para guardar estado parcial máximo.
 	 * @param lim_exploracion: indica hasta qué posición debe explorar esta instancia.
 	 * @param destino_ret: posición en tablero hasta la cual se debe retroceder.
-	 * @param totalProcesses: parallelism level for the fork-join pool.
+	 * @param nun_tasks: parallelism level for the fork-join pool.
 	 */
 	public static SolverFaster build(long max_ciclos, boolean save_status_on_max, short lim_max_par,
-			short lim_exploracion, short destino_ret, int totalProcesses) {
+			short lim_exploracion, short destino_ret, int num_tasks) {
 		
 		MAX_CICLOS = max_ciclos;
 		SAVE_STATUS_ON_MAX = save_status_on_max;
-		NUM_PROCESSES = Math.min(Runtime.getRuntime().availableProcessors(), totalProcesses);
+		NUM_PROCESSES = num_tasks;
 		
 		// el limite para resultado parcial max no debe superar ciertos limites. Si sucede se usará el valor por defecto
 		if ((lim_max_par > 0) && (lim_max_par < (Consts.MAX_PIEZAS-2)))
@@ -107,7 +103,7 @@ public final class SolverFaster {
 	 * Carga el ultimo estado de exploración guardado para la action pasada como parámetro. 
 	 * Si no existe tal estado* inicializa estructuras y variables para que la exploracion comienze desde cero.
 	 */
-	final static boolean cargarEstado(String n_file, ExplorationTask action)
+	final static boolean cargarEstado(String n_file, ExplorationTask task)
 	{
 		BufferedReader reader = null;
 		boolean status_cargado = false;
@@ -115,7 +111,7 @@ public final class SolverFaster {
 		try{
 			File f = new File(n_file);
 			if (!f.isFile()) {
-				System.out.println(action.ID + " >>> Estado de exploracion no existe.");
+				System.out.println(task.ID + " >>> Estado de exploracion no existe.");
 				return status_cargado;
 			}
 			
@@ -133,7 +129,7 @@ public final class SolverFaster {
 				
 				// contiene la posición del cursor en el momento de guardar estado
 				linea= reader.readLine();
-				action.cursor= Short.parseShort(linea);
+				task.cursor= Short.parseShort(linea);
 				
 				// recorro la info que estaba en tablero
 				linea= reader.readLine();
@@ -144,9 +140,9 @@ public final class SolverFaster {
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					int mergedInfo= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					action.tablero[k]= mergedInfo;
+					task.tablero[k]= mergedInfo;
 					if (mergedInfo != -1)
-						action.usada[Neighbors.numero(mergedInfo)] = true;
+						task.usada[Neighbors.numero(mergedInfo)] = true;
 				}
 				
 				// recorro los valores de iter_desde[]
@@ -158,35 +154,28 @@ public final class SolverFaster {
 					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
 					int index= Integer.parseInt(linea.substring(sep_ant,sep));
 					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-					action.iter_desde[k] = index;
+					task.iter_desde[k] = index;
 				}
 				
-				// la siguiente línea indica si se estaba usando poda de color explorado
+ 				// recorro los valores de matrix_color_explorado[]
 				linea= reader.readLine();
-				// recorro los valores de matrix_color_explorado[]
-				if (colorRightExploredStrategy != null){
-					if (Boolean.parseBoolean(linea)){
-						// leo la info de matriz_color_explorado
-						linea= reader.readLine();
-						sep=0; sep_ant=0;
-						for (short k=0; k < Consts.LADO; ++k){
-							if (k==(Consts.LADO-1))
-								sep= linea.length();
-							else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
-							int val= Integer.parseInt(linea.substring(sep_ant,sep));
-							sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
-							colorRightExploredStrategy.set(k, val);
-						}
-					}
+				sep=0; sep_ant=0;
+				for (short k=0; k < Consts.LADO; ++k){
+					if (k==(Consts.LADO-1))
+						sep= linea.length();
+					else sep= linea.indexOf(Consts.SECCIONES_SEPARATOR_EN_FILE,sep_ant);
+					int val= Integer.parseInt(linea.substring(sep_ant,sep));
+					sep_ant= sep+Consts.SECCIONES_SEPARATOR_EN_FILE.length();
+					task.colorRightExploredStrategy.set(k, val);
 				}
 				
-				status_cargado=true;
+				status_cargado = true;
 				
-				System.out.println(action.ID + " >>> estado de exploracion (" + n_file + ") cargado.");
+				System.out.println(task.ID + " >>> estado de exploracion (" + n_file + ") cargado.");
 			}
 		}
 		catch(Exception e){
-			System.out.println(action.ID + " >>> estado de exploracion no existe o esta corrupto: " + e.getMessage());
+			System.out.println(task.ID + " >>> estado de exploracion no existe o esta corrupto: " + e.getMessage());
 		}
 		finally {
 			if (reader != null)
@@ -202,45 +191,45 @@ public final class SolverFaster {
 	 * Si el programa es llamado con el argumento {@link SolverFaster#flag_retroceder_externo} en true, entonces
 	 * debo volver la exploracion hasta cierta posicion y guardar estado. No explora.
 	 */
-	final static void retrocederEstado(ExplorationTask action) {
+	final static void retrocederEstado(ExplorationTask task) {
 		
 		boolean retroceder = true;
 		short cursor_destino = DESTINO_RET;
 		
-		while (action.cursor>=0)
+		while (task.cursor>=0)
 		{
 			if (retroceder){
-				CommonFuncs.guardarEstado(action.statusFileName, action.ID, action.tablero, action.cursor,
-						SolverFaster.LIMITE_RESULTADO_PARCIAL, action.iter_desde, neighborStrategy,
-						colorRightExploredStrategy);
-				CommonFuncs.guardarResultadoParcial(action.ID, action.tablero, action.parcialFileName);
-				System.out.println(action.ID + " >>> Exploracion retrocedio a la posicion " + action.cursor + ". Estado salvado.");
+				CommonFuncs.guardarEstado(task.statusFileName, task.ID, task.tablero, task.cursor,
+						SolverFaster.LIMITE_RESULTADO_PARCIAL, task.iter_desde, neighborStrategy,
+						task.colorRightExploredStrategy);
+				CommonFuncs.guardarResultadoParcial(task.ID, task.tablero, task.parcialFileName);
+				System.out.println(task.ID + " >>> Exploracion retrocedio a la posicion " + task.cursor + ". Estado salvado.");
 				return; //alcanzada la posición destino y luego de salvar estado, salgo del programa
 			}
 			
-			--action.cursor;
+			--task.cursor;
 			
 			//si me paso de la posición inicial significa que no puedo volver mas estados de exploración
-			if (action.cursor < 0)
+			if (task.cursor < 0)
 				break; //obliga a salir del while
 			
-			if (action.cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
-				int mergedInfo = action.tablero[action.cursor];
+			if (task.cursor != Consts.PIEZA_CENTRAL_POS_TABLERO) {
+				int mergedInfo = task.tablero[task.cursor];
 				int numero = Neighbors.numero(mergedInfo);
 				// la seteo como no usada xq sino la exploración pensará que está usada (porque asi es como se guardó)
-				action.usada[numero] = false;
-				action.tablero[action.cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
+				task.usada[numero] = false;
+				task.tablero[task.cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
 			}
 			
 			//si retrocedá hasta el cursor destino, entonces no retrocedo mas
-			if ((action.cursor+1) <= cursor_destino){
+			if ((task.cursor+1) <= cursor_destino){
 				retroceder = false;
 				cursor_destino= Consts.CURSOR_INVALIDO;
 			}
 			
 			//si está activado el flag para retroceder niveles de exploracion entonces debo limpiar algunas cosas
 			if (retroceder)
-				action.iter_desde[action.cursor] = 0; //la exploracion de posibles piezas para la posición cursor debe empezar desde la primer pieza
+				task.iter_desde[task.cursor] = 0; //la exploracion de posibles piezas para la posición cursor debe empezar desde la primer pieza
 		}
 	}
 	
@@ -257,14 +246,14 @@ public final class SolverFaster {
 		CommonFuncs.verificarTiposDePieza(-1, piezas);
 		
 		// creates the array of tasks
-		actions = new ExplorationTask[NUM_PROCESSES];
+		tasks = new ExplorationTask[NUM_PROCESSES];
 		// a start signal that prevents any ExplorationAction from proceeding until the master (this thread) is ready for let them to proceed
 		startSignal = new CountDownLatch(1);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
 			ExplorationTask task = new ExplorationTask(proc, NUM_PROCESSES, startSignal);
 			task.setupInicial(readerForTilesFile);
-			actions[proc] = task;
+			tasks[proc] = task;
 		}
 		
 		CommonFuncs.cargarSuperEstructura(-1, piezas, neighborStrategy);
@@ -274,9 +263,9 @@ public final class SolverFaster {
 		
 		Thread[] pool = new Thread[NUM_PROCESSES];
 		
-		for (int i = 0, c = actions.length; i < c; ++i) {
+		for (int i = 0, c = tasks.length; i < c; ++i) {
 			System.out.println("Task submitted " + i);
-			Thread thread = new Thread(actions[i]);
+			Thread thread = new Thread(tasks[i]);
 			pool[i] = thread;
 			thread.start();
 		}
@@ -330,7 +319,7 @@ public final class SolverFaster {
 		neighborStrategy.resetForBenchmark();
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
-			ExplorationTask task = actions[proc];
+			ExplorationTask task = tasks[proc];
 			task.resetForBenchmark(NUM_PROCESSES, startSignal);
 		}
 	}

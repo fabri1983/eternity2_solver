@@ -30,7 +30,7 @@ public class BannerPrinterFaster {
 		msgBuilder.append("#################################################################").append(lineSeparator);
 		msgBuilder.append("##- Uso de thread pool para distribución de tareas.           -##").append(lineSeparator);
 		msgBuilder.append("##- Version con many multi dimensional arrays, Smart-Podas,   -##").append(lineSeparator);
-		msgBuilder.append("##- Bit Set, Restriccion de Contornos de 2 colores, y         -##").append(lineSeparator);
+		msgBuilder.append("##- Bit Set, Restriccion de Contornos de 2 colores.           -##").append(lineSeparator);
 		msgBuilder.append("##- Micro optimizaciones: bitwise and reductions.             -##").append(lineSeparator);
 		msgBuilder.append("#################################################################").append(lineSeparator);
 		msgBuilder.append("-----------------------------------------------------------------").append(lineSeparator);

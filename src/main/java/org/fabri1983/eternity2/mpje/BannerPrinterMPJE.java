@@ -32,7 +32,7 @@ public class BannerPrinterMPJE {
 		msgBuilder.append("#################################################################").append(lineSeparator);
 		msgBuilder.append("##- Uso de MPJExpress en modo híbrido (multicore y cluster).  -##").append(lineSeparator);
 		msgBuilder.append("##- Version con many multi dimensional arrays, Smart-Podas,   -##").append(lineSeparator);
-		msgBuilder.append("##- Bit Set, Restriccion de Contornos de 2 colores, y         -##").append(lineSeparator);
+		msgBuilder.append("##- Bit Set, Restriccion de Contornos de 2 colores.           -##").append(lineSeparator);
 		msgBuilder.append("##- Micro optimizaciones: bitwise and reductions.             -##").append(lineSeparator);
 		msgBuilder.append("#################################################################").append(lineSeparator);
 		msgBuilder.append("-----------------------------------------------------------------").append(lineSeparator);

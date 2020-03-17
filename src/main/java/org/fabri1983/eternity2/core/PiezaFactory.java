@@ -22,7 +22,7 @@
 
 package org.fabri1983.eternity2.core;
 
-public final class PiezaFactory {
+public class PiezaFactory {
 	
 	public static Pieza dummy() {
 		Pieza p = new Pieza();

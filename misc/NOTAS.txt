@@ -32,8 +32,9 @@ Agregar implementacion usando XOR y hacer benchmark.
 - Guardar Estado:
 	- Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se carga status.
 	- Guardar num_processes_orig[] en archivo status. Y setearlo cuando se carga status.
-	- Guardar el numero de procesos maximo
-	- Ahora en cargar estado tengo que comparar el numero de procesos del archivo contra el ingresado por el usuario o el del MPI.COMM_WORLD.Size() y ajustar lo que haga falta.
+	- Guardar el numero de procesos maximo.
+	- Ahora en cargar estado tengo que comparar el numero de procesos maximo del archivo contra el ingresado por el 
+	usuario o el del MPI.COMM_WORLD.Size() y ajustar lo que haga falta.
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ Timings
 -------
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
 Solver with 8 threads:
-	5 >>> 1536 ms, cursor 211
+	5 >>> 1338 ms, cursor 211
 
 Obviously there are operations performed by the JVM and/or the underlying SO which interfere with the execution code.
 
