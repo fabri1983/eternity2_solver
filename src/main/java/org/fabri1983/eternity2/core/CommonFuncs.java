@@ -48,6 +48,9 @@ public class CommonFuncs {
 	{		
 		for (int k=0; k < Consts.MAX_PIEZAS; ++k)
 		{
+			// clean
+			matrix_zonas[k] = 0;
+			
 			// esquina top-left
 			if (k == 0)
 				matrix_zonas[k] |= Consts.F_ESQ_TOP_LEFT;
