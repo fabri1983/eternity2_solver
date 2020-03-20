@@ -35,7 +35,8 @@ public class ExplorationIterativeTask extends ExplorationTask {
 	final int[] iter_length_nbs = new int[Consts.MAX_PIEZAS];
 	
 	public ExplorationIterativeTask(int _id, int _num_processes, CountDownLatch startSignal) {
-		super(_id, _num_processes, startSignal);
+		super(_id, startSignal);
+		this.num_processes = _num_processes;
 	}
 
 	@Override
