@@ -31,7 +31,7 @@ Agregar implementacion usando XOR y hacer benchmark.
 
 - Guardar Estado:
 	- Guardar pos_multi_process_offset en archivo status. Y setearlo cuando se carga status.
-	- Guardar num_processes_orig[] en archivo status. Y setearlo cuando se carga status.
+	- Guardar num_processes[] en archivo status. Y setearlo cuando se carga status.
 	- Guardar el numero de procesos maximo.
 	- Ahora en cargar estado tengo que comparar el numero de procesos maximo del archivo contra el ingresado por el 
 	usuario o el del MPI.COMM_WORLD.Size() y ajustar lo que haga falta.

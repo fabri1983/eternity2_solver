@@ -28,6 +28,8 @@ package org.fabri1983.eternity2.core.neighbors;
  * Additionally, given the fact that the process of creation of arrays only involves known keys, we can skip 
  * those entries which have a value of 1 from the big switch case, and so return 1 when the key is missing. 
  * This decrease the size of methods.
+ * 
+ * IMPORTANT: any change please review PosMultiProcessesCalculatorTest.
  */
 public class NeighborsSizeByKey {
 
