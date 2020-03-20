@@ -34,8 +34,6 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class ExplorationTask implements Runnable {
 
-	protected int num_processes;
-	protected final int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
 	protected int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	protected String statusFileName, parcialFileName, disposicionFileName, solucFileName;
@@ -65,7 +63,6 @@ public class ExplorationTask implements Runnable {
 	public ExplorationTask(int _id, int _num_processes, CountDownLatch startSignal) {
 		
 		ID = _id;
-		num_processes = _num_processes;
 		
 		statusFileName = SolverFaster.NAME_FILE_STATUS + "_" + ID + Consts.FILE_EXT;
 		parcialFileName = SolverFaster.NAME_FILE_PARCIAL + "_" + ID + Consts.FILE_EXT;
@@ -93,11 +90,6 @@ public class ExplorationTask implements Runnable {
 		
 		cursor = 0;
 		pos_multi_process_offset = 0;
-		num_processes = _num_processes;
-		
-		for (int k=0; k < num_processes_orig.length; ++k) {
-			num_processes_orig[k] = 0;
-		}
 		
 		for (int k=0; k < iter_desde.length; ++k) {
 			iter_desde[k] = 0;
@@ -149,13 +141,13 @@ public class ExplorationTask implements Runnable {
 		
 		// si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado) {
-			explorar(0);
+			explorar(0, SolverFaster.NUM_PROCESSES, 0);
 		}
 		// se cargó estado de exploración, voy a simular pop del stack que cargué
 		else {
 			while (cursor >= 0) {
 				
-				explorar(iter_desde[cursor]);
+				explorar(iter_desde[cursor], SolverFaster.NUM_PROCESSES, 0);
 				--cursor;
 				
 				// si me paso de la posicion inicial significa que no puedo volver mas estados de exploracion
@@ -185,7 +177,7 @@ public class ExplorationTask implements Runnable {
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
 	 */
-	private final void explorar(int desde)
+	private final void explorar(int desde, int num_processes, int pos_multi_process_offset)
 	{
 		// si cursor se pasa del limite de piezas, significa que estoy en una solucion
 		if (cursor == Consts.MAX_PIEZAS) {
@@ -213,7 +205,7 @@ public class ExplorationTask implements Runnable {
 			contorno.toggleContorno(true, cursor, flagZona, tablero, tablero[cursor]);
 			// at this point we have set all things up related to a fixed tile, so continue normally with next board position
 			++cursor;
-			explorar(0);
+			explorar(0, num_processes, pos_multi_process_offset);
 			--cursor;
 			// seteo el contorno como libre
 			contorno.toggleContorno(false, cursor, flagZona, tablero, tablero[cursor]);
@@ -234,11 +226,8 @@ public class ExplorationTask implements Runnable {
 		
 		int length_nbs = nbs.mergedInfo.length;
 		
-		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso y futuras divisiones.
+		// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
 		if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-			
-			// save the current value of num_processes, it might be changed
-			num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES] = num_processes;
 			
 			int this_proc_absolute = ID % num_processes;
 			desde = this_proc_absolute;
@@ -318,7 +307,7 @@ public class ExplorationTask implements Runnable {
 			++count_cycles;
 			
 			++cursor;
-			explorar(0);
+			explorar(0, num_processes, pos_multi_process_offset);
 			--cursor;
 			
 			usada[numero] = false;
@@ -332,14 +321,6 @@ public class ExplorationTask implements Runnable {
 		
 		iter_desde[cursor] = 0;
 		tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
-		
-		// restore multi processes variables
-		if ((cursor >= Consts.POSICION_MULTI_PROCESSES) & (cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset)) {
-			num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
-			if (pos_multi_process_offset > 0) {
-				--pos_multi_process_offset;
-			}
-		}
 	}
 
 	protected void maxCyclesReached() {

@@ -46,7 +46,7 @@ Some stats
     - Placing approx **90.75 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
-    - Placing approx **91.70 million correct tiles per second** running with a pool of **8 threads**.
+    - Placing approx **90.75 million correct tiles per second** running with a pool of **8 threads**.
     - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
     - *(outdated)* Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.

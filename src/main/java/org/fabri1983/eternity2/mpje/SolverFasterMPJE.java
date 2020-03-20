@@ -45,15 +45,12 @@ public final class SolverFasterMPJE {
 	
 	private static EternityII tableboardE2 = null; // instancia del tablero gráfico que se muestra en pantalla
 	
-	private static int num_processes = mpi.MPI.COMM_WORLD.Size(); // número de procesos
 	public final static int ID = mpi.MPI.COMM_WORLD.Rank(); // id de proceso actual (0-based)
 	private static int TAG_SINCRO = 1; // tags para identificar mensajes interprocesos
 	private static int MESSAGE_HALT = 0, MESSAGE_SINCRO = 2; // mensajes para comunicar una acción o estado
 	private static int[] mpi_send_info = new int[1]; // arreglo de envío de mensajes entre procesos
 	private static mpi.Request mpi_requests[] = new mpi.Request[mpi.MPI.COMM_WORLD.Size()]; // arreglo para almacenar los requests que devuelven los Isend
 	private static boolean sincronizar; // indica si se deden sincronizar los procesos antes de comenzar
-	private static int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
-	private static int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
 	
 	private static long MAX_CICLOS; // Número máximo de ciclos para imprimir stats
 	private static boolean SAVE_STATUS_ON_MAX;
@@ -101,11 +98,10 @@ public final class SolverFasterMPJE {
 	 * @param cell_pixels_lado: numero de pixeles para el lado de cada pieza dibujada.
 	 * @param p_refresh_millis: cada cuántos milisecs se refresca el tablero gráfico.
 	 * @param reader: implementation of the tiles file reader.
-	 * @param totalProcesses: total number of processes.
 	 */
 	public SolverFasterMPJE(long max_ciclos, boolean save_status_on_max, short lim_max_par, short lim_exploracion,
 			short destino_ret, boolean usar_tableboard, boolean usar_multiples_boards, int cell_pixels_lado,
-			int p_refresh_millis, int totalProcesses) {
+			int p_refresh_millis) {
 
 		MAX_CICLOS = max_ciclos;
 		SAVE_STATUS_ON_MAX = save_status_on_max;
@@ -130,7 +126,7 @@ public final class SolverFasterMPJE {
 		
 		if (usar_tableboard && !flag_retroceder_externo && ID == procMultipleBoards) {
 			ViewEternityFactory viewFactory = new ViewEternityMPJEFactory(Consts.LADO, cell_pixels_lado, 
-					Consts.MAX_COLORES, (long)p_refresh_millis, ID, totalProcesses);
+					Consts.MAX_COLORES, (long)p_refresh_millis, ID, Runtime.getRuntime().availableProcessors());
 			tableboardE2 = new EternityII(viewFactory);
 		}
 
@@ -323,13 +319,13 @@ public final class SolverFasterMPJE {
 		
 		// si no se carga estado de exploracion, simplemente exploro desde el principio
 		if (!status_cargado) {
-			explorar(0);
+			explorar(0, mpi.MPI.COMM_WORLD.Size(), 0);
 		}
 		// se cargó estado de exploración, voy a simular pop del stack que cargué
 		else {
 			while (cursor >= 0) {
 				
-				explorar(iter_desde[cursor]);
+				explorar(iter_desde[cursor], mpi.MPI.COMM_WORLD.Size(), 0);
 				--cursor;
 				
 				// si me paso de la posicion inicial significa que no puedo volver mas estados de exploracion
@@ -359,7 +355,7 @@ public final class SolverFasterMPJE {
 	 * del tablero y que concuerde con las piezas vecinas. Aplica diferentes podas
 	 * para acortar el número de intentos.
 	 */
-	private final void explorar(int desde)
+	private final void explorar(int desde, int num_processes, int pos_multi_process_offset)
 	{
 		// si cursor se pasa del limite de piezas, significa que estoy en una solucion
 		if (cursor == Consts.MAX_PIEZAS) {
@@ -387,7 +383,7 @@ public final class SolverFasterMPJE {
 			contorno.toggleContorno(true, cursor, flagZona, tablero, tablero[cursor]);
 			// at this point we have set all things up related to a fixed tile, so continue normally with next board position
 			++cursor;
-			explorar(0);
+			explorar(0, num_processes, pos_multi_process_offset);
 			--cursor;
 			// seteo el contorno como libre
 			contorno.toggleContorno(false, cursor, flagZona, tablero, tablero[cursor]);
@@ -408,11 +404,8 @@ public final class SolverFasterMPJE {
 		
 		int length_nbs = nbs.mergedInfo.length;
 		
-		// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso y futuras divisiones.
+		// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
 		if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
-			
-			// save the current value of num_processes, it might be changed
-			num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES] = num_processes;
 			
 			int this_proc_absolute = ID % num_processes;
 			desde = this_proc_absolute;
@@ -492,7 +485,7 @@ public final class SolverFasterMPJE {
 			++count_cycles;
 			
 			++cursor;
-			explorar(0);
+			explorar(0, num_processes, pos_multi_process_offset);
 			--cursor;
 			
 			usada[numero] = false;
@@ -506,14 +499,6 @@ public final class SolverFasterMPJE {
 		
 		iter_desde[cursor] = 0;
 		tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE;
-		
-		// restore multi processes variables
-		if ((cursor >= Consts.POSICION_MULTI_PROCESSES) & (cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset)) {
-			num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
-			if (pos_multi_process_offset > 0) {
-				--pos_multi_process_offset;
-			}
-		}
 	}
 	
 	private static final void maxCyclesReached() {
@@ -540,8 +525,9 @@ public final class SolverFasterMPJE {
 		if (ID == 0)
 		{
 			mpi_send_info[0] = MESSAGE_SINCRO;
+			int numProcs = mpi.MPI.COMM_WORLD.Size();
 			// sincronizo con los restantes procesos
-			for (int rank=1; rank < num_processes; ++rank)
+			for (int rank=1; rank < numProcs; ++rank)
 				mpi_requests[rank-1] = mpi.MPI.COMM_WORLD.Isend(mpi_send_info, 0, mpi_send_info.length, mpi.MPI.INT, rank, TAG_SINCRO); // el tag identifica al mensaje
 			System.out.println("Rank 0: --- Sincronizando con todos. Sending msg " + mpi_send_info[0] + " ...");
 			System.out.flush();

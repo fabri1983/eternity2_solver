@@ -30,6 +30,8 @@ import org.fabri1983.eternity2.core.neighbors.Neighbors;
 
 public class ExplorationIterativeTask extends ExplorationTask {
 	
+	private int num_processes;
+	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
 	final int[] iter_length_nbs = new int[Consts.MAX_PIEZAS];
 	
 	public ExplorationIterativeTask(int _id, int _num_processes, CountDownLatch startSignal) {
@@ -38,6 +40,12 @@ public class ExplorationIterativeTask extends ExplorationTask {
 
 	@Override
 	public void resetForBenchmark(int _num_processes, CountDownLatch startSignal) {
+		
+		num_processes = _num_processes;
+		
+		for (int k=0; k < num_processes_orig.length; ++k) {
+			num_processes_orig[k] = 0;
+		}
 		
 		for (int k=0; k < iter_length_nbs.length; ++k) {
 			iter_length_nbs[k] = 0;
@@ -125,7 +133,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					
 					iter_length_nbs[cursor] = nbs.mergedInfo.length;
 					
-					// En modo multiproceso tengo que establecer los limites de las piezas a explorar para este proceso y futuras divisiones.
+					// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
 					if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
 						setupMultiProcessesExploration();
 					}

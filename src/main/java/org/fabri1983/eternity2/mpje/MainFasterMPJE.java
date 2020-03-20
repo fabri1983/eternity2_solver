@@ -48,8 +48,6 @@ public final class MainFasterMPJE
 		try {
 			Properties properties = AppPropertiesReader.readProperties();
 
-			int numProcsCluster = MPI.COMM_WORLD.Size();
-			
 			// NOTA:
 			//   para mpje multicore los primeros 3 parametros de args[] son para MPI
 			//   para mpje cluster los primeros 8 parametros de args[] son para MPI
@@ -63,8 +61,7 @@ public final class MainFasterMPJE
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_SHOW)),
 					Boolean.parseBoolean(getProperty(properties, AppPropertiesReader.UI_PER_PROC)),
 					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_CELL_SIZE)),
-					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)),
-					numProcsCluster);
+					Integer.parseInt(getProperty(properties,     AppPropertiesReader.UI_REFRESH_MILLIS)));
 
 			sol.setupInicial(new ClassLoaderReaderForFile());
 			ResourceBundle.clearCache();
