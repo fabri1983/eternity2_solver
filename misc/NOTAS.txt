@@ -4,13 +4,6 @@ TODO
 ----
 - Benchmarking: @OperationsPerInvocation(Measure.N) what is it for?
 
-- ExplorationIterativeTask: merge iter_desde, iter_length_nbs, and iter_in_loop_desde into an int[]:
-	int[] iter_info = new int[Consts.MAX_PIEZAS];
-	iter_desde and iter_length_nbs se guardar como byte.
-	iter_in_loop_desde se guarda con un solo bit.
-
-- Cambiar Pieza[] piezas por int[] piezas.
-
 - Usar shutdown hook para mpje y asi matar todos los sub procesos.
 
 - Hacer calculo de min y max heap size en los .bat y .sh de acuerdo a Min(-Dnum.tasks, procs_available).
