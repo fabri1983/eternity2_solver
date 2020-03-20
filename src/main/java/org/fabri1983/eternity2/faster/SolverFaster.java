@@ -251,7 +251,7 @@ public final class SolverFaster {
 		startSignal = new CountDownLatch(1);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
-			ExplorationTask task = new ExplorationIterativeTask(proc, NUM_PROCESSES, startSignal);
+			ExplorationTask task = new ExplorationTask(proc, startSignal);
 			task.setupInicial(readerForTilesFile);
 			tasks[proc] = task;
 		}
