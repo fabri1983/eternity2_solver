@@ -38,7 +38,7 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public final class SolverFaster {
 	
-	static int NUM_PROCESSES = 1;
+	static int NUM_PROCESSES = 1; // default
 	static ExplorationTask tasks[];
 	static CountDownLatch startSignal;
     
@@ -251,7 +251,7 @@ public final class SolverFaster {
 		startSignal = new CountDownLatch(1);
 		
 		for (int proc=0; proc < NUM_PROCESSES; ++proc) {
-			ExplorationTask task = new ExplorationTask(proc, NUM_PROCESSES, startSignal);
+			ExplorationTask task = new ExplorationIterativeTask(proc, NUM_PROCESSES, startSignal);
 			task.setupInicial(readerForTilesFile);
 			tasks[proc] = task;
 		}

@@ -60,7 +60,7 @@ public class ExplorationTask implements Runnable {
 	
 	protected CountDownLatch startSignal;
 	
-	public ExplorationTask(int _id, int _num_processes, CountDownLatch startSignal) {
+	public ExplorationTask(int _id, CountDownLatch startSignal) {
 		
 		ID = _id;
 		

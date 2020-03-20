@@ -14,7 +14,7 @@ public class TaskDivisionPositions {
 	private static final int MAX_LENGTH_INVOLVED = 12;
 	
 	public static byte[][][] calculate(int numProcs) {
-		numProcs=1;
+		
 		CommonFuncs.inicializarMatrixZonas();
 		
 		/**
@@ -55,7 +55,6 @@ public class TaskDivisionPositions {
 					positionsForNeighbors);
 		}
 		
-		System.exit(0);
 		return positionsForNeighbors;
 	}
 
