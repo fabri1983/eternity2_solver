@@ -46,7 +46,7 @@ public class TaskDivisionPositions {
 		// all previously set lengths
 		int[] all_target_lengths = new int[] { 1, 2, 3, 4, 5, 6, 7, 10, 11, 12 };
 		
-		int max2ndDimensionValue = getMaxCursorReached(numProcs) - Consts.POSICION_MULTI_PROCESSES + 1;
+		int max2ndDimensionValue = getMaxCursorReached(numProcs) - Consts.POSICION_TASK_DIVISION + 1;
 		byte[][][] positionsForNeighbors = new byte[numProcs][max2ndDimensionValue][MAX_LENGTH_INVOLVED + 1];
 		
 		// initialize 
@@ -67,8 +67,8 @@ public class TaskDivisionPositions {
 	 */
 	public static boolean inRange(short cursor, short maxCursorReached) {
 		// TODO MEJORAR USANDO BITWISE O COMO SE HACE EN SHADERS, PARA NO USAR IFs
-		// if cursor is out of range [Consts.POSICION_MULTI_PROCESSES, Consts.POSICION_MULTI_PROCESSES + maxCursorREached]
-		if (cursor < Consts.POSICION_MULTI_PROCESSES) return false;
+		// if cursor is out of range [Consts.POSICION_TASK_DIVISION, Consts.POSICION_TASK_DIVISION + maxCursorREached]
+		if (cursor < Consts.POSICION_TASK_DIVISION) return false;
 		if (cursor > maxCursorReached) return false;
 		return true;
 	}
@@ -85,7 +85,7 @@ public class TaskDivisionPositions {
 			int num_processes = numProcs;
 			
 			// simulate placing tiles to generate task division scenarios
-			for (int cursor = Consts.POSICION_MULTI_PROCESSES; continueOnNextCursor && cursor < Consts.MAX_PIEZAS; ++cursor) {
+			for (int cursor = Consts.POSICION_TASK_DIVISION; continueOnNextCursor && cursor < Consts.MAX_PIEZAS; ++cursor) {
 				
 				// we are generating any tuple when cursor is in a fixed tile board position
 				if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
@@ -132,45 +132,51 @@ public class TaskDivisionPositions {
 		System.out.println(numProcs + ": " + maxCursorReached);
 	}
 
-	private static int establecerLimites(int id, int num_processes, int cursor, int lengthSimu,
+	private static int establecerLimites(int id, int num_processes, int cursor, int hastaSimu,
 			byte[][][] positionsForNeighbors) {
 		
-		int this_proc_absolute = id % num_processes;
-		int desde = this_proc_absolute;
-		int length_nbs = lengthSimu;
+		// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
+		
+		int hasta = hastaSimu;
+		int desde;
+		
+		int thisProc = id % num_processes;
 		
 		// caso 1: cada proc toma una única rama de neighbors
-		if (num_processes == length_nbs) {
-			length_nbs = this_proc_absolute + 1;
+		if (num_processes == hasta) {
+			desde = thisProc;
+			hasta = thisProc + 1;
 		}
-		// caso 2: existen mas neighbors a explorar que procs, entonces se distribuyen los neighbors
-		else if (num_processes < length_nbs) {
-			int span = (length_nbs + 1) / num_processes;
-			desde *= span;
-			if (desde >= length_nbs)
-				desde = length_nbs - 1;
-			else if (desde + span < length_nbs)
-				length_nbs = desde + span;
+		// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
+		else if (num_processes < hasta) {
+			int span = (hasta + 1) / num_processes;
+			desde = thisProc * span;
+			// considering cases when task division is odd:
+			//  - normal task distribution while not being the last process: hasta = desde + span
+			//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
+			if (thisProc != (num_processes - 1)) // normal task distribution while not being the last process 
+				hasta = thisProc * span + span;
 		}
 		// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
 		// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
-		// Seteo num_processes = length_nbs como distirbución de los procs.
+		// Seteo num_processes = hasta, asi el siguiente nivel divide correctamente.
 		else {
-			int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
-			num_processes = length_nbs;
-			desde /= divisor;
-			if (desde >= length_nbs)
-				desde = length_nbs - 1;
-			length_nbs = desde + 1;
+			int divisor = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
+			desde = thisProc / divisor;
+			num_processes = hasta;
+			if (desde < hasta)
+				hasta = desde + 1;
+			else
+				desde = hasta - 1;
 		}
 
 		// cap desde and length_nbs since there is no sense if they are higher or equals than 12
 		desde = Math.min(desde, MAX_LENGTH_INVOLVED);
-		length_nbs = Math.min(length_nbs, MAX_LENGTH_INVOLVED);
+		hasta = Math.min(hasta, MAX_LENGTH_INVOLVED);
 		
-		// Guardo desde y length_nbs
-		byte positionsMerged = (byte) ((desde << SHIFT_FOR_DESDE) | length_nbs);
-		positionsForNeighbors[id][cursor - Consts.POSICION_MULTI_PROCESSES][lengthSimu] = positionsMerged;
+		// Guardo desde y hasta
+		byte positionsMerged = (byte) ((desde << SHIFT_FOR_DESDE) | hasta);
+		positionsForNeighbors[id][cursor - Consts.POSICION_TASK_DIVISION][hastaSimu] = positionsMerged;
 		
 		return num_processes;
 	}

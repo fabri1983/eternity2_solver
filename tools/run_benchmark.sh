@@ -6,7 +6,7 @@ all_args=$@
 orig_dir=$(pwd)
 cd ../target
 
-# 2m max usage for 8 threads. However the whole benchmark needs 4m
+# 1.25m max usage for 8 threads with NO UI, but JVM min heap size is 2m. However the whole benchmark needs 4m for 8 threads.
 mem_alloc="4m"
 no_ui_options="-Djava.awt.headless=true -Dsun.java2d.xrender=false"
 

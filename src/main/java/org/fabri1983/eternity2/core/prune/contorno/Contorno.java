@@ -43,27 +43,36 @@ public class Contorno
 	 * to corners and borders. So ending up using 17 colors.
 	 * For 3 colors (MAX_COLUMNS = 2): 17^3 = 4913.
 	 */
-	public final boolean[][][] used = new boolean
+	private final boolean[][][] used = new boolean
 			[Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR][Consts.FIRST_CORNER_OR_BORDER_COLOR];
 	
 	public void toggleContorno(boolean value, short cursor, byte flagZona, int[] tablero, int mergedActual)
 	{
+		// CUDA: Set mergedXxx vars to Neighbors.asMergedInfo(Consts.FIRST_CORNER_OR_BORDER_COLOR, 0) when condition is not satisfied, using bitwise and similar.
+		// CUDA: Also when condition is not valid also set used[][][]=false, instead of value, to be correctly used later in (esContornoSuperiorUsado) 
+		// CUDA: Consider that it requires the matrix used[][][] to have +1 in each dimension.
+		
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if ((flagZona & Consts.MASK_F_PROC_CONTORNO) == Consts.F_PROC_CONTORNO) {
-			int mergedAnterior = tablero[cursor - 1];
-			used[Neighbors.left(mergedAnterior)]
-				[Neighbors.top(mergedAnterior)]
+			int mergedPrevious = tablero[cursor - 1];
+			used[Neighbors.left(mergedPrevious)]
+				[Neighbors.top(mergedPrevious)]
 				[Neighbors.top(mergedActual)] = value;
 		}
 	}
 
 	public boolean esContornoSuperiorUsado(short cursor, byte flagZona, int[] tablero)
 	{
+		// CUDA: Set mergedXxx vars to Neighbors.asMergedInfo(Consts.FIRST_CORNER_OR_BORDER_COLOR, 0) when condition is not satisfied, using bitwise and similar.
+		
 		// me fijo si estoy en la posición correcta para preguntar por contorno usado
 		if ((flagZona & Consts.MASK_F_READ_CONTORNO) == Consts.F_READ_CONTORNO) {
-			return used	[Neighbors.right(tablero[cursor - 1])]
-						[Neighbors.bottom(tablero[cursor - Consts.LADO])]
-						[Neighbors.bottom(tablero[cursor - Consts.LADO + 1])];
+			int mergedInfoPrevious = tablero[cursor - 1];
+			int mergedInfoPreviousLado = tablero[cursor - Consts.LADO];
+			int mergedInfoPreviousLadoAnd1 = tablero[cursor - Consts.LADO + 1];
+			return used	[Neighbors.right(mergedInfoPrevious)]
+						[Neighbors.bottom(mergedInfoPreviousLado)]
+						[Neighbors.bottom(mergedInfoPreviousLadoAnd1)];
 		}
 		return false;
 	}

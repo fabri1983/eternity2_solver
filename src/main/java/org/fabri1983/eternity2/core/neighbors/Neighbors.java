@@ -202,6 +202,9 @@ public final class Neighbors
 	 */
 	public final static Neighbors neighbors (byte flagZona, short cursor, int[] tablero, NeighborStrategy neighborStrategy)
 	{
+		// CUDA: I don't know how to normalize so many switch cases and different array accesses with different dimensions.
+		// CUDA: The many dimensions can be solved with adding one additional dimension of size 1, and operate accordingly.
+		
 		// check for vicinity of fixed tiles positions
 		switch (cursor) {
 			// estoy en la posicion inmediatamente arriba de la posicion central

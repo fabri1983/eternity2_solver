@@ -6,8 +6,7 @@ TODO
 
 - Usar shutdown hook para mpje y asi matar todos los sub procesos.
 
-- Hacer calculo de min y max heap size en los .bat y .sh de acuerdo a Min(-Dnum.tasks, procs_available).
-Solo en run.bat|sh y run_benchmark.bat|sh.
+- Hacer calculo de min y max heap size en los .sh de acuerdo a number of procs. Ver cómo lo hice en los .bat.
 
 - Mejorar las implementacion de BinarySearch:
 	https://stackoverflow.com/questions/673826/optimize-binary-search-algorithm
@@ -236,7 +235,7 @@ sin tener que esperar que los procesos dispersos se sincronicen.
 
   - Antes de llamar a exploracionStandard():
 
-	if ((cursor == POSICION_MULTI_PROCESSES) && (sincronizar))
+	if ((cursor == POSICION_TASK_DIVISION) && (sincronizar))
 		sincronizar = false; //sincronizo una sola vez
 		if (rank == 0)
 			Send() a todos los procesos y esperar a que todos los recivan
@@ -245,7 +244,7 @@ sin tener que esperar que los procesos dispersos se sincronicen.
 		Esta logica esta implementada en metodo knocKnock()
   - Dentro de exploracionStandard():
 
-	if (cursor == POSICION_MULTI_PROCESSES)
+	if (cursor == POSICION_TASK_DIVISION)
 		establezco los limites del for. Aqui iría la lógica de asignación de ramas en uno o mas niveles
 		del arbol de exploración. 
 

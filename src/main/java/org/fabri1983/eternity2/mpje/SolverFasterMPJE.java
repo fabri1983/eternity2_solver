@@ -402,50 +402,57 @@ public final class SolverFasterMPJE {
 			return;
 		}
 		
-		int length_nbs = nbs.mergedInfo.length;
+		int hasta = nbs.mergedInfo.length;
 		
 		// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
-		if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
+		if (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset) {
 			
-			int this_proc_absolute = ID % num_processes;
-			desde = this_proc_absolute;
+			// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
+			
+			int thisProc = ID % num_processes;
 			
 			// caso 1: cada proc toma una única rama de Neighbors
-			if (num_processes == length_nbs) {
-				length_nbs = this_proc_absolute + 1;
+			if (num_processes == hasta) {
+				desde = thisProc;
+				hasta = thisProc + 1;
 			}
-			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (num_processes < length_nbs) {
-				int span = (length_nbs + 1) / num_processes;
-				desde *= span;
-				if (desde >= length_nbs)
-					desde = length_nbs - 1;
-				else if (desde + span < length_nbs)
-					length_nbs = desde + span;
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
+			else if (num_processes < hasta) {
+				int span = (hasta + 1) / num_processes;
+				desde = thisProc * span;
+				// considering cases when task division is odd:
+				//  - normal task distribution while not being the last process: hasta = desde + span
+				//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
+				if (thisProc != (num_processes - 1)) // normal task distribution while not being the last process 
+					hasta = thisProc * span + span;
 			}
-			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
-			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb continua la división.
-			// Ahora la cantidad de procs se setea igual a length_nbs.
+			// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
+			// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
+			// Seteo num_processes = hasta, asi el siguiente nivel divide correctamente.
 			else {
+				int divisor = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
+				desde = thisProc / divisor;
+				num_processes = hasta;
+				if (desde < hasta)
+					hasta = desde + 1;
+				else
+					desde = hasta - 1;
 				++pos_multi_process_offset;
-				int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
-				num_processes = length_nbs;
-				desde /= divisor;
-				if (desde >= length_nbs)
-					desde = length_nbs - 1;
-				length_nbs = desde + 1;
 			}
 			
-			// System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
+//			System.out.println("Id " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + hasta);
 		}
 		
 		// clean bits of this row
-		colorRightExploredStrategy.cleanRow(flagZona, cursor, tablero);
+		colorRightExploredStrategy.cleanBorderColorCurrentRow(flagZona, cursor, tablero);
 		
-		while (desde < length_nbs) {
+		while (desde < hasta) {
 			
 			int mergedInfo = nbs.mergedInfo[desde];
 			short numero = Neighbors.numero(mergedInfo);
+
+			// clean bits next row, every time a new neighbor is selected
+			colorRightExploredStrategy.cleanNextRow(cursor);
 			
 			if (usada[numero]) {
 				++desde;
@@ -471,9 +478,6 @@ public final class SolverFasterMPJE {
 //				++desde;
 //				continue; // continúo con el siguiente neighbor
 //			}
-			
-			// clean bits next row
-			colorRightExploredStrategy.cleanNextRow(cursor);
 			
 			// seteo el contorno como usado
 			contorno.toggleContorno(true, cursor, flagZona, tablero, mergedInfo);

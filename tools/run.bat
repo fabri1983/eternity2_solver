@@ -28,10 +28,20 @@ for %%a in (%*) do (
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 2m max usage for 8 threads with NO UI.
-:: 6m max usage for 8 threads with UI.
-set mem_alloc=6m
-echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=2m && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
+:: 1.5 max usage for 8 threads with NO UI, but JVM min heap size is 2m.
+:: Less than 6m max usage for 8 threads with UI.
+:: Let's calculate heap size according number of logical cores:
+:: divide in sets of 4 cores
+set /a divBy4LogicalCores=(%NUMBER_OF_PROCESSORS%+3)/4
+:: 1250k base mem + 200k every 4 logical cores
+set /a mem_alloc_NOUI= 1250 + (%divBy4LogicalCores% * 200)
+:: acomodate to min JVM heap size
+if %mem_alloc_NOUI% LSS 2048 (set mem_alloc_NOUI=2048)
+:: 3500k additional for UI usage
+set /a mem_alloc_UI= %mem_alloc_NOUI% + 3500
+:: assign final value
+set mem_alloc=%mem_alloc_UI%k
+echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=%mem_alloc_NOUI%k && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
 
 :: Options to enable SerialGC and its configuration for minor usage:
 ::  -XX:+UseSerialGC   Disables Parallel or Concurrent GC. It uses just 1 thread.
