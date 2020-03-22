@@ -30,8 +30,17 @@ cd ../target
 
 :: 10m max usage for 8 threads with NO UI. (imposed by the MPI api)
 :: 22m max usage for 8 threads with UI.
-set mem_alloc=22m
-echo(!jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=10m && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
+:: Let's calculate heap size according number of logical cores:
+:: divide in sets of 4 cores
+:: 1200k for every logical cores
+set /a mem_alloc_NOUI= %NUMBER_OF_PROCESSORS% * 1200
+:: acomodate to min JVM heap size
+if %mem_alloc_NOUI% LSS 2048 (set mem_alloc_NOUI=2048)
+:: 1200k for every logical cores for UI usage
+set /a mem_alloc_UI= %mem_alloc_NOUI% + (%NUMBER_OF_PROCESSORS% * 1200)
+:: assign final value
+set mem_alloc=%mem_alloc_UI%k
+echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=%mem_alloc_NOUI%k && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
 
 :: Options to enable SerialGC and its configuration for minor usage:
 ::  -XX:+UseSerialGC   Disables Parallel or Concurrent GC. It uses just 1 thread.

@@ -39,7 +39,7 @@ public class PiezaFactory {
 		p.rotacion=0;
 	}
 
-	public static Pieza from (String s, short num) {
+	public static Pieza from(String s, short num) {
 		Pieza p = new Pieza();
 		setFromStringWithNum(s, num, p);
 		return p;

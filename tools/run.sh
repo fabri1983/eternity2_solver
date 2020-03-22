@@ -6,7 +6,7 @@ all_args=$@
 orig_dir=$(pwd)
 cd ../target
 
-# 2m max usage for 8 threads with NO UI.
+# 1.25m max usage for 8 threads with NO UI, but JVM min heap size is 2m
 # 6m max usage for 8 threads with UI.
 mem_alloc="2m"
 no_ui_options="-Djava.awt.headless=true -Dsun.java2d.xrender=false"

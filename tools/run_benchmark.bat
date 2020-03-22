@@ -28,9 +28,21 @@ for %%a in (%*) do (
 set ORIG_DIR=%cd%
 cd ../target
 
-:: 2m max usage for 8 threads. However the whole benchmark needs 4m
+:: 1.25m max usage for 8 threads with NO UI, but JVM min heap size is 2m. However the whole benchmark needs 4m for 8 threads.
 set mem_alloc=4m
 set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
+
+:: 1.5 max usage for 8 threads with NO UI, but JVM min heap size is 2m. However the whole benchmark needs 4m for 8 threads.
+:: Less than 6m max usage for 8 threads with UI.
+:: Let's calculate heap size according number of logical cores:
+:: divide in sets of 4 cores
+set /a divBy4LogicalCores=(%NUMBER_OF_PROCESSORS%+3)/4
+:: 1250k base mem + 200k every 4 logical cores + 200k (benchmark imposed) every 4 logical cores
+set /a mem_alloc_NOUI= 1250 + (%divBy4LogicalCores% * (200 + 200))
+:: acomodate to min JVM heap size
+if %mem_alloc_NOUI% LSS 2048 (set mem_alloc_NOUI=2048)
+:: assign final value
+set mem_alloc=%mem_alloc_NOUI%k && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
 
 :: Options to enable SerialGC and its configuration for minor usage:
 ::  -XX:+UseSerialGC   Disables Parallel or Concurrent GC. It uses just 1 thread.

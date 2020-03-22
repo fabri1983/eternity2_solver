@@ -68,6 +68,8 @@ public class ColorRightExploredStrategy {
 	 * @param cursor
 	 */
 	public void cleanNextRow(short cursor) {
+		// CUDA: Set fila_actual to -1 when condition is not satisfied, using bitwise and similar, since fila_actual 0 is not used.
+		
 		// estoy justo antes de borde right?
 		if (((cursor + 2) & (Consts.LADO - 1)) == 0) {
 			int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION;
@@ -83,7 +85,9 @@ public class ColorRightExploredStrategy {
 	 * @param cursor
 	 * @param tablero
 	 */
-	public void cleanRow(byte flagZona, short cursor, int[] tablero) {
+	public void cleanBorderColorCurrentRow(byte flagZona, short cursor, int[] tablero) {
+		// CUDA: Set fila_actual to 0 when condition is not satisfied, using bitwise and similar, since fila_actual 0 is not used.
+		
 		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_RIGHT) {
 			int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION;
 			// Limpio el bit del color right de la pieza en borde left para la fila actual.
@@ -102,6 +106,9 @@ public class ColorRightExploredStrategy {
 	 * @return
 	 */
 	public boolean run(byte flagZona, short cursor, int mergedInfo, int[] tablero) {
+		// CUDA: Set fila_actual to 0 when condition is not satisfied, using bitwise and similar, since fila_actual 0 is not used.
+		// CUDA: Return the value of setIfClean and operate accordingly in caller method.
+		
 		if ((flagZona & Consts.MASK_F_TABLERO) == Consts.F_BORDE_LEFT) {
 			int fila_actual = cursor >>> Consts.LADO_FOR_SHIFT_DIVISION;
 			// Si el color right ya está explorado (el bit vale 1) entonces continuo con otra pieza de borde. 

@@ -46,7 +46,7 @@ public class Consts {
 	/**
 	 * At which board position do we start to split calculations. 
 	 */
-	public final static int POSICION_MULTI_PROCESSES = 99;
+	public final static int POSICION_TASK_DIVISION = 99;
 	
 	public final static byte F_INTERIOR =           0b000000;
 	public final static byte F_BORDE_RIGHT =        0b000001;

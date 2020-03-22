@@ -31,8 +31,8 @@ import org.fabri1983.eternity2.core.neighbors.Neighbors;
 public class ExplorationIterativeTask extends ExplorationTask {
 	
 	private int num_processes;
-	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_MULTI_PROCESSES + 1];
-	final int[] iter_length_nbs = new int[Consts.MAX_PIEZAS];
+	private final int[] num_processes_orig = new int[Consts.MAX_PIEZAS - Consts.POSICION_TASK_DIVISION + 1];
+	final int[] iter_hasta = new int[Consts.MAX_PIEZAS];
 	
 	public ExplorationIterativeTask(int _id, int _num_processes, CountDownLatch startSignal) {
 		super(_id, startSignal);
@@ -48,8 +48,8 @@ public class ExplorationIterativeTask extends ExplorationTask {
 			num_processes_orig[k] = 0;
 		}
 		
-		for (int k=0; k < iter_length_nbs.length; ++k) {
-			iter_length_nbs[k] = 0;
+		for (int k=0; k < iter_hasta.length; ++k) {
+			iter_hasta[k] = 0;
 		}
 		
 		super.resetForBenchmark(_num_processes, startSignal);
@@ -132,15 +132,15 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						break; // exit the while-loop to back track a position
 					}
 					
-					iter_length_nbs[cursor] = nbs.mergedInfo.length;
+					iter_hasta[cursor] = nbs.mergedInfo.length;
 					
 					// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
-					if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
+					if (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset) {
 						setupMultiProcessesExploration();
 					}
 					
 					// clean bits of this row
-					colorRightExploredStrategy.cleanRow(flagZona, cursor, tablero);
+					colorRightExploredStrategy.cleanBorderColorCurrentRow(flagZona, cursor, tablero);
 				}
 				
 				//###################################################################################################
@@ -149,14 +149,14 @@ public class ExplorationIterativeTask extends ExplorationTask {
 				continueLoopNeighbors = false; // reset
 				
 				int desde = iter_desde[cursor];
-				int nbs_length = iter_length_nbs[cursor];
+				int hasta = iter_hasta[cursor];
 				
 				// Loop while selected neighbor cannot be placed as valid tile.
 				// Exit the loop when we need to continue with next board position.
 				while (true) {
 					
 					// did we exhaust all tiles from current neighbors?
-					if (desde >= nbs_length) {
+					if (desde >= hasta) {
 						int mergedInfo = tablero[cursor];
 						// seteo el contorno como libre
 						contorno.toggleContorno(false, cursor, flagZona, tablero, mergedInfo);
@@ -166,8 +166,8 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						iter_desde[cursor] = 0;
 						tablero[cursor] = Consts.TABLERO_INFO_EMPTY_VALUE; // tablero libre
 						// restore multi processes variables
-						if ((cursor >= Consts.POSICION_MULTI_PROCESSES) & (cursor <= Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset)) {
-							num_processes = num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES];
+						if ((cursor >= Consts.POSICION_TASK_DIVISION) & (cursor <= Consts.POSICION_TASK_DIVISION + pos_multi_process_offset)) {
+							num_processes = num_processes_orig[cursor - Consts.POSICION_TASK_DIVISION];
 							if (pos_multi_process_offset > 0) {
 								--pos_multi_process_offset;
 							}
@@ -177,6 +177,9 @@ public class ExplorationIterativeTask extends ExplorationTask {
 					
 					int mergedInfo = nbs.mergedInfo[desde];
 					short numero = Neighbors.numero(mergedInfo);
+
+					// clean bits next row, every time a new neighbor is selected
+					colorRightExploredStrategy.cleanNextRow(cursor);
 					
 					if (usada[numero]) {
 						++desde;
@@ -202,9 +205,6 @@ public class ExplorationIterativeTask extends ExplorationTask {
 //						++desde;
 //						continue; // continúo con el siguiente neighbor
 //					}
-					
-					// clean bits next row
-					colorRightExploredStrategy.cleanNextRow(cursor);
 					
 					// seteo el contorno como usado
 					contorno.toggleContorno(true, cursor, flagZona, tablero, mergedInfo);
@@ -246,42 +246,48 @@ public class ExplorationIterativeTask extends ExplorationTask {
 	 */
 	private void setupMultiProcessesExploration() {
 		
-		// save the current value of num_processes, it might be changed
-		num_processes_orig[cursor - Consts.POSICION_MULTI_PROCESSES] = num_processes;
+		// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
 		
-		int this_proc_absolute = ID % num_processes;
-		int desde = this_proc_absolute;
-		int length_nbs = iter_length_nbs[cursor];
+		// save the current value of num_processes, it might be changed
+		num_processes_orig[cursor - Consts.POSICION_TASK_DIVISION] = num_processes;
+		
+		int hasta = iter_hasta[cursor];
+		int desde;
+		
+		int thisProc = ID % num_processes;
 		
 		// caso 1: cada proc toma una única rama de Neighbors
-		if (num_processes == length_nbs) {
-			length_nbs = this_proc_absolute + 1;
+		if (num_processes == hasta) {
+			desde = thisProc;
+			hasta = thisProc + 1;
 		}
-		// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-		else if (num_processes < length_nbs) {
-			int span = (length_nbs + 1) / num_processes;
-			desde *= span;
-			if (desde >= length_nbs)
-				desde = length_nbs - 1;
-			else if (desde + span < length_nbs)
-				length_nbs = desde + span;
+		// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
+		else if (num_processes < hasta) {
+			int span = (hasta + 1) / num_processes;
+			desde = thisProc * span;
+			// considering cases when task division is odd:
+			//  - normal task distribution while not being the last process: hasta = desde + span
+			//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
+			if (thisProc != (num_processes - 1)) // normal task distribution while not being the last process 
+				hasta = thisProc * span + span;
 		}
-		// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
-		// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb continua la división.
-		// Ahora la cantidad de procs se setea igual a length_nbs.
+		// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
+		// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
+		// Seteo num_processes = hasta, asi el siguiente nivel divide correctamente.
 		else {
+			int divisor = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
+			desde = thisProc / divisor;
+			num_processes = hasta;
+			if (desde < hasta)
+				hasta = desde + 1;
+			else
+				desde = hasta - 1;
 			++pos_multi_process_offset;
-			int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
-			num_processes = length_nbs;
-			desde /= divisor;
-			if (desde >= length_nbs)
-				desde = length_nbs - 1;
-			length_nbs = desde + 1;
 		}
 		
-		// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
+		// System.out.println("Rank " + THIS_PROCESS + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + hasta);
 		iter_desde[cursor] = desde;
-		iter_length_nbs[cursor] = length_nbs;
+		iter_hasta[cursor] = hasta;
 	}
 
 }

@@ -34,7 +34,7 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class ExplorationTask implements Runnable {
 
-	protected int pos_multi_process_offset = 0; // usado con POSICION_MULTI_PROCESSES sirve para continuar haciendo los calculos de distribución de exploración
+	protected int pos_multi_process_offset = 0; // usado con POSICION_TASK_DIVISION sirve para continuar haciendo los calculos de distribución de exploración
 	
 	protected String statusFileName, parcialFileName, disposicionFileName, solucFileName;
 	
@@ -54,7 +54,7 @@ public class ExplorationTask implements Runnable {
 	final ColorRightExploredStrategy colorRightExploredStrategy = new ColorRightExploredStrategy();
 	
 	/**
-	 * 0-based para identificar la task y para saber qué rama de la exploración tomar cuando esté en POSICION_MULTI_PROCESSES
+	 * 0-based para identificar la task y para saber qué rama de la exploración tomar cuando esté en POSICION_TASK_DIVISION
 	 */
 	public final int ID;
 	
@@ -199,6 +199,7 @@ public class ExplorationTask implements Runnable {
 		
 		byte flagZona = CommonFuncs.matrix_zonas[cursor];
 		
+		// CUDA: This needs to be trasnformed to a normal exploration, so changes may be required.
 		// si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
 		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 			// seteo el contorno como usado
@@ -215,59 +216,81 @@ public class ExplorationTask implements Runnable {
 		// can be null when there is no neighbors and when cursor == Consts.PIEZA_CENTRAL_POS_TABLERO
 		Neighbors nbs = Neighbors.neighbors(flagZona, cursor, tablero, SolverFaster.neighborStrategy);
 		
+		// CUDA: I don't know how to transform this condition. Maybe the return is fine.
 		// if no neighbors then backtrack
 		if (nbs == null)
 			return;
 		
+		// CUDA: I don't know how to transform this condition. Maybe the return is fine.
 		// pregunto si el contorno superior de las posiciones subsecuentes generan un contorno ya usado
 		if (contorno.esContornoSuperiorUsado(cursor, flagZona, tablero)) {
 			return;
 		}
 		
-		int length_nbs = nbs.mergedInfo.length;
+		int hasta = nbs.mergedInfo.length;
 		
+		// CUDA: Convert condition to a variable valued as 0 or 1, and use it as factor to lately assign desde and hasta.
 		// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
-		if (cursor == Consts.POSICION_MULTI_PROCESSES + pos_multi_process_offset) {
+		if (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset) {
 			
-			int this_proc_absolute = ID % num_processes;
-			desde = this_proc_absolute;
+			// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
+			
+			int thisProc = ID % num_processes;
 			
 			// caso 1: cada proc toma una única rama de Neighbors
-			if (num_processes == length_nbs) {
-				length_nbs = this_proc_absolute + 1;
+			if (num_processes == hasta) {
+				desde = thisProc;
+				hasta = thisProc + 1;
 			}
-			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas
-			else if (num_processes < length_nbs) {
-				int span = (length_nbs + 1) / num_processes;
-				desde *= span;
-				if (desde >= length_nbs)
-					desde = length_nbs - 1;
-				else if (desde + span < length_nbs)
-					length_nbs = desde + span;
+			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
+			else if (num_processes < hasta) {
+				int span = (hasta + 1) / num_processes;
+				desde = thisProc * span;
+				// considering cases when task division is odd:
+				//  - normal task distribution while not being the last process: hasta = desde + span
+				//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
+				if (thisProc != (num_processes - 1)) // normal task distribution while not being the last process 
+					hasta = thisProc * span + span;
 			}
-			// caso 3: existen mas procs que piezas a explorar, entonces hay que distribuir los procs y
-			// aumentar el POSICION_MULTI_PROCESSES en uno asi el siguiente nivel tmb continua la división.
-			// Ahora la cantidad de procs se setea igual a length_nbs.
+			// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
+			// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
+			// Seteo num_processes = hasta asi el siguiente nivel divide correctamente.
 			else {
+				int divisor = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
+				desde = thisProc / divisor;
+				num_processes = hasta;
+				if (desde < hasta)
+					hasta = desde + 1;
+				else
+					desde = hasta - 1;
 				++pos_multi_process_offset;
-				int divisor = (num_processes + 1) / length_nbs; // reparte los procs por posible pieza
-				num_processes = length_nbs;
-				desde /= divisor;
-				if (desde >= length_nbs)
-					desde = length_nbs - 1;
-				length_nbs = desde + 1;
 			}
 			
-			// System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + length_nbs);
+			// CUDA: task division branchless
+			// 0 when equals, 1 when neighbors > num_processes, -1 when neighbors < num_processes
+//			int comparisonNumProcsAndLength = hasta - num_processes; // will only use 0 and 1
+//			int moreProcsThanNeighbors = hasta - num_processes < 0 ? 0 : 1;
+//			int isLastProc = thisProc == (num_processes - 1) ? 1 : 0;
+//
+//			int span = (1 - comparisonNumProcsAndLength) |
+//				comparisonNumProcsAndLength * ((hasta + num_processes - 1) / num_processes);
+//			desde = thisProc * span;
+//			hasta = (1 - comparisonNumProcsAndLength) * (thisProc + 1) |
+//				comparisonNumProcsAndLength * Math.max(isLastProc * hasta, (1 - isLastProc) * (thisProc * span + span));
+			
+//			System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + hasta);
 		}
 		
 		// clean bits of this row
-		colorRightExploredStrategy.cleanRow(flagZona, cursor, tablero);
+		colorRightExploredStrategy.cleanBorderColorCurrentRow(flagZona, cursor, tablero);
 		
-		while (desde < length_nbs) {
+		while (desde < hasta) {
 			
 			int mergedInfo = nbs.mergedInfo[desde];
 			short numero = Neighbors.numero(mergedInfo);
+			
+			// clean bits next row, every time a new neighbor is selected
+			colorRightExploredStrategy.cleanNextRow(cursor);
 			
 			if (usada[numero]) {
 				++desde;
@@ -293,9 +316,6 @@ public class ExplorationTask implements Runnable {
 //				++desde;
 //				continue; // continúo con el siguiente neighbor
 //			}
-			
-			// clean bits next row
-			colorRightExploredStrategy.cleanNextRow(cursor);
 			
 			// seteo el contorno como usado
 			contorno.toggleContorno(true, cursor, flagZona, tablero, mergedInfo);
