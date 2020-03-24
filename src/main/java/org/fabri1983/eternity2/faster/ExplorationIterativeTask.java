@@ -268,20 +268,24 @@ public class ExplorationIterativeTask extends ExplorationTask {
 			// considering cases when task division is odd:
 			//  - normal task distribution while not being the last process: hasta = desde + span
 			//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
-			if (thisProc != (num_processes - 1)) // normal task distribution while not being the last process 
-				hasta = thisProc * span + span;
+			if (thisProc != (num_processes - 1)) 
+				hasta = desde + span;
 		}
 		// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
 		// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
-		// Seteo num_processes = hasta, asi el siguiente nivel divide correctamente.
+		// Also num_processes changes, so next exploration level uses correct process ID.
 		else {
-			int divisor = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
-			desde = thisProc / divisor;
-			num_processes = hasta;
-			if (desde < hasta)
-				hasta = desde + 1;
-			else
-				desde = hasta - 1;
+			int division = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
+			int prodSinResto = division * hasta; // producto pero sin el resto en caso de odd division
+			int resto = num_processes - division * hasta; // resto en caso de odd division 
+			desde = Math.min(thisProc / division, hasta - 1);
+			hasta = desde + 1;
+			num_processes = division;
+			// only for non exact division cases
+			if (resto > 0 & thisProc >= prodSinResto-1) {
+				hasta = Math.max(1, hasta + resto - 2); // -2 comes from: -1 due to desde + 1, and again -1 due to resto non being 0-based
+				num_processes += resto;
+			}
 			++pos_multi_process_offset;
 		}
 		
