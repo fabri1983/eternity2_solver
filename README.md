@@ -41,16 +41,16 @@ in which CPU processing capabiliy is decoupled from game logic. Here is where mi
 
 Some stats
 ----------
-- **New stats** include changes for use far less memory than before:
+- Counting correct tiles per second. A correct tile is such one that passed all filtering:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
-    - Placing approx **90.75 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
+    - *(outdated)* Approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
-    - Placing approx **90.75 million correct tiles per second** running with a pool of **8 threads**.
-    - Placing approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
+    - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
+    - *(outdated)* Approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
-    - *(outdated)* Placing approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
-    - *(outdated)* Placing approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
+    - *(outdated)* Approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
+    - *(outdated)* Approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
