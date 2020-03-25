@@ -255,7 +255,7 @@ public class ExplorationTask implements Runnable {
 			// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
 			// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
 			// Also num_processes changes, so next exploration level uses correct process ID.
-			else { // num_processes=8 y hasta=2 y thisProc=7
+			else {
 				int division = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
 				int prodSinResto = division * hasta; // producto pero sin el resto en caso de odd division
 				int resto = num_processes - division * hasta; // resto en caso de odd division 
