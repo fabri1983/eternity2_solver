@@ -231,19 +231,20 @@ public class ExplorationTask implements Runnable {
 		
 		// CUDA: Convert condition to a variable valued as 0 or 1, and use it as factor to lately assign desde and hasta.
 		// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
-		if (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset) {
+		if ((hasta > 1) & (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset)) {
 			
-			// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
+			// NOTE: next conditions are such that they always assign work to processes, even when the task division is odd.
 			
 			int thisProc = ID % num_processes;
+			int comparison = num_processes - hasta;
 			
 			// caso 1: cada proc toma una única rama de Neighbors
-			if (num_processes == hasta) {
+			if (comparison == 0) {
 				desde = thisProc;
 				hasta = thisProc + 1;
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
-			else if (num_processes < hasta) {
+			else if (comparison < 0) {
 				int span = (hasta + 1) / num_processes;
 				desde = thisProc * span;
 				// considering cases when task division is odd:
@@ -261,7 +262,7 @@ public class ExplorationTask implements Runnable {
 				int resto = num_processes - division * hasta; // resto en caso de odd division 
 				desde = Math.min(thisProc / division, hasta - 1);
 				hasta = desde + 1;
-				num_processes = division;
+				num_processes = Math.min(division, num_processes); // corner case
 				// only for non exact division cases
 				if (resto > 0 & thisProc >= prodSinResto-1) {
 					hasta = Math.max(1, hasta + resto - 2); // -2 comes from: -1 due to desde + 1, and again -1 due to resto non being 0-based
@@ -270,7 +271,7 @@ public class ExplorationTask implements Runnable {
 				++pos_multi_process_offset;
 			}
 			
-			// CUDA: task division branchless
+			// CUDA: branch less task division 
 			// 0 when equals, 1 when neighbors > num_processes, -1 when neighbors < num_processes
 //			int comparisonNumProcsAndLength = hasta - num_processes; // will only use 0 and 1
 //			int moreProcsThanNeighbors = hasta - num_processes < 0 ? 0 : 1;
