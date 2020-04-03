@@ -506,6 +506,8 @@ This will help you to decide which iso you need to download:
   - To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
   - Reference manual: https://docs.oracle.com/en/graalvm/enterprise/20/guide/toc.htm
   - *-H:+PrintAnalysisCallTree* or *-H:+PrintImageObjectTree* options are meant to help answer questions about why a certain method or object are getting into an image.
+  - If facing `Caused by: java.nio.charset.UnsupportedCharsetException: <charset-name-here>` then use *-H:+AddAllCharsets*.
+  - If using *-Dio.netty.noUnsafe=true* but still getting: `DEBUG io.grpc.netty.shaded.io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false` then use *-Dio.grpc.netty.shaded.io.netty.noUnsafe=true*
 
 
 Using GraalVM's Agent Lib to get native image resources and configurations

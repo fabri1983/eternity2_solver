@@ -45,7 +45,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 		num_processes = _num_processes;
 		
 		for (int k=0; k < num_processes_orig.length; ++k) {
-			num_processes_orig[k] = 0;
+			num_processes_orig[k] = _num_processes;
 		}
 		
 		for (int k=0; k < iter_hasta.length; ++k) {
@@ -132,10 +132,11 @@ public class ExplorationIterativeTask extends ExplorationTask {
 						break; // exit the while-loop to back track a position
 					}
 					
-					iter_hasta[cursor] = nbs.mergedInfo.length;
+					int hasta = nbs.mergedInfo.length;
+					iter_hasta[cursor] = hasta;
 					
 					// Task Division: establezco los limites de las piezas a explorar para este cursor y siguiente exploración (si aplica)
-					if (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset) {
+					if ((hasta > 1) & (cursor == Consts.POSICION_TASK_DIVISION + pos_multi_process_offset)) {
 						setupMultiProcessesExploration();
 					}
 					
@@ -246,7 +247,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 	 */
 	private void setupMultiProcessesExploration() {
 		
-		// NOTE: next conditions are such that they always set work to processes, even when the task division is odd.
+		// NOTE: next conditions are such that they always set assign to processes, even when the task division is odd.
 		
 		// save the current value of num_processes, it might be changed
 		num_processes_orig[cursor - Consts.POSICION_TASK_DIVISION] = num_processes;
@@ -255,14 +256,15 @@ public class ExplorationIterativeTask extends ExplorationTask {
 		int desde;
 		
 		int thisProc = ID % num_processes;
+		int comparison = num_processes - hasta;
 		
 		// caso 1: cada proc toma una única rama de Neighbors
-		if (num_processes == hasta) {
+		if (comparison == 0) {
 			desde = thisProc;
 			hasta = thisProc + 1;
 		}
 		// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
-		else if (num_processes < hasta) {
+		else if (comparison < 0) {
 			int span = (hasta + 1) / num_processes;
 			desde = thisProc * span;
 			// considering cases when task division is odd:
@@ -280,7 +282,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 			int resto = num_processes - division * hasta; // resto en caso de odd division 
 			desde = Math.min(thisProc / division, hasta - 1);
 			hasta = desde + 1;
-			num_processes = division;
+			num_processes = Math.min(division, num_processes); // corner case
 			// only for non exact division cases
 			if (resto > 0 & thisProc >= prodSinResto-1) {
 				hasta = Math.max(1, hasta + resto - 2); // -2 comes from: -1 due to desde + 1, and again -1 due to resto non being 0-based
