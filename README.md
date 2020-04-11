@@ -414,7 +414,7 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
     it and to install a new JIT compiler.  
     By default, Graal is only used for hosted compilation (i.e., the VM still uses C2 for compilation).  
     To make the VM use Graal as the top tier JIT compiler, add the -XX:+UseJVMCICompiler option to the command line.  
-    To disable use of Graal altogether, use -XX:-EnableJVMCI.  
+    To disable use of Graal all together, use -XX:-EnableJVMCI.  
     	
     We use -XX:-TieredCompilation to disable tiered compilation to keep things simpler and to just have the one JVMCI compiler, 
     rather than using C1 and then the JVMCI compiler in tiered compilation.  
@@ -512,6 +512,7 @@ This will help you to decide which iso you need to download:
 
 Using GraalVM's Agent Lib to get native image resources and configurations
 --------------------------------------------------------------------------
+**This process produces configurations already set in native-image.properties**
 ```sh
 SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
 %GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
@@ -519,6 +520,7 @@ set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
 	Eg: set JAVA_HOME=c:\java\openjdk1.8.0_242-jvmci-20.0-b02
 Update PATH env variable with %JAVA_HOME%\bin
 ```
+**WIP**: need to setup a flag to finish the program after few seconds, so the agent writes down the output files. Otherwise I'm adding `System.exit(0)` when max cycles is reached. 
 Generate jar artifact with -Pjava8native or -Pjava11native
 ```sh
 mvn clean package -Pjava8native
