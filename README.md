@@ -449,17 +449,17 @@ This will help you to decide which iso you need to download:
 	- See this link for troubleshooting installation issues:
 		https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
 - You need Build Tools for Visual Studio 2017 (https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads) for building against GraalVM Java11.
-- Install Build Tolls for Visual Studio 2017.
+- Install Build Tools for Visual Studio 2017.
 - Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
 	Open a console:
-		For Java8 targets
-			open the **Windows SDK 7.1 Command Prompt** going to Start -> Programs -> Microsoft Windows SDK v7.1
-			(or open a cmd console and run: call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd")
-		For Java11 targets:
-			open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
-			(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
+	  For Java8 targets
+		open the **Windows SDK 7.1 Command Prompt** going to Start -> Programs -> Microsoft Windows SDK v7.1
+		(or open a cmd console and run: call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd")
+	  For Java11 targets:
+		open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
+		(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
 	SET JAVA_HOME=C:\java\graalvm-ee-java8-20.0.0  or  C:\java\graalvm-ee-java11-20.0.0
 	cd substratevm
 	mx build --all
