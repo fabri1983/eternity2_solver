@@ -1,4 +1,4 @@
-# Ignore folders inside target folder to avoid sending them into Docker daemon
+# Ignore folders and files inside target folder to avoid sending them into Docker daemon
 antrun
 classes
 generated-sources
