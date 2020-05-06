@@ -45,12 +45,12 @@ Some stats
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
     - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
     - *(outdated)* Approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
-  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.6+10 (compiled and executed). Results:
+  - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 11.0.7-10 (compiled and executed). Results:
     - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
     - *(outdated)* Approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
-    - *(outdated)* Approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java8 EE**, **with 8 threads**.
-    - *(outdated)* Approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.0 Java11 EE**, **with 8 threads**.
+    - *(outdated)* Approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.1 Java8 EE**, **with 8 threads**.
+    - *(outdated)* Approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.1 Java11 EE**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -355,7 +355,7 @@ exit
 
 Build a GraalVM on Windows and run your jar
 -------------------------------------------
-We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 20.0.0 so far**.
+We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 20.0.1 so far**.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
@@ -391,8 +391,8 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	- you will need python2.7 to be in your PATH.
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\openjdk-11.0.5+10
-	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
+	SET JAVA_HOME=c:\java\openjdk-11.0.7-10
+	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
 	cd compiler
 	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
 	mx vm -version
@@ -425,18 +425,18 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 - See also https://github.com/neomatrix369/awesome-graal/tree/master/build/x86_64/linux_macos
 
 
-Build a native image using GraalVM's SubstrateVM on Windows
----------------------------------------------------------
-We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 20.0.0 so far**.
+Build a native image using GraalVM's Native Image on Windows
+------------------------------------------------------------
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 20.0.1 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11
 - Install GraalVM EE either Java8 or java 11 version:
 	- https://www.oracle.com/downloads/graalvm-downloads.html   <-- (choose either java8 or java11 versions, both EE)
 	- Also download the Oracle GraalVM Enterprise Edition Native Image Early Adopter:
-		- native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar
+		- native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar
 		or
-		- native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
+		- native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
 - You need Python 2.7 (https://www.python.org/downloads/release/python-2715/).
 - You need Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442) for building against GraalVM Java8.
 This will help you to decide which iso you need to download:
@@ -460,7 +460,7 @@ This will help you to decide which iso you need to download:
 	  For Java11 targets:
 		open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
 		(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
-	SET JAVA_HOME=C:\java\graalvm-ee-java8-20.0.0  or  C:\java\graalvm-ee-java11-20.0.0
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-20.0.1  or  C:\java\graalvm-ee-java11-20.0.1
 	cd substratevm
 	mx build --all
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
@@ -493,8 +493,8 @@ This will help you to decide which iso you need to download:
 	```
 	- If no using `mx` then you have to install the previously downloaded `native-image` tool manually:
 	```sh
-	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
-	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
+	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
+	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
 	```
 - Tips:
   - Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
@@ -508,14 +508,15 @@ This will help you to decide which iso you need to download:
   - *-H:+PrintAnalysisCallTree* or *-H:+PrintImageObjectTree* options are meant to help answer questions about why a certain method or object are getting into an image.
   - If facing `Caused by: java.nio.charset.UnsupportedCharsetException: <charset-name-here>` then use *-H:+AddAllCharsets*.
   - If using *-Dio.netty.noUnsafe=true* but still getting: `DEBUG io.grpc.netty.shaded.io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false` then use *-Dio.grpc.netty.shaded.io.netty.noUnsafe=true*
+  - Use -H:+RemoveSaturatedTypeFlows to reduce the analysis phase execution time and memory usage. However the number of methods/types included in the image can increase.
 
 
 Using GraalVM's Agent Lib to get native image resources and configurations
 --------------------------------------------------------------------------
 **This process produces configurations already set in native-image.properties**
 ```sh
-SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.0  or  c:\java\graalvm-ee-java11-20.0.0
-%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.0.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.0.jar
+SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
+%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
 set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
 	Eg: set JAVA_HOME=c:\java\openjdk1.8.0_242-jvmci-20.0-b02
 Update PATH env variable with %JAVA_HOME%\bin
