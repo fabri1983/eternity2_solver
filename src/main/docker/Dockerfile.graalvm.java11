@@ -1,45 +1,16 @@
 
 ######################################################################################################
-FROM ubuntu:bionic
-
-ENV JVMCI_URL=https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-20.1-b02/labsjdk-ce-11.0.7+10-jvmci-20.1-b02-linux-amd64.tar.gz
-ENV GRAALVM_BRANCH=master
-ENV JAVA_HOME=/opt/openjdk-jvmci
-ENV PATH="/opt/mx-master:$JAVA_HOME/bin:$PATH"
-
-RUN apt-get -y update \
- && apt-get -y install git curl build-essential python unzip zlib1g-dev \
- && rm -rf /var/lib/apt/lists/*
-
-RUN cd /opt \
- && curl -LO https://github.com/graalvm/mx/archive/master.zip \
- && unzip master.zip \
- && rm master.zip \
- && curl -L $JVMCI_URL | tar -xz \
- && mv *jdk* openjdk-jvmci \
- && git clone --single-branch --branch $GRAALVM_BRANCH https://github.com/oracle/graal.git \
- && cd graal/vm \
- && mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm build
-
-######################################################################################################
-FROM ubuntu:bionic
+FROM oracle/graalvm-ce:20.0.0-java11
 ARG E2_JAR
 
-ENV JAVA_HOME=/opt/java
-ENV PATH="$JAVA_HOME/bin:$PATH"
 ENV ENV_E2_JAR=${E2_JAR}
 
-RUN apt-get -y update \
- && apt-get -y install build-essential zlib1g-dev \
- && rm -rf /var/lib/apt/lists/*
+RUN gu install native-image \
+ && mkdir -p /app
 
-RUN mkdir /opt/java \
- && mkdir /app
-
-COPY --from=0 /opt/graal/vm/latest_graalvm_home/. /opt/java/
 COPY ${E2_JAR} /app/
 
 WORKDIR /app
 
 # Entry with exec so jvm flags are correctly gathered
-ENTRYPOINT exec native-image --verbose -H:CompilerBackend=llvm -jar ${ENV_E2_JAR}
+ENTRYPOINT exec native-image --verbose -jar ${ENV_E2_JAR}
