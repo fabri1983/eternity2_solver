@@ -394,8 +394,51 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	SET JAVA_HOME=c:\java\openjdk-11.0.7-10
 	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
 	cd compiler
-	mx --disable-polyglot --disable-libpolyglot --dynamicimports /substratevm --skip-libraries=true build
+	mx --disable-polyglot --disable-libpolyglot --skip-libraries=true --dynamicimports /compiler build
 	mx vm -version
+	```
+	mx usage:
+	```sh
+	usage: mx [-h] [-v] [-V] [--no-warning] [--quiet] [-y] [-n] [-p <path>] [--dbg <port>] [-d] [--attach ATTACH]
+          [--backup-modified] [--cp-pfx <arg>] [--cp-sfx <arg>] [-J <arg> | --J @<args>] [-P <arg> | --Jp @<args>]
+          [-A <arg> | --Ja @<args>] [--user-home <path>] [--java-home <path>] [--jacoco {off,on,append}]
+          [--jacoco-whitelist-package <package>] [--jacoco-exclude-annotation <annotation>] [--jacoco-dest-file <path>]
+          [--extra-java-homes <path>] [--strict-compliance] [--ignore-project <name>] [--kill-with-sigquit]
+          [--suite <name>] [--suitemodel <arg>] [--primary] [--dynamicimports <name>] [--no-download-progress]
+          [--version] [--mx-tests] [--jdk <tag:compliance>] [--jmods-dir <path>]
+          [--version-conflict-resolution {suite,none,latest,latest_all,ignore}] [-c <cpus>] [--strip-jars]
+          [--env <name>] [--trust-http] [--multiarch] [--dump-task-stats <path>] [--timeout <secs>] [--ptimeout <secs>]
+          [--components COMPONENTS] [--exclude-components EXCLUDE_COMPONENTS] [--disable-libpolyglot]
+          [--disable-polyglot] [--disable-installables DISABLE_INSTALLABLES] [--debug-images]
+          [--native-images NATIVE_IMAGES] [--force-bash-launchers FORCE_BASH_LAUNCHERS]
+          [--skip-libraries SKIP_LIBRARIES] [--no-sources] [--with-debuginfo] [--snapshot-catalog SNAPSHOT_CATALOG]
+          [--release-catalog RELEASE_CATALOG] [--extra-image-builder-argument EXTRA_IMAGE_BUILDER_ARGUMENT]
+          [--image-profile IMAGE_PROFILE] [--no-licenses] [--vmprefix <prefix>] [--gdb] [--lldb]
+	```
+	Helpful options:
+	```sh
+	use graalvm-show instead of build to see what will be built
+	--skip-libraries=true  <-- skips libnative-image-agent.so and libjvmcicompiler.so
+	--disable-installables=true  <-- ?? skips installables and launchers (gu, native-image, native-image-configure)?
+	--exclude-components=gvm,gu,lg,mjdksl,nju,nic,nil,polynative,tflm
+	Components:
+	 - Truffle ('tfl', /truffle)
+	 - Component installer ('gu', /installer)
+	 - SubstrateVM ('svm', /svm)
+	 - Native Image licence files ('nil', /svm)
+	 - Native Image ('ni', /svm)
+	 - SubstrateVM LLVM ('svml', /svm)
+	 - Polyglot Native API ('polynative', /polyglot)
+	 - LLVM.org toolchain ('llp', /llvm)
+	 - GraalVM license files ('gvm', /.)
+	 - Truffle NFI ('nfi', /nfi)
+	 - Truffle Macro ('tflm', /truffle)
+	 - JDK11 static libraries compiled with muslc ('mjdksl', /False)
+	 - LibGraal ('lg', /False)
+	 - Native Image JUnit ('nju', /junit)
+	 - Native Image Configure Tool ('nic', /svm)
+	 - Graal SDK ('sdk', /graalvm)
+	 - GraalVM compiler ('cmp', /graal)
 	```
 - Run your jar with Graal VM
 	```sh
