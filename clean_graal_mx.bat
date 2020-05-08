@@ -15,6 +15,7 @@ start /B /wait cmd.exe /K "cd /D %currentDir%\sulong\      && ECHO Cleaning sulo
 start /B /wait cmd.exe /K "cd /D %currentDir%\tools\       && ECHO Cleaning tools && mx clean && exit"
 start /B /wait cmd.exe /K "cd /D %currentDir%\truffle\     && ECHO Cleaning truffle && mx clean && exit"
 start /B /wait cmd.exe /K "cd /D %currentDir%\vm\          && ECHO Cleaning vm && mx clean && exit"
+start /B /wait cmd.exe /K "cd /D %currentDir%\wasm\        && ECHO Cleaning wasm && mx clean && exit"
 
 ECHO.
 ECHO Finished!

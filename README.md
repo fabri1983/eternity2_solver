@@ -361,8 +361,11 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 - Environment variables will be set later with specific scripts.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM EE Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://github.com/graalvm/labs-openjdk-11
+	- https://github.com/graalvm/labs-openjdk-11/releases
 	- https://www.oracle.com/technetwork/graalvm/downloads/index.html   <-- (choose either java8 or java11 version, both EE)
+- Install Python 2.7:
+	- https://www.python.org/download/releases/2.7/
+	- DO NOT select Add To System Path. You will manually add it later on.
 - Setup mx (build assistant tool written in python)
 	- create a mx directory and locate into it:
 	```sh
@@ -376,6 +379,8 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	- add binary to PATH:
 	```sh
 	SET PATH=%PATH%;%cd%
+	SET PATH=c:\python27;%PATH%
+	mx version
 	```
 	Also you can create MX_HOME env variable and add append it to PATH.
 - Building Graal VM:
@@ -387,8 +392,13 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	- clone graal project:
 	```sh
 	git clone https://github.com/oracle/graal.git .
+	or if you want a specific branch:
+	git clone --single-branch --branch release/graal-vm/20.0 https://github.com/oracle/graal.git .
 	```
-	- you will need python2.7 to be in your PATH.
+	- you will need python2.7 to be in your PATH if already didn't:
+	```sh
+	SET PATH=c:\python27;%PATH%
+	```
 	- build the Graal VM
 	```sh
 	SET JAVA_HOME=c:\java\openjdk-11.0.7-10
@@ -418,7 +428,7 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	Helpful options:
 	```sh
 	use graalvm-show instead of build to see what will be built
-	--skip-libraries=true  <-- skips libnative-image-agent.so and libjvmcicompiler.so
+	--skip-libraries=true  <-- skips libnative-image-agent and libjvmcicompiler
 	--disable-installables=true  <-- ?? skips installables and launchers (gu, native-image, native-image-configure)?
 	--exclude-components=gvm,gu,lg,mjdksl,nju,nic,nil,polynative,tflm
 	Components:
@@ -473,7 +483,7 @@ Build a native image using GraalVM's Native Image on Windows
 We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 20.0.1 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
-	- https://github.com/graalvm/labs-openjdk-11
+	- https://github.com/graalvm/labs-openjdk-11/releases
 - Install GraalVM EE either Java8 or java 11 version:
 	- https://www.oracle.com/downloads/graalvm-downloads.html   <-- (choose either java8 or java11 versions, both EE)
 	- Also download the Oracle GraalVM Enterprise Edition Native Image Early Adopter:
