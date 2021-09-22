@@ -69,7 +69,6 @@ public class ExplorationIterativeTask extends ExplorationTask {
 		
 		explorar();
 		
-		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println(ID + " >>> Exploracion Agotada.");
 	}
 	
@@ -247,7 +246,7 @@ public class ExplorationIterativeTask extends ExplorationTask {
 	 */
 	private void setupMultiProcessesExploration() {
 		
-		// NOTE: next conditions are such that they always set assign to processes, even when the task division is odd.
+		// NOTE: next conditions are such that they always assign work to processes, even when the task division is odd.
 		
 		// save the current value of num_processes, it might be changed
 		num_processes_orig[cursor - Consts.POSICION_TASK_DIVISION] = num_processes;
@@ -265,29 +264,17 @@ public class ExplorationIterativeTask extends ExplorationTask {
 		}
 		// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
 		else if (comparison < 0) {
-			int span = (hasta + 1) / num_processes;
+			int span = (hasta + (num_processes - 1)) / num_processes;
 			desde = thisProc * span;
-			// considering cases when task division is odd:
-			//  - normal task distribution while not being the last process: hasta = desde + span
-			//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
-			if (thisProc != (num_processes - 1)) 
-				hasta = desde + span;
+			hasta = Math.min(hasta, (thisProc * span) + span);
 		}
 		// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
 		// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
 		// Also num_processes changes, so next exploration level uses correct process ID.
 		else {
-			int division = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
-			int prodSinResto = division * hasta; // producto pero sin el resto en caso de odd division
-			int resto = num_processes - division * hasta; // resto en caso de odd division 
-			desde = Math.min(thisProc / division, hasta - 1);
+			num_processes = hasta;
+			desde = thisProc % hasta;
 			hasta = desde + 1;
-			num_processes = Math.min(division, num_processes); // corner case
-			// only for non exact division cases
-			if (resto > 0 & thisProc >= prodSinResto-1) {
-				hasta = Math.max(1, hasta + resto - 2); // -2 comes from: -1 due to desde + 1, and again -1 due to resto non being 0-based
-				num_processes += resto;
-			}
 			++pos_multi_process_offset;
 		}
 		

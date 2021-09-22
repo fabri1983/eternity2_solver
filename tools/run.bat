@@ -5,6 +5,9 @@
 set "jvm_args="
 set "main_args="
 set flag=0
+set flagNumTasks=0
+set num_tasks=%NUMBER_OF_PROCESSORS%
+
 for %%a in (%*) do (
     set "arg=%%~a"
     ::echo !arg!
@@ -16,23 +19,28 @@ for %%a in (%*) do (
         set "jvm_args=!jvm_args! !arg!"
         set flag=1
         echo !arg!|find "=" >nul 2>&1 && set flag=0
+        :: if arg contains -Dnum.tasks then set the flag to extract the number of tasks later on
+        echo !arg!|find "-Dnum.tasks" >nul && set flagNumTasks=1
     )
+    :: extracts the value after =
     if !flag! EQU 1 if "!arg:~0,1!" NEQ "-"  (
         set "jvm_args=!jvm_args!=!arg!"
         set flag=0
+    )
+    :: extracts the value after -Dnum.tasks
+    if !flagNumTasks! EQU 1 if "!arg:~0,1!" NEQ "-"  (
+        set "num_tasks=!arg!"
+        set flagNumTasks=0
     )
 )
 
 ::echo %jvm_args% %main_args%
 
-set ORIG_DIR=%cd%
-cd ../target
-
-:: 1.5 max usage for 8 threads with NO UI, but JVM min heap size is 2m.
+:: 1.5m max usage for 8 threads with NO UI, but JVM min heap size is 2m
 :: Less than 6m max usage for 8 threads with UI.
 :: Let's calculate heap size according number of logical cores:
 :: divide in sets of 4 cores
-set /a divBy4LogicalCores=(%NUMBER_OF_PROCESSORS%+3)/4
+set /a divBy4LogicalCores=(%num_tasks%+3)/4
 :: 1250k base mem + 200k every 4 logical cores
 set /a mem_alloc_NOUI= 1250 + (%divBy4LogicalCores% * 200)
 :: acomodate to min JVM heap size
@@ -69,6 +77,9 @@ echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=%mem_alloc_NOUI%k &
 ::  -XX:FreqInlineSize=600   Using 600 bytes as the threshold for "too big for inline" which corresponds to method exploracionStandard() with a size of 595 bytes
 ::  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
 set e2_jvm_opts=%no_ui_options% -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
+
+set ORIG_DIR=%cd%
+cd ../target
 
 java %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %jvm_args% ^
   -jar e2solver.jar %main_args% ^

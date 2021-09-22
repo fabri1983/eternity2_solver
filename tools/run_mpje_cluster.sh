@@ -3,11 +3,6 @@
 # they can only be -Dxxx arguments for the spawn processes
 all_args=$@
 
-export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
-export PATH=$PATH:$MPJ_HOME/bin
-orig_dir=$(pwd)
-cd ../target
-
 # 10m max usage for 8 threads with NO UI. (imposed by the MPI api)
 # 22m max usage for 8 threads with UI.
 mem_alloc="22m"
@@ -39,6 +34,12 @@ no_ui_options="-Djava.awt.headless=true -Dsun.java2d.xrender=false"
 #  -XX:FreqInlineSize=600   Using 600 bytes as the threshold for "too big for inline" which corresponds to method exploracionStandard() with a size of 595 bytes
 #  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
 e2_jvm_opts="$no_ui_options -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
+
+export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
+export PATH=$PATH:$MPJ_HOME/bin
+
+orig_dir=$(pwd)
+cd ../target
 
 # set the amount of total threads in the cluster. It has to be an homogeneous cluster
 TOTAL_THREADS_IN_CLUSTER=8

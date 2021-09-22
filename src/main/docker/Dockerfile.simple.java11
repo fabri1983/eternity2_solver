@@ -1,7 +1,7 @@
 # Dockerfile for Java 11 platform
 
 ######################################################################################################
-FROM adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.5_10 AS STAGING-JRE-MINI
+FROM adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.8_10 AS STAGING-JRE-MINI
 
 # At this point JAVA_HOME refers to:
 #   adoptopenjdk: /opt/java/openjdk
@@ -31,8 +31,7 @@ ARG E2_JAR
 #   zulu: /usr/lib/jvm/zulu-11
 
 ENV ENV_ARG E2_JAR=${ARG E2_JAR} \
-    JAVA_HOME=/opt/java/openjdk \
-    ENV_JAVA_MODULES_FOR_HAZELCAST="--add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED"
+    JAVA_HOME=/opt/java/openjdk
 
 ENV PATH="$PATH:$JAVA_HOME/bin"
     
@@ -51,4 +50,4 @@ RUN chmod -R 755 /app/tools/*.sh \
 WORKDIR /app/tools
 
 # Using CMD so it can be overwritten from outside
-CMD ./run.sh ${ENV_JAVA_MODULES_FOR_HAZELCAST} -Dui.show=false -Djava.awt.headless=true -Dsun.java2d.xrender=false
+CMD ./run.sh -Dui.show=false -Djava.awt.headless=true -Dsun.java2d.xrender=false

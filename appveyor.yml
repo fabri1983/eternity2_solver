@@ -41,13 +41,13 @@ install:
 
 # this installs dependencies. Using default profile
 build_script:
-  - mvn --batch-mode clean package -Pjava8 -DskipTests=true
+  - mvn --batch-mode clean package -P java8,proguard -DskipTests=true
 
 test_script:
-  - mvn --batch-mode clean package -Pjava8 -DskipTests=true
-  - mvn --batch-mode clean package -Pmpje8 -DskipTests=true
-  - mvn --batch-mode clean package -Pjava11 -DskipTests=true
-  - mvn --batch-mode clean package -Pmpje11 -DskipTests=true
+  - mvn --batch-mode clean package -P java8,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P mpje8,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P java11,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P mpje11,proguard -DskipTests=true
 
 cache:
   - C:\maven\

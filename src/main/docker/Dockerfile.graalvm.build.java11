@@ -1,0 +1,65 @@
+# NOTE: If using Windows Docker Toolbox you need to increase partition size of boot2docker virtual disk upto 13 GB (13312 MB).
+# Follow this procedure: https://gist.github.com/joost/a7cfa7b741d9d39c1307
+#   tip: normally virtual disk is located at C:\Users\<username>\.docker\machine\machines\default\
+# Also increase Memory upto 4 GB (4096 MB) on the virtual image: go to image Settings and then System tab.
+
+# On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
+#     set Folder Path: C:\MyProjects\Eclipse
+#     set Name: Eclipse
+#     set Auto-mount: true
+#     set Mount point: c
+#   docker container run -it --rm -m 1200m -v /Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+# Enter into a running container:
+#   docker container exec -it e2solver
+#
+# See https://github.com/oracle/graal/blob/master/substratevm/LLVM-BACKEND.md
+# See https://docs.oracle.com/en/graalvm/enterprise/20/guide/reference/llvm-bitcode.html
+######################################################################################################
+FROM ubuntu:bionic
+
+ARG E2_JAR
+ARG JVMCI_URL=https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-20.3-b06/labsjdk-ce-11.0.9+10-jvmci-20.3-b06-linux-amd64.tar.gz
+ARG GRAALVM_BRANCH=release/graal-vm/20.3
+
+ENV ENV_E2_JAR=${E2_JAR}
+ENV JAVA_HOME=/opt/openjdk-jvmci
+ENV PATH="/opt/mx-master:$JAVA_HOME/bin:$PATH"
+
+RUN apt-get -y update \
+ && apt-get -y install git curl build-essential cmake python unzip zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /var/cache/apt
+
+RUN cd /opt \
+ && curl -LO https://github.com/graalvm/mx/archive/master.zip \
+ && unzip master.zip \
+ && rm master.zip \
+ && curl -L $JVMCI_URL | tar -xz \
+ && mv *jdk* openjdk-jvmci \
+ && git clone --single-branch --branch $GRAALVM_BRANCH https://github.com/oracle/graal.git 
+
+RUN cd /opt \
+ && cd graal/vm \
+ && mx --no-sources --disable-polyglot --disable-libpolyglot --skip-libraries=true \
+    --exclude-components=gvm,nju,nil,polynative,tflm \
+    --dynamicimport /sulong,/substratevm,/tools build \
+ && cd ../substratevm \
+ && export SULONG_BOOTSTRAP_GRAALVM=$(mx graalvm-home) \
+ && cd ../sulong \
+ && export LLVM_TOOLCHAIN=$(mx lli --print-toolchain-path) \
+ && export PATH=${LLVM_TOOLCHAIN}:$PATH
+
+RUN mkdir -p /app/llvm
+
+COPY ${ENV_E2_JAR} /app/
+
+RUN echo ${SULONG_BOOTSTRAP_GRAALVM} \
+ && echo ${LLVM_TOOLCHAIN} && ls -la ${LLVM_TOOLCHAIN} \
+ && echo $PATH \
+ && mx native-image --help \
+ && mx native-image --verbose -H:CompilerBackend=llvm -H:+SpawnIsolates -H:Features=org.graalvm.home.HomeFinderFeature \
+    -H:LLVMMaxFunctionsPerBatch=0 -H:Log=InvokeCC -H:TempDirectory=/app -jar ${ENV_E2_JAR}
+
+#CMD /bin/bash
+CMD mx native-image --verbose -H:CompilerBackend=llvm -H:+SpawnIsolates -H:Features=org.graalvm.home.HomeFinderFeature \
+    -H:LLVMMaxFunctionsPerBatch=0 -H:Log=InvokeCC -H:TempDirectory=/app -jar ${ENV_E2_JAR}
