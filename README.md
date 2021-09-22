@@ -5,7 +5,7 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 
 | Linux | Windows |
 | ----- | ------- |
-| [![Travis](https://travis-ci.org/fabri1983/eternity2_solver.svg?branch=master)](https://travis-ci.org/fabri1983/eternity2_solver?branch=master) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
+| [![Travis](https://travis-ci.com/fabri1983/eternity2_solver.svg?branch=master)](https://travis-ci.com/fabri1983/eternity2_solver?branch=master) | [![Appveyor](https://ci.appveyor.com/api/projects/status/38ua6hnrh6xtyi8j/branch/master?svg=true)](https://ci.appveyor.com/project/fabri1983/eternity2-solver/branch/master) |
 
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.png?raw=true "eternity2 solver mpje 8 processes with UI enabled")  
 
