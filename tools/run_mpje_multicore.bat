@@ -5,6 +5,9 @@
 set "jvm_args="
 set "main_args="
 set flag=0
+set flagNumTasks=0
+set num_tasks=%NUMBER_OF_PROCESSORS%
+
 for %%a in (%*) do (
     set "arg=%%~a"
     ::echo !arg!
@@ -16,28 +19,33 @@ for %%a in (%*) do (
         set "jvm_args=!jvm_args! !arg!"
         set flag=1
         echo !arg!|find "=" >nul 2>&1 && set flag=0
+        :: if arg contains -Dnum.tasks then set the flag to extract the number of tasks later on
+        echo !arg!|find "-Dnum.tasks" >nul && set flagNumTasks=1
     )
+    :: extracts the value after =
     if !flag! EQU 1 if "!arg:~0,1!" NEQ "-"  (
         set "jvm_args=!jvm_args!=!arg!"
         set flag=0
     )
+    :: extracts the value after -Dnum.tasks
+    if !flagNumTasks! EQU 1 if "!arg:~0,1!" NEQ "-"  (
+        set "num_tasks=!arg!"
+        set flagNumTasks=0
+    )
 )
 
 ::echo %jvm_args% %main_args%
-
-set ORIG_DIR=%cd%
-cd ../target
 
 :: 10m max usage for 8 threads with NO UI. (imposed by the MPI api)
 :: 22m max usage for 8 threads with UI.
 :: Let's calculate heap size according number of logical cores:
 :: divide in sets of 4 cores
 :: 1200k for every logical cores
-set /a mem_alloc_NOUI= %NUMBER_OF_PROCESSORS% * 1200
+set /a mem_alloc_NOUI= %num_tasks% * 1200
 :: acomodate to min JVM heap size
 if %mem_alloc_NOUI% LSS 2048 (set mem_alloc_NOUI=2048)
 :: 1200k for every logical cores for UI usage
-set /a mem_alloc_UI= %mem_alloc_NOUI% + (%NUMBER_OF_PROCESSORS% * 1200)
+set /a mem_alloc_UI= %mem_alloc_NOUI% + (%num_tasks% * 1200)
 :: assign final value
 set mem_alloc=%mem_alloc_UI%k
 echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=%mem_alloc_NOUI%k && set no_ui_options=-Djava.awt.headless=true -Dsun.java2d.xrender=false
@@ -69,11 +77,14 @@ echo !jvm_args!|find "-Dui.show=false" >nul && set mem_alloc=%mem_alloc_NOUI%k &
 ::  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
 set e2_jvm_opts=%no_ui_options% -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism
 
+set ORIG_DIR=%cd%
+cd ../target
+
 set MPJ_HOME=%ORIG_DIR%/../target/libs/mpj-v0_44
 set PATH=%PATH%;%MPJ_HOME%/bin
 
 :: edit mpjrun.bat to select the desired JVM
-%MPJ_HOME%/bin/mpjrun.bat -np %NUMBER_OF_PROCESSORS% ^
+%MPJ_HOME%/bin/mpjrun.bat -np %num_tasks% ^
   %e2_jvm_opts% -Xms%mem_alloc% -Xmx%mem_alloc% %jvm_args% e2solver_mpje.jar %main_args% ^
   & chdir /d %ORIG_DIR%
 

@@ -18,14 +18,14 @@ cache:
 install:
   - java -version
   - mvn --version
-  - mvn --batch-mode clean compile -Pjava8 -DskipTests=true
+  - mvn --batch-mode clean compile -P java8,proguard -DskipTests=true
 
 # overrides travis 'script' step
 script:
-  - mvn --batch-mode clean package -Pjava8 -DskipTests=true
-  - mvn --batch-mode clean package -Pmpje8 -DskipTests=true
-  - mvn --batch-mode clean package -Pjava11 -DskipTests=true
-  - mvn --batch-mode clean package -Pmpje11
+  - mvn --batch-mode clean package -P java8,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P mpje8,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P java11,proguard -DskipTests=true
+  - mvn --batch-mode clean package -P mpje11,proguard
 
 notifications:
   email:

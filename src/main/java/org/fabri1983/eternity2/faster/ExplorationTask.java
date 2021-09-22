@@ -34,7 +34,7 @@ import org.fabri1983.eternity2.core.resourcereader.ReaderForFile;
 
 public class ExplorationTask implements Runnable {
 
-	protected int pos_multi_process_offset = 0; // usado con POSICION_TASK_DIVISION sirve para continuar haciendo los calculos de distribución de exploración
+	protected int pos_multi_process_offset = 0;
 	
 	protected String statusFileName, parcialFileName, disposicionFileName, solucFileName;
 	
@@ -168,7 +168,6 @@ public class ExplorationTask implements Runnable {
 			}
 		}
 		
-		//si llego hasta esta sentencia significa una sola cosa:
 		System.out.println(ID + " >>> Exploracion Agotada.");
 	}
 	
@@ -199,7 +198,7 @@ public class ExplorationTask implements Runnable {
 		
 		byte flagZona = CommonFuncs.matrix_zonas[cursor];
 		
-		// CUDA: This needs to be trasnformed to a normal exploration, so changes may be required.
+		// CUDA: This needs to be transformed to a normal exploration, so changes may be required.
 		// si la posicion cursor es una posicion fija no tengo que hacer la exploracion "standard"
 		if (cursor == Consts.PIEZA_CENTRAL_POS_TABLERO) {
 			// seteo el contorno como usado
@@ -236,53 +235,40 @@ public class ExplorationTask implements Runnable {
 			// NOTE: next conditions are such that they always assign work to processes, even when the task division is odd.
 			
 			int thisProc = ID % num_processes;
-			int comparison = num_processes - hasta;
+			int comparison = hasta - num_processes;
 			
 			// caso 1: cada proc toma una única rama de Neighbors
 			if (comparison == 0) {
 				desde = thisProc;
-				hasta = thisProc + 1;
+				hasta = thisProc + 1; // span = 1
 			}
 			// caso 2: existen mas piezas a explorar que procs, entonces se distribuyen las piezas.
-			else if (comparison < 0) {
-				int span = (hasta + 1) / num_processes;
+			else if (comparison > 0) {
+				int span = (hasta + (num_processes - 1)) / num_processes;
 				desde = thisProc * span;
-				// considering cases when task division is odd:
-				//  - normal task distribution while not being the last process: hasta = desde + span
-				//  - when being the last process we need to cover all remaining tasks: hasta remains unchanged
-				if (thisProc != (num_processes - 1)) 
-					hasta = desde + span;
+				hasta = Math.min(hasta, (thisProc * span) + span);
 			}
 			// caso 3: existen mas procs que neighbors a explorar, entonces hay que distribuir los procs y
 			// aumentar el pos_multi_process_offset en uno asi el siguiente nivel tmb continua la división.
 			// Also num_processes changes, so next exploration level uses correct process ID.
 			else {
-				int division = (num_processes + 1) / hasta; // reparte los procs por posible neighbor
-				int prodSinResto = division * hasta; // producto pero sin el resto en caso de odd division
-				int resto = num_processes - division * hasta; // resto en caso de odd division 
-				desde = Math.min(thisProc / division, hasta - 1);
+				num_processes = hasta;
+				desde = thisProc % hasta;
 				hasta = desde + 1;
-				num_processes = Math.min(division, num_processes); // corner case
-				// only for non exact division cases
-				if (resto > 0 & thisProc >= prodSinResto-1) {
-					hasta = Math.max(1, hasta + resto - 2); // -2 comes from: -1 due to desde + 1, and again -1 due to resto non being 0-based
-					num_processes += resto;
-				}
 				++pos_multi_process_offset;
 			}
 			
 			// CUDA: branch less task division 
-			// 0 when equals, 1 when neighbors > num_processes, -1 when neighbors < num_processes
+			// 0: when equals. 1: when neighbors > num_processes. -1: when neighbors < num_processes
 //			int comparisonNumProcsAndLength = hasta - num_processes; // will only use 0 and 1
-//			int moreProcsThanNeighbors = hasta - num_processes < 0 ? 0 : 1;
-//			int isLastProc = thisProc == (num_processes - 1) ? 1 : 0;
+//			int moreProcsThanNeighbors = hasta - num_processes < 0 ? 1 : 0;
 //
 //			TODO Falta agregar el caso 3.
 //			int span = (1 - comparisonNumProcsAndLength) |
 //				comparisonNumProcsAndLength * ((hasta + num_processes - 1) / num_processes);
 //			desde = thisProc * span;
 //			hasta = (1 - comparisonNumProcsAndLength) * (thisProc + 1) |
-//				comparisonNumProcsAndLength * Math.max(isLastProc * hasta, (1 - isLastProc) * (thisProc * span + span));
+//				comparisonNumProcsAndLength * Math.min(hasta, (thisProc * span) + span);
 			
 //			System.out.println("Rank " + ID + ":::: Total " + nbs.mergedInfo.length + ". Limites " + desde + "," + hasta);
 		}

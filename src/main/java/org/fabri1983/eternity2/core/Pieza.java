@@ -86,7 +86,7 @@ public class Pieza {
 		/**
 		 * This method has no if statements, which helps to avoid branching decisions on CPU.
 		 * 
-		 * We are going to loop clockwise in order to rotate the colors, so we need to calculate the number of loops.
+		 * We are going to loop clockwise in order to rotate the colors, so we need to calculate the number of rotations (loops).
 		 *   rotSteps = (4 - p.rotacion + rot) % 4
 		 *   rotSteps = (-p.rotacion + rot) % 4
 		 *   rotSteps = (rot - p.rotacion) % 4

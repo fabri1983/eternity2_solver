@@ -10,8 +10,8 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.png?raw=true "eternity2 solver mpje 8 processes with UI enabled")  
 
 - The project is managed with **Maven 3.6.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
-- It provides several jar artifacts from **Java 8 to 11**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
-- Additionally, there are other maven profiles and scripting instructions to compile a **native image using Graal's SubstrateVM**.  
+- It provides several jar artifacts for **Java 8, 11, 17**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
+- Additionally, there are other maven profiles and scripting instructions to compile to a **native image using Graal's SubstrateVM**.  
 
 The backtracker efficiency is backed by:
 - smart prunes: parity check and patterns of placed tiles which don't allow to generate the same pattern again.
@@ -19,8 +19,8 @@ The backtracker efficiency is backed by:
 - primitive arrays whenever possible to reduce memory usage and better local data access.
 - *bitwise operations* and *micro optimizations*.
 - *minimal perfect hash function* to quickly access neighbour tiles.
-- *sparse bit set* from [Brett Wooldridge](https://github.com/brettwooldridge/SparseBitSet) as a faster support for neighbour existence.
-- lot of *JVM flag tweaks* to reduce thread pressure, GC pressure, JIT compiler parameters, etc.
+- *sparse bit set* from [Brett Wooldridge](https://github.com/brettwooldridge/SparseBitSet) as a faster test for neighbour existence.
+- lot of *JVM flag tweaks* to reduce thread pressure, GC pressure, use of JIT compiler parameters, etc.
 
 There are two versions of the same solver: 
 - one using a **thread pool** to spawn as many tasks as logic cores the runtime platform provides (is configurable).
@@ -49,8 +49,8 @@ Some stats
     - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
     - *(outdated)* Approx **85.89 million correct tiles per second** using MPJ Express framework as multi-core mode **with 8 solver instances**.
   - Native images stats:
-    - *(outdated)* Approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.0.1 Java8 EE**, **with 8 threads**.
-    - *(outdated)* Approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.0.1 Java11 EE**, **with 8 threads**.
+    - *(outdated)* Approx **61.32 million correct tiles per second** running the native image generated with **GraalVM 20.1.0 Java8 EE**, **with 8 threads**.
+    - *(outdated)* Approx **62.52 million correct tiles per second** running the native image generated with **GraalVM 20.1.0 Java11 EE**, **with 8 threads**.
 
 I still need to solve some miss cache issues by shrinking data size and change access patterns, thus maximizing data temporal and space locality.  
 
@@ -110,7 +110,7 @@ It is included in the project as a system dependency
 
 **ProGuard**. http://proguard.sourceforge.net/.  
 Tool for shrink, obfuscate, and optimize code.  
-With this tool I could **decrease jar file size by 20%**. **Code execution is 50% faster** on Windows box using MPJe.  
+With this tool I could **decrease jar file size by 20%**. **Code execution is 50% faster** on Windows using MPJe.  
 I'm still playing with the program options.  
 Helpful links:  
  - http://www.alexeyshmalko.com/2014/proguard-real-world-example/
@@ -125,15 +125,17 @@ Generate an Artifact
 
 Generate the jar artifact:  
 ```sh
-mvn clean package
+mvn clean package -P java8,proguard
 ```
-It creates a jar file with **default profile java8** and copy the external dependencies under target folder.  
-Also by default it uses `Proguard` code processing. Add `-Dproguard.skip=true` avoid Proguard processing.  
+It creates a jar file with profiles **java8** and **proguard**, and copies the external dependencies under target folder.  
+To disable the Proguard processing then just do not use profile Add `proguard`.  
 
 **Profiles (use -P <name>)**
-- `java8`, `java11`: for execution with either JVM. Creates `e2solver.jar`.
-- `mpje8`, `mpje11`: intended for running in cluster/multi-core environment using MPJExpress api. Creates `e2solver_mpje.jar`.
-- `java8native`, `java11native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
+- `java8`, `java11`, `java17`: for execution with either JVM. Creates `e2solver.jar`.
+- `mpje8`, `mpje11`, `mpje17`: intended for running in cluster/multi-core environment using MPJExpress api. Creates `e2solver_mpje.jar`.
+- `java8native`, `java11native`, `java17native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
+- `proguard`: activates the processing of claases by Proguard to produce an optimized jar.
+- `docker`, `docker-native-llvm`, `docker-native-agent`, `docker-native-llvm-build`: provide different executions on Docker. See each Docker file to know more.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
 
 
@@ -143,35 +145,36 @@ First generate the artifact (previous section).
 Go under tools folder and use one of the runXXX commands.  
 Eg:
 ```sh
-	cd tools
-	./run.sh
+  cd tools
+  ./run.sh
 ```
 
 The app loads by default the next properties (may vary between `threads.properties` and `mpje.properties`). 
 You can pass those you want to change:
 ```sh
-	max.cycles.print.stats=21474836470    <-- Java's Integer.MAX_VALUE * 10
-	on.max.reached.save.status=true
-	min.pos.save.partial=211
-	exploration.limit=-1
-	target.rollback.pos=-1
-	ui.show=true            <-- this has no effect on native builds
-	ui.per.proc=false       <-- this has no effect on native builds, and is only valid for MPJE builds
-	ui.cell.size=28         <-- this has no effect on native builds
-	ui.refresh.millis=100   <-- this has no effect on native builds
-	num.tasks=Runtime availableProcessors()     <-- this option has no effect on MPJE builds
+  max.cycles.print.stats=21474836470    <-- Java's Integer.MAX_VALUE * 10
+  on.max.reached.save.status=true
+  min.pos.save.partial=211
+  exploration.limit=-1
+  target.rollback.pos=-1
+  ui.show=true            <-- this has no effect on native builds
+  ui.per.proc=false       <-- this has no effect on native builds, and is only valid for MPJE builds
+  ui.cell.size=28         <-- this has no effect on native builds
+  ui.refresh.millis=100   <-- this has no effect on native builds
+  num.tasks=Runtime availableProcessors()     <-- this option has no effect on MPJE builds
 ```
 Eg:
 ```sh
-	./run.sh -Dmin.pos.save.partial=215 -Dnum.tasks=4
-	./run_mpje_multicore.sh -Dmin.pos.save.partial=215
-	   it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
+  ./run.sh -Dmin.pos.save.partial=215 -Dnum.tasks=4
+	
+  ./run_mpje_multicore.sh -Dmin.pos.save.partial=215
+    it uses environment variable %NUMBER_OF_PROCESSORS% or $(nproc)
 ```
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, and *java11*.  
-Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profiles *mpje8* and *mpje11*.  
+Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, *java11*, and *java17*.  
+Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profiles *mpje8*, *mpje11* and *mpje17*.  
 Use `run_benchmark.[bat|sh]` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
@@ -343,7 +346,7 @@ See:
 
 **Test gperf with Docker**
 ```sh
-docker run -it --rm alpine:3.10.3 /bin/ash
+docker container run -it --rm alpine:3.10.3 /bin/ash
 apk update
 apk upgrade
 apk add --no-cache gperf wget
@@ -355,7 +358,7 @@ exit
 
 Build a GraalVM on Windows and run your jar
 -------------------------------------------
-We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 20.0.1 so far**.
+We are going to build Graal VM for Windows platform from source: **GraalVM 20.3**.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
@@ -376,7 +379,7 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	```sh
 	git clone https://github.com/graalvm/mx.git .
 	```
-	- add binary to PATH:
+	- add mx binary along with Python 2.7 to PATH:
 	```sh
 	SET PATH=%PATH%;%cd%
 	SET PATH=c:\python27;%PATH%
@@ -393,7 +396,7 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	```sh
 	git clone https://github.com/oracle/graal.git .
 	or if you want a specific branch:
-	git clone --single-branch --branch release/graal-vm/20.0 https://github.com/oracle/graal.git .
+	git clone --single-branch --branch release/graal-vm/20.2 https://github.com/oracle/graal.git .
 	```
 	- you will need python2.7 to be in your PATH if already didn't:
 	```sh
@@ -401,36 +404,25 @@ We are going to build Graal VM EE for Windows platform. **Only upto GraalVM EE 2
 	```
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\openjdk-11.0.7-10
-	SET EXTRA_JAVA_HOMES=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
-	cd compiler
-	mx --disable-polyglot --disable-libpolyglot --skip-libraries=true --dynamicimports /compiler build
+	SET JAVA_HOME=c:\java\openjdk-1.8.0_272-jvmci-20.3-b06
+	or
+	SET JAVA_HOME=c:\java\labsjdk-ce-11.0.9-10-jvmci-20.3-b06
+	cd vm
+	git config core.protectNTFS false
+	mx --no-sources --disable-polyglot --disable-libpolyglot --skip-libraries=true --disable-installables=true ^
+	   --exclude-components=gvm,gu,lg,mjdksl,nju,nic,nil,polynative,tflm ^
+	   --dynamicimport /substratevm build
+	cd ..\substratevm
+	mx graalvm-home
 	mx vm -version
-	```
-	mx usage:
-	```sh
-	usage: mx [-h] [-v] [-V] [--no-warning] [--quiet] [-y] [-n] [-p <path>] [--dbg <port>] [-d] [--attach ATTACH]
-          [--backup-modified] [--cp-pfx <arg>] [--cp-sfx <arg>] [-J <arg> | --J @<args>] [-P <arg> | --Jp @<args>]
-          [-A <arg> | --Ja @<args>] [--user-home <path>] [--java-home <path>] [--jacoco {off,on,append}]
-          [--jacoco-whitelist-package <package>] [--jacoco-exclude-annotation <annotation>] [--jacoco-dest-file <path>]
-          [--extra-java-homes <path>] [--strict-compliance] [--ignore-project <name>] [--kill-with-sigquit]
-          [--suite <name>] [--suitemodel <arg>] [--primary] [--dynamicimports <name>] [--no-download-progress]
-          [--version] [--mx-tests] [--jdk <tag:compliance>] [--jmods-dir <path>]
-          [--version-conflict-resolution {suite,none,latest,latest_all,ignore}] [-c <cpus>] [--strip-jars]
-          [--env <name>] [--trust-http] [--multiarch] [--dump-task-stats <path>] [--timeout <secs>] [--ptimeout <secs>]
-          [--components COMPONENTS] [--exclude-components EXCLUDE_COMPONENTS] [--disable-libpolyglot]
-          [--disable-polyglot] [--disable-installables DISABLE_INSTALLABLES] [--debug-images]
-          [--native-images NATIVE_IMAGES] [--force-bash-launchers FORCE_BASH_LAUNCHERS]
-          [--skip-libraries SKIP_LIBRARIES] [--no-sources] [--with-debuginfo] [--snapshot-catalog SNAPSHOT_CATALOG]
-          [--release-catalog RELEASE_CATALOG] [--extra-image-builder-argument EXTRA_IMAGE_BUILDER_ARGUMENT]
-          [--image-profile IMAGE_PROFILE] [--no-licenses] [--vmprefix <prefix>] [--gdb] [--lldb]
 	```
 	Helpful options:
 	```sh
-	use graalvm-show instead of build to see what will be built
-	--skip-libraries=true  <-- skips libnative-image-agent and libjvmcicompiler
+	use --max-cpus 1 when you get CL.exe errors due to simultaneous access to pdb file.
+	use graalvm-show and graalvm-home instead of build to see what will be built and where.
+	--skip-libraries=true  <-- skips libnative-image-agent and libjvmcicompiler and maybe others
 	--disable-installables=true  <-- ?? skips installables and launchers (gu, native-image, native-image-configure)?
-	--exclude-components=gvm,gu,lg,mjdksl,nju,nic,nil,polynative,tflm
+	--exclude-components=gvm,lg,mjdksl,nju,nic,nil,polynative,tflm
 	Components:
 	 - Truffle ('tfl', /truffle)
 	 - Component installer ('gu', /installer)
@@ -480,42 +472,49 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using GraalVM's Native Image on Windows
 ------------------------------------------------------------
-We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 20.0.1 so far**.
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 21.2 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11/releases
 - Install GraalVM EE either Java8 or java 11 version:
 	- https://www.oracle.com/downloads/graalvm-downloads.html   <-- (choose either java8 or java11 versions, both EE)
 	- Also download the Oracle GraalVM Enterprise Edition Native Image Early Adopter:
-		- native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar
+		- native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar
 		or
-		- native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
-- You need Python 2.7 (https://www.python.org/downloads/release/python-2715/).
-- You need Windows SDK for Windows 7 (https://www.microsoft.com/en-us/download/details.aspx?id=8442) for building against GraalVM Java8.
+		- native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
+- Install Python 2.7:
+	- https://www.python.org/download/releases/2.7/
+	- DO NOT select Add To System Path. You will manually add it later on.
+- You need Windows SDK 7.1 (https://www.microsoft.com/en-us/download/details.aspx?id=8442) for building against GraalVM Java8.
 This will help you to decide which iso you need to download:
 	- GRMSDK_EN_DVD.iso is a version for x86 environment.
 	- GRMSDKIAI_EN_DVD.iso is a version for Itanium environment.
 	- GRMSDKX_EN_DVD.iso is a version for x64 environment. (This one is for an AMD64 architecture)
-- Install Windows SDK for Windows 7 from the downloaded ISO.
+- Install Windows SDK 7.1 from the downloaded ISO.
 	- If setup shows a warning message saying missing NET 4.x Framework tools then ignore it, and once installed install this:
 		https://www.microsoft.com/en-us/download/details.aspx?id=4422
 	- See this link for troubleshooting installation issues:
 		https://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
+	- You need to put files ammintrin.h, emmintrin.h, mmintrin.h, pmmintrin.h, xmmintrin.h:
+		- from: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include
+		- to: C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include
 - You need Build Tools for Visual Studio 2017 (https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads) for building against GraalVM Java11.
 - Install Build Tools for Visual Studio 2017.
-- Download and setup mx tool, and add it to your PATH environment variable. Also you can create MX_HOME env variable and add append it to PATH. See previous section *Usage of Graal Compiler on Windows*.
+- Download and setup mx tool, and add it to your PATH environment variable. See previous section *Build a GraalVM on Windows and run your jar*.
+- Set Python 2.7 to path. See previous section *Build a GraalVM on Windows and run your jar*.
 - Download Graal project and build the Substrate VM and build a simple Hello World example:
 	```sh
 	Open a console:
 	  For Java8 targets
-		open the **Windows SDK 7.1 Command Prompt** going to Start -> Programs -> Microsoft Windows SDK v7.1
+		open the Windows SDK 7.1 Command Prompt going to Start -> Programs -> Microsoft Windows SDK v7.1
 		(or open a cmd console and run: call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd")
 	  For Java11 targets:
-		open the **x64 Native Tools Command Prompt for VS 2017** going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
+		open the x64 Native Tools Command Prompt for VS 2017 going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
 		(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
-	SET JAVA_HOME=C:\java\graalvm-ee-java8-20.0.1  or  C:\java\graalvm-ee-java11-20.0.1
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-21.2.0.1  or C:\java\graalvm-ee-java11-21.2.0.1
 	cd substratevm
-	mx build --all
+	git config core.protectNTFS false
+	mx --disable-polyglot --disable-libpolyglot --disable-installables=true --skip-libraries=true build /substratevm
 	echo public class HelloWorld { public static void main(String[] args) { System.out.println("Hello World"); } } > HelloWorld.java
 	%JAVA_HOME%/bin/javac HelloWorld.java
 	mx native-image --verbose HelloWorld
@@ -524,9 +523,9 @@ This will help you to decide which iso you need to download:
 - Building a native image for eternity 2 solver:
 	- Build the project with the native profile (select the one according your installed version of GraalVM):
 	```sh
-	mvn clean package -P java8native
+	mvn clean package -P java8native,proguard
 	or
-	mvn clean package -P java11native
+	mvn clean package -P java11native,proguard
 	```
 	- Build the static image
 	```
@@ -536,18 +535,18 @@ This will help you to decide which iso you need to download:
 		(might be usefull: mx native-image --server-shutdown)
 	e2solver.exe -Dnum.tasks=8 -Dmin.pos.save.partial=211
 	```
-	There is also a possible optimization feature named Profile Guided Optimization:
+	- If not using `mx`, then you have to install the previously downloaded `native-image` tool manually:
+	```sh
+	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.2.0.1  or  c:\java\graalvm-ee-java11-21.2.0.1
+	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
+	```
+	- There is also a possible optimization feature named Profile Guided Optimization:
 	```sh
 	mx native-image --pgo-instrument <same params than above>
 	execute the executable for some seconds:
 		e2solver.exe -Dnum.tasks=8 -Dmin.pos.save.partial=211
 	mx native-image --pgo=default.iprof <same params than above>
 	execute again and see if there is an improvement in execution speed
-	```
-	- If no using `mx` then you have to install the previously downloaded `native-image` tool manually:
-	```sh
-	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
-	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
 	```
 - Tips:
   - Use *-H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime* for long lived processes.
@@ -561,23 +560,28 @@ This will help you to decide which iso you need to download:
   - *-H:+PrintAnalysisCallTree* or *-H:+PrintImageObjectTree* options are meant to help answer questions about why a certain method or object are getting into an image.
   - If facing `Caused by: java.nio.charset.UnsupportedCharsetException: <charset-name-here>` then use *-H:+AddAllCharsets*.
   - If using *-Dio.netty.noUnsafe=true* but still getting: `DEBUG io.grpc.netty.shaded.io.netty.util.internal.PlatformDependent0 - -Dio.netty.noUnsafe: false` then use *-Dio.grpc.netty.shaded.io.netty.noUnsafe=true*
-  - Use -H:+RemoveSaturatedTypeFlows to reduce the analysis phase execution time and memory usage. However the number of methods/types included in the image can increase.
+  - Use *-H:+RemoveSaturatedTypeFlows* to reduce the analysis phase execution time and memory usage. However the number of methods/types included in the image can increase.
+  - Use *--install-exit-handlers* to improve user experience when running a native image in a Docker container as the init process.
+  - Use *-H:Log=registerResource:verbose* to show which resource is effectively used in the binary generation. Leading "/" isn't allowed in native builds.
+  - Print all flags: *-XX:+JVMCIPrintProperties*.
+  - How to work with substitutions in GraalVM: https://blog.frankel.ch/solving-substitution-graalvm-issue/.
 
 
 Using GraalVM's Agent Lib to get native image resources and configurations
 --------------------------------------------------------------------------
 **This process produces configurations already set in native-image.properties**
 ```sh
-SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.0.1  or  c:\java\graalvm-ee-java11-20.0.1
-%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.0.1.jar  or  install native-image-installable-svm-svmee-java11-windows-amd64-20.0.1.jar
+SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.3.0  or  c:\java\graalvm-ee-java11-20.3.0
+%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.3.0.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-20.3.0.jar
 set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
-	Eg: set JAVA_HOME=c:\java\openjdk1.8.0_242-jvmci-20.0-b02
+	Eg: set JAVA_HOME=c:\java\openjdk-1.8.0_272-jvmci-20.3-b06
+	Eg: set JAVA_HOME=c:\java\labsjdk-ce-11.0.9-10-jvmci-20.3-b06
 Update PATH env variable with %JAVA_HOME%\bin
 ```
 **WIP**: need to setup a flag to finish the program after few seconds, so the agent writes down the output files. Otherwise I'm adding `System.exit(0)` when max cycles is reached. 
 Generate jar artifact with -Pjava8native or -Pjava11native
 ```sh
-mvn clean package -Pjava8native
+mvn clean package -P java8native,proguard
 ```
 Then add at the beginning of your java command and run your program for few seconds:
 ```sh
@@ -600,50 +604,50 @@ Currently I'm taking a look to Avian JVM, under Windows environment.
 Visit page http://oss.readytalk.com/avian/ to know what Avian is all about.
 
 - Install cygwin following the steps mentioned in https://github.com/ReadyTalk/avian/ (README.md file).
-	- you will need to add some packages that aren't set as default (the instructions are there)
-	- also need to add curl
-	- also need ncurses (for clear command, or use ctrl+l)
+ - you will need to add some packages that aren't set as default (the instructions are there)
+ - also need to add curl
+ - also need ncurses (for clear command, or use ctrl+l)
 - Set JAVA_HOME environment variable in your .bashrc file
-	- export JAVA_HOME=/cygdrive/c/java/jdk1.8
+ - export JAVA_HOME=/cygdrive/c/java/jdk1.8
 - Once cygwin is installed you need to clone avian, win32, and win64 repos.
-	- open cygwin terminal
-	- create a folder named avian_jvm wherever you want (eg: in /home/<user>/avian_jvm)
-	- open the cygwin terminal and locate into created dir
-	- git clone git://github.com/ReadyTalk/avian
-	- git clone git://github.com/ReadyTalk/win64
-	- git clone git://github.com/ReadyTalk/win32
+ - open cygwin terminal
+ - create a folder named avian_jvm wherever you want (eg: in /home/<user>/avian_jvm)
+ - open the cygwin terminal and locate into created dir
+ - git clone git://github.com/ReadyTalk/avian
+ - git clone git://github.com/ReadyTalk/win64
+ - git clone git://github.com/ReadyTalk/win32
 - Locate in avian dir and build it using make command
 - Run hello world test program (which is an already compiled class file):
-	- build/windows-x86_64/avian -cp build/windows-x86_64/test Hello
+ - build/windows-x86_64/avian -cp build/windows-x86_64/test Hello
 - You can try a swt example:
-	- download the exe from http://oss.readytalk.com/avian/examples.html
-	- or build it and execute it locally. Example for win64:
-		- export platform=windows-x86_64
-		- export swt_zip=swt-4.3-win32-win32-x86_64.zip
-		- mkdir swt-example
-		- cd swt-example
-		- curl -Of http://oss.readytalk.com/avian-web/proguard4.11.tar.gz
-		- tar xzf proguard4.11.tar.gz
-		- curl -Of http://oss.readytalk.com/avian-web/lzma920.tar.bz2
-		- mkdir -p lzma-920
-		- cd lzma-920
-		- tar xjf ../lzma920.tar.bz2
-		- cd ..
-		- curl -Of http://oss.readytalk.com/avian-web/${swt_zip}
-		- mkdir -p swt/${platform}
-		- unzip -d swt/${platform} ${swt_zip}
-		- curl -Of http://oss.readytalk.com/avian-web/avian-swt-examples-1.0.tar.bz2
-		- tar xjf avian-swt-examples-1.0.tar.bz2
-		- we need to copy lzma-920/C folder to avian_jvm/avian/src/ folder because it won't compile otherwise
-			- cp -ar lzma-920/C ../avian/src/ 
-		- cd avian-swt-examples
-		- once in avian-swt-examples folder edit files:
-			- makefile: at line 53 add /.. to current cd .. command since avian folder is one more level up.
-			- app.mk: locate root variable and change other variables that use root just adding ../ because avian, win32, and win64 folders are 1 additional level up.
-		- build example exe file with lzma (compressed exe) or without it
-			- make lzma=$(pwd)/../lzma-920 full-platform=${platform} example
-			- or
-			- make full-platform=${platform} example
-		- exe file are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
-		- You can omit example target to let other targets be built: example, graphics, and paint
+ - download the exe from http://oss.readytalk.com/avian/examples.html
+ - or build it and execute it locally. Example for win64:
+  - export platform=windows-x86_64
+  - export swt_zip=swt-4.3-win32-win32-x86_64.zip
+  - mkdir swt-example
+  - cd swt-example
+  - curl -Of http://oss.readytalk.com/avian-web/proguard4.11.tar.gz
+  - tar xzf proguard4.11.tar.gz
+  - curl -Of http://oss.readytalk.com/avian-web/lzma920.tar.bz2
+  - mkdir -p lzma-920
+  - cd lzma-920
+  - tar xjf ../lzma920.tar.bz2
+  - cd ..
+  - curl -Of http://oss.readytalk.com/avian-web/${swt_zip}
+  - mkdir -p swt/${platform}
+  - unzip -d swt/${platform} ${swt_zip}
+  - curl -Of http://oss.readytalk.com/avian-web/avian-swt-examples-1.0.tar.bz2
+  - tar xjf avian-swt-examples-1.0.tar.bz2
+  - we need to copy lzma-920/C folder to avian_jvm/avian/src/ folder because it won't compile otherwise
+    - cp -ar lzma-920/C ../avian/src/ 
+  - cd avian-swt-examples
+  - once in avian-swt-examples folder edit files:
+    - makefile: at line 53 add /.. to current cd .. command since avian folder is one more level up.
+    - app.mk: locate root variable and change other variables that use root just adding ../ because avian, win32, and win64 folders are 1 additional level up.
+  - build example exe file with lzma (compressed exe) or without it
+    - make lzma=$(pwd)/../lzma-920 full-platform=${platform} example
+    - or
+    - make full-platform=${platform} example
+  - exe file are created at avian-swt-examples/build/windows-x86_64-lzma/ and in avian-swt-examples/build/windows-x86_64/ respectively.
+  - You can omit example target to let other targets be built: example, graphics, and paint
 

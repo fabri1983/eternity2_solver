@@ -1,7 +1,7 @@
 # Dockerfile for Java 8 platform
 
 ######################################################################################################
-FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u232-b09
+FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u265-b01
 ARG E2_JAR
 
 # JAVA_HOME needs to be set:
