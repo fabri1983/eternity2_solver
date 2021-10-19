@@ -1,4 +1,4 @@
-# mvn clean package -P java8native,docker-native-agent
+# mvn clean package -P java16native,docker-native-agent
 #
 # This dockerfile intended to run the eternity2 solver under GraalVM with an agentlib to 
 # produce native image configuration files for later usage on a native image build.
@@ -19,7 +19,7 @@
 # Enter into a running container:
 #   docker container exec -it e2solver
 ######################################################################################################
-FROM ghcr.io/graalvm/graalvm-ce:java8-21.2.0-b1
+FROM findepi/graalvm:21.2.0-java16-native
 
 ARG E2_JAR
 

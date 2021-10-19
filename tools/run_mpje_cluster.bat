@@ -80,7 +80,7 @@ set e2_jvm_opts=%no_ui_options% -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRati
 set ORIG_DIR=%cd%
 cd ../target
 
-set MPJ_HOME=%ORIG_DIR%/../target/libs/mpj-v0_44
+set MPJ_HOME=%ORIG_DIR%/../target/libs/mpje
 set PATH=%PATH%;%MPJ_HOME%/bin
 
 :: set the amount of total threads in the cluster. It has to be an homogeneous cluster type

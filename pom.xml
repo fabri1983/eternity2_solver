@@ -17,44 +17,62 @@
 		<dockerfile.selector>simple</dockerfile.selector> <!-- modified only in related docker profiles -->
 		<source.dir>${project.basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
+		<roaring.bitmap.version>0.8.12</roaring.bitmap.version>
+		<mpje.version>0.44</mpje.version>
+		<teavm.version>0.7.0-dev-1197</teavm.version>
 		<jmh.version>1.21</jmh.version>
+		<javaewah.version>1.1.7</javaewah.version>
+		<junit.version>4.13.2</junit.version>
 	</properties>
 
 	<dependencies>
-		<!-- MPJExpress -->
-		<dependency>
-			<groupId>mpje</groupId>
-			<artifactId>mpi</artifactId>
-			<version>0.44</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpi.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>mpje</groupId>
-			<artifactId>mpiExp</artifactId>
-			<version>0.44</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpiExp.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>mpje</groupId>
-			<artifactId>mpj</artifactId>
-			<version>0.44</version>
-			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpj-v0_44/lib/mpj.jar</systemPath>
-		</dependency>
 		<!-- Roaring Bitmap (Fast Random Access Compressed Bitmap) (currently only in test scope) -->
 		<dependency>
 			<groupId>org.roaringbitmap</groupId>
 			<artifactId>RoaringBitmap</artifactId>
-			<version>0.8.12</version>
+			<version>${roaring.bitmap.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<!-- MPJExpress -->
+		<dependency>
+			<groupId>mpje</groupId>
+			<artifactId>mpi</artifactId>
+			<version>${mpje.version}</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/mpje/lib/mpi.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>mpje</groupId>
+			<artifactId>mpiExp</artifactId>
+			<version>${mpje.version}</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/mpje/lib/mpiExp.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>mpje</groupId>
+			<artifactId>mpj</artifactId>
+			<version>${mpje.version}</version>
+			<scope>system</scope>
+			<systemPath>${external.libs.dir}/mpje/lib/mpj.jar</systemPath>
+		</dependency>
+		<!-- TeaVM -->
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-classlib</artifactId>
+			<version>${teavm.version}</version>
+			<scope>provided</scope>
+		</dependency>	
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-core</artifactId>
+			<version>${teavm.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- Java EWAH (A compressed alternative to the Java BitSet class) (currently only in test scope) -->
 		<dependency>
 			<groupId>com.googlecode.javaewah</groupId>
 			<artifactId>JavaEWAH</artifactId>
-			<version>1.1.7</version>
+			<version>${javaewah.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- JMH Java Microbenchmark Harness -->
@@ -74,7 +92,7 @@
         <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -243,6 +261,37 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>teavm</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.teavm</groupId>
+						<artifactId>teavm-maven-plugin</artifactId>
+						<version>${teavm.version}</version>
+						<executions>
+							<execution>
+								<id>c-target</id>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+								<configuration>
+									<mainClass>${manifest.main.class}</mainClass>
+									<!--<targetDirectory>${teavm.c.targetDirectory}</targetDirectory> -->
+									<targetType>C</targetType>
+									<!--optimizationLevel>FULL</optimizationLevel-->
+									<!--minHeapSize>16</minHeapSize-->
+									<!--maxHeapSize>512</maxHeapSize-->
+									<!--<entryPointName>teavm_start</entryPointName> -->
+									<heapDump>true</heapDump>
+									<minifying>false</minifying>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>docker</id>
 			<properties>
 				<skip.docker.build>false</skip.docker.build>
@@ -253,7 +302,7 @@
 			<id>docker-native-llvm</id>
 			<properties>
 				<skip.docker.build>false</skip.docker.build>
-				<dockerfile.selector>graalvm</dockerfile.selector>
+				<dockerfile.selector>graalvm.llvm</dockerfile.selector>
 			</properties>
 		</profile>
 		<profile>
@@ -267,7 +316,7 @@
 			<id>docker-native-llvm-build</id>
 			<properties>
 				<skip.docker.build>false</skip.docker.build>
-				<dockerfile.selector>graalvm.build</dockerfile.selector>
+				<dockerfile.selector>graalvm.llvm.build</dockerfile.selector>
 			</properties>
 		</profile>
 		<profile>
@@ -296,18 +345,49 @@
 		</profile>
 	</profiles>
 
-	<pluginRepositories>
-		<!-- allows SNAPSHOT plugin -->
-		<pluginRepository>
+	<repositories>
+		<!-- TeaVM Repository -->
+		<repository>
+			<id>teavm-dev</id>
+			<url>https://teavm.org/maven/repository</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<!-- allows SNAPSHOT plugins -->
+		<repository>
+			<id>maven-snapshots</id>
+			<name>Maven Plugin Repository</name>
+        	<url>https://repository.apache.org/content/repositories/snapshots/</url>
 			<releases>
 				<updatePolicy>never</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
+		</repository>
+	</repositories>
+	
+	<pluginRepositories>
+		<!-- TeaVM Repository -->
+		<pluginRepository>
+			<id>teavm-dev</id>
+			<url>https://teavm.org/maven/repository</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<!-- allows SNAPSHOT plugins -->
+		<pluginRepository>
 			<id>maven-snapshots</id>
 			<name>Maven Plugin Repository</name>
         	<url>https://repository.apache.org/content/repositories/snapshots/</url>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -334,7 +414,7 @@
 				<configuration>
 					<compilerArgs>
 						<arg>-O</arg>
-						<arg>-g:none</arg> <!-- skip generation of debugging information -->
+                        <arg>-g:none</arg> <!-- skip generation of debugging information -->
 					</compilerArgs>
 				</configuration>
 			</plugin>
@@ -503,11 +583,11 @@
 							<target name="copy-external-libs">
 								<copy todir="${project.build.directory}/libs">
 									<fileset dir="${external.libs.dir}">
-										<include name="mpj-v0_44/**/*" />
+										<include name="mpje/**/*" />
 									</fileset>
 								</copy>
 								<chmod perm="u+rwx" type="file">
-									<fileset dir="${project.build.directory}/libs/mpj-v0_44/bin">
+									<fileset dir="${project.build.directory}/libs/mpje/bin">
 										<include name="*" />
 										<exclude name="*.bat" />
 									</fileset>

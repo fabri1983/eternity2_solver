@@ -35,7 +35,7 @@ no_ui_options="-Djava.awt.headless=true -Dsun.java2d.xrender=false"
 #  -XX:MaxRecursiveInlineLevel=0   Threshold to recursive method calls for inlining
 e2_jvm_opts="$no_ui_options -XX:+UseSerialGC -XX:NewRatio=1 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=5 -XX:InitiatingHeapOccupancyPercent=99 -Xss180k -XX:FreqInlineSize=600 -XX:MaxRecursiveInlineLevel=0 -XX:HeapBaseMinAddress=0 -XX:+AlwaysPreTouch -XX:CompileThreshold=100 -XX:+UseTLAB -XX:-ResizePLAB -XX:AllocatePrefetchStyle=2 -Dsun.rmi.transport.tcp.maxConnectionThreads=0 -XX:CICompilerCount=2 -XX:+ReduceSignalUsage -XX:+DisableAttachMechanism"
 
-export MPJ_HOME=$(pwd)"/../target/libs/mpj-v0_44"
+export MPJ_HOME=$(pwd)"/../target/libs/mpje"
 export PATH=$PATH:$MPJ_HOME/bin
 
 orig_dir=$(pwd)

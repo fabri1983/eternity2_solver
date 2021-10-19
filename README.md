@@ -396,7 +396,7 @@ We are going to build Graal VM for Windows platform from source: **GraalVM 20.3*
 	```sh
 	git clone https://github.com/oracle/graal.git .
 	or if you want a specific branch:
-	git clone --single-branch --branch release/graal-vm/20.2 https://github.com/oracle/graal.git .
+	git clone --single-branch --branch release/graal-vm/21.3 https://github.com/oracle/graal.git .
 	```
 	- you will need python2.7 to be in your PATH if already didn't:
 	```sh
@@ -404,9 +404,9 @@ We are going to build Graal VM for Windows platform from source: **GraalVM 20.3*
 	```
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\openjdk-1.8.0_272-jvmci-20.3-b06
+	SET JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b03
 	or
-	SET JAVA_HOME=c:\java\labsjdk-ce-11.0.9-10-jvmci-20.3-b06
+	SET JAVA_HOME=c:\java\labsjdk-ce-11.0.12-5-jvmci-21.3-b03
 	cd vm
 	git config core.protectNTFS false
 	mx --no-sources --disable-polyglot --disable-libpolyglot --skip-libraries=true --disable-installables=true ^
@@ -556,6 +556,7 @@ This will help you to decide which iso you need to download:
   - See this article's sections *Incomplete classpath* and *Delayed class initialization*: https://medium.com/graalvm/instant-netty-startup-using-graalvm-native-image-generation-ed6f14ff7692. Option is *--allow-incomplete-classpath*.
   - See this article which solves lot of common problems: https://royvanrijn.com/blog/2018/09/part-2-native-microservice-in-graalvm/
   - To avoid the error *Class XXX cannot be instantiated reflectively . It does not have a nullary constructor* you can disable the ServiceLoaderFeature with *-H:-UseServiceLoaderFeature*. That's where this is triggered from. You can also use *-H:+TraceServiceLoaderFeature* to see all the classes processed by this feature.
+  - To avoid resources registration been automatically added by ServiceLoaderFeature use *-H:-UseServiceLoaderFeature*
   - Reference manual: https://docs.oracle.com/en/graalvm/enterprise/20/guide/toc.htm
   - *-H:+PrintAnalysisCallTree* or *-H:+PrintImageObjectTree* options are meant to help answer questions about why a certain method or object are getting into an image.
   - If facing `Caused by: java.nio.charset.UnsupportedCharsetException: <charset-name-here>` then use *-H:+AddAllCharsets*.
@@ -571,11 +572,11 @@ Using GraalVM's Agent Lib to get native image resources and configurations
 --------------------------------------------------------------------------
 **This process produces configurations already set in native-image.properties**
 ```sh
-SET GRAALVM_HOME=c:\java\graalvm-ee-java8-20.3.0  or  c:\java\graalvm-ee-java11-20.3.0
-%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-20.3.0.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-20.3.0.jar
+SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.2.0.1  or  c:\java\graalvm-ee-java11-21.2.0.1
+%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
 set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
-	Eg: set JAVA_HOME=c:\java\openjdk-1.8.0_272-jvmci-20.3-b06
-	Eg: set JAVA_HOME=c:\java\labsjdk-ce-11.0.9-10-jvmci-20.3-b06
+	Eg: set JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b03
+	Eg: set JAVA_HOME=c:\java\labsjdk-ce-11.0.12-5-jvmci-21.3-b03
 Update PATH env variable with %JAVA_HOME%\bin
 ```
 **WIP**: need to setup a flag to finish the program after few seconds, so the agent writes down the output files. Otherwise I'm adding `System.exit(0)` when max cycles is reached. 
