@@ -1,7 +1,7 @@
-# Dockerfile for Java 8 platform
+# mvn clean package -P java8native,proguard,docker
 
 ######################################################################################################
-FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u265-b01
+FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u292-b10
 ARG E2_JAR
 
 # JAVA_HOME needs to be set:
@@ -18,7 +18,7 @@ COPY libs /app/target/libs
 COPY tools /app/tools
 
 RUN chmod -R 755 /app/tools/*.sh \
-    && chmod -R 755 /app/target/libs/mpj-v0_44/bin/*
+    && chmod -R 755 /app/target/libs/mpje/bin/*
 
 WORKDIR /app/tools
 

@@ -1,0 +1,68 @@
+# mvn clean package -P java16native,docker-native-llvm
+#
+# Writing output into Host file system with Docker Volumes:
+#   On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
+#       set Folder Path: C:\MyProjects\Eclipse
+#       set Name: Eclipse
+#       set Auto-mount: true
+#       set Mount point: c
+#     docker container run -it --rm -v /Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#	On Windows Docker Desktop use:
+#     docker container run -it --rm -v c:/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#   On Linux (WSL) use:
+#     docker container run -it --rm -v /mnt/c/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#
+# If you want to run the container by overriding the entrypoint and just see what's in it then use:
+#   docker container run -it --rm --name e2solver --entrypoint=/bin/bash fabri1983dockerid/e2solver:dev
+#
+# Copying output into Host file system from Docker container using cp command:
+#   docker container run -it --name e2solver fabri1983dockerid/e2solver:dev
+#   docker container cp e2solver:/app target
+#   docker container rm e2solver
+#
+# See https://github.com/oracle/graal/blob/master/substratevm/LLVM-BACKEND.md
+# See https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/llvm/
+######################################################################################################
+FROM findepi/graalvm:21.2.0-java16-native
+
+ARG E2_JAR
+
+ENV ENV_E2_JAR=${E2_JAR}
+
+# Install LLVM 10 (from Debian Buster) or 11 (from Debian Bullseye). However for an unknown reason using Buster it installs LLVM 11.
+# Next setup is valid for LLVM 10/11 needed by JuliaComputingOSS build process.
+RUN export LLVM_VERSION=10 \
+ && export REPO_NAME_BUSTER="deb http://apt.llvm.org/buster/ llvm-toolchain-buster-$LLVM_VERSION main" \
+ && apt-get update \
+ && apt-get install -y wget software-properties-common gnupg2 \
+ && wget https://apt.llvm.org/llvm-snapshot.gpg.key \
+ && apt-key add llvm-snapshot.gpg.key \
+ && add-apt-repository -y "${REPO_NAME_BUSTER}" && apt-get update \
+ && apt-get install -y llvm-dev clang-tools clang clangd cmake \
+ && rm -rf /var/lib/apt/lists/*
+ && clangd --version && which clang-11 && clang --version \
+ && cd $HOME && git clone https://github.com/JuliaComputing/llvm-cbe \
+ && cd llvm-cbe && mkdir build && cd build && cmake -S .. && make llvm-cbe && ls -la ./bin/llvm-cbe
+
+RUN apt-get update \
+ && apt-get install -y wget gcc libz-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN gu install native-image llvm-toolchain \
+ && lli --print-toolchain-path \
+ && export LLVM_TOOLCHAIN=$(lli --print-toolchain-path) \
+ && export PATH=${LLVM_TOOLCHAIN}:$PATH \
+ && lli --version \
+ && mkdir -p /app
+
+WORKDIR /app
+
+COPY ${ENV_E2_JAR} ./
+
+# Using CMD so it can be overwritten from outside
+CMD native-image --verbose -H:CompilerBackend=llvm \
+    -J-XX:-TieredCompilation -Dgraal.LoopPeeling=false \
+    -H:Features=org.graalvm.home.HomeFinderFeature --features=org.graalvm.home.HomeFinderFeature \
+    -H:CCompilerOption=-O0 -H:Optimize=0 \
+    -H:LLVMMaxFunctionsPerBatch=1 -H:+SpawnIsolates \
+    -H:Log=InvokeCC -H:TempDirectory=./ -jar ${ENV_E2_JAR}

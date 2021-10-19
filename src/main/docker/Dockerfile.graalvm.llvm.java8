@@ -1,0 +1,52 @@
+# mvn clean package -P java8native,docker-native-llvm
+#
+# Writing output into Host file system with Docker Volumes:
+#   On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
+#       set Folder Path: C:\MyProjects\Eclipse
+#       set Name: Eclipse
+#       set Auto-mount: true
+#       set Mount point: c
+#     docker container run -it --rm -v /Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#	On Windows Docker Desktop use:
+#     docker container run -it --rm -v c:/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#   On Linux (WSL) use:
+#     docker container run -it --rm -v /mnt/c/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#
+# If you want to run the container by overriding the entrypoint and just see what's in it then use:
+#   docker container run -it --rm --name e2solver --entrypoint=/bin/bash fabri1983dockerid/e2solver:dev
+#
+# Copying output into Host file system from Docker container using cp command:
+#   docker container run -it --name e2solver fabri1983dockerid/e2solver:dev
+#   docker container cp e2solver:/app target
+#   docker container rm e2solver
+#
+# See https://github.com/oracle/graal/blob/master/substratevm/LLVM-BACKEND.md
+# See https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/llvm/
+######################################################################################################
+FROM ghcr.io/graalvm/graalvm-ce:java8-21.2.0-b1
+
+ARG E2_JAR
+
+ENV ENV_E2_JAR=${E2_JAR}
+
+RUN apt-get update \
+ && apt-get install -y wget gcc libz-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN gu install native-image llvm-toolchain \
+ && lli --print-toolchain-path \
+ && export LLVM_TOOLCHAIN=$(lli --print-toolchain-path) \
+ && export PATH=${LLVM_TOOLCHAIN}:$PATH \
+ && mkdir -p /app
+
+WORKDIR /app
+
+COPY ${ENV_E2_JAR} ./
+
+# Using CMD so it can be overwritten from outside
+CMD native-image --verbose -H:CompilerBackend=llvm \
+    -J-XX:-TieredCompilation -Dgraal.LoopPeeling=false \
+    -H:Features=org.graalvm.home.HomeFinderFeature --features=org.graalvm.home.HomeFinderFeature \
+    -H:CCompilerOption=-O0 -H:Optimize=0 \
+    -H:LLVMMaxFunctionsPerBatch=1 -H:+SpawnIsolates \
+    -H:Log=InvokeCC -H:TempDirectory=./ -jar ${ENV_E2_JAR}

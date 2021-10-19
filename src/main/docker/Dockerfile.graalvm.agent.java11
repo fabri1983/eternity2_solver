@@ -1,17 +1,26 @@
+# mvn clean package -P java11native,docker-native-agent
+#
 # This dockerfile intended to run the eternity2 solver under GraalVM with an agentlib to 
 # produce native image configuration files for later usage on a native image build.
 # Produced json files must be located at src/main/resources/META-INF/native-image/org.fabri1983.eternity2 folder in your project. 
 
-# On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
-#     set Folder Path: C:\MyProjects\Eclipse
-#     set Name: Eclipse
-#     set Auto-mount: true
-#     set Mount point: c
-#   docker container run -it --rm -m 1200m -v /Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+# Writing output into Host file system with Docker Volumes:
+#   On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
+#       set Folder Path: C:\MyProjects\Eclipse
+#       set Name: Eclipse
+#       set Auto-mount: true
+#       set Mount point: c
+#     docker container run -it --rm -v /Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#	On Windows Docker Desktop use:
+#     docker container run -it --rm -v c:/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#   On Linux (WSL) use:
+#     docker container run -it --rm -v /mnt/c/MyProjects/Eclipse/eternity2_solver/target/:/app/ --name e2solver fabri1983dockerid/e2solver:dev
+#
 # Enter into a running container:
 #   docker container exec -it e2solver
 ######################################################################################################
-FROM oracle/graalvm-ce:20.2.0-java11
+FROM ghcr.io/graalvm/graalvm-ce:java11-21.2.0-b1
+
 ARG E2_JAR
 
 ENV ENV_E2_JAR=${E2_JAR}
