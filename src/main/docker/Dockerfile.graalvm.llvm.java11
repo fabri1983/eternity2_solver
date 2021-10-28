@@ -23,7 +23,7 @@
 # See https://github.com/oracle/graal/blob/master/substratevm/LLVM-BACKEND.md
 # See https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/llvm/
 ######################################################################################################
-FROM ghcr.io/graalvm/graalvm-ce:java11-21.2.0-b1
+FROM findepi/graalvm:21.3.0-java11-native
 
 ARG E2_JAR
 

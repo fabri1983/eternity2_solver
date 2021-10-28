@@ -31,12 +31,20 @@ Timings
 -------
 - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. Adoptium OpenJDK 11.0.6+10 (compiled and executed). Results:
 Solver with 8 threads:
-	5 >>> 1338 ms, cursor 211
+	3 >>> 1338 ms, cursor 211
 	84.27 million pieces/sec
 - Environment: Windows 10 Pro, AMD Ryzen 9 5950X (4.9 GHz max per core), DDR4 3600MHz CL18. Adoptium OpenkJDK 11.0.12+7 (compiled and executed). Results:
 Solver with 8 threads:
 	1 >>> 464 ms, cursor 211
 	393,289,720 pieces/sec
+- Environment: Windows 10 Pro, AMD Ryzen 9 5950X (4.9 GHz max per core), DDR4 3600MHz CL18. Adoptium OpenkJDK 17.0.1+12 (compiled and executed). Results:
+Solver with 8 threads:
+	3 >>> 358 ms, cursor 211
+	346,477,102
+- Environment: Windows 10 Pro, AMD Ryzen 9 5950X (4.9 GHz max per core), DDR4 3600MHz CL18. Native Image by GraalVM 21.3 Java 17. Results:
+Solver with 8 threads:
+	3 >>> 419 ms, cursor 211
+	271,053,514 pieces/sec
 
 Obviously there are operations performed by the JVM and/or the underlying SO which interfere with the execution code.
 

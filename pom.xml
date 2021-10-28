@@ -19,7 +19,7 @@
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
 		<roaring.bitmap.version>0.8.12</roaring.bitmap.version>
 		<mpje.version>0.44</mpje.version>
-		<teavm.version>0.7.0-dev-1197</teavm.version>
+		<teavm.version>0.7.0-dev-1199</teavm.version> <!-- See last dev version at https://github.com/konsoletyper/teavm -->
 		<jmh.version>1.21</jmh.version>
 		<javaewah.version>1.1.7</javaewah.version>
 		<junit.version>4.13.2</junit.version>
@@ -127,11 +127,11 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>mpje16</id>
+			<id>mpje17</id>
 			<properties>
 				<final.jar.name>e2solver_mpje</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
-				<maven.compiler.target>16</maven.compiler.target>
+				<maven.compiler.target>17</maven.compiler.target>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<shade.exclusion.filter.3>dummy/package/name</shade.exclusion.filter.3>
@@ -202,12 +202,12 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>java16</id>
+			<id>java17</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
-				<maven.compiler.target>16</maven.compiler.target>
-				<maven.compiler.release>16</maven.compiler.release>
+				<maven.compiler.target>17</maven.compiler.target>
+				<maven.compiler.release>17</maven.compiler.release>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
@@ -217,12 +217,12 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>java16native</id>
+			<id>java17native</id>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
-				<maven.compiler.target>16</maven.compiler.target>
-				<maven.compiler.release>16</maven.compiler.release>
+				<maven.compiler.target>17</maven.compiler.target>
+				<maven.compiler.release>17</maven.compiler.release>
 				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
@@ -265,9 +265,18 @@
 			<build>
 				<plugins>
 					<plugin>
+						<!-- See http://teavm.org/docs/tooling/maven.html -->
 						<groupId>org.teavm</groupId>
 						<artifactId>teavm-maven-plugin</artifactId>
 						<version>${teavm.version}</version>
+						<dependencies>
+							<!-- This dependency is required by TeaVM to emulate subset of Java class library -->
+							<dependency>
+								<groupId>org.teavm</groupId>
+								<artifactId>teavm-classlib</artifactId>
+								<version>${teavm.version}</version>
+							</dependency>
+						</dependencies>
 						<executions>
 							<execution>
 								<id>c-target</id>
@@ -414,7 +423,7 @@
 				<configuration>
 					<compilerArgs>
 						<arg>-O</arg>
-                        <arg>-g:none</arg> <!-- skip generation of debugging information -->
+
 					</compilerArgs>
 				</configuration>
 			</plugin>
@@ -472,6 +481,10 @@
 									<sourceFile>${project.basedir}/src/main/docker/docker-build${script.extension}</sourceFile>
 									<destinationFile>${project.build.directory}/docker-build${script.extension}</destinationFile>
 								</fileSet>
+								<fileSet>
+									<sourceFile>${project.basedir}/src/main/docker/llvm_setup.sh</sourceFile>
+									<destinationFile>${project.build.directory}/llvm_setup.sh</destinationFile>
+								</fileSet>
 							</fileSets>
 						</configuration>
 					</execution>
@@ -496,7 +509,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.3.1-SNAPSHOT</version> <!-- supports Java 16 (needs plugin repository configuration) -->
+				<version>3.3.1-SNAPSHOT</version> <!-- supports Java 16+ (needs plugin repository configuration for accessing snapshots) -->
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -523,7 +536,7 @@
 			<plugin>
 				<groupId>com.github.wvengen</groupId>
 				<artifactId>proguard-maven-plugin</artifactId>
-				<version>2.4.0</version>
+				<version>2.5.1</version>
 				<executions>
 					<execution>
 						<id>process-classes-with-proguard</id>
@@ -535,7 +548,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard.build}</skip>
-					<proguardVersion>7.1.1</proguardVersion> <!-- 6.3.0 or 7.1.1 -->
+					<proguardVersion>8.0.1</proguardVersion> <!-- 6.3.0 or 8.0.1 -->
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
 					<inFilter>${pg.injar.filter}</inFilter>
@@ -556,13 +569,13 @@
 					<dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-base</artifactId>
-						<version>7.1.1</version>
+						<version>7.2.0-beta2</version>
 						<scope>runtime</scope>
 			        </dependency>
 			        <dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-core</artifactId>
-						<version>7.1.1</version>
+						<version>8.0.1</version>
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>

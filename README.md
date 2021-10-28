@@ -358,7 +358,7 @@ exit
 
 Build a GraalVM on Windows and run your jar
 -------------------------------------------
-We are going to build Graal VM for Windows platform from source: **GraalVM 20.3**.
+We are going to build Graal VM for Windows platform from source: **GraalVM 21.3**.
 - Download Open JDK 11: https://adoptopenjdk.net/releases.html?variant=openjdk11#x64_win.
 - Or you can download Oracle JDK 11 from http://jdk.java.net/11/ (build 20 or later). This build has support for JVMCI (JVM Compiler Interface) which Graal depends on. 
 - Environment variables will be set later with specific scripts.
@@ -404,9 +404,9 @@ We are going to build Graal VM for Windows platform from source: **GraalVM 20.3*
 	```
 	- build the Graal VM
 	```sh
-	SET JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b03
+	SET JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b04
 	or
-	SET JAVA_HOME=c:\java\labsjdk-ce-11.0.12-5-jvmci-21.3-b03
+	SET JAVA_HOME=c:\java\labsjdk-ce-11.0.13-7-jvmci-21.3-b04
 	cd vm
 	git config core.protectNTFS false
 	mx --no-sources --disable-polyglot --disable-libpolyglot --skip-libraries=true --disable-installables=true ^
@@ -472,16 +472,16 @@ Now we’re going to use the Graal that we just built as our JIT-compiler in our
 
 Build a native image using GraalVM's Native Image on Windows
 ------------------------------------------------------------
-We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 21.2 so far**.
+We are going to generate a native image to run our solver. No UI supported by the moment. **Only upto GraalVM EE 21.3 so far**.
 - Install an Open JDK 1.8/11 (which already has support for JVMCI) or Windows GraalVM Early Adopter based on JDK 1.8/11 (with support for JVMCI):
 	- https://github.com/graalvm/openjdk8-jvmci-builder/releases
 	- https://github.com/graalvm/labs-openjdk-11/releases
 - Install GraalVM EE either Java8 or java 11 version:
 	- https://www.oracle.com/downloads/graalvm-downloads.html   <-- (choose either java8 or java11 versions, both EE)
 	- Also download the Oracle GraalVM Enterprise Edition Native Image Early Adopter:
-		- native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar
+		- native-image-installable-svm-svmee-java8-windows-amd64-21.3.0.jar
 		or
-		- native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
+		- native-image-installable-svm-svmee-java11-windows-amd64-21.3.0.jar
 - Install Python 2.7:
 	- https://www.python.org/download/releases/2.7/
 	- DO NOT select Add To System Path. You will manually add it later on.
@@ -511,7 +511,7 @@ This will help you to decide which iso you need to download:
 	  For Java11 targets:
 		open the x64 Native Tools Command Prompt for VS 2017 going to Start -> Programs -> Visual Studio 2017 -> Visual Studio Tools -> VC.
 		(or open a cmd console and run: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall" x64)
-	SET JAVA_HOME=C:\java\graalvm-ee-java8-21.2.0.1  or C:\java\graalvm-ee-java11-21.2.0.1
+	SET JAVA_HOME=C:\java\graalvm-ee-java8-21.3.0  or C:\java\graalvm-ee-java11-21.3.0
 	cd substratevm
 	git config core.protectNTFS false
 	mx --disable-polyglot --disable-libpolyglot --disable-installables=true --skip-libraries=true build /substratevm
@@ -537,8 +537,8 @@ This will help you to decide which iso you need to download:
 	```
 	- If not using `mx`, then you have to install the previously downloaded `native-image` tool manually:
 	```sh
-	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.2.0.1  or  c:\java\graalvm-ee-java11-21.2.0.1
-	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
+	SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.3.0  or  c:\java\graalvm-ee-java11-21.3.0
+	%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.3.0.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.3.0.jar
 	```
 	- There is also a possible optimization feature named Profile Guided Optimization:
 	```sh
@@ -572,11 +572,11 @@ Using GraalVM's Agent Lib to get native image resources and configurations
 --------------------------------------------------------------------------
 **This process produces configurations already set in native-image.properties**
 ```sh
-SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.2.0.1  or  c:\java\graalvm-ee-java11-21.2.0.1
-%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.2.0.1.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.2.0.1.jar
+SET GRAALVM_HOME=c:\java\graalvm-ee-java8-21.3.0 or  c:\java\graalvm-ee-java11-21.3.0
+%GRAALVM_HOME%\lib\installer\bin\gu -L install native-image-installable-svm-svmee-java8-windows-amd64-21.3.0.jar  or  native-image-installable-svm-svmee-java11-windows-amd64-21.3.0.jar
 set JAVA_HOME=<any JDK 8 or 11 with JVMCI support, except the GraalVM one>
-	Eg: set JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b03
-	Eg: set JAVA_HOME=c:\java\labsjdk-ce-11.0.12-5-jvmci-21.3-b03
+	Eg: set JAVA_HOME=c:\java\openjdk-1.8.0_302-jvmci-21.3-b04
+	Eg: set JAVA_HOME=c:\java\labsjdk-ce-11.0.13-7-jvmci-21.3-b04
 Update PATH env variable with %JAVA_HOME%\bin
 ```
 **WIP**: need to setup a flag to finish the program after few seconds, so the agent writes down the output files. Otherwise I'm adding `System.exit(0)` when max cycles is reached. 

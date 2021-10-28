@@ -1,4 +1,4 @@
-# mvn clean package -P java16native,docker-native-llvm
+# mvn clean package -P java17native,docker-native-llvm
 #
 # Writing output into Host file system with Docker Volumes:
 #   On Windows Docker Toolbox open Virtual Box machine Settings -> Shared Folder -> 
@@ -23,26 +23,28 @@
 # See https://github.com/oracle/graal/blob/master/substratevm/LLVM-BACKEND.md
 # See https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/llvm/
 ######################################################################################################
-FROM findepi/graalvm:21.2.0-java16-native
+FROM findepi/graalvm:21.3.0-java17-native
 
 ARG E2_JAR
 
 ENV ENV_E2_JAR=${E2_JAR}
+ENV LLVM_VERSION=12
 
-# Install LLVM 10 (from Debian Buster) or 11 (from Debian Bullseye). However for an unknown reason using Buster it installs LLVM 11.
-# Next setup is valid for LLVM 10/11 needed by JuliaComputingOSS build process.
-RUN export LLVM_VERSION=10 \
- && export REPO_NAME_BUSTER="deb http://apt.llvm.org/buster/ llvm-toolchain-buster-$LLVM_VERSION main" \
- && apt-get update \
+COPY llvm_setup.sh ./
+
+# It only finds all apackages and dependencies for version 12 
+RUN apt-get update \
  && apt-get install -y wget software-properties-common gnupg2 \
- && wget https://apt.llvm.org/llvm-snapshot.gpg.key \
- && apt-key add llvm-snapshot.gpg.key \
- && add-apt-repository -y "${REPO_NAME_BUSTER}" && apt-get update \
- && apt-get install -y llvm-dev clang-tools clang clangd cmake \
- && rm -rf /var/lib/apt/lists/*
- && clangd --version && which clang-11 && clang --version \
+ && chmod +x llvm_setup.sh && ./llvm_setup.sh $LLVM_VERSION \
+ && rm -rf /var/lib/apt/lists/* \
+ && clangd-$LLVM_VERSION --version && which clang-$LLVM_VERSION && clang-$LLVM_VERSION --version
+
+RUN apt-get update \
+ && apt-get install -y cmake git \
+ && export CMAKE_C_COMPILER=clang-$LLVM_VERSION \
+ && export CMAKE_CXX_COMPILER=clang++-$LLVM_VERSION \
  && cd $HOME && git clone https://github.com/JuliaComputing/llvm-cbe \
- && cd llvm-cbe && mkdir build && cd build && cmake -S .. && make llvm-cbe && ls -la ./bin/llvm-cbe
+ && cd llvm-cbe && mkdir build && cd build && cmake -S .. && make llvm-cbe && ls -la .
 
 RUN apt-get update \
  && apt-get install -y wget gcc libz-dev \

@@ -1,7 +1,7 @@
 # mvn clean package -P java8native,proguard,docker
 
 ######################################################################################################
-FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u292-b10
+FROM adoptopenjdk/openjdk8:x86_64-alpine-jre8u302-b08
 ARG E2_JAR
 
 # JAVA_HOME needs to be set:
