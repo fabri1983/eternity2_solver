@@ -28,6 +28,24 @@ FROM findepi/graalvm:21.3.0-java11-native
 ARG E2_JAR
 
 ENV ENV_E2_JAR=${E2_JAR}
+ENV LLVM_VERSION=12
+
+COPY llvm_setup.sh ./
+
+# It only finds all apackages and dependencies for version 12 
+RUN apt-get update \
+ && apt-get install -y wget software-properties-common gnupg2 \
+ && chmod +x llvm_setup.sh && ./llvm_setup.sh $LLVM_VERSION \
+ && rm -rf /var/lib/apt/lists/* \
+ && clangd-$LLVM_VERSION --version && which clang-$LLVM_VERSION && clang-$LLVM_VERSION --version 
+
+RUN apt-get update \
+ && apt-get install -y cmake git \
+ && export CMAKE_C_COMPILER=clang-$LLVM_VERSION \
+ && export CMAKE_CXX_COMPILER=clang++-$LLVM_VERSION \
+ && cd $HOME && git clone https://github.com/JuliaComputing/llvm-cbe \
+ && cd llvm-cbe && mkdir build && cd build && cmake -S .. && make llvm-cbe \ 
+ && ls -la $HOME/llvm-cbe/build/tools/llvm-cbe
 
 RUN apt-get update \
  && apt-get install -y wget gcc libz-dev \
@@ -37,8 +55,9 @@ RUN gu install native-image llvm-toolchain \
  && lli --print-toolchain-path \
  && export LLVM_TOOLCHAIN=$(lli --print-toolchain-path) \
  && export PATH=${LLVM_TOOLCHAIN}:$PATH \
+ && lli --version \
  && mkdir -p /app
-    
+
 WORKDIR /app
 
 COPY ${ENV_E2_JAR} ./
@@ -49,4 +68,6 @@ CMD native-image --verbose -H:CompilerBackend=llvm \
     -H:Features=org.graalvm.home.HomeFinderFeature --features=org.graalvm.home.HomeFinderFeature \
     -H:CCompilerOption=-O0 -H:Optimize=0 \
     -H:LLVMMaxFunctionsPerBatch=1 -H:+SpawnIsolates \
-    -H:Log=InvokeCC -H:TempDirectory=./ -jar ${ENV_E2_JAR}
+    -H:Log=InvokeCC -H:TempDirectory=./ -jar ${ENV_E2_JAR} \
+  ; ln -s $HOME/llvm-cbe/build/tools/llvm-cbe/llvm-cbe /usr/bin/llc \
+  ; ln -s $(which clang-$LLVM_VERSION) /usr/bin/clang
