@@ -99,7 +99,7 @@ public class PerfectHashFunction {
 		// I decided to use >>> to always avoid carrying out the sign.
 
 		int b = val & 0x7ff; // 0x7ff = 2047 => & 0x7ff is the fastest way of doing % 0x800 (PHASHLEN 2048)
-		int a = val >>> 6; // it was: (val << 12 ) >>> 18
+		int a = (val << 12 ) >>> 18;
 		int rsl = (a ^ tab[b]);
 		return rsl; // from 0 up to PHASHRANGE - 1
 	}

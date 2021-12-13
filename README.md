@@ -276,7 +276,7 @@ It produces C files with the final hash function. **This is the solution I'm usi
 This tool generates a **Minimal Perfect Hash** function for the 6862 used entries (in base 10) of the `super_matriz[24][24][24][24]`, 
 which is a structure to rapidly access candidate pieces, with a total size of 331776‬ indexes.  
 Using the **Minimal Perfect Hash function** produced by the algorithm there is a **save up to 43.3% of space** keeping 
-the lookup time O(1) (but still slower than a direct array access).
+the lookup time O(k) but still slower than a direct array access.
 
 **Let's use MinGW in Windows to compile the project and produce the C files**
 - Download MinGW from http://www.mingw.org/.

@@ -17,11 +17,11 @@
 		<dockerfile.selector>simple</dockerfile.selector> <!-- modified only in related docker profiles -->
 		<source.dir>${project.basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
-		<roaring.bitmap.version>0.8.12</roaring.bitmap.version>
+		<roaring.bitmap.version>0.9.15</roaring.bitmap.version>
 		<mpje.version>0.44</mpje.version>
 		<teavm.version>0.7.0-dev-1199</teavm.version> <!-- See last dev version at https://github.com/konsoletyper/teavm -->
 		<jmh.version>1.21</jmh.version>
-		<javaewah.version>1.1.7</javaewah.version>
+		<javaewah.version>1.1.13</javaewah.version>
 		<junit.version>4.13.2</junit.version>
 	</properties>
 

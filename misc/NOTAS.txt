@@ -117,7 +117,7 @@ New Reduction method:
 	https://www.nayuki.io/page/barrett-reduction-algorithm
 
 - Usar java.nio buffers puede agilizar el acceso. No sé a partir de que version de JVM.
-We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays (http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/).
+We need to use direct NIO buffers instead of arrays, but HotSpot can access direct NIO buffers as fast as arrays. See http://blog.vlad1.com/2011/10/05/looking-at-java-nio-buffer-performance/
 De donde saqué la idea: http://stackoverflow.com/questions/10784951/do-any-jvms-jit-compilers-generate-code-that-uses-vectorized-floating-point-ins
 Example: http://www.java-gaming.org/index.php?PHPSESSID=2ftumjcjo00el2q4vs28louqj5&topic=12346.msg98913#msg98913
 
