@@ -1,4 +1,4 @@
-# mvn clean package -P java16native,docker-native-agent
+# mvn clean package -P java17native,docker-native-agent
 #
 # This dockerfile intended to run the eternity2 solver under GraalVM with an agentlib to 
 # produce native image configuration files for later usage on a native image build.
@@ -19,7 +19,12 @@
 # Enter into a running container:
 #   docker container exec -it e2solver
 ######################################################################################################
-FROM findepi/graalvm:21.2.0-java16-native
+# Enterprise version: FROM container-registry.oracle.com/graalvm/native-image-ee:java17-21.3.0
+#   You need to log before creating the image: docker login container-registry.oracle.com
+#   You need to accept license on desired repositories from https://container-registry.oracle.com/
+# Community version: see https://github.com/graalvm/container/tree/master/community
+# Custom (community): FROM findepi/graalvm:21.3.0-java17-native
+FROM container-registry.oracle.com/graalvm/native-image-ee:java17-21.3.0
 
 ARG E2_JAR
 

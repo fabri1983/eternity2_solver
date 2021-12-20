@@ -29,7 +29,7 @@
 FROM ubuntu:bionic
 
 ARG E2_JAR
-ARG JVMCI_URL=https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-21.3-b03/labsjdk-ce-11.0.12+5-jvmci-21.3-b03-linux-amd64.tar.gz
+ARG JVMCI_URL=https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-21.3-b04/labsjdk-ce-11.0.13+7-jvmci-21.3-b04-linux-amd64.tar.gz
 ARG GRAALVM_BRANCH=release/graal-vm/21.3
 
 ENV ENV_E2_JAR=${E2_JAR}

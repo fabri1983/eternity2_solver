@@ -29,7 +29,7 @@ import org.fabri1983.eternity2.core.Pieza;
  * It uses a pre calculated Perfect Hash Function with an array of size PerfectHashFunction2.PHASHRANGE.
  */
 public class HashFunctionStrategy implements NeighborStrategy {
-	
+
 	@Override
 	public void addNeighbor(byte top, byte right, byte bottom, byte left, Pieza p) {
 		// TODO Auto-generated method stub

@@ -82,7 +82,7 @@ public class PerfectHashFunction2 {
 		 *  val << 8   This exceeds 31 bits for some values of val, and I suspect is down casted to int losing higher 32+ bits (if no later on).
 		 *  val += ... This sum and assignment exceeds 31 bits as per before, and might be down casted twice: first at sum result and then at assignment step.
 		 * 
-		 * However this behavior works fine and produces correct results.
+		 * HOWEVER this behavior works fine and produces correct results.
 		 */
 		val += (val << 8);
 		

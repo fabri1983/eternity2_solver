@@ -19,7 +19,12 @@
 # Enter into a running container:
 #   docker container exec -it e2solver
 ######################################################################################################
-FROM ghcr.io/graalvm/graalvm-ce:java11-21.2.0-b1
+# Enterprise version: FROM container-registry.oracle.com/graalvm/native-image-ee:java11-21.3.0
+#   You need to log before creating the image: docker login container-registry.oracle.com
+#   You need to accept license on desired repositories from https://container-registry.oracle.com/
+# Community version: see https://github.com/graalvm/container/tree/master/community
+# Custom (community): FROM findepi/graalvm:21.3.0-java11-native
+FROM container-registry.oracle.com/graalvm/native-image-ee:java11-21.3.0
 
 ARG E2_JAR
 

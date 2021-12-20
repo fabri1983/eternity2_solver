@@ -1,4 +1,4 @@
-# mvn clean package -P java16native,docker-native-llvm-build
+# mvn clean package -P java17native,docker-native-llvm-build
 #
 # NOTE: If using Windows Docker Toolbox you need to increase partition size of boot2docker virtual disk upto 13 GB (13312 MB).
 # Follow this procedure: https://gist.github.com/joost/a7cfa7b741d9d39c1307
@@ -29,7 +29,7 @@
 FROM ubuntu:bionic
 
 ARG E2_JAR
-ARG JVMCI_URL=https://github.com/graalvm/labs-openjdk-16/releases/download/jvmci-21.2-b05/labsjdk-ce-16.0.2+7-jvmci-21.2-b05-linux-amd64.tar.gz
+ARG JVMCI_URL=https://github.com/graalvm/labs-openjdk-17/releases/download/jvmci-21.3-b04/labsjdk-ce-17+35-jvmci-21.3-b04-linux-amd64.tar.gz
 ARG GRAALVM_BRANCH=release/graal-vm/21.2
 
 ENV ENV_E2_JAR=${E2_JAR}

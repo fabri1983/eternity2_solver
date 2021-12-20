@@ -1,7 +1,7 @@
 # mvn clean package -P java11native,proguard,docker
 
 ######################################################################################################
-FROM adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.11_9 AS STAGING-JRE-MINI
+FROM adoptopenjdk/openjdk11:x86_64-alpine-jre-11.0.12_7 AS STAGING-JRE-MINI
 
 # At this point JAVA_HOME refers to:
 #   adoptopenjdk: /opt/java/openjdk
