@@ -40,21 +40,21 @@
 			<artifactId>mpi</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpi.jar</systemPath>
+			<systemPath>${external.libs.dir}/mpje/lib/mpi.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpiExp</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpiExp.jar</systemPath>
+			<systemPath>${external.libs.dir}/mpje/lib/mpiExp.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpj</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpj.jar</systemPath>
+			<systemPath>${external.libs.dir}/mpje/lib/mpj.jar</systemPath>
 		</dependency>
 		<!-- TeaVM -->
 		<dependency>
