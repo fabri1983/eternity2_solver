@@ -17,6 +17,7 @@
 		<dockerfile.selector>simple</dockerfile.selector> <!-- modified only in related docker profiles -->
 		<source.dir>${project.basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
 		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
+		<proguard.wvengen.version>2.5.2</proguard.wvengen.version>
 		<roaring.bitmap.version>0.9.15</roaring.bitmap.version>
 		<mpje.version>0.44</mpje.version>
 		<teavm.version>0.7.0-dev-1199</teavm.version> <!-- See last dev version at https://github.com/konsoletyper/teavm -->
@@ -39,21 +40,21 @@
 			<artifactId>mpi</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpje/lib/mpi.jar</systemPath>
+			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpi.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpiExp</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpje/lib/mpiExp.jar</systemPath>
+			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpiExp.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>mpje</groupId>
 			<artifactId>mpj</artifactId>
 			<version>${mpje.version}</version>
 			<scope>system</scope>
-			<systemPath>${external.libs.dir}/mpje/lib/mpj.jar</systemPath>
+			<systemPath>C:\MyProjects\Eclipse\eternity2_solver/external-libs/mpje/lib/mpj.jar</systemPath>
 		</dependency>
 		<!-- TeaVM -->
 		<dependency>
@@ -536,7 +537,7 @@
 			<plugin>
 				<groupId>com.github.wvengen</groupId>
 				<artifactId>proguard-maven-plugin</artifactId>
-				<version>2.5.1</version>
+				<version>${proguard.wvengen.version}</version>
 				<executions>
 					<execution>
 						<id>process-classes-with-proguard</id>
@@ -548,7 +549,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard.build}</skip>
-					<proguardVersion>8.0.1</proguardVersion> <!-- 6.3.0 or 8.0.1 -->
+					<proguardVersion>8.0.3</proguardVersion> <!-- 6.3.0 or 8.0.3 -->
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
 					<inFilter>${pg.injar.filter}</inFilter>
@@ -569,13 +570,13 @@
 					<dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-base</artifactId>
-						<version>7.2.0-beta2</version>
+						<version>7.2.0-beta4</version>
 						<scope>runtime</scope>
 			        </dependency>
 			        <dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-core</artifactId>
-						<version>8.0.1</version>
+						<version>8.0.3</version>
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>
