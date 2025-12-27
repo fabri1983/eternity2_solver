@@ -16,13 +16,13 @@
 		<skip.docker.build>true</skip.docker.build> <!-- modified only under related docker profiles -->
 		<dockerfile.selector>simple</dockerfile.selector> <!-- modified only in related docker profiles -->
 		<source.dir>${project.basedir}/src/main/java</source.dir> <!-- overridden by source processor (if any) -->
-		<external.libs.dir>${project.basedir}/external-libs</external.libs.dir>
-		<proguard.wvengen.version>2.5.2</proguard.wvengen.version>
-		<roaring.bitmap.version>0.9.15</roaring.bitmap.version>
+		<external.libs.dir>C:\MyProjects\Eclipse\eternity2_solver/external-libs</external.libs.dir>
+		<proguard.wvengen.version>2.7.0</proguard.wvengen.version>
+		<roaring.bitmap.version>1.3.0</roaring.bitmap.version>
 		<mpje.version>0.44</mpje.version>
-		<teavm.version>0.7.0-dev-1199</teavm.version> <!-- See last dev version at https://github.com/konsoletyper/teavm -->
-		<jmh.version>1.21</jmh.version>
-		<javaewah.version>1.1.13</javaewah.version>
+		<teavm.version>0.13.0-dev-12</teavm.version> <!-- See last dev version at https://github.com/konsoletyper/teavm -->
+		<jmh.version>1.37</jmh.version>
+		<javaewah.version>1.2.3</javaewah.version>
 		<junit.version>4.13.2</junit.version>
 	</properties>
 
@@ -142,10 +142,21 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>mpje21</id>
+			<properties>
+				<final.jar.name>e2solver_mpje</final.jar.name>
+				<maven.compiler.source>8</maven.compiler.source>
+				<maven.compiler.target>21</maven.compiler.target>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>dummy/package/name</shade.exclusion.filter.3>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.mpje.MainFasterMPJE</manifest.main.class>
+				<env.props.file>mpje.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<id>java8</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
@@ -204,6 +215,9 @@
 		</profile>
 		<profile>
 			<id>java17</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
 				<final.jar.name>e2solver</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
@@ -233,12 +247,42 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>java21</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<maven.compiler.source>8</maven.compiler.source>
+				<maven.compiler.target>21</maven.compiler.target>
+				<maven.compiler.release>21</maven.compiler.release>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>dummy/package/name</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
+				<pg.injar.filter></pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.faster.MainFaster</manifest.main.class>
+				<env.props.file>threads.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
+			<id>java21native</id>
+			<properties>
+				<final.jar.name>e2solver</final.jar.name>
+				<maven.compiler.source>8</maven.compiler.source>
+				<maven.compiler.target>21</maven.compiler.target>
+				<maven.compiler.release>21</maven.compiler.release>
+				<shade.exclusion.filter.1>org/fabri1983/eternity2/faster/benchmark/**</shade.exclusion.filter.1>
+				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
+				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
+				<pg.injar.filter>!imgs/**</pg.injar.filter>
+				<manifest.main.class>org.fabri1983.eternity2.faster.MainFasterNative</manifest.main.class>
+				<env.props.file>threads.properties</env.props.file>
+			</properties>
+		</profile>
+		<profile>
 			<id>benchmark</id>
 			<properties>
 				<final.jar.name>e2solver_benchmark</final.jar.name>
 				<maven.compiler.source>8</maven.compiler.source>
-				<maven.compiler.target>11</maven.compiler.target>
-				<maven.compiler.release>11</maven.compiler.release>
+				<maven.compiler.target>17</maven.compiler.target>
+				<maven.compiler.release>17</maven.compiler.release>
 				<shade.exclusion.filter.1>dummy/package/name</shade.exclusion.filter.1>
 				<shade.exclusion.filter.2>org/fabri1983/eternity2/ui/**</shade.exclusion.filter.2>
 				<shade.exclusion.filter.3>org/fabri1983/eternity2/mpje/**</shade.exclusion.filter.3>
@@ -366,6 +410,16 @@
 		</repository>
 		<!-- allows SNAPSHOT plugins -->
 		<repository>
+			<id>sonatype-oss-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>maven-snapshots</id>
 			<name>Maven Plugin Repository</name>
         	<url>https://repository.apache.org/content/repositories/snapshots/</url>
@@ -388,6 +442,16 @@
 			</snapshots>
 		</pluginRepository>
 		<!-- allows SNAPSHOT plugins -->
+		<pluginRepository>
+			<id>sonatype-oss-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
 		<pluginRepository>
 			<id>maven-snapshots</id>
 			<name>Maven Plugin Repository</name>
@@ -420,23 +484,23 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
+				<version>3.14.1</version>
 				<configuration>
+				    <release>${maven.compiler.release}</release>
 					<compilerArgs>
 						<arg>-O</arg>
-
 					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M5</version>
+				<version>3.5.4</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.5.0</version>
 				<executions>
 					<execution>
 						<id>default-jar</id>
@@ -510,7 +574,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.3.1-SNAPSHOT</version> <!-- supports Java 16+ (needs plugin repository configuration for accessing snapshots) -->
+				<version>3.6.1</version> <!-- supports Java 21+ (needs plugin repository configuration for accessing SNAPSHOT if needed) -->
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -549,7 +613,7 @@
 				</executions>
 				<configuration>
 					<skip>${skip.proguard.build}</skip>
-					<proguardVersion>8.0.3</proguardVersion> <!-- 6.3.0 or 8.0.3 -->
+					<proguardVersion>7.7.0</proguardVersion> <!-- versions supported by the plugin: 6.3.0 or 8.0.3 or 7.7.0 -->
 					<proguardInclude>${basedir}/proguard.conf</proguardInclude>
 					<injar>${project.build.finalName}.jar</injar>
 					<inFilter>${pg.injar.filter}</inFilter>
@@ -570,13 +634,13 @@
 					<dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-base</artifactId>
-						<version>7.2.0-beta4</version>
+						<version>7.7.0</version>
 						<scope>runtime</scope>
 			        </dependency>
 			        <dependency>
 						<groupId>com.guardsquare</groupId>
 						<artifactId>proguard-core</artifactId>
-						<version>8.0.3</version>
+						<version>9.1.10</version>
 						<scope>runtime</scope>
 			        </dependency>
 				</dependencies>
@@ -584,7 +648,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version> <!-- using a version minor than 1.8 doesn't work correctly -->
+				<version>3.2.0</version> <!-- using a version minor than 1.8 doesn't work correctly -->
 				<executions>
 					<execution>
 						<?m2e execute onConfiguration,onIncremental?>
@@ -614,7 +678,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.6.3</version>
 				<executions>
 					<execution>
 						<id>chmod for sh script</id>

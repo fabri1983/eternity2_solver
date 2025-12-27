@@ -1,7 +1,7 @@
 eternity2_solver
 ==
 Java implementation of a backtracker solver for the Eternity II puzzle game released in August 2007.  
-Game finished in 2010 with no single person claiming the solution. Prize for any valid solution was 2 million usd.  
+Due date for a solution was 2010 with no single person claiming the solution. Prize for any valid solution was 2 million usd.  
 
 | Linux | Windows |
 | ----- | ------- |
@@ -9,8 +9,8 @@ Game finished in 2010 with no single person claiming the solution. Prize for any
 
 ![eternity solver mpje 8 threads image](misc/eternity_solver_mpje_x8.png?raw=true "eternity2 solver mpje 8 processes with UI enabled")  
 
-- The project is managed with **Maven 3.6.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
-- It provides several jar artifacts for **Java 8, 11, 17**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
+- The project is managed with **Maven 3.9.x**. If you don't want to download and install Maven then use local `mvnw` alternative.  
+- It provides several jar artifacts for **Java 8, 11, 17, 21**, and a benchmark artifact with **JMH** *(Java Microbenchmark Harness)*.  
 - Additionally, there are other maven profiles and scripting instructions to compile to a **native image using Graal's SubstrateVM**.  
 
 The backtracker efficiency is backed by:
@@ -29,7 +29,7 @@ There are two versions of the same solver:
 The placement of tiles follows a *row-scan schema* from *top-left* to *bottom-right*.  
 
 The project is under continuous development, mostly on spare time. 
-Every time I come up with an idea, improvement, or code refactor is for performance gain purpose. 
+Every time I come up with a new idea, improvement, or code refactor is mainly for performance gain purpose. 
 I'm focused on 2 main strategies:  
 - *Speed of tiles placed by second after all filtering has taken place*. A piece is consider placed in the board 
 after it passes a series of filters. Note that only pre calculated candidates are eligible for filtering. Here is 
@@ -39,8 +39,9 @@ that board positions, tiles, and filtering structures are visited always in the 
 in which CPU processing capabiliy is decoupled from game logic. Here is where micro/macro optimizations come into action.
 
 
-Some stats
-----------
+
+Stats
+-----
 - Counting correct tiles per second. A correct tile is such one that passed all filtering:
   - Environment: Windows 10 Home, Intel Core i7-2630QM (2.9 GHz max per core), DDR3 666MHz. OpenkJDK 1.8.0_242-b06 (compiled and executed). Results:
     - Approx **84.27 million correct tiles per second** running with a pool of **8 threads**.
@@ -125,15 +126,15 @@ Generate an Artifact
 
 Generate the jar artifact:  
 ```sh
-mvn clean package -P java8,proguard
+mvn clean package -P java17,proguard
 ```
-It creates a jar file with profiles **java8** and **proguard**, and copies the external dependencies under target folder.  
+It creates a jar file with profiles **java17** and **proguard**, and copies the external dependencies under target folder.  
 To disable the Proguard processing then just do not use profile Add `proguard`.  
 
 **Profiles (use -P <name>)**
-- `java8`, `java11`, `java17`: for execution with either JVM. Creates `e2solver.jar`.
-- `mpje8`, `mpje11`, `mpje17`: intended for running in cluster/multi-core environment using MPJExpress api. Creates `e2solver_mpje.jar`.
-- `java8native`, `java11native`, `java17native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
+- `java8`, `java11`, `java17`, `java21`: for execution with either JVM. Creates `e2solver.jar`.
+- `mpje8`, `mpje11`, `mpje17`, `mpje21`: intended for running in cluster/multi-core environment using MPJExpress api. Creates `e2solver_mpje.jar`.
+- `java8native`, `java11native`, `java17native`, `java21native`: only intended for Graal SubstrateVM native image generation. Creates `e2solver.jar`.
 - `proguard`: activates the processing of claases by Proguard to produce an optimized jar.
 - `docker`, `docker-native-llvm`, `docker-native-agent`, `docker-native-llvm-build`: provide different executions on Docker. See each Docker file to know more.
 - `benchmark`: generate an artifact containing JMH (Java Microbenchmarking Harness) api to benchmarking the core algorithm. Creates `e2solver_benchmark.jar`. **WIP**.
@@ -173,8 +174,8 @@ Eg:
 
 **NOTE**: if running on a Linux terminal with no X11 server then use `-Djava.awt.headless=true`.  
 
-Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, *java11*, and *java17*.  
-Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profiles *mpje8*, *mpje11* and *mpje17*.  
+Use `run.[bat|sh]` for running the `e2solver.jar` package generated with profiles *java8*, *java11*, *java17*, and *java21*.  
+Use `run_mpje_[multicore|cluster].[bat|sh]` for running the `e2solver_mpje.jar` package generated with profiles *mpje8*, *mpje11*, *mpje17*, and *mpje21*.  
 Use `run_benchmark.[bat|sh]` for running the `e2solver_benchmark.jar` package generated with profile *benchmark*.  
 
 
@@ -599,6 +600,7 @@ That way when jar is generated and then processed by `native-image` tool it will
 
 Running with Avian JVM
 ----------------------
+_OUTDATED_  
 I'm trying to improve the performance of code execution using other JVM implementations.
 Currently I'm taking a look to Avian JVM, under Windows environment.
 

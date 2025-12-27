@@ -290,7 +290,7 @@ public final class SolverFaster {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
+	//@SuppressWarnings("deprecation")
 	public final void atacarForBenchmark(long timeoutTaskInSecs) {
 		
 		Thread[] pool = createPoolAndStart();
@@ -306,7 +306,7 @@ public final class SolverFaster {
 			for (Thread t : pool) {
 				try {
 					t.interrupt();
-					t.stop(); // if thread isn't stop then its runnable task continues running
+					//t.stop(); // if thread isn't stop then its runnable task continues running
 				} catch (Exception ex) {
 				}
 			}
